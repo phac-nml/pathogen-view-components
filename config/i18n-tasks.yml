@@ -1,0 +1,30 @@
+# i18n-tasks config for Pathogen
+# https://github.com/glebm/i18n-tasks
+
+base_locale: en
+
+data:
+  read:
+    - config/locales/%{locale}.yml
+    - config/locales/*.%{locale}.yml
+    - app/components/**/*.%{locale}.yml
+
+  write:
+    - ["pathogen.*", "config/locales/%{locale}.yml"]
+    - "config/locales/%{locale}.yml"
+
+search:
+  paths:
+    - app/
+    - lib/
+
+  relative_roots:
+    - app/components
+    - app/views
+
+  relative_exclude_method_name_paths:
+    - app/components
+
+ignore_missing:
+  en:
+    - "pathogen.*"
