@@ -120,7 +120,7 @@ module Pathogen
           selected: true
         )
 
-        assert component.render_eager?
+        assert component.send(:render_eager?)
       end
 
       test 'render_eager? returns false when not selected' do
@@ -130,7 +130,7 @@ module Pathogen
           selected: false
         )
 
-        assert_not component.render_eager?
+        assert_not component.send(:render_eager?)
       end
 
       test 'eager rendering includes complex HTML content' do
