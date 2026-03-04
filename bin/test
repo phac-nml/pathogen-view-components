@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV['RAILS_ENV'] ||= 'test'
+
+ROOT = File.expand_path('..', __dir__)
+Dir.chdir(ROOT)
+BUNDLE_BIN = File.join(ROOT, 'bin/bundle')
+
+patterns = ARGV.empty? ? ['test/**/*_test.rb'] : ARGV
+
+test_files = patterns.flat_map do |pattern|
+  if File.directory?(pattern)
+    Dir.glob(File.join(pattern, '**/*_test.rb'))
+  elsif File.file?(pattern)
+    pattern
+  else
+    Dir.glob(pattern)
+  end
+end
+
+test_files = test_files
+             .uniq
+             .select { |path| path.end_with?('_test.rb') && File.file?(path) }
+             .sort
+
+abort('No test files matched.') if test_files.empty?
+
+test_files.each do |file|
+  puts "== #{file} =="
+  success = system(BUNDLE_BIN, 'exec', 'ruby', '-Itest', file)
+  abort("Test run failed: #{file}") unless success
+end

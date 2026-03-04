@@ -131,13 +131,13 @@ registerPathogenControllers(application);
 Install dependencies:
 
 ```bash
-bundle install
+bin/bundle install
 ```
 
 Run tests:
 
 ```bash
-bin/rails test
+bin/test
 ```
 
 ## Contributing
