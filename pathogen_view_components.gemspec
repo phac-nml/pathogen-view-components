@@ -9,8 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Bioinformatics, Public Health Agency of Canada']
   spec.version       = Pathogen::ViewComponents::Version::STRING
   spec.summary       = 'Pathogen View Components'
+  spec.homepage      = 'https://github.com/phac-nml/pathogen-view-components'
   spec.license       = 'MIT'
-  spec.files         = Dir['lib/**/*', 'app/**/*', 'config/**/*', 'README.md', 'LICENSE.txt']
+  spec.files         = Dir['lib/**/*', 'app/**/*', 'config/**/*', 'README.md', 'LICENSE']
   spec.require_paths = ['lib']
   spec.required_ruby_version = Gem::Requirement.new('>= 3.3.0')
   spec.add_dependency 'actionview', '>= 5.0.0'
@@ -19,4 +20,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rails_icons', '>= 1.4.0'
   spec.add_dependency 'view_component', ['>= 4.0', '< 5.0']
   spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.metadata['source_code_uri'] = 'https://github.com/phac-nml/pathogen-view-components'
+  spec.metadata['homepage_uri'] = spec.homepage
 end

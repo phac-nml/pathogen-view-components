@@ -14,8 +14,10 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 ## Requirements
 
+For developing this repository:
+
 - Ruby **3.3+**
-- Rails **5.0+**
+- Rails **8.1+**
 - `view_component` **>= 4.0, < 5.0**
 - `rails_icons` **>= 1.4.0**
 
