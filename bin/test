@@ -26,8 +26,16 @@ test_files = test_files
 
 abort('No test files matched.') if test_files.empty?
 
-test_files.each do |file|
-  puts "== #{file} =="
-  success = system(BUNDLE_BIN, 'exec', 'ruby', '-Itest', file)
-  abort("Test run failed: #{file}") unless success
-end
+puts "Running #{test_files.count} test file(s) in a single Ruby process"
+
+# Load all test files in a single process to avoid per-file boot overhead.
+success = system(
+  BUNDLE_BIN,
+  'exec',
+  'ruby',
+  '-Itest',
+  '-e',
+  'ARGV.each { |file| require File.expand_path(file) }',
+  *test_files
+)
+abort('Test run failed.') unless success

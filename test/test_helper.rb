@@ -29,9 +29,3 @@ PathogenTestApplication.config.importmap.cache_sweepers = []
 require_relative '../lib/pathogen/view_components'
 
 PathogenTestApplication.initialize!
-
-module ActiveSupport
-  class TestCase
-    parallelize(workers: :number_of_processors)
-  end
-end

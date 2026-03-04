@@ -57,5 +57,8 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Verify bin scripts are executable
+        run: test -x bin/rails && test -x bin/test
+
       - name: Test
         run: bin/test
