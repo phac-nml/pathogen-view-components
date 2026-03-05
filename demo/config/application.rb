@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'boot'
 
 require 'rails'
@@ -19,6 +21,7 @@ require 'action_view/railtie'
 Bundler.require(*Rails.groups)
 
 module Demo
+  # Rails application configuration for the Lookbook demo app.
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
