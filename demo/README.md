@@ -1,24 +1,28 @@
-# README
+# Pathogen View Components — Lookbook Demo
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A self-contained Rails app that runs [Lookbook](https://lookbook.build) so you can browse and interact with all Pathogen ViewComponents in the browser.
 
-Things you may want to cover:
+## Requirements
 
-* Ruby version
+- Ruby 3.3+
+- Bundler
 
-* System dependencies
+## Getting started
 
-* Configuration
+```bash
+cd demo
+bundle install
+bin/dev
+```
 
-* Database creation
+This starts Rails on port 3001 and the Tailwind CSS watcher via foreman. Open `http://localhost:3001` — it redirects to `/lookbook` automatically.
 
-* Database initialization
+## How it works
 
-* How to run the test suite
+- **Previews** are in `../test/components/previews/pathogen/` (shared with the gem's test suite).
+- **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads Tailwind and Pathogen styles.
+- **Port 3001** is hardcoded in `Procfile.dev` to avoid conflicts with other local Rails apps.
 
-* Services (job queues, cache servers, search engines, etc.)
+## Adding previews
 
-* Deployment instructions
-
-* ...
+Create a preview class in `test/components/previews/pathogen/` following the ViewComponent preview convention. For examples using `render_with_template`, add a matching `.html.erb` template in a subdirectory of the same name. Lookbook picks up changes automatically via its file watcher.
