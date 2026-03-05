@@ -1,0 +1,5 @@
+<% (1..6).each do |level| %>
+  <%= render Pathogen::Typography::Heading.new(level: level) do %>
+    Heading level <%= level %>
+  <% end %>
+<% end %>
