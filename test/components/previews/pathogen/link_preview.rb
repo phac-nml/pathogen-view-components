@@ -2,21 +2,25 @@
 
 module Pathogen
   class LinkPreview < ViewComponent::Preview
-    def default
-      render Pathogen::Link.new(href: "/") { "Home" }
-    end
+    include Pathogen::ViewHelper
 
-    def with_tooltip
-      render Pathogen::Link.new(href: "/") do |link|
-        link.with_tooltip(text: "Go to the home page", placement: :top)
-        "Home"
+    def default
+      pathogen_link(href: '#') do
+        'This is a link'
       end
     end
 
-    def tooltip_bottom
-      render Pathogen::Link.new(href: "/") do |link|
-        link.with_tooltip(text: "Go to the home page", placement: :bottom)
-        "Home"
+    def external_link
+      pathogen_link(href: 'http://google.com') do
+        'This is an external link'
+      end
+    end
+
+    # @label With Tooltip
+    def tooltip
+      pathogen_link(href: '#') do |component|
+        component.with_tooltip(text: 'Tooltip text')
+        'This is a link with tooltip'
       end
     end
   end

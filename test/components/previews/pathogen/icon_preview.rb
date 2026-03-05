@@ -2,35 +2,20 @@
 
 module Pathogen
   class IconPreview < ViewComponent::Preview
-    # @param icon_name text
-    # @param color select [default, primary, success, danger, warning, muted]
-    # @param size select [sm, md, lg, xl]
-    def default(icon_name: "check", color: :default, size: :md)
-      render Pathogen::Icon.new(icon_name.to_sym, color: color.to_sym, size: size.to_sym)
-    end
+    # @!group Enhanced Pathogen Icons
 
-    def small
-      render Pathogen::Icon.new(:check, size: :sm)
-    end
+    # @label Basic Usage & Getting Started
+    def basic_usage; end
 
-    def large
-      render Pathogen::Icon.new(:check, size: :lg)
-    end
+    # @label Colors & Sizes
+    def colors_and_sizes; end
 
-    def extra_large
-      render Pathogen::Icon.new(:check, size: :xl)
-    end
+    # @label Factory Methods & Enhanced Features
+    def factory_methods; end
 
-    def primary_color
-      render Pathogen::Icon.new(:check, color: :primary)
-    end
+    # @label Icon Library & Catalog
+    def icon_library; end
 
-    def danger_color
-      render Pathogen::Icon.new(:x_circle, color: :danger)
-    end
-
-    def warning_color
-      render Pathogen::Icon.new(:warning, color: :warning)
-    end
+    # @!endgroup
   end
 end
