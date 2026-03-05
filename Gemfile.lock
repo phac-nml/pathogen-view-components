@@ -6,6 +6,7 @@ PATH
       activesupport (>= 5.0.0)
       nokogiri
       rails_icons (>= 1.4.0)
+      turbo-rails
       view_component (>= 4.0, < 5.0)
 
 GEM
@@ -315,7 +316,6 @@ DEPENDENCIES
   rubocop-performance
   rubocop-rails
   rubocop-rails-accessibility (~> 1.0)
-  turbo-rails
 
 BUNDLED WITH
    2.6.7

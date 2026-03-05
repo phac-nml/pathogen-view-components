@@ -18,8 +18,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activesupport', '>= 5.0.0'
   spec.add_dependency 'nokogiri'
   spec.add_dependency 'rails_icons', '>= 1.4.0'
-  spec.add_dependency 'view_component', ['>= 4.0', '< 5.0']
+  spec.add_dependency 'turbo-rails'
   spec.metadata['rubygems_mfa_required'] = 'true'
+  spec.add_dependency 'view_component', ['>= 4.0', '< 5.0']
   spec.metadata['source_code_uri'] = 'https://github.com/phac-nml/pathogen-view-components'
   spec.metadata['homepage_uri'] = spec.homepage
 end

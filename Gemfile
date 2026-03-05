@@ -15,6 +15,4 @@ group :development, :test do
   gem 'rubocop-performance'
   gem 'rubocop-rails'
   gem 'rubocop-rails-accessibility', '~> 1.0'
-  # Needed in tests for `turbo_frame_tag` used by `Pathogen::Tabs::LazyPanel`.
-  gem 'turbo-rails'
 end
