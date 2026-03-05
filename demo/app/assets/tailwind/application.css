@@ -4,10 +4,10 @@
 @source "../../../../app/components/**/*.{html.erb,rb}";
 @source "../../../../test/components/previews/**/*.{html.erb,rb}";
 
-/* Define custom primary color palette (blue shades — override in consuming apps) */
+/* Define custom primary color palette (emerald shades — override in consuming apps) */
 @theme {
-  --color-primary-500: oklch(62.3% .214 259.815);
-  --color-primary-600: oklch(54.6% .245 262.881);
-  --color-primary-700: oklch(48.8% .243 264.382);
-  --color-primary-800: oklch(42.4% .199 265.638);
+  --color-primary-500: oklch(70.4% .167 155.926);
+  --color-primary-600: oklch(65.2% .179 157.395);
+  --color-primary-700: oklch(59.6% .173 158.905);
+  --color-primary-800: oklch(52.2% .149 160.513);
 }
