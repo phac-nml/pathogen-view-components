@@ -42,7 +42,8 @@ module Demo
     # Point Lookbook at the gem's preview directory.
     # Auto-discovery doesn't work because the Pathogen engine registers after
     # ViewComponent computes its default preview paths.
-    previews_path = File.expand_path("../../test/components/previews", __dir__)
+    previews_path = File.expand_path('../../test/components/previews', __dir__)
     config.lookbook.preview_paths = [previews_path]
+    config.lookbook.preview_layout = 'lookbook_preview'
   end
 end

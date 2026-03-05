@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Scan gem component templates and Ruby files for Tailwind classes */
+@source "../../../../app/components/**/*.{html.erb,rb}";
+@source "../../../../test/components/previews/**/*.{html.erb,rb}";
+
+/* Define custom primary color palette (blue shades — override in consuming apps) */
+@theme {
+  --color-primary-500: oklch(62.3% .214 259.815);
+  --color-primary-600: oklch(54.6% .245 262.881);
+  --color-primary-700: oklch(48.8% .243 264.382);
+  --color-primary-800: oklch(42.4% .199 265.638);
+}
