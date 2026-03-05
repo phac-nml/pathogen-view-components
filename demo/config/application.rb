@@ -39,11 +39,14 @@ module Demo
     # Don't generate system test files.
     config.generators.system_tests = nil
 
-    # Point Lookbook at the gem's preview directory.
+    # Point Lookbook and ViewComponent at the gem's preview directory.
     # Auto-discovery doesn't work because the Pathogen engine registers after
     # ViewComponent computes its default preview paths.
+    # Both must be set: Lookbook uses preview_paths for file discovery; ViewComponent
+    # uses config.view_component.previews.paths for render_with_template template lookups.
     previews_path = File.expand_path('../../test/components/previews', __dir__)
     config.lookbook.preview_paths = [previews_path]
+    config.view_component.previews.paths = [previews_path]
     config.lookbook.preview_layout = 'lookbook_preview'
   end
 end
