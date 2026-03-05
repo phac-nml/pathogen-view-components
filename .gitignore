@@ -5,3 +5,9 @@ devenv.local.yaml
 
 # direnv
 .direnv
+
+# Demo app runtime artifacts
+demo/tmp/
+demo/log/
+demo/storage/
+demo/Gemfile.lock
