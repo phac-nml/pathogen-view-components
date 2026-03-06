@@ -175,7 +175,7 @@ module Pathogen
         template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
         ActionView::Helpers::FormBuilder.new(
           'user',
-          User.new,
+          nil,
           template,
           {}
         )
