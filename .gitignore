@@ -12,3 +12,4 @@ demo/log/
 demo/storage/
 demo/Gemfile.lock
 demo/app/assets/builds/
+demo/config/master.key

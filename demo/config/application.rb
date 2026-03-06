@@ -48,8 +48,10 @@ module Demo
     # Both must be set: Lookbook uses preview_paths for file discovery; ViewComponent
     # uses config.view_component.previews.paths for render_with_template template lookups.
     previews_path = File.expand_path('../../test/components/previews', __dir__)
-    config.lookbook.preview_paths = [previews_path]
     config.view_component.previews.paths = [previews_path]
-    config.lookbook.preview_layout = 'lookbook_preview'
+    if config.respond_to?(:lookbook)
+      config.lookbook.preview_paths = [previews_path]
+      config.lookbook.preview_layout = 'lookbook_preview'
+    end
   end
 end
