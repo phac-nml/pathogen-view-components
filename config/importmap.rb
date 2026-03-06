@@ -11,6 +11,6 @@ pin 'pathogen_view_components', to: 'pathogen_view_components.js'
 # Controller dependencies
 pin 'uuid', to: 'https://cdn.jsdelivr.net/npm/uuid@13.0.0/+esm'
 pin '@floating-ui/dom', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.7.6/+esm'
-pin '@floating-ui/core', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.6/+esm'
+pin '@floating-ui/core', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/core@1.7.5/+esm'
 pin '@floating-ui/utils', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/utils@0.2.11/+esm'
 pin '@floating-ui/utils/dom', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/utils@0.2.11/dom/+esm'
