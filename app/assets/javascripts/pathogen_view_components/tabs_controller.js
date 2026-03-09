@@ -336,10 +336,10 @@ export default class extends Controller {
    *
    * @private
    * @param {number} index - The tab index to select
-  * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
-  * @param {Function} updateMethod - The history method to use (default: history.pushState)
-  * @returns {void}
-  */
+   * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
+   * @param {Function} updateMethod - The history method to use (default: history.pushState)
+   * @returns {void}
+   */
   #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState) {
     // Keep ARIA state synchronous so selection is immediately correct on connect
     // and during keyboard navigation, including in test and Turbo morph scenarios.
@@ -362,6 +362,8 @@ export default class extends Controller {
 
       // Update roving tabindex
       tab.tabIndex = isSelected ? 0 : -1;
+
+      this.#updateTabClasses(tab, isSelected);
     });
 
     // Update all panels
@@ -394,6 +396,45 @@ export default class extends Controller {
     // Turbo will fetch the content immediately after the panel becomes visible.
     // The frame's fallback content (loading spinner) displays during fetch,
     // then morphs into the loaded content seamlessly.
+  }
+
+  /**
+   * Swaps the tab's configured selected and unselected utility classes.
+   * Tabs render these class lists as data attributes so the controller can
+   * keep the visual state in sync with aria-selected after interaction.
+   *
+   * @private
+   * @param {HTMLElement} tab - The tab element to update
+   * @param {boolean} isSelected - Whether the tab is currently selected
+   * @returns {void}
+   */
+  #updateTabClasses(tab, isSelected) {
+    const selectedClasses = this.#parseClassList(
+      tab.dataset.pathogenTabsSelectedClasses,
+    );
+    const unselectedClasses = this.#parseClassList(
+      tab.dataset.pathogenTabsUnselectedClasses,
+    );
+
+    if (selectedClasses.length === 0 && unselectedClasses.length === 0) {
+      return;
+    }
+
+    tab.classList.remove(
+      ...(isSelected ? unselectedClasses : selectedClasses),
+    );
+    tab.classList.add(...(isSelected ? selectedClasses : unselectedClasses));
+  }
+
+  /**
+   * Parses a whitespace-separated class list from a data attribute.
+   *
+   * @private
+   * @param {string | undefined} classList - The raw data attribute value
+   * @returns {string[]} Normalized class names
+   */
+  #parseClassList(classList) {
+    return classList?.split(/\s+/).filter(Boolean) || [];
   }
 
   /**

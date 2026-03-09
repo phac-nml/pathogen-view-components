@@ -103,31 +103,34 @@ module Pathogen
       def setup_data_attributes
         @system_arguments[:data] ||= {}
         @system_arguments[:data]['pathogen--tabs-target'] = 'tab'
+        @system_arguments[:data]['pathogen-tabs-selected-classes'] = selected_classes.join(' ')
+        @system_arguments[:data]['pathogen-tabs-unselected-classes'] = unselected_classes.join(' ')
         @system_arguments[:data][:action] = [
           'click->pathogen--tabs#selectTab',
           'keydown->pathogen--tabs#handleKeyDown'
         ].join(' ')
       end
 
-      # Sets up CSS classes based on selection state and orientation
-      # Note: We apply both selected and unselected classes with aria-selected selectors
-      # so that JavaScript can dynamically toggle the appearance by changing aria-selected
+      # Sets up base and initial-state CSS classes.
+      # The controller swaps the selected and unselected class groups as aria-selected changes.
       def setup_css_classes
-        # Select appropriate state classes based on orientation
-        state_classes = if @orientation == :vertical
-                          @selected ? SELECTED_CLASSES_VERTICAL : UNSELECTED_CLASSES_VERTICAL
-                        else
-                          @selected ? SELECTED_CLASSES_HORIZONTAL : UNSELECTED_CLASSES_HORIZONTAL
-                        end
-
         orientation_classes = @orientation == :vertical ? VERTICAL_CLASSES : HORIZONTAL_CLASSES
+        initial_state_classes = @selected ? selected_classes : unselected_classes
 
         @system_arguments[:class] = class_names(
           BASE_CLASSES,
           orientation_classes,
-          state_classes,
+          initial_state_classes,
           @system_arguments[:class]
         )
+      end
+
+      def selected_classes
+        @orientation == :vertical ? SELECTED_CLASSES_VERTICAL : SELECTED_CLASSES_HORIZONTAL
+      end
+
+      def unselected_classes
+        @orientation == :vertical ? UNSELECTED_CLASSES_VERTICAL : UNSELECTED_CLASSES_HORIZONTAL
       end
     end
   end

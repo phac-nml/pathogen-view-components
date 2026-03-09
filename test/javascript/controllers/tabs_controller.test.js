@@ -15,10 +15,13 @@ function renderTabsFixture() {
         <button
           id="tab-overview"
           type="button"
+          class="tab-selected selected-border"
           role="tab"
           aria-selected="false"
           tabindex="-1"
           data-pathogen--tabs-target="tab"
+          data-pathogen-tabs-selected-classes="tab-selected selected-border"
+          data-pathogen-tabs-unselected-classes="tab-unselected muted-text"
           data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown"
         >
           Overview
@@ -26,10 +29,13 @@ function renderTabsFixture() {
         <button
           id="tab-details"
           type="button"
+          class="tab-unselected muted-text"
           role="tab"
           aria-selected="false"
           tabindex="-1"
           data-pathogen--tabs-target="tab"
+          data-pathogen-tabs-selected-classes="tab-selected selected-border"
+          data-pathogen-tabs-unselected-classes="tab-unselected muted-text"
           data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown"
         >
           Details
@@ -88,6 +94,10 @@ describe("Pathogen Tabs controller", () => {
     expect(secondPanel).toHaveAttribute("aria-hidden", "true");
     expect(firstTab.tabIndex).toBe(0);
     expect(secondTab.tabIndex).toBe(-1);
+    expect(firstTab).toHaveClass("tab-selected", "selected-border");
+    expect(firstTab).not.toHaveClass("tab-unselected", "muted-text");
+    expect(secondTab).toHaveClass("tab-unselected", "muted-text");
+    expect(secondTab).not.toHaveClass("tab-selected", "selected-border");
 
     fireEvent.click(secondTab);
     vi.advanceTimersByTime(20);
@@ -99,6 +109,10 @@ describe("Pathogen Tabs controller", () => {
     expect(firstPanel).toHaveClass("hidden");
     expect(secondPanel).not.toHaveClass("hidden");
     expect(secondPanel).toHaveAttribute("aria-hidden", "false");
+    expect(firstTab).toHaveClass("tab-unselected", "muted-text");
+    expect(firstTab).not.toHaveClass("tab-selected", "selected-border");
+    expect(secondTab).toHaveClass("tab-selected", "selected-border");
+    expect(secondTab).not.toHaveClass("tab-unselected", "muted-text");
   });
 
   it("supports keyboard navigation with ArrowRight", () => {

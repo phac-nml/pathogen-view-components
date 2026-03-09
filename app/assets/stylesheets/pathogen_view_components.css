@@ -185,9 +185,100 @@
   .pathogen-u-border-default {
     border-color: var(--pathogen-color-border-default);
   }
+
+  /* PathogenFormBuilder required field indicator */
+  abbr.req {
+    color: var(--pathogen-color-danger-500);
+    font-size: var(--pathogen-text-sm);
+    line-height: 1;
+    vertical-align: baseline;
+    text-decoration: none;
+  }
 } /* end @layer pathogen.utilities */
 
 @layer pathogen.components {
+  /* Tabs component */
+  [data-controller="pathogen--tabs"]:not(.tabs-initialized)
+    [data-pathogen--tabs-target="panel"]:not(:first-child) {
+    display: none;
+  }
+
+  [data-controller="pathogen--tabs"] [role="tabpanel"]:not(.hidden) {
+    display: block !important;
+  }
+
+  [data-controller="pathogen--tabs"] [role="tab"] {
+    cursor: pointer;
+    display: inline-block;
+    padding: 1rem;
+    font-weight: 600;
+    transition:
+      color 200ms ease,
+      background-color 200ms ease,
+      border-color 200ms ease;
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="horizontal"]
+    [role="tab"] {
+    border-bottom: 2px solid transparent;
+    border-top-left-radius: var(--pathogen-radius-surface);
+    border-top-right-radius: var(--pathogen-radius-surface);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="vertical"]
+    [role="tab"] {
+    border-right: 2px solid transparent;
+    border-bottom: 0;
+    border-top-left-radius: var(--pathogen-radius-surface);
+    border-bottom-left-radius: var(--pathogen-radius-surface);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="horizontal"]
+    [role="tab"][aria-selected="true"] {
+    border-bottom-color: var(--pathogen-color-text-default);
+    background: transparent;
+    color: var(--pathogen-color-text-default);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="horizontal"]
+    [role="tab"][aria-selected="false"] {
+    border-bottom-color: transparent;
+    color: var(--pathogen-color-text-muted);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="horizontal"]
+    [role="tab"][aria-selected="false"]:hover {
+    border-bottom-color: var(--pathogen-color-text-muted);
+    color: var(--pathogen-color-text-default);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="vertical"]
+    [role="tab"][aria-selected="true"] {
+    border-right-color: var(--pathogen-color-text-default);
+    background: transparent;
+    color: var(--pathogen-color-text-default);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="vertical"]
+    [role="tab"][aria-selected="false"] {
+    border-right-color: transparent;
+    color: var(--pathogen-color-text-muted);
+  }
+
+  [data-controller="pathogen--tabs"]
+    [role="tablist"][aria-orientation="vertical"]
+    [role="tab"][aria-selected="false"]:hover {
+    border-right-color: var(--pathogen-color-text-muted);
+    color: var(--pathogen-color-text-default);
+  }
+
   /* DataGrid component */
   .pathogen-data-grid {
     --pathogen-data-grid-border-color: var(--pathogen-color-border-default);

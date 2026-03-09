@@ -168,7 +168,7 @@ module Pathogen
       #    [role="tabpanel"]:not(.hidden) { display: block !important; }
       #    This prevents conflicts and eliminates the need for inline style manipulation.
       #
-      # @see app/assets/tailwind/application.css for panel visibility rules
+      # @see app/assets/stylesheets/pathogen_view_components.css for panel visibility rules
       def setup_css_classes
         @base_class_argument = @system_arguments[:class]
         update_hidden_class

@@ -12,9 +12,10 @@ module Pathogen
   # 1. **Tailwind 'hidden' class** (or equivalent):
   #    .hidden { display: none; }
   #
-  # 2. **Tab panel visibility rules** (see app/assets/tailwind/application.css):
+  # 2. **Pathogen package stylesheet** (`app/assets/stylesheets/pathogen_view_components.css`):
   #    - Progressive enhancement for non-JS environments
   #    - Visibility control for active panels
+  #    - Default tab styling for horizontal/vertical orientations
   #    - Dynamic tab styling based on aria-selected
   #
   # 3. **JavaScript controller**: embedded_gems/pathogen/app/javascript/controllers/pathogen/tabs_controller.js
@@ -23,7 +24,7 @@ module Pathogen
   #    - Optional URL hash syncing
   #    - Turbo Frame lazy loading integration
   #
-  # @see app/assets/tailwind/application.css for required CSS rules
+  # @see app/assets/stylesheets/pathogen_view_components.css for required CSS rules
   # @see embedded_gems/pathogen/app/javascript/controllers/pathogen/tabs_controller.js for controller implementation
   #
   # @example Basic usage
