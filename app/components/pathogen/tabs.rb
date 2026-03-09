@@ -18,14 +18,14 @@ module Pathogen
   #    - Default tab styling for horizontal/vertical orientations
   #    - Dynamic tab styling based on aria-selected
   #
-  # 3. **JavaScript controller**: embedded_gems/pathogen/app/javascript/controllers/pathogen/tabs_controller.js
+  # 3. **JavaScript controller**: app/assets/javascripts/pathogen_view_components/tabs_controller.js
   #    - Handles ARIA state management
   #    - Keyboard navigation (Arrow keys, Home, End)
   #    - Optional URL hash syncing
   #    - Turbo Frame lazy loading integration
   #
   # @see app/assets/stylesheets/pathogen_view_components.css for required CSS rules
-  # @see embedded_gems/pathogen/app/javascript/controllers/pathogen/tabs_controller.js for controller implementation
+  # @see app/assets/javascripts/pathogen_view_components/tabs_controller.js for controller implementation
   #
   # @example Basic usage
   #   <%= render Pathogen::Tabs.new(id: "demo-tabs", label: "Content sections") do |tabs| %>
