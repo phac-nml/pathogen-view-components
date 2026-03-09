@@ -142,6 +142,18 @@ Run tests:
 bin/test
 ```
 
+### Lookbook demo app
+
+A Lookbook instance at `demo/` lets you browse and interact with all components in the browser without a full host application.
+
+```bash
+cd demo
+bundle install
+bin/dev
+```
+
+Open `http://localhost:3001/lookbook`. Component previews live in `test/components/previews/pathogen/` and are shared between the test suite and Lookbook.
+
 ## Contributing
 
 Bug reports and pull requests are welcome. Please include tests for behavioral changes and note any accessibility impacts.
