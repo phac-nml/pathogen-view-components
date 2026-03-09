@@ -345,11 +345,21 @@ export default class extends Controller {
       middleware.push(arrow({ element: this.#arrowElement }));
     }
 
-    computePosition(this.#triggerElement, this.#tooltipElement, {
+    const positionResult = computePosition(
+      this.#triggerElement,
+      this.#tooltipElement,
+      {
       placement,
       strategy: "fixed",
       middleware,
-    })
+    },
+    );
+
+    if (!positionResult || typeof positionResult.then !== "function") {
+      return;
+    }
+
+    positionResult
       .then(({ x, y, placement: finalPlacement, middlewareData }) => {
         this.#tooltipElement.dataset.currentPlacement = finalPlacement;
 
