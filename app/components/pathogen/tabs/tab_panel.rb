@@ -164,7 +164,7 @@ module Pathogen
       # 1. **Turbo Frame Lazy Loading**: Turbo detects visibility changes via CSS classes.
       #    When the 'hidden' class is removed, Turbo automatically triggers lazy frame fetches.
       #
-      # 2. **CSS Architecture**: Visibility is enforced via CSS selector in application.css:
+      # 2. **CSS Architecture**: Visibility is enforced via CSS selector in pathogen_view_components.css:
       #    [role="tabpanel"]:not(.hidden) { display: block !important; }
       #    This prevents conflicts and eliminates the need for inline style manipulation.
       #
