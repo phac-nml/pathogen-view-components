@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
+const INTERACTIVE_SELECTOR = "a, button, input, select, textarea";
 const NAVIGATION_KEYS = new Set([
   "ArrowRight",
   "ArrowLeft",
@@ -9,6 +10,7 @@ const NAVIGATION_KEYS = new Set([
   "End",
   "PageDown",
   "PageUp",
+  "Tab",
 ]);
 
 export default class extends Controller {
@@ -27,10 +29,16 @@ export default class extends Controller {
 
   handleKeydown(event) {
     if (!this.hasGridTarget) return;
-    if (!NAVIGATION_KEYS.has(event.key)) return;
 
     const activeCell = this.#activeCell();
     if (!activeCell) return;
+
+    if (event.key === "Tab") {
+      this.#handleTab(event, activeCell);
+      return;
+    }
+
+    if (!NAVIGATION_KEYS.has(event.key)) return;
 
     const nextCell = this.#nextCellForEvent(activeCell, event);
     if (!nextCell) return;
@@ -43,6 +51,9 @@ export default class extends Controller {
     if (!this.hasGridTarget) return null;
 
     return (
+      this.gridTarget.querySelector(
+        '[data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-active="true"]',
+      ) ||
       this.gridTarget.querySelector(
         '[data-pathogen--data-grid-target~="cell"][tabindex="0"]',
       ) || this.#firstDataCell()
@@ -102,6 +113,15 @@ export default class extends Controller {
 
   #focusCell(cell) {
     this.#setActiveCell(cell);
+
+    if (this.#hasInteractiveElements(cell)) {
+      const firstInteractive = this.#interactiveElements(cell)[0];
+      this.#activateInteractiveElement(cell, firstInteractive);
+      firstInteractive.focus({ preventScroll: true });
+      firstInteractive.scrollIntoView({ block: "nearest" });
+      return;
+    }
+
     cell.focus({ preventScroll: true });
     cell.scrollIntoView({ block: "nearest" });
   }
@@ -248,6 +268,14 @@ export default class extends Controller {
     return target.closest('[data-pathogen--data-grid-target~="cell"]');
   }
 
+  #interactiveElements(cell) {
+    return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR));
+  }
+
+  #hasInteractiveElements(cell) {
+    return cell.dataset.pathogenDataGridHasInteractive === "true";
+  }
+
   #rowIndex(cell) {
     const value = Number(cell.dataset.pathogenDataGridRowIndex);
     return Number.isNaN(value) ? null : value;
@@ -255,7 +283,15 @@ export default class extends Controller {
 
   #setActiveCell(cell) {
     this.#allCells().forEach((node) => {
+      delete node.dataset.pathogenDataGridActive;
+    });
+
+    cell.dataset.pathogenDataGridActive = "true";
+    this.#allCells().forEach((node) => {
       node.tabIndex = node === cell ? 0 : -1;
+      this.#interactiveElements(node).forEach((interactiveNode) => {
+        interactiveNode.tabIndex = -1;
+      });
     });
   }
 
@@ -263,6 +299,54 @@ export default class extends Controller {
     const activeCell = this.#activeCell();
     if (!activeCell) return;
 
-    this.#setActiveCell(activeCell);
+    this.#focusCell(activeCell);
+  }
+
+  #activateInteractiveElement(cell, targetElement) {
+    const interactiveElements = this.#interactiveElements(cell);
+    if (interactiveElements.length === 0 || !targetElement) return;
+
+    cell.tabIndex = -1;
+    interactiveElements.forEach((element) => {
+      element.tabIndex = element === targetElement ? 0 : -1;
+    });
+  }
+
+  #handleTab(event, activeCell) {
+    if (!this.#hasInteractiveElements(activeCell)) return;
+
+    const interactiveElements = this.#interactiveElements(activeCell);
+    if (interactiveElements.length <= 1) return;
+
+    const activeElement =
+      event.target instanceof HTMLElement
+        ? event.target.closest(INTERACTIVE_SELECTOR)
+        : null;
+    const activeIndex = interactiveElements.indexOf(activeElement);
+
+    if (event.shiftKey) {
+      if (activeIndex > 0) {
+        event.preventDefault();
+        const previous = interactiveElements[activeIndex - 1];
+        this.#activateInteractiveElement(activeCell, previous);
+        previous.focus({ preventScroll: true });
+      }
+      return;
+    }
+
+    if (activeIndex >= 0 && activeIndex < interactiveElements.length - 1) {
+      event.preventDefault();
+      const next = interactiveElements[activeIndex + 1];
+      this.#activateInteractiveElement(activeCell, next);
+      next.focus({ preventScroll: true });
+      return;
+    }
+
+    if (activeIndex === -1) {
+      event.preventDefault();
+      const first = interactiveElements[0];
+      this.#activateInteractiveElement(activeCell, first);
+      first.focus({ preventScroll: true });
+    }
   }
 }

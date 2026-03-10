@@ -29,12 +29,19 @@
           <% @rows.each_with_index do |row, row_index| %>
             <%= tag.tr(class: 'pathogen-data-grid__row', role: 'row') do %>
               <% columns.each_with_index do |column, index| %>
+                <% cell_payload = body_cell_payload(
+                  column: column,
+                  row: row,
+                  column_index: index,
+                  active: (default_active_row_index == row_index + 1 && index.zero?)
+                ) %>
                 <%= tag.td(
-                  column.render_value(row, index),
+                  cell_payload[:content],
                   **column.body_cell_attributes(
                     row_index: row_index + 1,
                     column_index: index,
-                    active: (default_active_row_index == row_index + 1 && index.zero?)
+                    active: cell_payload[:focus_on_cell],
+                    interactive: cell_payload[:interactive]
                   )
                 ) %>
               <% end %>

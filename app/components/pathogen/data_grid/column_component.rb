@@ -44,8 +44,14 @@ module Pathogen
         attributes_for(header: true, row_index: 0, column_index: column_index)
       end
 
-      def body_cell_attributes(row_index:, column_index:, active: false)
-        attributes_for(header: false, row_index: row_index, column_index: column_index, active: active)
+      def body_cell_attributes(row_index:, column_index:, active: false, interactive: false)
+        attributes_for(
+          header: false,
+          row_index: row_index,
+          column_index: column_index,
+          active: active,
+          interactive: interactive
+        )
       end
 
       def render_value(row, index)
@@ -81,7 +87,7 @@ module Pathogen
 
       private
 
-      def attributes_for(header:, row_index:, column_index:, active: false)
+      def attributes_for(header:, row_index:, column_index:, active: false, interactive: false)
         classes = ['pathogen-data-grid__cell', @system_arguments[:class]]
         classes << (header ? 'pathogen-data-grid__cell--header' : 'pathogen-data-grid__cell--body')
         classes << 'pathogen-data-grid__cell--sticky' if @sticky
@@ -92,6 +98,7 @@ module Pathogen
         data_attributes['pathogen--data-grid-target'] = targets
         data_attributes['pathogen--data-grid-row-index'] = row_index
         data_attributes['pathogen--data-grid-column-index'] = column_index
+        data_attributes['pathogen--data-grid-has-interactive'] = interactive
 
         styles = []
         styles << "--pathogen-data-grid-col-width: #{@width};" if @width

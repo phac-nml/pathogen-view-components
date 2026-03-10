@@ -51,6 +51,7 @@ module Pathogen
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
+    INTERACTIVE_SELECTOR = 'a, button, input, select, textarea'
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
@@ -87,6 +88,23 @@ module Pathogen
 
     def default_active_row_index
       @rows.present? ? 1 : nil
+    end
+
+    def body_cell_payload(column:, row:, column_index:, active:)
+      rendered_value = column.render_value(row, column_index)
+      fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
+      interactive_nodes = fragment.css(INTERACTIVE_SELECTOR)
+
+      return { content: rendered_value, focus_on_cell: active, interactive: false } if interactive_nodes.empty?
+
+      interactive_nodes.each { |node| node['tabindex'] = '-1' }
+      interactive_nodes.first['tabindex'] = '0' if active
+
+      {
+        content: fragment.to_html.html_safe,
+        focus_on_cell: false,
+        interactive: true
+      }
     end
 
     def before_render
