@@ -19,12 +19,17 @@ module Pathogen
       end
 
       assert_selector '.pathogen-data-grid__table[aria-labelledby]'
+      assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
+      assert_selector '.pathogen-data-grid__table[role="grid"]'
+      assert_selector '.pathogen-data-grid__row[role="row"]', count: 3
       assert_selector '.pathogen-data-grid__caption', text: 'Sample grid'
       assert_no_selector '.pathogen-data-grid--multi-sticky'
-      assert_selector 'th.pathogen-data-grid__cell--header'
+      assert_selector 'th.pathogen-data-grid__cell--header[role="columnheader"][tabindex="-1"]'
       assert_selector 'th.pathogen-data-grid__cell--header > span.pathogen-data-grid__header-label', count: 2
       assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 0px"]'
-      assert_selector 'td.pathogen-data-grid__cell--body', text: 'Sample one'
+      assert_selector 'td.pathogen-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
+      assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
+      assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
     end
 
     test 'adds multi sticky class when more than one sticky column is active' do
@@ -57,7 +62,7 @@ module Pathogen
       assert_selector '.pathogen-data-grid--fill > .pathogen-data-grid__scroll'
     end
 
-    test 'does not render caption or aria-labelledby without caption' do
+    test 'uses default aria-label when no caption is provided' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
                       rows: [
@@ -70,6 +75,7 @@ module Pathogen
 
       assert_no_selector '.pathogen-data-grid__caption'
       assert_no_selector '.pathogen-data-grid__table[aria-labelledby]'
+      assert_selector '.pathogen-data-grid__table[aria-label="Data grid"]'
     end
 
     test 'does not apply sticky when width is missing' do
@@ -173,6 +179,20 @@ module Pathogen
 
       assert_selector '.pathogen-data-grid__scroll', text: 'No rows'
       assert_no_selector '.pathogen-data-grid__table'
+    end
+
+    test 'initial header cells are not tabbable' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      sticky_columns: 0,
+                      rows: [
+                        { id: 'S-041', name: 'Sample forty-one' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+        grid.with_column('Name', key: :name)
+      end
+
+      assert_selector 'thead th[tabindex="-1"]', count: 2
     end
 
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
