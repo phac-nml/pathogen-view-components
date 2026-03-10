@@ -1,6 +1,7 @@
 // Import all Pathogen controllers using importmap-mapped paths
 import TabsController from "pathogen_view_components/tabs_controller";
 import TooltipController from "pathogen_view_components/tooltip_controller";
+import DataGridController from "pathogen_view_components/data_grid_controller";
 
 function registerPathogenControllers(application) {
   if (!application || typeof application.register !== "function") {
@@ -10,10 +11,16 @@ function registerPathogenControllers(application) {
 
   application.register("pathogen--tabs", TabsController);
   application.register("pathogen--tooltip", TooltipController);
+  application.register("pathogen--data-grid", DataGridController);
 
   if (import.meta.env?.DEV) {
-    console.debug("[pathogen] Registered 2 Stimulus controllers");
+    console.debug("[pathogen] Registered 3 Stimulus controllers");
   }
 }
 
-export { TabsController, TooltipController, registerPathogenControllers };
+export {
+  TabsController,
+  TooltipController,
+  DataGridController,
+  registerPathogenControllers,
+};
