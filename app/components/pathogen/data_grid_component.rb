@@ -50,6 +50,7 @@ module Pathogen
     renders_many :columns, lambda { |label, **system_arguments, &block|
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
+    DEFAULT_ARIA_LABEL = 'Data grid'
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
@@ -70,9 +71,22 @@ module Pathogen
     end
 
     def table_attributes
-      return { class: 'pathogen-data-grid__table' } unless @caption_id
+      attributes = {
+        class: 'pathogen-data-grid__table',
+        role: 'grid',
+        data: {
+          'pathogen--data-grid-target': 'grid',
+          action: 'keydown->pathogen--data-grid#handleKeydown focusin->pathogen--data-grid#handleFocusin'
+        }
+      }
 
-      { class: 'pathogen-data-grid__table', aria: { labelledby: @caption_id } }
+      label_attributes = table_aria_attributes
+      attributes[:aria] = label_attributes if label_attributes.present?
+      attributes
+    end
+
+    def default_active_row_index
+      @rows.present? ? 1 : nil
     end
 
     def before_render
@@ -80,9 +94,18 @@ module Pathogen
       apply_dense_class!
       apply_column_defaults!
       apply_responsive_sticky_class!
+      apply_data_grid_controller!
     end
 
     private
+
+    def table_aria_attributes
+      if @caption_id.present?
+        { labelledby: @caption_id }
+      else
+        { label: DEFAULT_ARIA_LABEL }
+      end
+    end
 
     def apply_dense_class!
       return unless @dense
@@ -125,6 +148,12 @@ module Pathogen
       return unless columns.many?(&:sticky)
 
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--multi-sticky')
+    end
+
+    def apply_data_grid_controller!
+      @system_arguments[:data] ||= {}
+      existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
+      @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
     end
   end
 end

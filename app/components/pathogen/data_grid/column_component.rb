@@ -40,12 +40,12 @@ module Pathogen
         @block = block
       end
 
-      def header_cell_attributes
-        attributes_for(header: true)
+      def header_cell_attributes(column_index:)
+        attributes_for(header: true, row_index: 0, column_index: column_index)
       end
 
-      def body_cell_attributes
-        attributes_for(header: false)
+      def body_cell_attributes(row_index:, column_index:, active: false)
+        attributes_for(header: false, row_index: row_index, column_index: column_index, active: active)
       end
 
       def render_value(row, index)
@@ -81,11 +81,17 @@ module Pathogen
 
       private
 
-      def attributes_for(header:)
+      def attributes_for(header:, row_index:, column_index:, active: false)
         classes = ['pathogen-data-grid__cell', @system_arguments[:class]]
         classes << (header ? 'pathogen-data-grid__cell--header' : 'pathogen-data-grid__cell--body')
         classes << 'pathogen-data-grid__cell--sticky' if @sticky
         classes << "pathogen-data-grid__cell--align-#{@align}" if @align
+
+        data_attributes = @system_arguments[:data]&.dup || {}
+        targets = [data_attributes['pathogen--data-grid-target'], 'cell'].compact.join(' ').split.uniq.join(' ')
+        data_attributes['pathogen--data-grid-target'] = targets
+        data_attributes['pathogen--data-grid-row-index'] = row_index
+        data_attributes['pathogen--data-grid-column-index'] = column_index
 
         styles = []
         styles << "--pathogen-data-grid-col-width: #{@width};" if @width
@@ -94,7 +100,13 @@ module Pathogen
           styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};"
         end
 
-        { class: class_names(*classes), style: styles.join(' ') }
+        {
+          class: class_names(*classes),
+          data: data_attributes,
+          role: (header ? 'columnheader' : 'gridcell'),
+          style: styles.join(' '),
+          tabindex: (header ? -1 : (active ? 0 : -1))
+        }
       end
 
       def value_for(row, index)
