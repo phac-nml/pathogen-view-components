@@ -70,6 +70,13 @@ module Pathogen
         assert_equal 0, attrs[:tabindex]
       end
 
+      test 'body_cell_attributes sets interactive marker when interactive content is present' do
+        column = ColumnComponent.new(label: 'Actions')
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 1, interactive: true)
+
+        assert_equal true, attrs[:data]['pathogen--data-grid-has-interactive']
+      end
+
       test 'render_value uses block when provided' do
         column = ColumnComponent.new(label: 'Name') { |row, _index| row[:name].upcase }
         result = column.render_value({ name: 'test' }, 0)

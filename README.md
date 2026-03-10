@@ -127,6 +127,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Lightweight tooltip behavior (Flowbite-backed)
+- `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
 

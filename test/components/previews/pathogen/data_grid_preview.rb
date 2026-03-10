@@ -81,6 +81,28 @@ module Pathogen
       end
     end
 
+    # @label Keyboard Navigation with Interactive Cells
+    def keyboard_navigation_with_interactive_cells
+      render Pathogen::DataGridComponent.new(
+        caption: 'Keyboard navigation with interactive cell content',
+        sticky_columns: 1,
+        rows: NAVIGATION_ROWS
+      ) do |grid|
+        grid.with_column('Sample ID', key: :sample_id, width: 160)
+        grid.with_column('Name', key: :name, width: 260)
+        grid.with_column('Organism', key: :organism, width: 220)
+        grid.with_column('Actions', width: 240) do |row|
+          safe_join(
+            [
+              link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-u-link'),
+              button_tag('Inspect', type: 'button', class: 'pathogen-u-button')
+            ],
+            ' '
+          )
+        end
+      end
+    end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
