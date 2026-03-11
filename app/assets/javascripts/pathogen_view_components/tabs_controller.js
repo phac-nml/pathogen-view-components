@@ -127,11 +127,7 @@ export default class extends Controller {
       // Select the initial tab
       // Only update URL if the selected tab isn't already the current tab
       const validatedIndex = this.#validateDefaultIndex(initialIndex);
-      this.#selectTabByIndex(
-        validatedIndex,
-        shouldUpdateUrl,
-        history.replaceState,
-      );
+      this.#selectTabByIndex(validatedIndex, shouldUpdateUrl, history.replaceState);
 
       // Add initialization markers
       this.element.classList.add("tabs-initialized");
@@ -187,10 +183,8 @@ export default class extends Controller {
 
       // Map keys based on orientation
       const handlers = {
-        [isVertical ? "ArrowUp" : "ArrowLeft"]: () =>
-          this.#navigateToPrevious(event),
-        [isVertical ? "ArrowDown" : "ArrowRight"]: () =>
-          this.#navigateToNext(event),
+        [isVertical ? "ArrowUp" : "ArrowLeft"]: () => this.#navigateToPrevious(event),
+        [isVertical ? "ArrowDown" : "ArrowRight"]: () => this.#navigateToNext(event),
         Home: () => this.#navigateToFirst(),
         End: () => this.#navigateToLast(),
       };
@@ -217,10 +211,7 @@ export default class extends Controller {
         window.removeEventListener("hashchange", this.#boundHandleHashChange);
       }
       if (this.#boundHandleTurboRender) {
-        document.removeEventListener(
-          "turbo:render",
-          this.#boundHandleTurboRender,
-        );
+        document.removeEventListener("turbo:render", this.#boundHandleTurboRender);
       }
     }
 
@@ -250,15 +241,13 @@ export default class extends Controller {
   #validateTargets() {
     if (this.tabTargets.length === 0) {
       console.error("[pathogen--tabs] At least one tab target is required");
-      this.element.innerHTML =
-        '<div class="text-red-600">At least one tab target is required</div>';
+      this.element.innerHTML = '<div class="text-red-600">At least one tab target is required</div>';
       return false;
     }
 
     if (this.panelTargets.length === 0) {
       console.error("[pathogen--tabs] At least one panel target is required");
-      this.element.innerHTML =
-        '<div class="text-red-600">At least one panel target is required</div>';
+      this.element.innerHTML = '<div class="text-red-600">At least one panel target is required</div>';
       return false;
     }
 
@@ -267,8 +256,7 @@ export default class extends Controller {
         tabs: this.tabTargets.length,
         panels: this.panelTargets.length,
       });
-      this.element.innerHTML =
-        '<div class="text-red-600">Tab and panel counts must match</div>';
+      this.element.innerHTML = '<div class="text-red-600">Tab and panel counts must match</div>';
       return false;
     }
 
@@ -283,9 +271,7 @@ export default class extends Controller {
    */
   #validateDefaultIndex(index) {
     if (index < 0 || index >= this.tabTargets.length) {
-      console.warn(
-        `[pathogen--tabs] default_index ${index} out of bounds, using 0`,
-      );
+      console.warn(`[pathogen--tabs] default_index ${index} out of bounds, using 0`);
       return 0;
     }
     return index;
@@ -420,8 +406,7 @@ export default class extends Controller {
    */
   #navigateToPrevious(event) {
     const currentIndex = this.tabTargets.indexOf(event.currentTarget);
-    const targetIndex =
-      currentIndex === 0 ? this.tabTargets.length - 1 : currentIndex - 1;
+    const targetIndex = currentIndex === 0 ? this.tabTargets.length - 1 : currentIndex - 1;
     this.#focusAndSelectTab(targetIndex);
   }
 
@@ -560,17 +545,13 @@ export default class extends Controller {
       }
 
       // Try to find tab by ID
-      const tabIndex = this.tabTargets.findIndex(
-        (tab) => tab && tab.id === hash,
-      );
+      const tabIndex = this.tabTargets.findIndex((tab) => tab && tab.id === hash);
       if (tabIndex !== -1) {
         return tabIndex;
       }
 
       // Try to find panel by ID
-      const panelIndex = this.panelTargets.findIndex(
-        (panel) => panel && panel.id === hash,
-      );
+      const panelIndex = this.panelTargets.findIndex((panel) => panel && panel.id === hash);
       if (panelIndex !== -1) {
         return panelIndex;
       }
@@ -586,10 +567,7 @@ export default class extends Controller {
 
       return -1;
     } catch (error) {
-      console.error(
-        "[pathogen--tabs] Error getting tab index from hash:",
-        error,
-      );
+      console.error("[pathogen--tabs] Error getting tab index from hash:", error);
       return -1;
     }
   }
@@ -645,9 +623,7 @@ export default class extends Controller {
       } else {
         // No hash found, use default index
         // Use replaceState to avoid creating history entry during restoration
-        const validatedIndex = this.#validateDefaultIndex(
-          this.defaultIndexValue,
-        );
+        const validatedIndex = this.#validateDefaultIndex(this.defaultIndexValue);
         this.#selectTabByIndex(validatedIndex, true, history.replaceState);
       }
 
