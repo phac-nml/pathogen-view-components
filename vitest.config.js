@@ -1,8 +1,8 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
+import { fileURLToPath } from "url";
 
-// eslint-disable-next-line no-undef
-const jsRoot = resolve(__dirname, "app/assets/javascripts/pathogen_view_components");
+const jsRoot = resolve(fileURLToPath(new URL("app/assets/javascripts/pathogen_view_components", import.meta.url)));
 
 export default defineConfig({
   resolve: {
