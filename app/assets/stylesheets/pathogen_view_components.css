@@ -369,18 +369,20 @@
   }
 
   .pathogen-data-grid__cell:focus,
-  .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
-    [data-pathogen--data-grid-has-interactive="true"]
-  ) {
+  .pathogen-data-grid__table:focus-within
+    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
     /* Inset ring avoids clipping artifacts on sticky table cells. */
     outline: none;
     box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
   }
 
   .pathogen-data-grid__cell--sticky:focus,
-  .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
-    [data-pathogen--data-grid-has-interactive="true"]
-  ) {
+  .pathogen-data-grid__table:focus-within
+    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
     z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 
