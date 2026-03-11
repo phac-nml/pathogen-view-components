@@ -1,10 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
-import {
-  buildCellMap,
-  firstDataCell,
-  nextCellForKey,
-} from "pathogen_view_components/data_grid_controller/navigation";
+import { buildCellMap, firstDataCell, nextCellForKey } from "pathogen_view_components/data_grid_controller/navigation";
 
 import { ensureCellFullyVisible } from "pathogen_view_components/data_grid_controller/scroll";
 

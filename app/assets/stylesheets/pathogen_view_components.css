@@ -338,9 +338,7 @@
     box-shadow: 1px 0 0 var(--pathogen-data-grid-border-color);
   }
 
-  .pathogen-data-grid__cell--sticky + .pathogen-data-grid__cell:not(
-    .pathogen-data-grid__cell--sticky
-  ) {
+  .pathogen-data-grid__cell--sticky + .pathogen-data-grid__cell:not(.pathogen-data-grid__cell--sticky) {
     border-left: 1px solid var(--pathogen-data-grid-border-color);
   }
 

@@ -67,8 +67,7 @@ export function focusInteractiveElement(cell, targetElement, onVisible) {
   const elements = interactiveElements(cell);
   if (elements.length === 0) return;
 
-  const next =
-    targetElement && elements.includes(targetElement) ? targetElement : elements[0];
+  const next = targetElement && elements.includes(targetElement) ? targetElement : elements[0];
 
   activateInteractiveElement(cell, next);
   next.focus({ preventScroll: true });
@@ -111,10 +110,7 @@ export function handleTab(event, activeCell) {
   const elements = interactiveElements(activeCell);
   if (elements.length <= 1) return;
 
-  const focused =
-    event.target instanceof HTMLElement
-      ? event.target.closest(INTERACTIVE_SELECTOR)
-      : null;
+  const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
   const activeIndex = elements.indexOf(focused);
 
   // Only act when an interactive element already has focus (widget mode).

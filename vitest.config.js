@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
 
+// eslint-disable-next-line no-undef
 const jsRoot = resolve(__dirname, "app/assets/javascripts/pathogen_view_components");
 
 export default defineConfig({
@@ -8,7 +9,10 @@ export default defineConfig({
     alias: {
       "pathogen_view_components/data_grid_controller/navigation": resolve(jsRoot, "data_grid_controller/navigation.js"),
       "pathogen_view_components/data_grid_controller/scroll": resolve(jsRoot, "data_grid_controller/scroll.js"),
-      "pathogen_view_components/data_grid_controller/widget_mode": resolve(jsRoot, "data_grid_controller/widget_mode.js"),
+      "pathogen_view_components/data_grid_controller/widget_mode": resolve(
+        jsRoot,
+        "data_grid_controller/widget_mode.js",
+      ),
     },
   },
   test: {

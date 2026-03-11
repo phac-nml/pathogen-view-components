@@ -2,8 +2,7 @@
 // All functions take explicit arguments; none rely on controller state.
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
-const FIRST_DATA_CELL_SELECTOR =
-  `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
+const FIRST_DATA_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
 
 export function columnIndexOf(cell) {
   return Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
@@ -146,14 +145,23 @@ export function nextCellForKey(activeCell, event, map, pageSize) {
   if ((event.ctrlKey || event.metaKey) && event.key === "End") return lastDataCell(map, lastRow);
 
   switch (event.key) {
-    case "ArrowRight": return nextHorizontalCell(map, row, col, 1);
-    case "ArrowLeft":  return nextHorizontalCell(map, row, col, -1);
-    case "ArrowDown":  return nextVerticalCell(map, row, col, 1, lastRow);
-    case "ArrowUp":    return nextVerticalCell(map, row, col, -1, lastRow);
-    case "Home":       return cellAt(row, 0, map);
-    case "End":        return lastCellInRow(map, row);
-    case "PageDown":   return pageCell(map, row, col, 1, pageSize);
-    case "PageUp":     return pageCell(map, row, col, -1, pageSize);
-    default:           return null;
+    case "ArrowRight":
+      return nextHorizontalCell(map, row, col, 1);
+    case "ArrowLeft":
+      return nextHorizontalCell(map, row, col, -1);
+    case "ArrowDown":
+      return nextVerticalCell(map, row, col, 1, lastRow);
+    case "ArrowUp":
+      return nextVerticalCell(map, row, col, -1, lastRow);
+    case "Home":
+      return cellAt(row, 0, map);
+    case "End":
+      return lastCellInRow(map, row);
+    case "PageDown":
+      return pageCell(map, row, col, 1, pageSize);
+    case "PageUp":
+      return pageCell(map, row, col, -1, pageSize);
+    default:
+      return null;
   }
 }

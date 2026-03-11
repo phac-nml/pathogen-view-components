@@ -14,13 +14,9 @@ function registerPathogenControllers(application) {
   application.register("pathogen--data-grid", DataGridController);
 
   if (import.meta.env?.DEV) {
+    // eslint-disable-next-line no-console
     console.debug("[pathogen] Registered 3 Stimulus controllers");
   }
 }
 
-export {
-  TabsController,
-  TooltipController,
-  DataGridController,
-  registerPathogenControllers,
-};
+export { TabsController, TooltipController, DataGridController, registerPathogenControllers };
