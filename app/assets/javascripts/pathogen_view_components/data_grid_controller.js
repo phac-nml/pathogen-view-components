@@ -91,7 +91,10 @@ export default class extends Controller {
     const isGridEdge = (event.ctrlKey || event.metaKey) && GRID_EDGE_SHORTCUT_KEYS.has(event.key);
 
     if (isInteractiveTarget && !isGridEdge) {
-      handleInteractiveKeydown(event, activeCell, (cell) => this.#focusCell(cell));
+      handleInteractiveKeydown(event, activeCell, {
+        exitWidgetMode: (cell) => this.#focusCell(cell),
+        moveToInteractiveCell: (cell, direction) => this.#focusAdjacentInteractiveCell(cell, direction),
+      });
       return;
     }
 
@@ -145,6 +148,29 @@ export default class extends Controller {
     );
   }
 
+  #focusAdjacentInteractiveCell(cell, direction) {
+    const cells = this.#allCells();
+    const startIndex = cells.indexOf(cell);
+    if (startIndex === -1) return false;
+
+    let index = startIndex + direction;
+    while (index >= 0 && index < cells.length) {
+      const candidate = cells[index];
+      if (hasInteractiveElements(candidate)) {
+        this.#setActiveCell(candidate);
+        focusInteractiveElement(
+          candidate,
+          direction < 0 ? this.#lastInteractiveElement(candidate) : null,
+          (activeCandidate) => this.#scrollCellIntoView(activeCandidate),
+        );
+        return true;
+      }
+      index += direction;
+    }
+
+    return false;
+  }
+
   #pageSize() {
     const firstDataRow = this.gridTarget.querySelector("tbody tr");
     const rowHeight = firstDataRow?.offsetHeight || 1;
@@ -191,6 +217,11 @@ export default class extends Controller {
     });
     cell.setAttribute("data-pathogen--data-grid-active", "true");
     this.#lastActiveCell = cell;
+  }
+
+  #lastInteractiveElement(cell) {
+    const interactiveElements = cell.querySelectorAll("a, button, input, select, textarea");
+    return interactiveElements[interactiveElements.length - 1] || null;
   }
 
   #bindEvents(signal) {

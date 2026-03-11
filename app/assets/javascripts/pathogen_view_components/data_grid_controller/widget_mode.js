@@ -81,9 +81,11 @@ export function focusInteractiveElement(cell, targetElement, onVisible) {
  *
  * @param {KeyboardEvent} event
  * @param {HTMLElement} activeCell
- * @param {function} exitWidgetMode  - called with (cell) to restore cell focus
+ * @param {object} callbacks
+ * @param {function} callbacks.exitWidgetMode - called with (cell) to restore cell focus
+ * @param {function} callbacks.moveToInteractiveCell
  */
-export function handleInteractiveKeydown(event, activeCell, exitWidgetMode) {
+export function handleInteractiveKeydown(event, activeCell, { exitWidgetMode, moveToInteractiveCell }) {
   if (event.key === "Escape") {
     event.preventDefault();
     exitWidgetMode(activeCell);
@@ -91,7 +93,7 @@ export function handleInteractiveKeydown(event, activeCell, exitWidgetMode) {
   }
 
   if (event.key === "Tab") {
-    handleTab(event, activeCell);
+    handleTab(event, activeCell, { moveToInteractiveCell });
   }
 }
 
@@ -103,12 +105,13 @@ export function handleInteractiveKeydown(event, activeCell, exitWidgetMode) {
  *
  * @param {KeyboardEvent} event
  * @param {HTMLElement} activeCell
+ * @param {object} callbacks
+ * @param {function} callbacks.moveToInteractiveCell
  */
-export function handleTab(event, activeCell) {
+export function handleTab(event, activeCell, { moveToInteractiveCell }) {
   if (!hasInteractiveElements(activeCell)) return;
 
   const elements = interactiveElements(activeCell);
-  if (elements.length <= 1) return;
 
   const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
   const activeIndex = elements.indexOf(focused);
@@ -123,6 +126,11 @@ export function handleTab(event, activeCell) {
       const previous = elements[activeIndex - 1];
       activateInteractiveElement(activeCell, previous);
       previous.focus({ preventScroll: true });
+      return;
+    }
+
+    if (moveToInteractiveCell?.(activeCell, -1)) {
+      event.preventDefault();
     }
     return;
   }
@@ -132,6 +140,10 @@ export function handleTab(event, activeCell) {
     const next = elements[activeIndex + 1];
     activateInteractiveElement(activeCell, next);
     next.focus({ preventScroll: true });
+    return;
   }
-  // At the last element — allow Tab to fall through and exit the cell/grid.
+
+  if (moveToInteractiveCell?.(activeCell, 1)) {
+    event.preventDefault();
+  }
 }

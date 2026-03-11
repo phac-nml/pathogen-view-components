@@ -88,13 +88,7 @@ export function nextHorizontalCell(map, rowIndex, columnIndex, direction) {
   const nextPos = currentPos + direction;
   if (nextPos >= 0 && nextPos < rowCells.length) return rowCells[nextPos];
 
-  if (direction > 0) {
-    const nextRow = nextRowWithCells(map, rowIndex + 1, 1);
-    return nextRow === null ? null : cellAt(nextRow, 0, map);
-  }
-
-  const prevRow = nextRowWithCells(map, rowIndex - 1, -1);
-  return prevRow === null ? null : lastCellInRow(map, prevRow);
+  return null;
 }
 
 export function nextVerticalCell(map, rowIndex, columnIndex, direction, lastRow) {
