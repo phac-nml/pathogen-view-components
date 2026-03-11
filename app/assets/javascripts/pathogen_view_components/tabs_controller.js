@@ -83,14 +83,6 @@ export default class extends Controller {
   #hashUpdateTimeout = null;
 
   /**
-   * Private field for storing deferred keyboard selection
-   * Used to reduce repeated screen reader announcements during rapid arrow navigation
-   * @type {number|null}
-   * @private
-   */
-  #selectionTimeout = null;
-
-  /**
    * Initializes the controller when it connects to the DOM
    * Sets up ARIA relationships and selects the default tab.
    *
@@ -229,11 +221,6 @@ export default class extends Controller {
       this.#hashUpdateTimeout = null;
     }
 
-    if (this.#selectionTimeout) {
-      clearTimeout(this.#selectionTimeout);
-      this.#selectionTimeout = null;
-    }
-
     // Clear cached DOM references
     this.#tablist = null;
 
@@ -354,64 +341,60 @@ export default class extends Controller {
    * @returns {void}
    */
   #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState) {
-    if (this.#selectionTimeout) {
-      clearTimeout(this.#selectionTimeout);
-      this.#selectionTimeout = null;
-    }
+    setTimeout(() => {
+      // Defensive checks for morph scenarios
+      if (!this.hasTabTarget || !this.hasPanelTarget) {
+        return;
+      }
 
-    if (!this.hasTabTarget || !this.hasPanelTarget) {
-      return;
-    }
+      if (index < 0 || index >= this.tabTargets.length) {
+        return;
+      }
 
-    if (index < 0 || index >= this.tabTargets.length) {
-      return;
-    }
+      // Update all tabs
+      this.tabTargets.forEach((tab, i) => {
+        if (!tab) return; // Skip if tab doesn't exist
 
-    // Update all tabs
-    this.tabTargets.forEach((tab, i) => {
-      if (!tab) return; // Skip if tab doesn't exist
+        const isSelected = i === index;
 
-      const isSelected = i === index;
+        // Update ARIA attributes
+        tab.setAttribute("aria-selected", String(isSelected));
 
-      // Update ARIA attributes
-      tab.setAttribute("aria-selected", String(isSelected));
+        // Update roving tabindex
+        tab.tabIndex = isSelected ? 0 : -1;
+      });
 
-      // Update roving tabindex
-      tab.tabIndex = isSelected ? 0 : -1;
+      // Update all panels
+      this.panelTargets.forEach((panel, i) => {
+        if (!panel) return; // Skip if panel doesn't exist
 
-      this.#updateTabStyling(tab, isSelected);
-    });
+        const isVisible = i === index;
 
-    // Update all panels
-    this.panelTargets.forEach((panel, i) => {
-      if (!panel) return; // Skip if panel doesn't exist
+        // Update visibility
+        // Note: Using classList.toggle with 'hidden' class (not inline styles)
+        // is critical for Turbo Frame lazy loading. When 'hidden' is removed,
+        // Turbo detects the frame is now visible and triggers automatic fetch.
+        // CSS ensures visible panels display as block via [role="tabpanel"]:not(.hidden) rule.
+        panel.classList.toggle("hidden", !isVisible);
 
-      const isVisible = i === index;
+        // Update ARIA hidden state
+        panel.setAttribute("aria-hidden", String(!isVisible));
 
-      // Update visibility
-      // Note: Using classList.toggle with 'hidden' class (not inline styles)
-      // is critical for Turbo Frame lazy loading. When 'hidden' is removed,
-      // Turbo detects the frame is now visible and triggers automatic fetch.
-      // CSS ensures visible panels display as block via [role="tabpanel"]:not(.hidden) rule.
-      panel.classList.toggle("hidden", !isVisible);
+        // Turbo Frame lazy loading happens automatically when panel becomes visible
+        // No explicit intervention needed - Turbo handles it when 'hidden' class is removed
+      });
 
-      // Update ARIA hidden state
-      panel.setAttribute("aria-hidden", String(!isVisible));
+      // Update URL hash if sync is enabled
+      if (this.syncUrlValue && updateUrl) {
+        this.#updateUrlHash(index, updateMethod);
+      }
 
-      // Turbo Frame lazy loading happens automatically when panel becomes visible
-      // No explicit intervention needed - Turbo handles it when 'hidden' class is removed
-    });
-
-    // Update URL hash if sync is enabled
-    if (this.syncUrlValue && updateUrl) {
-      this.#updateUrlHash(index, updateMethod);
-    }
-
-    // Turbo Frame lazy loading happens automatically here:
-    // If the newly visible panel contains a <turbo-frame loading="lazy" src="...">,
-    // Turbo will fetch the content immediately after the panel becomes visible.
-    // The frame's fallback content (loading spinner) displays during fetch,
-    // then morphs into the loaded content seamlessly.
+      // Turbo Frame lazy loading happens automatically here:
+      // If the newly visible panel contains a <turbo-frame loading="lazy" src="...">,
+      // Turbo will fetch the content immediately after the panel becomes visible.
+      // The frame's fallback content (loading spinner) displays during fetch,
+      // then morphs into the loaded content seamlessly.
+    }, 20);
   }
 
   /**
@@ -472,51 +455,8 @@ export default class extends Controller {
     // Move focus to the tab
     tab.focus();
 
-    // Delay automatic activation slightly during keyboard navigation to reduce
-    // repeated screen reader announcements when users move quickly through tabs.
-    this.#selectionTimeout = setTimeout(() => {
-      this.#selectionTimeout = null;
-      this.#selectTabByIndex(index);
-    }, 20);
-  }
-
-  /**
-   * Updates stateful tab classes so styling follows aria-selected changes
-   * @private
-   * @param {HTMLElement} tab - The tab element
-   * @param {boolean} isSelected - Whether the tab is selected
-   * @returns {void}
-   */
-  #updateTabStyling(tab, isSelected) {
-    const selectedClasses = this.#parseClassList(tab.dataset.pathogenTabsSelectedClasses);
-    const unselectedClasses = this.#parseClassList(tab.dataset.pathogenTabsUnselectedClasses);
-
-    if (isSelected) {
-      if (unselectedClasses.length > 0) {
-        tab.classList.remove(...unselectedClasses);
-      }
-      if (selectedClasses.length > 0) {
-        tab.classList.add(...selectedClasses);
-      }
-      return;
-    }
-
-    if (selectedClasses.length > 0) {
-      tab.classList.remove(...selectedClasses);
-    }
-    if (unselectedClasses.length > 0) {
-      tab.classList.add(...unselectedClasses);
-    }
-  }
-
-  /**
-   * Parses space-delimited class lists from data attributes
-   * @private
-   * @param {string|undefined} classes - The class list string
-   * @returns {string[]} Parsed classes
-   */
-  #parseClassList(classes) {
-    return classes?.split(/\s+/).filter(Boolean) || [];
+    // Select the tab (automatic activation)
+    this.#selectTabByIndex(index);
   }
 
   /**
@@ -571,13 +511,7 @@ export default class extends Controller {
 
         // Use Turbo's history API to properly integrate with Turbo navigation
         // This ensures back/forward navigation works correctly with Turbo Drive
-        const turboHistory = window.Turbo?.session?.history;
-
-        if (typeof turboHistory?.update === "function") {
-          turboHistory.update(method, url, uuidv4());
-        } else if (typeof method === "function") {
-          method.call(history, history.state, "", url.toString());
-        }
+        Turbo.session.history.update(method, url, uuidv4());
       } catch (error) {
         console.error("[pathogen--tabs] Error updating URL hash:", error);
       } finally {
