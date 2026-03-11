@@ -350,10 +350,10 @@ export default class extends Controller {
    *
    * @private
    * @param {number} index - The tab index to select
-  * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
-  * @param {Function} updateMethod - The history method to use (default: history.pushState)
-  * @returns {void}
-  */
+   * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
+   * @param {Function} updateMethod - The history method to use (default: history.pushState)
+   * @returns {void}
+   */
   #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState) {
     // Keep ARIA state synchronous so selection is immediately correct on connect
     // and during keyboard navigation, including in test and Turbo morph scenarios.

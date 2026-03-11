@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent } from "@testing-library/dom";
 import { Application } from "@hotwired/stimulus";
+import { computePosition } from "@floating-ui/dom";
 import TooltipController from "../../../app/assets/javascripts/pathogen_view_components/tooltip_controller.js";
 
 vi.mock("@floating-ui/dom", () => ({
@@ -83,5 +84,15 @@ describe("Pathogen Tooltip controller", () => {
 
     expect(tooltip).toHaveAttribute("aria-hidden", "true");
     expect(tooltip).not.toHaveClass("opacity-100");
+  });
+
+  it("does not throw when computePosition returns a non-thenable", () => {
+    const trigger = document.getElementById("tooltip-trigger");
+    const tooltip = document.getElementById("tooltip-content");
+
+    vi.mocked(computePosition).mockReturnValueOnce(undefined);
+
+    expect(() => fireEvent.focusIn(trigger)).not.toThrow();
+    expect(tooltip).toHaveAttribute("aria-hidden", "false");
   });
 });
