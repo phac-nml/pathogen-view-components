@@ -23,3 +23,19 @@ pre-commit:
         - "**/*.js"
       run: pnpm exec eslint --fix {staged_files}
       stage_fixed: true
+    - name: rubocop
+      glob:
+        - "*.rb"
+        - "**/*.rb"
+        - "*.rake"
+        - "**/*.rake"
+        - "*.gemspec"
+        - "**/*.gemspec"
+        - "*.ru"
+        - "**/*.ru"
+        - "Gemfile"
+        - "**/Gemfile"
+        - "Rakefile"
+        - "**/Rakefile"
+      run: bundle exec rubocop --force-exclusion -A {staged_files}
+      stage_fixed: true

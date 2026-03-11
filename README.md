@@ -146,7 +146,7 @@ bin/test           # Ruby component tests
 pnpm test          # JavaScript controller tests (requires pnpm install)
 ```
 
-Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, then auto-fixes staged JavaScript with ESLint and re-stages any changes.
+Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, auto-fixes staged JavaScript with ESLint, runs RuboCop autocorrections on staged Ruby files, and re-stages any changes.
 
 ### Screen reader testing
 
