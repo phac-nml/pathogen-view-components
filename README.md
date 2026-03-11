@@ -144,7 +144,7 @@ Run tests:
 bin/test
 ```
 
-Git hooks are managed with `lefthook`. The pre-commit hook auto-fixes staged JavaScript files with ESLint and re-stages any changes.
+Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, then auto-fixes staged JavaScript with ESLint and re-stages any changes.
 
 ### Lookbook demo app
 

@@ -1,6 +1,22 @@
 pre-commit:
-  parallel: true
+  parallel: false
   jobs:
+    - name: prettier
+      glob:
+        - "*.js"
+        - "**/*.js"
+        - "*.json"
+        - "**/*.json"
+        - "*.md"
+        - "**/*.md"
+        - "*.css"
+        - "**/*.css"
+        - "*.yml"
+        - "**/*.yml"
+        - "*.yaml"
+        - "**/*.yaml"
+      run: pnpm exec prettier --write {staged_files}
+      stage_fixed: true
     - name: eslint
       glob:
         - "*.js"
