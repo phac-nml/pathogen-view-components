@@ -18,6 +18,9 @@ function renderTabsFixture() {
           role="tab"
           aria-selected="false"
           tabindex="-1"
+          class="tab-base is-selected"
+          data-pathogen-tabs-selected-classes="is-selected"
+          data-pathogen-tabs-unselected-classes="is-unselected"
           data-pathogen--tabs-target="tab"
           data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown"
         >
@@ -29,6 +32,9 @@ function renderTabsFixture() {
           role="tab"
           aria-selected="false"
           tabindex="-1"
+          class="tab-base is-unselected"
+          data-pathogen-tabs-selected-classes="is-selected"
+          data-pathogen-tabs-unselected-classes="is-unselected"
           data-pathogen--tabs-target="tab"
           data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown"
         >
@@ -81,15 +87,14 @@ describe("Pathogen Tabs controller", () => {
   });
 
   it("marks the first tab as selected by default", () => {
-    vi.useFakeTimers();
     const firstPanel = document.getElementById("panel-overview");
     const secondPanel = document.getElementById("panel-details");
     const firstTab = document.getElementById("tab-overview");
     const secondTab = document.getElementById("tab-details");
 
-    vi.advanceTimersByTime(20);
-
     expect(firstTab).toHaveAttribute("aria-selected", "true");
+    expect(firstTab).toHaveClass("is-selected");
+    expect(firstTab).not.toHaveClass("is-unselected");
     expect(firstPanel).not.toHaveClass("hidden");
     expect(firstPanel).toHaveAttribute("aria-hidden", "false");
     expect(secondPanel).toHaveClass("hidden");
@@ -98,11 +103,14 @@ describe("Pathogen Tabs controller", () => {
     expect(secondTab.tabIndex).toBe(-1);
 
     fireEvent.click(secondTab);
-    vi.advanceTimersByTime(20);
 
     expect(firstTab).toHaveAttribute("aria-selected", "false");
+    expect(firstTab).toHaveClass("is-unselected");
+    expect(firstTab).not.toHaveClass("is-selected");
     expect(firstTab.tabIndex).toBe(-1);
     expect(secondTab).toHaveAttribute("aria-selected", "true");
+    expect(secondTab).toHaveClass("is-selected");
+    expect(secondTab).not.toHaveClass("is-unselected");
     expect(secondTab.tabIndex).toBe(0);
     expect(firstPanel).toHaveClass("hidden");
     expect(secondPanel).not.toHaveClass("hidden");
@@ -114,13 +122,14 @@ describe("Pathogen Tabs controller", () => {
     const firstTab = document.getElementById("tab-overview");
     const secondTab = document.getElementById("tab-details");
 
-    vi.advanceTimersByTime(20);
     firstTab.focus();
     fireEvent.keyDown(firstTab, { key: "ArrowRight" });
     vi.advanceTimersByTime(20);
 
     expect(document.activeElement).toBe(secondTab);
     expect(secondTab).toHaveAttribute("aria-selected", "true");
+    expect(secondTab).toHaveClass("is-selected");
+    expect(secondTab).not.toHaveClass("is-unselected");
     expect(secondTab.tabIndex).toBe(0);
   });
 });

@@ -103,6 +103,8 @@ module Pathogen
       def setup_data_attributes
         @system_arguments[:data] ||= {}
         @system_arguments[:data]['pathogen--tabs-target'] = 'tab'
+        @system_arguments[:data]['pathogen-tabs-selected-classes'] = selected_state_classes.join(' ')
+        @system_arguments[:data]['pathogen-tabs-unselected-classes'] = unselected_state_classes.join(' ')
         @system_arguments[:data][:action] = [
           'click->pathogen--tabs#selectTab',
           'keydown->pathogen--tabs#handleKeyDown'
@@ -110,17 +112,11 @@ module Pathogen
       end
 
       # Sets up CSS classes based on selection state and orientation
-      # Note: We apply both selected and unselected classes with aria-selected selectors
-      # so that JavaScript can dynamically toggle the appearance by changing aria-selected
+      # JavaScript swaps only the stateful classes using the data attributes above,
+      # leaving base and user-provided classes untouched during tab changes.
       def setup_css_classes
-        # Select appropriate state classes based on orientation
-        state_classes = if @orientation == :vertical
-                          @selected ? SELECTED_CLASSES_VERTICAL : UNSELECTED_CLASSES_VERTICAL
-                        else
-                          @selected ? SELECTED_CLASSES_HORIZONTAL : UNSELECTED_CLASSES_HORIZONTAL
-                        end
-
         orientation_classes = @orientation == :vertical ? VERTICAL_CLASSES : HORIZONTAL_CLASSES
+        state_classes = @selected ? selected_state_classes : unselected_state_classes
 
         @system_arguments[:class] = class_names(
           BASE_CLASSES,
@@ -128,6 +124,14 @@ module Pathogen
           state_classes,
           @system_arguments[:class]
         )
+      end
+
+      def selected_state_classes
+        @orientation == :vertical ? SELECTED_CLASSES_VERTICAL : SELECTED_CLASSES_HORIZONTAL
+      end
+
+      def unselected_state_classes
+        @orientation == :vertical ? UNSELECTED_CLASSES_VERTICAL : UNSELECTED_CLASSES_HORIZONTAL
       end
     end
   end
