@@ -76,8 +76,7 @@ module Pathogen
         class: 'pathogen-data-grid__table',
         role: 'grid',
         data: {
-          'pathogen--data-grid-target': 'grid',
-          action: 'keydown->pathogen--data-grid#handleKeydown focusin->pathogen--data-grid#handleFocusin'
+          'pathogen--data-grid-target': 'grid'
         }
       }
 

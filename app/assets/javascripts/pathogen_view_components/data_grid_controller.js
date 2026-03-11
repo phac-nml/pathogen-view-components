@@ -13,11 +13,35 @@ const NAVIGATION_KEYS = new Set([
   "Tab",
 ]);
 
+const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
+
 export default class extends Controller {
   static targets = ["grid", "scrollContainer"];
+  #abortController = null;
 
   connect() {
+    this.element.dataset.pathogenDataGridConnected = "true";
+    this.#abortController = new AbortController();
+    const { signal } = this.#abortController;
+
+    this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
+      signal,
+      capture: true,
+    });
+
+    this.element.addEventListener("focusin", (event) => this.handleFocusin(event), {
+      signal,
+    });
+    this.element.addEventListener("click", (event) => this.handleClick(event), {
+      signal,
+    });
+
     this.#ensureActiveCell();
+  }
+
+  disconnect() {
+    this.#abortController?.abort();
+    this.#abortController = null;
   }
 
   handleFocusin(event) {
@@ -25,6 +49,26 @@ export default class extends Controller {
     if (!cell) return;
 
     this.#setActiveCell(cell);
+
+    const interactiveTarget = this.#resolveInteractiveTarget(event.target, cell);
+    if (interactiveTarget) {
+      this.#activateInteractiveElement(cell, interactiveTarget);
+    }
+  }
+
+  handleClick(event) {
+    const cell = this.#resolveCell(event.target);
+    if (!cell) return;
+
+    const interactiveTarget = this.#resolveInteractiveTarget(event.target, cell);
+    if (interactiveTarget) {
+      this.#setActiveCell(cell);
+      this.#activateInteractiveElement(cell, interactiveTarget);
+      return;
+    }
+
+    event.preventDefault();
+    this.#focusCell(cell);
   }
 
   handleKeydown(event) {
@@ -32,6 +76,22 @@ export default class extends Controller {
 
     const activeCell = this.#activeCell();
     if (!activeCell) return;
+
+    if (event.defaultPrevented) return;
+
+    if (this.#isInteractiveEventTarget(event.target, activeCell)) {
+      this.#handleInteractiveKeydown(event, activeCell);
+      return;
+    }
+
+    if (
+      this.#hasInteractiveElements(activeCell) &&
+      ENTER_WIDGET_MODE_KEYS.has(event.key)
+    ) {
+      event.preventDefault();
+      this.#focusInteractiveElement(activeCell);
+      return;
+    }
 
     if (event.key === "Tab") {
       this.#handleTab(event, activeCell);
@@ -49,6 +109,11 @@ export default class extends Controller {
 
   #activeCell() {
     if (!this.hasGridTarget) return null;
+
+    const fromFocusedElement = this.#resolveCell(document.activeElement);
+    if (fromFocusedElement && this.gridTarget.contains(fromFocusedElement)) {
+      return fromFocusedElement;
+    }
 
     return (
       this.gridTarget.querySelector(
@@ -95,12 +160,18 @@ export default class extends Controller {
     const rowCells = map.get(rowIndex);
     if (!rowCells || rowCells.length === 0) return null;
 
-    const safeColumn = Math.max(0, Math.min(columnIndex, rowCells.length - 1));
-    return rowCells[safeColumn];
+    const exactMatch = rowCells.find((cell) => this.#columnIndex(cell) === columnIndex);
+    if (exactMatch) return exactMatch;
+
+    const fallback = rowCells
+      .filter((cell) => this.#columnIndex(cell) <= columnIndex)
+      .pop();
+
+    return fallback || rowCells[0];
   }
 
   #columnIndex(cell) {
-    return Number(cell.dataset.pathogenDataGridColumnIndex);
+    return Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
   }
 
   #firstDataCell() {
@@ -113,17 +184,8 @@ export default class extends Controller {
 
   #focusCell(cell) {
     this.#setActiveCell(cell);
-
-    if (this.#hasInteractiveElements(cell)) {
-      const firstInteractive = this.#interactiveElements(cell)[0];
-      this.#activateInteractiveElement(cell, firstInteractive);
-      firstInteractive.focus({ preventScroll: true });
-      firstInteractive.scrollIntoView({ block: "nearest" });
-      return;
-    }
-
     cell.focus({ preventScroll: true });
-    cell.scrollIntoView({ block: "nearest" });
+    this.#ensureCellFullyVisible(cell);
   }
 
   #lastDataRowIndex(map) {
@@ -191,9 +253,12 @@ export default class extends Controller {
     const rowCells = map.get(rowIndex);
     if (!rowCells || rowCells.length === 0) return null;
 
-    const nextColumnIndex = columnIndex + direction;
-    if (nextColumnIndex >= 0 && nextColumnIndex < rowCells.length) {
-      return this.#cellAt(rowIndex, nextColumnIndex, map);
+    const currentPosition = rowCells.findIndex((cell) => this.#columnIndex(cell) === columnIndex);
+    if (currentPosition === -1) return null;
+
+    const nextPosition = currentPosition + direction;
+    if (nextPosition >= 0 && nextPosition < rowCells.length) {
+      return rowCells[nextPosition];
     }
 
     if (direction > 0) {
@@ -224,11 +289,13 @@ export default class extends Controller {
 
     if (direction > 0) {
       if (rowIndex >= lastDataRow) return null;
-      const nextRow = rowIndex + 1;
+      const nextRow = this.#nextRowWithCells(map, rowIndex + 1, 1);
+      if (nextRow === null) return null;
       return this.#cellAt(nextRow, columnIndex, map);
     }
 
-    const previousRow = rowIndex - 1;
+    const previousRow = this.#nextRowWithCells(map, rowIndex - 1, -1);
+    if (previousRow === null) return null;
     return this.#cellAt(previousRow, columnIndex, map);
   }
 
@@ -238,13 +305,17 @@ export default class extends Controller {
     const pageSize = this.#pageSize();
     if (direction > 0) {
       const baselineRow = rowIndex === 0 ? 1 : rowIndex;
-      const targetRow = Math.min(lastDataRow, baselineRow + pageSize);
+      const clampedTarget = Math.min(lastDataRow, baselineRow + pageSize);
+      const targetRow = this.#nextRowWithCells(map, clampedTarget, -1);
+      if (targetRow === null) return null;
       return this.#cellAt(targetRow, columnIndex, map);
     }
 
     if (rowIndex === 0) return null;
 
-    const targetRow = Math.max(1, rowIndex - pageSize);
+    const clampedTarget = Math.max(1, rowIndex - pageSize);
+    const targetRow = this.#nextRowWithCells(map, clampedTarget, 1);
+    if (targetRow === null) return null;
     return this.#cellAt(targetRow, columnIndex, map);
   }
 
@@ -268,25 +339,38 @@ export default class extends Controller {
     return target.closest('[data-pathogen--data-grid-target~="cell"]');
   }
 
+  #resolveInteractiveTarget(target, cell) {
+    if (!(target instanceof HTMLElement) || !cell) return null;
+
+    const interactiveTarget = target.closest(INTERACTIVE_SELECTOR);
+    if (!interactiveTarget) return null;
+
+    return cell.contains(interactiveTarget) ? interactiveTarget : null;
+  }
+
+  #isInteractiveEventTarget(target, cell) {
+    return this.#resolveInteractiveTarget(target, cell) !== null;
+  }
+
   #interactiveElements(cell) {
     return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR));
   }
 
   #hasInteractiveElements(cell) {
-    return cell.dataset.pathogenDataGridHasInteractive === "true";
+    return cell.getAttribute("data-pathogen--data-grid-has-interactive") === "true";
   }
 
   #rowIndex(cell) {
-    const value = Number(cell.dataset.pathogenDataGridRowIndex);
+    const value = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
     return Number.isNaN(value) ? null : value;
   }
 
   #setActiveCell(cell) {
     this.#allCells().forEach((node) => {
-      delete node.dataset.pathogenDataGridActive;
+      node.removeAttribute("data-pathogen--data-grid-active");
     });
 
-    cell.dataset.pathogenDataGridActive = "true";
+    cell.setAttribute("data-pathogen--data-grid-active", "true");
     this.#allCells().forEach((node) => {
       node.tabIndex = node === cell ? 0 : -1;
       this.#interactiveElements(node).forEach((interactiveNode) => {
@@ -302,6 +386,54 @@ export default class extends Controller {
     this.#focusCell(activeCell);
   }
 
+  #ensureCellFullyVisible(cell) {
+    if (!(cell instanceof HTMLElement)) return;
+
+    if (!this.hasScrollContainerTarget) {
+      cell.scrollIntoView({ block: "nearest", inline: "nearest" });
+      return;
+    }
+
+    const container = this.scrollContainerTarget;
+    const containerRect = container.getBoundingClientRect();
+    const cellRect = cell.getBoundingClientRect();
+
+    const stickyOverlap = this.#stickyOverlayWidth(containerRect);
+    const isStickyCell = cell.classList.contains("pathogen-data-grid__cell--sticky");
+    const minVisibleLeft = containerRect.left + (isStickyCell ? 0 : stickyOverlap);
+    const maxVisibleRight = containerRect.right;
+
+    if (cellRect.top < containerRect.top) {
+      container.scrollTop -= containerRect.top - cellRect.top;
+    } else if (cellRect.bottom > containerRect.bottom) {
+      container.scrollTop += cellRect.bottom - containerRect.bottom;
+    }
+
+    if (cellRect.left < minVisibleLeft) {
+      container.scrollLeft -= minVisibleLeft - cellRect.left;
+    } else if (cellRect.right > maxVisibleRight) {
+      container.scrollLeft += cellRect.right - maxVisibleRight;
+    }
+  }
+
+  #stickyOverlayWidth(containerRect) {
+    if (!this.hasGridTarget) return 0;
+
+    const stickyCells = this.gridTarget.querySelectorAll(
+      '.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky',
+    );
+
+    if (stickyCells.length === 0) return 0;
+
+    let maxInlineEnd = 0;
+    stickyCells.forEach((stickyCell) => {
+      const stickyRect = stickyCell.getBoundingClientRect();
+      maxInlineEnd = Math.max(maxInlineEnd, stickyRect.right - containerRect.left);
+    });
+
+    return Math.max(0, maxInlineEnd);
+  }
+
   #activateInteractiveElement(cell, targetElement) {
     const interactiveElements = this.#interactiveElements(cell);
     if (interactiveElements.length === 0 || !targetElement) return;
@@ -310,6 +442,32 @@ export default class extends Controller {
     interactiveElements.forEach((element) => {
       element.tabIndex = element === targetElement ? 0 : -1;
     });
+  }
+
+  #focusInteractiveElement(cell, targetElement = null) {
+    const interactiveElements = this.#interactiveElements(cell);
+    if (interactiveElements.length === 0) return;
+
+    const nextTarget =
+      targetElement && interactiveElements.includes(targetElement)
+        ? targetElement
+        : interactiveElements[0];
+
+    this.#activateInteractiveElement(cell, nextTarget);
+    nextTarget.focus({ preventScroll: true });
+    this.#ensureCellFullyVisible(cell);
+  }
+
+  #handleInteractiveKeydown(event, activeCell) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      this.#focusCell(activeCell);
+      return;
+    }
+
+    if (event.key === "Tab") {
+      this.#handleTab(event, activeCell);
+    }
   }
 
   #handleTab(event, activeCell) {
@@ -330,6 +488,7 @@ export default class extends Controller {
         const previous = interactiveElements[activeIndex - 1];
         this.#activateInteractiveElement(activeCell, previous);
         previous.focus({ preventScroll: true });
+        this.#ensureCellFullyVisible(activeCell);
       }
       return;
     }
@@ -339,6 +498,7 @@ export default class extends Controller {
       const next = interactiveElements[activeIndex + 1];
       this.#activateInteractiveElement(activeCell, next);
       next.focus({ preventScroll: true });
+      this.#ensureCellFullyVisible(activeCell);
       return;
     }
 
@@ -347,6 +507,7 @@ export default class extends Controller {
       const first = interactiveElements[0];
       this.#activateInteractiveElement(activeCell, first);
       first.focus({ preventScroll: true });
+      this.#ensureCellFullyVisible(activeCell);
     }
   }
 }

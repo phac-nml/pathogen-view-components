@@ -200,7 +200,7 @@
     --pathogen-data-grid-sticky-shadow: 4px 0 12px -2px
       color-mix(in oklab, var(--pathogen-color-neutral-950) 8%, transparent);
     --pathogen-data-grid-row-hover-bg: var(--pathogen-color-surface-subtle);
-    --pathogen-data-grid-focus-ring: var(--pathogen-color-focus-ring);
+    --pathogen-data-grid-focus-ring: oklch(0.63 0.16 255);
     --pathogen-data-grid-cell-padding-y: 1rem;
     --pathogen-data-grid-cell-padding-x: 1rem;
     --pathogen-data-grid-font-size: var(--pathogen-text-sm);
@@ -338,6 +338,12 @@
     box-shadow: 1px 0 0 var(--pathogen-data-grid-border-color);
   }
 
+  .pathogen-data-grid__cell--sticky + .pathogen-data-grid__cell:not(
+    .pathogen-data-grid__cell--sticky
+  ) {
+    border-left: 1px solid var(--pathogen-data-grid-border-color);
+  }
+
   .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
     z-index: calc(var(--pathogen-data-grid-header-z) + 1);
     background: var(--pathogen-data-grid-header-bg);
@@ -362,15 +368,27 @@
     background: inherit;
   }
 
-  .pathogen-data-grid__cell:focus-within {
-    outline: 2px solid var(--pathogen-data-grid-focus-ring);
-    outline-offset: -2px;
+  .pathogen-data-grid__cell:focus-visible,
+  .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
+    [data-pathogen--data-grid-has-interactive="true"]
+  ) {
+    /* Inset ring avoids clipping artifacts on sticky table cells. */
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
   }
 
-  /* In table cells, keep a single focus ring on the cell container. */
-  .pathogen-data-grid__cell .pathogen-u-link:focus-visible,
-  .pathogen-data-grid__cell .pathogen-data-grid__link:focus-visible {
-    outline: none;
+  .pathogen-data-grid__cell--sticky:focus-visible,
+  .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
+    [data-pathogen--data-grid-has-interactive="true"]
+  ) {
+    z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
+  }
+
+  /* Interactive cells should show focus on the control itself, not the cell. */
+  .pathogen-data-grid__cell :is(a, button, input, select, textarea):focus-visible {
+    outline: 1px solid var(--pathogen-data-grid-focus-ring);
+    outline-offset: 0;
+    border-radius: var(--pathogen-radius-control);
   }
 
   .pathogen-data-grid__metadata-warning {
