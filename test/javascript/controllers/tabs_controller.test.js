@@ -47,8 +47,10 @@ function renderTabsFixture() {
 
 describe("Pathogen Tabs controller", () => {
   let application;
+  let originalTurbo;
 
   beforeEach(() => {
+    originalTurbo = window.Turbo;
     window.Turbo = {
       session: {
         history: {
@@ -64,6 +66,12 @@ describe("Pathogen Tabs controller", () => {
   });
 
   afterEach(() => {
+    if (originalTurbo === undefined) {
+      delete window.Turbo;
+    } else {
+      window.Turbo = originalTurbo;
+    }
+
     if (application) {
       application.stop();
       application = null;
