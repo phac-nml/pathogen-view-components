@@ -127,7 +127,9 @@ module Pathogen
         end
       end
 
-      assert_selector 'tbody tr:first-child td:first-child[tabindex="-1"][data-pathogen--data-grid-has-interactive="true"]'
+      assert_selector(
+        'tbody tr:first-child td:first-child[tabindex="-1"][data-pathogen--data-grid-has-interactive="true"]'
+      )
       assert_selector 'tbody tr:first-child td:first-child a[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:first-child button[tabindex="-1"]'
       assert_selector 'tbody tr:nth-child(2) td:first-child a[tabindex="-1"]'

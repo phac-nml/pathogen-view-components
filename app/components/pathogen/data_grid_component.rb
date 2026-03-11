@@ -67,17 +67,13 @@ module Pathogen
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
-    def caption?
-      @caption.present?
-    end
+    def caption? = @caption.present?
 
     def table_attributes
       attributes = {
         class: 'pathogen-data-grid__table',
         role: 'grid',
-        data: {
-          'pathogen--data-grid-target': 'grid'
-        }
+        data: { 'pathogen--data-grid-target': 'grid' }
       }
 
       label_attributes = table_aria_attributes
@@ -85,9 +81,7 @@ module Pathogen
       attributes
     end
 
-    def default_active_row_index
-      @rows.present? ? 1 : nil
-    end
+    def default_active_row_index = @rows.present? ? 1 : nil
 
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
@@ -100,7 +94,7 @@ module Pathogen
       interactive_nodes.first['tabindex'] = '0' if active
 
       {
-        content: fragment.to_html.html_safe,
+        content: safe_fragment_content(fragment),
         focus_on_cell: false,
         interactive: true
       }
@@ -115,6 +109,10 @@ module Pathogen
     end
 
     private
+
+    def safe_fragment_content(fragment)
+      helpers.safe_join(fragment.children.map { |node| ActiveSupport::SafeBuffer.new(node.to_html) })
+    end
 
     def table_aria_attributes
       if @caption_id.present?

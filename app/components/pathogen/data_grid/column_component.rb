@@ -88,32 +88,56 @@ module Pathogen
       private
 
       def attributes_for(header:, row_index:, column_index:, active: false, interactive: false)
-        classes = ['pathogen-data-grid__cell', @system_arguments[:class]]
-        classes << (header ? 'pathogen-data-grid__cell--header' : 'pathogen-data-grid__cell--body')
-        classes << 'pathogen-data-grid__cell--sticky' if @sticky
-        classes << "pathogen-data-grid__cell--align-#{@align}" if @align
+        {
+          class: class_names(*cell_classes(header:)),
+          data: cell_data_attributes(row_index:, column_index:, interactive:),
+          role: cell_role(header:),
+          style: cell_styles,
+          tabindex: cell_tabindex(header:, active:)
+        }
+      end
 
+      def cell_classes(header:)
+        [
+          'pathogen-data-grid__cell',
+          @system_arguments[:class],
+          "pathogen-data-grid__cell--#{header ? 'header' : 'body'}",
+          (@sticky ? 'pathogen-data-grid__cell--sticky' : nil),
+          (@align ? "pathogen-data-grid__cell--align-#{@align}" : nil)
+        ]
+      end
+
+      def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}
-        targets = [data_attributes['pathogen--data-grid-target'], 'cell'].compact.join(' ').split.uniq.join(' ')
-        data_attributes['pathogen--data-grid-target'] = targets
-        data_attributes['pathogen--data-grid-row-index'] = row_index
-        data_attributes['pathogen--data-grid-column-index'] = column_index
-        data_attributes['pathogen--data-grid-has-interactive'] = interactive
+        existing_targets = data_attributes['pathogen--data-grid-target']
 
+        data_attributes.merge(
+          'pathogen--data-grid-target' => [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' '),
+          'pathogen--data-grid-row-index' => row_index,
+          'pathogen--data-grid-column-index' => column_index,
+          'pathogen--data-grid-has-interactive' => interactive
+        )
+      end
+
+      def cell_role(header:)
+        header ? 'columnheader' : 'gridcell'
+      end
+
+      def cell_styles
         styles = []
         styles << "--pathogen-data-grid-col-width: #{@width};" if @width
-        if @sticky
-          sticky_left_value = @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
-          styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};"
-        end
+        styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};" if @sticky
+        styles.join(' ')
+      end
 
-        {
-          class: class_names(*classes),
-          data: data_attributes,
-          role: (header ? 'columnheader' : 'gridcell'),
-          style: styles.join(' '),
-          tabindex: (header ? -1 : (active ? 0 : -1))
-        }
+      def sticky_left_value
+        @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
+      end
+
+      def cell_tabindex(header:, active:)
+        return -1 if header
+
+        active ? 0 : -1
       end
 
       def value_for(row, index)
