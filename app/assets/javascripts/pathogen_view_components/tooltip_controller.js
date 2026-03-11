@@ -369,10 +369,10 @@ export default class extends Controller {
       this.#triggerElement,
       this.#tooltipElement,
       {
-      placement,
-      strategy: "fixed",
-      middleware,
-    },
+        placement,
+        strategy: "fixed",
+        middleware,
+      },
     );
 
     if (!positionResult || typeof positionResult.then !== "function") {
