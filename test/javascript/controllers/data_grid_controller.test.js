@@ -67,6 +67,13 @@ describe("data_grid_controller", () => {
     document.body.innerHTML = "";
   });
 
+  it("does not move focus into the grid on initialization", () => {
+    const firstCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
+
+    expect(document.activeElement).toBe(document.body);
+    expect(firstCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
   it("keeps focus on the cell during grid navigation until widget mode is entered", () => {
     const firstCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
     const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');

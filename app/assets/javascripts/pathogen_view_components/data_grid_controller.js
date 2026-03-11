@@ -1,6 +1,13 @@
 import { Controller } from "@hotwired/stimulus";
 
 const INTERACTIVE_SELECTOR = "a, button, input, select, textarea";
+const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
+const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
+const FOCUSABLE_CELL_SELECTOR = `${CELL_SELECTOR}[tabindex="0"]`;
+const FIRST_DATA_CELL_SELECTOR =
+  `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
+const STICKY_OVERLAY_SELECTOR =
+  '.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky';
 const NAVIGATION_KEYS = new Set([
   "ArrowRight",
   "ArrowLeft",
@@ -16,27 +23,15 @@ const NAVIGATION_KEYS = new Set([
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
 
 export default class extends Controller {
-  static targets = ["grid", "scrollContainer"];
+  static targets = ["cell", "grid", "scrollContainer"];
   #abortController = null;
 
+  // Lifecycle
   connect() {
     this.element.dataset.pathogenDataGridConnected = "true";
+    this.#abortController?.abort();
     this.#abortController = new AbortController();
-    const { signal } = this.#abortController;
-
-    this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
-      signal,
-      capture: true,
-    });
-
-    this.element.addEventListener("focusin", (event) => this.handleFocusin(event), {
-      signal,
-    });
-    this.element.addEventListener("click", (event) => this.handleClick(event), {
-      signal,
-    });
-
-    this.#ensureActiveCell();
+    this.#bindEvents(this.#abortController.signal);
   }
 
   disconnect() {
@@ -44,6 +39,7 @@ export default class extends Controller {
     this.#abortController = null;
   }
 
+  // DOM event handlers
   handleFocusin(event) {
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
@@ -107,32 +103,25 @@ export default class extends Controller {
     this.#focusCell(nextCell);
   }
 
+  // Navigation
   #activeCell() {
     if (!this.hasGridTarget) return null;
 
+    const cells = this.#allCells();
     const fromFocusedElement = this.#resolveCell(document.activeElement);
-    if (fromFocusedElement && this.gridTarget.contains(fromFocusedElement)) {
+    if (fromFocusedElement && cells.includes(fromFocusedElement)) {
       return fromFocusedElement;
     }
 
     return (
-      this.gridTarget.querySelector(
-        '[data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-active="true"]',
-      ) ||
-      this.gridTarget.querySelector(
-        '[data-pathogen--data-grid-target~="cell"][tabindex="0"]',
-      ) || this.#firstDataCell()
+      cells.find((cell) => cell.matches(ACTIVE_CELL_SELECTOR)) ||
+      cells.find((cell) => cell.matches(FOCUSABLE_CELL_SELECTOR)) ||
+      this.#firstDataCell(cells)
     );
   }
 
   #allCells() {
-    if (!this.hasGridTarget) return [];
-
-    return Array.from(
-      this.gridTarget.querySelectorAll(
-        '[data-pathogen--data-grid-target~="cell"]',
-      ),
-    );
+    return this.hasCellTarget ? [...this.cellTargets] : [];
   }
 
   #buildCellMap() {
@@ -174,12 +163,8 @@ export default class extends Controller {
     return Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
   }
 
-  #firstDataCell() {
-    if (!this.hasGridTarget) return null;
-
-    return this.gridTarget.querySelector(
-      '[data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
-    );
+  #firstDataCell(cells = this.#allCells()) {
+    return cells.find((cell) => cell.matches(FIRST_DATA_CELL_SELECTOR)) || null;
   }
 
   #focusCell(cell) {
@@ -336,7 +321,7 @@ export default class extends Controller {
   #resolveCell(target) {
     if (!(target instanceof HTMLElement)) return null;
 
-    return target.closest('[data-pathogen--data-grid-target~="cell"]');
+    return target.closest(CELL_SELECTOR);
   }
 
   #resolveInteractiveTarget(target, cell) {
@@ -366,24 +351,19 @@ export default class extends Controller {
   }
 
   #setActiveCell(cell) {
-    this.#allCells().forEach((node) => {
+    const cells = this.#allCells();
+
+    cells.forEach((node) => {
       node.removeAttribute("data-pathogen--data-grid-active");
     });
 
     cell.setAttribute("data-pathogen--data-grid-active", "true");
-    this.#allCells().forEach((node) => {
+    cells.forEach((node) => {
       node.tabIndex = node === cell ? 0 : -1;
       this.#interactiveElements(node).forEach((interactiveNode) => {
         interactiveNode.tabIndex = -1;
       });
     });
-  }
-
-  #ensureActiveCell() {
-    const activeCell = this.#activeCell();
-    if (!activeCell) return;
-
-    this.#focusCell(activeCell);
   }
 
   #ensureCellFullyVisible(cell) {
@@ -419,9 +399,7 @@ export default class extends Controller {
   #stickyOverlayWidth(containerRect) {
     if (!this.hasGridTarget) return 0;
 
-    const stickyCells = this.gridTarget.querySelectorAll(
-      '.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky',
-    );
+    const stickyCells = this.gridTarget.querySelectorAll(STICKY_OVERLAY_SELECTOR);
 
     if (stickyCells.length === 0) return 0;
 
@@ -448,6 +426,7 @@ export default class extends Controller {
     const interactiveElements = this.#interactiveElements(cell);
     if (interactiveElements.length === 0) return;
 
+    // Grid mode keeps focus on the cell; widget mode transfers focus to an inner control.
     const nextTarget =
       targetElement && interactiveElements.includes(targetElement)
         ? targetElement
@@ -509,5 +488,21 @@ export default class extends Controller {
       first.focus({ preventScroll: true });
       this.#ensureCellFullyVisible(activeCell);
     }
+  }
+
+  // Internal utilities
+  #bindEvents(signal) {
+    this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
+      signal,
+      capture: true,
+    });
+
+    this.element.addEventListener("focusin", (event) => this.handleFocusin(event), {
+      signal,
+    });
+
+    this.element.addEventListener("click", (event) => this.handleClick(event), {
+      signal,
+    });
   }
 }
