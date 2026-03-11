@@ -130,18 +130,19 @@ registerPathogenControllers(application);
 
 ## Development
 
-Install dependencies:
+Set up the development environment:
 
 ```bash
-bin/bundle install
-pnpm install
-bundle exec lefthook install --force --reset-hooks-path
+bin/setup
 ```
+
+Use `bin/setup --skip-demo` if you only want the library dependencies and hooks without preparing the Lookbook demo app.
 
 Run tests:
 
 ```bash
 bin/test
+pnpm test
 ```
 
 Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, then auto-fixes staged JavaScript with ESLint and re-stages any changes.

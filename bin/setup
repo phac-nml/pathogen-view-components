@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "fileutils"
+
+APP_ROOT = File.expand_path("..", __dir__)
+
+def system!(*args)
+  system(*args, exception: true)
+end
+
+def step(title)
+  puts "\n== #{title} =="
+  yield
+end
+
+FileUtils.chdir(APP_ROOT) do
+  step("Installing Ruby dependencies") do
+    system("bundle check") || system!("bundle install")
+  end
+
+  step("Installing JavaScript dependencies") do
+    system!("pnpm", "install", "--frozen-lockfile")
+  end
+
+  step("Installing git hooks") do
+    system!("bundle", "exec", "lefthook", "install", "--force", "--reset-hooks-path")
+  end
+
+  unless ARGV.include?("--skip-demo")
+    step("Setting up demo app") do
+      system!(File.join("demo", "bin", "setup"), "--skip-server")
+    end
+  end
+
+  puts "\nSetup complete."
+  puts "Run `bin/test` for Ruby tests."
+  puts "Run `pnpm test` for JavaScript tests."
+  puts "Run `cd demo && bin/dev` to start the Lookbook demo." unless ARGV.include?("--skip-demo")
+end
