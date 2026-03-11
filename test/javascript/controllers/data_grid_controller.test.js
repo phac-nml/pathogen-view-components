@@ -121,4 +121,209 @@ describe("data_grid_controller", () => {
     expect(firstCell.getAttribute("data-pathogen--data-grid-active")).toBeNull();
     expect(interactiveCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
+
+  it("moves focus to the last body cell with Ctrl+End", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  ID
+                </th>
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Name
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Alpha
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  A-1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Beta
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  B-1
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const lastCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    firstCell.focus();
+    dispatchKey(firstCell, "End", { ctrlKey: true });
+
+    expect(document.activeElement).toBe(lastCell);
+    expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(lastCell.tabIndex).toBe(0);
+  });
+
+  it("moves focus to the last body cell with Ctrl+End from widget mode", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  ID
+                </th>
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Alpha
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="true"
+                >
+                  <a href="/samples/S-001" tabindex="-1">Open</a>
+                  <button type="button" tabindex="-1">Edit</button>
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Beta
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Done
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const interactiveCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    const link = interactiveCell.querySelector("a");
+    const lastCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    interactiveCell.focus();
+    dispatchKey(interactiveCell, "Enter");
+    dispatchKey(link, "End", { ctrlKey: true });
+
+    expect(document.activeElement).toBe(lastCell);
+    expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(link.tabIndex).toBe(-1);
+  });
 });

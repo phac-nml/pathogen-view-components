@@ -21,6 +21,7 @@ const NAVIGATION_KEYS = new Set([
 ]);
 
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
+const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 
 export default class extends Controller {
   static targets = ["cell", "grid", "scrollContainer"];
@@ -75,7 +76,10 @@ export default class extends Controller {
 
     if (event.defaultPrevented) return;
 
-    if (this.#isInteractiveEventTarget(event.target, activeCell)) {
+    if (
+      this.#isInteractiveEventTarget(event.target, activeCell) &&
+      !this.#isGridEdgeShortcut(event)
+    ) {
       this.#handleInteractiveKeydown(event, activeCell);
       return;
     }
@@ -339,6 +343,13 @@ export default class extends Controller {
 
   #interactiveElements(cell) {
     return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR));
+  }
+
+  #isGridEdgeShortcut(event) {
+    return (
+      (event.ctrlKey || event.metaKey) &&
+      GRID_EDGE_SHORTCUT_KEYS.has(event.key)
+    );
   }
 
   #hasInteractiveElements(cell) {
