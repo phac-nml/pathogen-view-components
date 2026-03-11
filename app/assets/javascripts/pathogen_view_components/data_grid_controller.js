@@ -37,7 +37,6 @@ export default class extends Controller {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   connect() {
-    this.element.dataset.pathogenDataGridConnected = "true";
     this.#abortController?.abort();
     this.#abortController = new AbortController();
     this.#bindEvents(this.#abortController.signal);
@@ -73,6 +72,7 @@ export default class extends Controller {
       return;
     }
 
+    // Prevent default to avoid text-selection flicker when clicking to focus a plain cell.
     event.preventDefault();
     this.#focusCell(cell);
   }
@@ -167,16 +167,13 @@ export default class extends Controller {
 
     cells.forEach((node) => {
       node.removeAttribute("data-pathogen--data-grid-active");
-    });
-
-    cell.setAttribute("data-pathogen--data-grid-active", "true");
-
-    cells.forEach((node) => {
       node.tabIndex = node === cell ? 0 : -1;
       node.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
         el.tabIndex = -1;
       });
     });
+
+    cell.setAttribute("data-pathogen--data-grid-active", "true");
   }
 
   #bindEvents(signal) {
