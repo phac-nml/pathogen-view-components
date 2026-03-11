@@ -27,7 +27,7 @@ module Pathogen
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(label:, key: nil, width: nil, align: nil, sticky: nil, sticky_left: nil, header_content: nil,
-                     **system_arguments, &block)
+                     interactive: false, **system_arguments, &block)
         # rubocop:enable Metrics/ParameterLists
         @label = label
         @key = key
@@ -36,9 +36,12 @@ module Pathogen
         @sticky = sticky
         @sticky_left = sticky_left
         @header_content = header_content
+        @interactive = interactive
         @system_arguments = system_arguments
         @block = block
       end
+
+      def interactive? = @interactive
 
       def header_cell_attributes(column_index:)
         attributes_for(header: true, row_index: 0, column_index: column_index)

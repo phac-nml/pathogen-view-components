@@ -223,6 +223,16 @@ module Pathogen
       assert_selector 'thead th[tabindex="-1"]', count: 2
     end
 
+    test 'declarative interactive: true column marks cell as interactive' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      rows: [{ name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('Action', key: :name, interactive: true)
+      end
+
+      assert_selector 'td[data-pathogen--data-grid-has-interactive="true"]'
+    end
+
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,

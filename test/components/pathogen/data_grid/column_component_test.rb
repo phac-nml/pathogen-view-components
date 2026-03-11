@@ -77,6 +77,18 @@ module Pathogen
         assert_equal true, attrs[:data]['pathogen--data-grid-has-interactive']
       end
 
+      test 'interactive? returns false by default' do
+        column = ColumnComponent.new(label: 'Name', key: :name)
+
+        assert_equal false, column.interactive?
+      end
+
+      test 'interactive? returns true when declared' do
+        column = ColumnComponent.new(label: 'Actions', interactive: true)
+
+        assert_equal true, column.interactive?
+      end
+
       test 'render_value uses block when provided' do
         column = ColumnComponent.new(label: 'Name') { |row, _index| row[:name].upcase }
         result = column.render_value({ name: 'test' }, 0)

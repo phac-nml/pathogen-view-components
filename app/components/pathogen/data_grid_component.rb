@@ -85,6 +85,11 @@ module Pathogen
 
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
+
+      # Declarative opt-in: consumer signals the cell contains interactive elements.
+      # Skip Nokogiri parsing — tabindex management is the consumer's responsibility.
+      return { content: rendered_value, focus_on_cell: false, interactive: true } if column.interactive?
+
       fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
       interactive_nodes = fragment.css(INTERACTIVE_SELECTOR)
 
