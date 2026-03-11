@@ -33,6 +33,8 @@ const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 export default class extends Controller {
   static targets = ["cell", "grid", "scrollContainer"];
   #abortController = null;
+  // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
+  #lastActiveCell = null;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -163,17 +165,32 @@ export default class extends Controller {
   }
 
   #setActiveCell(cell) {
-    const cells = this.#allCells();
-
-    cells.forEach((node) => {
-      node.removeAttribute("data-pathogen--data-grid-active");
-      node.tabIndex = node === cell ? 0 : -1;
-      node.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
+    if (this.#lastActiveCell === null) {
+      // First call: sweep all cells to normalize the server-rendered initial state.
+      this.#allCells().forEach((node) => {
+        node.removeAttribute("data-pathogen--data-grid-active");
+        node.tabIndex = -1;
+        node.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
+          el.tabIndex = -1;
+        });
+      });
+    } else if (this.#lastActiveCell !== cell) {
+      // Different cell: deactivate only the previous one (O(1)).
+      const prev = this.#lastActiveCell;
+      prev.removeAttribute("data-pathogen--data-grid-active");
+      prev.tabIndex = -1;
+      prev.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
         el.tabIndex = -1;
       });
-    });
+    }
 
+    // Always reset the active cell — handles both navigation and widget-mode exit.
+    cell.tabIndex = 0;
+    cell.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
+      el.tabIndex = -1;
+    });
     cell.setAttribute("data-pathogen--data-grid-active", "true");
+    this.#lastActiveCell = cell;
   }
 
   #bindEvents(signal) {
