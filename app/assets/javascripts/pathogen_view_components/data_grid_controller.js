@@ -4,9 +4,9 @@ import {
   buildCellMap,
   firstDataCell,
   nextCellForKey,
-} from "./data_grid_controller/navigation";
+} from "pathogen_view_components/data_grid_controller/navigation";
 
-import { ensureCellFullyVisible } from "./data_grid_controller/scroll";
+import { ensureCellFullyVisible } from "pathogen_view_components/data_grid_controller/scroll";
 
 import {
   activateInteractiveElement,
@@ -14,7 +14,7 @@ import {
   handleInteractiveKeydown,
   hasInteractiveElements,
   resolveInteractiveTarget,
-} from "./data_grid_controller/widget_mode";
+} from "pathogen_view_components/data_grid_controller/widget_mode";
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
