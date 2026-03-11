@@ -134,6 +134,8 @@ Install dependencies:
 
 ```bash
 bin/bundle install
+pnpm install
+bundle exec lefthook install --force --reset-hooks-path
 ```
 
 Run tests:
@@ -141,6 +143,8 @@ Run tests:
 ```bash
 bin/test
 ```
+
+Git hooks are managed with `lefthook`. The pre-commit hook auto-fixes staged JavaScript files with ESLint and re-stages any changes.
 
 ### Lookbook demo app
 

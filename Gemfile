@@ -11,6 +11,7 @@ group :development, :test do
   gem 'annotate'
   gem 'capybara'
   gem 'i18n-tasks'
+  gem 'lefthook', '~> 2.1', require: false
   gem 'rubocop'
   gem 'rubocop-performance'
   gem 'rubocop-rails'

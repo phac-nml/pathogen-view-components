@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: eslint
+      glob:
+        - "*.js"
+        - "**/*.js"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
