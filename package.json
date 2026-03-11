@@ -7,7 +7,7 @@
   "packageManager": "pnpm@10.25.0",
   "scripts": {
     "format": "eslint app/assets/javascripts test/javascript --fix",
-    "format:changed": "eslint --fix",
+    "format:changed": "eslint app/assets/javascripts test/javascript --fix",
     "test": "vitest run",
     "test:unit": "vitest run test/javascript",
     "lint": "eslint app/assets/javascripts test/javascript",
