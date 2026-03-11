@@ -112,13 +112,15 @@ module Pathogen
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}
-        existing_targets = data_attributes['pathogen--data-grid-target']
+        existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
+                           data_attributes.delete('pathogen--data-grid-target')
+        merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
 
         data_attributes.merge(
-          'pathogen--data-grid-target' => [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' '),
-          'pathogen--data-grid-row-index' => row_index,
-          'pathogen--data-grid-column-index' => column_index,
-          'pathogen--data-grid-has-interactive' => interactive
+          'pathogen--data-grid-target': merged_targets,
+          'pathogen--data-grid-row-index': row_index,
+          'pathogen--data-grid-column-index': column_index,
+          'pathogen--data-grid-has-interactive': interactive
         )
       end
 

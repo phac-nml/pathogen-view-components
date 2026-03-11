@@ -74,7 +74,7 @@ module Pathogen
         column = ColumnComponent.new(label: 'Actions')
         attrs = column.body_cell_attributes(row_index: 1, column_index: 1, interactive: true)
 
-        assert_equal true, attrs[:data]['pathogen--data-grid-has-interactive']
+        assert_equal true, attrs[:data][:'pathogen--data-grid-has-interactive']
       end
 
       test 'interactive? returns false by default' do
