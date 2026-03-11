@@ -70,9 +70,7 @@ module Pathogen
         @label
       end
 
-      def default_header_label?
-        @header_content.blank?
-      end
+      def default_header_label? = @header_content.blank?
 
       def normalize_width!
         return if @width.blank?
@@ -124,9 +122,7 @@ module Pathogen
         )
       end
 
-      def cell_role(header:)
-        header ? 'columnheader' : 'gridcell'
-      end
+      def cell_role(header:) = header ? 'columnheader' : 'gridcell'
 
       def cell_styles
         styles = []

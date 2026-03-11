@@ -27,6 +27,8 @@ module Pathogen
   #
   # CSS dependency: pathogen/pathogen.css
   class DataGridComponent < Pathogen::Component
+    include DataGrid::InteractiveContent
+
     renders_one :empty_state
     renders_one :footer
     renders_one :live_region
@@ -51,7 +53,6 @@ module Pathogen
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
-    INTERACTIVE_SELECTOR = 'a, button, input, select, textarea'
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
@@ -102,7 +103,7 @@ module Pathogen
       end
 
       fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
-      interactive_nodes = fragment.css(INTERACTIVE_SELECTOR)
+      interactive_nodes = fragment.css(DataGrid::InteractiveContent::INTERACTIVE_SELECTOR)
 
       return { content: rendered_value, focus_on_cell: active, interactive: false } if interactive_nodes.empty?
 
@@ -127,34 +128,10 @@ module Pathogen
 
     private
 
-    INTERACTIVE_TAG_NAMES = %w[a button input select textarea].freeze
-    private_constant :INTERACTIVE_TAG_NAMES
-
-    def html_safe_with_interactive?(value)
-      value.respond_to?(:html_safe?) &&
-        value.html_safe? &&
-        INTERACTIVE_TAG_NAMES.any? { |tag| value.include?("<#{tag}") }
-    end
-
-    # Safe because we only reach this path when `rendered_value` is already html_safe
-    # (produced by a view helper). Nokogiri re-serialises already-escaped HTML; wrapping
-    # the output in SafeBuffer is therefore safe.
-    def safe_fragment_content(fragment)
-      helpers.safe_join(fragment.children.map { |node| ActiveSupport::SafeBuffer.new(node.to_html) })
-    end
-
-    def table_aria_attributes
-      if @caption_id.present?
-        { labelledby: @caption_id }
-      else
-        { label: DEFAULT_ARIA_LABEL }
-      end
-    end
+    def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
 
     def apply_dense_class!
-      return unless @dense
-
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--dense')
+      append_component_class!('pathogen-data-grid--dense') if @dense
     end
 
     def apply_column_defaults!
@@ -177,27 +154,23 @@ module Pathogen
     end
 
     def apply_fill_container_class!
-      return unless @fill_container
-
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--fill')
+      append_component_class!('pathogen-data-grid--fill') if @fill_container
     end
 
-    def sticky_column?(column, index)
-      return column.sticky unless column.sticky.nil?
-
-      index < @sticky_columns
-    end
+    def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
 
     def apply_responsive_sticky_class!
-      return unless columns.many?(&:sticky)
-
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--multi-sticky')
+      append_component_class!('pathogen-data-grid--multi-sticky') if columns.many?(&:sticky)
     end
 
     def apply_data_grid_controller!
       @system_arguments[:data] ||= {}
       existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
       @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+    end
+
+    def append_component_class!(component_class)
+      @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
 end
