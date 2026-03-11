@@ -27,6 +27,7 @@ export default defineConfig([
       globals: {
         ...globals.browser,
         ...globals.node,
+        Turbo: "readonly",
       },
     },
     rules: {

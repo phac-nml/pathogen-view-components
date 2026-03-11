@@ -6,6 +6,7 @@ export default defineConfig({
     environment: "jsdom",
     include: ["test/javascript/**/*.{test,spec}.{js,ts}"],
     setupFiles: ["./test/javascript/setup.js"],
+    passWithNoTests: true,
     clearMocks: true,
     restoreMocks: true,
   },
