@@ -223,6 +223,120 @@ describe("data_grid_controller", () => {
     expect(lastCell.tabIndex).toBe(0);
   });
 
+  it("does not intercept Tab in grid mode — allows browser to exit the grid", () => {
+    const firstCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
+    const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');
+
+    // Tab from a plain cell
+    firstCell.focus();
+    const tabFromPlain = dispatchKey(firstCell, "Tab");
+    expect(tabFromPlain.defaultPrevented).toBe(false);
+
+    // Tab from a cell that has multiple interactive elements (grid mode, not widget mode)
+    interactiveCell.focus();
+    const tabFromInteractive = dispatchKey(interactiveCell, "Tab");
+    expect(tabFromInteractive.defaultPrevented).toBe(false);
+  });
+
+  it("Tab cycles between interactive elements only in widget mode", () => {
+    const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');
+    const link = interactiveCell.querySelector("a");
+    const button = interactiveCell.querySelector("button");
+
+    // Enter widget mode
+    interactiveCell.focus();
+    dispatchKey(interactiveCell, "Enter");
+    expect(document.activeElement).toBe(link);
+
+    // Tab from link → button (widget mode cycling)
+    const tabEvent = dispatchKey(link, "Tab");
+    expect(tabEvent.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(button);
+
+    // Tab from last interactive element → not prevented (exits widget mode / grid)
+    const tabFromLast = dispatchKey(button, "Tab");
+    expect(tabFromLast.defaultPrevented).toBe(false);
+  });
+
+  it("moves focus to the first header cell with Ctrl+Home", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  ID
+                </th>
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Name
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Alpha
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  A-1
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const lastCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    const firstHeaderCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    lastCell.focus();
+    dispatchKey(lastCell, "Home", { ctrlKey: true });
+
+    expect(document.activeElement).toBe(firstHeaderCell);
+    expect(firstHeaderCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(firstHeaderCell.tabIndex).toBe(0);
+  });
+
   it("moves focus to the last body cell with Ctrl+End from widget mode", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--data-grid">

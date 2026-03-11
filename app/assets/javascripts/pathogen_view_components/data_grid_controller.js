@@ -1,13 +1,25 @@
 import { Controller } from "@hotwired/stimulus";
 
-const INTERACTIVE_SELECTOR = "a, button, input, select, textarea";
+import {
+  buildCellMap,
+  firstDataCell,
+  nextCellForKey,
+} from "./data_grid_controller/navigation";
+
+import { ensureCellFullyVisible } from "./data_grid_controller/scroll";
+
+import {
+  activateInteractiveElement,
+  focusInteractiveElement,
+  handleInteractiveKeydown,
+  hasInteractiveElements,
+  resolveInteractiveTarget,
+} from "./data_grid_controller/widget_mode";
+
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
 const FOCUSABLE_CELL_SELECTOR = `${CELL_SELECTOR}[tabindex="0"]`;
-const FIRST_DATA_CELL_SELECTOR =
-  `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
-const STICKY_OVERLAY_SELECTOR =
-  '.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky';
+
 const NAVIGATION_KEYS = new Set([
   "ArrowRight",
   "ArrowLeft",
@@ -17,7 +29,6 @@ const NAVIGATION_KEYS = new Set([
   "End",
   "PageDown",
   "PageUp",
-  "Tab",
 ]);
 
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
@@ -27,7 +38,8 @@ export default class extends Controller {
   static targets = ["cell", "grid", "scrollContainer"];
   #abortController = null;
 
-  // Lifecycle
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+
   connect() {
     this.element.dataset.pathogenDataGridConnected = "true";
     this.#abortController?.abort();
@@ -40,16 +52,17 @@ export default class extends Controller {
     this.#abortController = null;
   }
 
-  // DOM event handlers
+  // ── DOM event handlers ────────────────────────────────────────────────────
+
   handleFocusin(event) {
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
 
     this.#setActiveCell(cell);
 
-    const interactiveTarget = this.#resolveInteractiveTarget(event.target, cell);
+    const interactiveTarget = resolveInteractiveTarget(event.target, cell);
     if (interactiveTarget) {
-      this.#activateInteractiveElement(cell, interactiveTarget);
+      activateInteractiveElement(cell, interactiveTarget);
     }
   }
 
@@ -57,10 +70,10 @@ export default class extends Controller {
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
 
-    const interactiveTarget = this.#resolveInteractiveTarget(event.target, cell);
+    const interactiveTarget = resolveInteractiveTarget(event.target, cell);
     if (interactiveTarget) {
       this.#setActiveCell(cell);
-      this.#activateInteractiveElement(cell, interactiveTarget);
+      activateInteractiveElement(cell, interactiveTarget);
       return;
     }
 
@@ -76,51 +89,43 @@ export default class extends Controller {
 
     if (event.defaultPrevented) return;
 
-    if (
-      this.#isInteractiveEventTarget(event.target, activeCell) &&
-      !this.#isGridEdgeShortcut(event)
-    ) {
-      this.#handleInteractiveKeydown(event, activeCell);
+    const isInteractiveTarget = resolveInteractiveTarget(event.target, activeCell) !== null;
+    const isGridEdge = (event.ctrlKey || event.metaKey) && GRID_EDGE_SHORTCUT_KEYS.has(event.key);
+
+    if (isInteractiveTarget && !isGridEdge) {
+      handleInteractiveKeydown(event, activeCell, (cell) => this.#focusCell(cell));
       return;
     }
 
-    if (
-      this.#hasInteractiveElements(activeCell) &&
-      ENTER_WIDGET_MODE_KEYS.has(event.key)
-    ) {
+    if (hasInteractiveElements(activeCell) && ENTER_WIDGET_MODE_KEYS.has(event.key)) {
       event.preventDefault();
-      this.#focusInteractiveElement(activeCell);
-      return;
-    }
-
-    if (event.key === "Tab") {
-      this.#handleTab(event, activeCell);
+      focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell));
       return;
     }
 
     if (!NAVIGATION_KEYS.has(event.key)) return;
 
-    const nextCell = this.#nextCellForEvent(activeCell, event);
+    const map = buildCellMap(this.#allCells());
+    const nextCell = nextCellForKey(activeCell, event, map, this.#pageSize());
     if (!nextCell) return;
 
     event.preventDefault();
     this.#focusCell(nextCell);
   }
 
-  // Navigation
+  // ── Private helpers ───────────────────────────────────────────────────────
+
   #activeCell() {
     if (!this.hasGridTarget) return null;
 
     const cells = this.#allCells();
-    const fromFocusedElement = this.#resolveCell(document.activeElement);
-    if (fromFocusedElement && cells.includes(fromFocusedElement)) {
-      return fromFocusedElement;
-    }
+    const fromFocused = this.#resolveCell(document.activeElement);
+    if (fromFocused && cells.includes(fromFocused)) return fromFocused;
 
     return (
       cells.find((cell) => cell.matches(ACTIVE_CELL_SELECTOR)) ||
       cells.find((cell) => cell.matches(FOCUSABLE_CELL_SELECTOR)) ||
-      this.#firstDataCell(cells)
+      firstDataCell(cells)
     );
   }
 
@@ -128,184 +133,18 @@ export default class extends Controller {
     return this.hasCellTarget ? [...this.cellTargets] : [];
   }
 
-  #buildCellMap() {
-    const map = new Map();
-
-    this.#allCells().forEach((cell) => {
-      const rowIndex = this.#rowIndex(cell);
-      if (rowIndex === null) return;
-
-      if (!map.has(rowIndex)) {
-        map.set(rowIndex, []);
-      }
-
-      map.get(rowIndex).push(cell);
-    });
-
-    map.forEach((cells) => {
-      cells.sort((a, b) => this.#columnIndex(a) - this.#columnIndex(b));
-    });
-
-    return map;
-  }
-
-  #cellAt(rowIndex, columnIndex, map) {
-    const rowCells = map.get(rowIndex);
-    if (!rowCells || rowCells.length === 0) return null;
-
-    const exactMatch = rowCells.find((cell) => this.#columnIndex(cell) === columnIndex);
-    if (exactMatch) return exactMatch;
-
-    const fallback = rowCells
-      .filter((cell) => this.#columnIndex(cell) <= columnIndex)
-      .pop();
-
-    return fallback || rowCells[0];
-  }
-
-  #columnIndex(cell) {
-    return Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
-  }
-
-  #firstDataCell(cells = this.#allCells()) {
-    return cells.find((cell) => cell.matches(FIRST_DATA_CELL_SELECTOR)) || null;
-  }
-
   #focusCell(cell) {
     this.#setActiveCell(cell);
     cell.focus({ preventScroll: true });
-    this.#ensureCellFullyVisible(cell);
+    this.#scrollCellIntoView(cell);
   }
 
-  #lastDataRowIndex(map) {
-    return Math.max(
-      ...Array.from(map.keys()).filter((rowIndex) => rowIndex > 0),
-      0,
+  #scrollCellIntoView(cell) {
+    ensureCellFullyVisible(
+      cell,
+      this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      this.hasGridTarget ? this.gridTarget : null,
     );
-  }
-
-  #nextCellForEvent(activeCell, event) {
-    const map = this.#buildCellMap();
-    if (map.size === 0) return null;
-
-    const rowIndex = this.#rowIndex(activeCell);
-    const columnIndex = this.#columnIndex(activeCell);
-    const lastDataRow = this.#lastDataRowIndex(map);
-
-    if (rowIndex === null || Number.isNaN(columnIndex)) return null;
-
-    if ((event.ctrlKey || event.metaKey) && event.key === "Home") {
-      return this.#cellAt(0, 0, map);
-    }
-
-    if ((event.ctrlKey || event.metaKey) && event.key === "End") {
-      return this.#lastDataCell(map, lastDataRow);
-    }
-
-    switch (event.key) {
-      case "ArrowRight":
-        return this.#nextHorizontalCell(map, rowIndex, columnIndex, 1);
-      case "ArrowLeft":
-        return this.#nextHorizontalCell(map, rowIndex, columnIndex, -1);
-      case "ArrowDown":
-        return this.#nextVerticalCell(map, rowIndex, columnIndex, 1, lastDataRow);
-      case "ArrowUp":
-        return this.#nextVerticalCell(map, rowIndex, columnIndex, -1, lastDataRow);
-      case "Home":
-        return this.#cellAt(rowIndex, 0, map);
-      case "End":
-        return this.#lastCellInRow(map, rowIndex);
-      case "PageDown":
-        return this.#pageCell(map, rowIndex, columnIndex, 1, lastDataRow);
-      case "PageUp":
-        return this.#pageCell(map, rowIndex, columnIndex, -1, lastDataRow);
-      default:
-        return null;
-    }
-  }
-
-  #lastCellInRow(map, rowIndex) {
-    const rowCells = map.get(rowIndex);
-    if (!rowCells || rowCells.length === 0) return null;
-
-    return rowCells[rowCells.length - 1];
-  }
-
-  #lastDataCell(map, lastDataRow) {
-    const rowCells = map.get(lastDataRow);
-    if (!rowCells || rowCells.length === 0) return null;
-
-    return rowCells[rowCells.length - 1];
-  }
-
-  #nextHorizontalCell(map, rowIndex, columnIndex, direction) {
-    const rowCells = map.get(rowIndex);
-    if (!rowCells || rowCells.length === 0) return null;
-
-    const currentPosition = rowCells.findIndex((cell) => this.#columnIndex(cell) === columnIndex);
-    if (currentPosition === -1) return null;
-
-    const nextPosition = currentPosition + direction;
-    if (nextPosition >= 0 && nextPosition < rowCells.length) {
-      return rowCells[nextPosition];
-    }
-
-    if (direction > 0) {
-      const nextRow = this.#nextRowWithCells(map, rowIndex + 1, 1);
-      return nextRow === null ? null : this.#cellAt(nextRow, 0, map);
-    }
-
-    const previousRow = this.#nextRowWithCells(map, rowIndex - 1, -1);
-    return previousRow === null ? null : this.#lastCellInRow(map, previousRow);
-  }
-
-  #nextRowWithCells(map, startRow, direction) {
-    const rows = Array.from(map.keys());
-    const limit = direction > 0 ? Math.max(...rows) : Math.min(...rows);
-
-    let row = startRow;
-    while (direction > 0 ? row <= limit : row >= limit) {
-      const rowCells = map.get(row);
-      if (rowCells && rowCells.length > 0) return row;
-      row += direction;
-    }
-
-    return null;
-  }
-
-  #nextVerticalCell(map, rowIndex, columnIndex, direction, lastDataRow) {
-    if (direction < 0 && rowIndex === 0) return null;
-
-    if (direction > 0) {
-      if (rowIndex >= lastDataRow) return null;
-      const nextRow = this.#nextRowWithCells(map, rowIndex + 1, 1);
-      if (nextRow === null) return null;
-      return this.#cellAt(nextRow, columnIndex, map);
-    }
-
-    const previousRow = this.#nextRowWithCells(map, rowIndex - 1, -1);
-    if (previousRow === null) return null;
-    return this.#cellAt(previousRow, columnIndex, map);
-  }
-
-  #pageCell(map, rowIndex, columnIndex, direction, lastDataRow) {
-    if (lastDataRow < 1) return null;
-
-    const pageSize = this.#pageSize();
-    if (direction > 0) {
-      const baselineRow = rowIndex === 0 ? 1 : rowIndex;
-      const clampedTarget = Math.min(lastDataRow, baselineRow + pageSize);
-      const targetRow = this.#nextRowWithCells(map, clampedTarget, -1);
-      if (targetRow === null) return null;
-      return this.#cellAt(targetRow, columnIndex, map);
-    }
-
-    if (rowIndex === 0) return null;
-
-    const clampedTarget = Math.max(1, rowIndex - pageSize);
-    const targetRow = this.#nextRowWithCells(map, clampedTarget, 1);
-    if (targetRow === null) return null;
-    return this.#cellAt(targetRow, columnIndex, map);
   }
 
   #pageSize() {
@@ -324,41 +163,7 @@ export default class extends Controller {
 
   #resolveCell(target) {
     if (!(target instanceof HTMLElement)) return null;
-
     return target.closest(CELL_SELECTOR);
-  }
-
-  #resolveInteractiveTarget(target, cell) {
-    if (!(target instanceof HTMLElement) || !cell) return null;
-
-    const interactiveTarget = target.closest(INTERACTIVE_SELECTOR);
-    if (!interactiveTarget) return null;
-
-    return cell.contains(interactiveTarget) ? interactiveTarget : null;
-  }
-
-  #isInteractiveEventTarget(target, cell) {
-    return this.#resolveInteractiveTarget(target, cell) !== null;
-  }
-
-  #interactiveElements(cell) {
-    return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR));
-  }
-
-  #isGridEdgeShortcut(event) {
-    return (
-      (event.ctrlKey || event.metaKey) &&
-      GRID_EDGE_SHORTCUT_KEYS.has(event.key)
-    );
-  }
-
-  #hasInteractiveElements(cell) {
-    return cell.getAttribute("data-pathogen--data-grid-has-interactive") === "true";
-  }
-
-  #rowIndex(cell) {
-    const value = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
-    return Number.isNaN(value) ? null : value;
   }
 
   #setActiveCell(cell) {
@@ -369,139 +174,15 @@ export default class extends Controller {
     });
 
     cell.setAttribute("data-pathogen--data-grid-active", "true");
+
     cells.forEach((node) => {
       node.tabIndex = node === cell ? 0 : -1;
-      this.#interactiveElements(node).forEach((interactiveNode) => {
-        interactiveNode.tabIndex = -1;
+      node.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
+        el.tabIndex = -1;
       });
     });
   }
 
-  #ensureCellFullyVisible(cell) {
-    if (!(cell instanceof HTMLElement)) return;
-
-    if (!this.hasScrollContainerTarget) {
-      cell.scrollIntoView({ block: "nearest", inline: "nearest" });
-      return;
-    }
-
-    const container = this.scrollContainerTarget;
-    const containerRect = container.getBoundingClientRect();
-    const cellRect = cell.getBoundingClientRect();
-
-    const stickyOverlap = this.#stickyOverlayWidth(containerRect);
-    const isStickyCell = cell.classList.contains("pathogen-data-grid__cell--sticky");
-    const minVisibleLeft = containerRect.left + (isStickyCell ? 0 : stickyOverlap);
-    const maxVisibleRight = containerRect.right;
-
-    if (cellRect.top < containerRect.top) {
-      container.scrollTop -= containerRect.top - cellRect.top;
-    } else if (cellRect.bottom > containerRect.bottom) {
-      container.scrollTop += cellRect.bottom - containerRect.bottom;
-    }
-
-    if (cellRect.left < minVisibleLeft) {
-      container.scrollLeft -= minVisibleLeft - cellRect.left;
-    } else if (cellRect.right > maxVisibleRight) {
-      container.scrollLeft += cellRect.right - maxVisibleRight;
-    }
-  }
-
-  #stickyOverlayWidth(containerRect) {
-    if (!this.hasGridTarget) return 0;
-
-    const stickyCells = this.gridTarget.querySelectorAll(STICKY_OVERLAY_SELECTOR);
-
-    if (stickyCells.length === 0) return 0;
-
-    let maxInlineEnd = 0;
-    stickyCells.forEach((stickyCell) => {
-      const stickyRect = stickyCell.getBoundingClientRect();
-      maxInlineEnd = Math.max(maxInlineEnd, stickyRect.right - containerRect.left);
-    });
-
-    return Math.max(0, maxInlineEnd);
-  }
-
-  #activateInteractiveElement(cell, targetElement) {
-    const interactiveElements = this.#interactiveElements(cell);
-    if (interactiveElements.length === 0 || !targetElement) return;
-
-    cell.tabIndex = -1;
-    interactiveElements.forEach((element) => {
-      element.tabIndex = element === targetElement ? 0 : -1;
-    });
-  }
-
-  #focusInteractiveElement(cell, targetElement = null) {
-    const interactiveElements = this.#interactiveElements(cell);
-    if (interactiveElements.length === 0) return;
-
-    // Grid mode keeps focus on the cell; widget mode transfers focus to an inner control.
-    const nextTarget =
-      targetElement && interactiveElements.includes(targetElement)
-        ? targetElement
-        : interactiveElements[0];
-
-    this.#activateInteractiveElement(cell, nextTarget);
-    nextTarget.focus({ preventScroll: true });
-    this.#ensureCellFullyVisible(cell);
-  }
-
-  #handleInteractiveKeydown(event, activeCell) {
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this.#focusCell(activeCell);
-      return;
-    }
-
-    if (event.key === "Tab") {
-      this.#handleTab(event, activeCell);
-    }
-  }
-
-  #handleTab(event, activeCell) {
-    if (!this.#hasInteractiveElements(activeCell)) return;
-
-    const interactiveElements = this.#interactiveElements(activeCell);
-    if (interactiveElements.length <= 1) return;
-
-    const activeElement =
-      event.target instanceof HTMLElement
-        ? event.target.closest(INTERACTIVE_SELECTOR)
-        : null;
-    const activeIndex = interactiveElements.indexOf(activeElement);
-
-    if (event.shiftKey) {
-      if (activeIndex > 0) {
-        event.preventDefault();
-        const previous = interactiveElements[activeIndex - 1];
-        this.#activateInteractiveElement(activeCell, previous);
-        previous.focus({ preventScroll: true });
-        this.#ensureCellFullyVisible(activeCell);
-      }
-      return;
-    }
-
-    if (activeIndex >= 0 && activeIndex < interactiveElements.length - 1) {
-      event.preventDefault();
-      const next = interactiveElements[activeIndex + 1];
-      this.#activateInteractiveElement(activeCell, next);
-      next.focus({ preventScroll: true });
-      this.#ensureCellFullyVisible(activeCell);
-      return;
-    }
-
-    if (activeIndex === -1) {
-      event.preventDefault();
-      const first = interactiveElements[0];
-      this.#activateInteractiveElement(activeCell, first);
-      first.focus({ preventScroll: true });
-      this.#ensureCellFullyVisible(activeCell);
-    }
-  }
-
-  // Internal utilities
   #bindEvents(signal) {
     this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
       signal,
