@@ -93,6 +93,14 @@ module Pathogen
       # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
       return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
 
+      # Only invoke Nokogiri when the value is already html_safe (i.e. produced by a
+      # view helper or content_tag) AND plausibly contains an interactive tag.
+      # Plain strings are never html_safe, so they take the fast path here, which also
+      # prevents treating raw user input as HTML (XSS guard).
+      unless html_safe_with_interactive?(rendered_value)
+        return { content: rendered_value, focus_on_cell: active, interactive: false }
+      end
+
       fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
       interactive_nodes = fragment.css(INTERACTIVE_SELECTOR)
 
@@ -119,8 +127,18 @@ module Pathogen
 
     private
 
-    # Trusted: input comes from component rendering (Rails-escaped). SafeBuffer.new
-    # is intentional — Nokogiri re-serialises already-escaped HTML, so no XSS risk.
+    INTERACTIVE_TAG_NAMES = %w[a button input select textarea].freeze
+    private_constant :INTERACTIVE_TAG_NAMES
+
+    def html_safe_with_interactive?(value)
+      value.respond_to?(:html_safe?) &&
+        value.html_safe? &&
+        INTERACTIVE_TAG_NAMES.any? { |tag| value.include?("<#{tag}") }
+    end
+
+    # Safe because we only reach this path when `rendered_value` is already html_safe
+    # (produced by a view helper). Nokogiri re-serialises already-escaped HTML; wrapping
+    # the output in SafeBuffer is therefore safe.
     def safe_fragment_content(fragment)
       helpers.safe_join(fragment.children.map { |node| ActiveSupport::SafeBuffer.new(node.to_html) })
     end
