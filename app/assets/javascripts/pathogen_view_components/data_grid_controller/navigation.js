@@ -5,7 +5,8 @@ const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const FIRST_DATA_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
 
 export function columnIndexOf(cell) {
-  return Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
+  const value = Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
+  return Number.isNaN(value) ? null : value;
 }
 
 export function rowIndexOf(cell) {
@@ -19,6 +20,9 @@ export function buildCellMap(cells) {
   cells.forEach((cell) => {
     const row = rowIndexOf(cell);
     if (row === null) return;
+
+    const col = columnIndexOf(cell);
+    if (col === null) return;
 
     if (!map.has(row)) map.set(row, []);
     map.get(row).push(cell);
@@ -139,7 +143,7 @@ export function nextCellForKey(activeCell, event, map, pageSize) {
   const col = columnIndexOf(activeCell);
   const lastRow = lastDataRowIndex(map);
 
-  if (row === null || Number.isNaN(col)) return null;
+  if (row === null || col === null) return null;
 
   if ((event.ctrlKey || event.metaKey) && event.key === "Home") return cellAt(0, 0, map);
   if ((event.ctrlKey || event.metaKey) && event.key === "End") return lastDataCell(map, lastRow);
