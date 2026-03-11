@@ -20,6 +20,7 @@ vi.mock("@floating-ui/dom", () => ({
 
 describe("Pathogen Tooltip controller", () => {
   let application;
+  let originalMatchMedia;
 
   function renderTooltipFixture() {
     document.body.innerHTML = `
@@ -41,6 +42,7 @@ describe("Pathogen Tooltip controller", () => {
   }
 
   beforeEach(() => {
+    originalMatchMedia = window.matchMedia;
     window.matchMedia = vi.fn(() => ({
       matches: false,
       addEventListener: vi.fn(),
@@ -54,6 +56,12 @@ describe("Pathogen Tooltip controller", () => {
   });
 
   afterEach(() => {
+    if (originalMatchMedia === undefined) {
+      delete window.matchMedia;
+    } else {
+      window.matchMedia = originalMatchMedia;
+    }
+
     if (application) {
       application.stop();
       application = null;
