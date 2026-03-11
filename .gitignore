@@ -6,6 +6,9 @@ devenv.local.yaml
 # direnv
 .direnv
 
+# Node dependencies
+node_modules/
+
 # Demo app runtime artifacts
 demo/tmp/
 demo/log/

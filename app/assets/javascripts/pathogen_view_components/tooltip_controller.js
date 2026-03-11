@@ -1,12 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
-import {
-  arrow,
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-} from "@floating-ui/dom";
+import { arrow, autoUpdate, computePosition, flip, offset, shift } from "@floating-ui/dom";
 
 /**
  * Shared registry for global event delegation.
@@ -147,9 +140,7 @@ export default class extends Controller {
   connect() {
     this.element.dataset.controllerConnected = "true";
 
-    this.#prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    this.#prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     tooltipRegistry.register(this);
   }
@@ -164,10 +155,7 @@ export default class extends Controller {
     tooltipRegistry.unregister(this);
 
     // Return tooltip to original parent if portaled
-    if (
-      this.#tooltipElement?.parentElement === document.body &&
-      this.#originalParent
-    ) {
+    if (this.#tooltipElement?.parentElement === document.body && this.#originalParent) {
       this.#originalParent.appendChild(this.#tooltipElement);
     }
   }
@@ -210,9 +198,7 @@ export default class extends Controller {
     this.#tooltipElement = element;
 
     // Find and store arrow element (nested inside tooltip, won't work as Stimulus target after portal)
-    this.#arrowElement = element.querySelector(
-      '[data-pathogen--tooltip-target="arrow"]',
-    );
+    this.#arrowElement = element.querySelector('[data-pathogen--tooltip-target="arrow"]');
 
     const { signal } = this.#abortController;
 
@@ -280,11 +266,7 @@ export default class extends Controller {
       this.#tooltipElement.classList.remove("visible", "opacity-100");
       this.#tooltipElement.classList.add("invisible", "opacity-0");
     } else {
-      this.#tooltipElement.classList.remove(
-        "opacity-100",
-        "scale-100",
-        "visible",
-      );
+      this.#tooltipElement.classList.remove("opacity-100", "scale-100", "visible");
       this.#tooltipElement.classList.add("opacity-0", "scale-90", "invisible");
     }
 
@@ -313,8 +295,7 @@ export default class extends Controller {
    * Handles touch outside dismissal (called by registry).
    */
   handleTouchOutside(event) {
-    if (!this.#tooltipElement || !this.#triggerElement || !this.#isVisible())
-      return;
+    if (!this.#tooltipElement || !this.#triggerElement || !this.#isVisible()) return;
 
     const target = event.target;
     const isOutside =
@@ -335,8 +316,7 @@ export default class extends Controller {
   }
 
   #handleClick(event) {
-    if (!this.#tooltipElement || !this.#triggerElement || !this.#touchStarted)
-      return;
+    if (!this.#tooltipElement || !this.#triggerElement || !this.#touchStarted) return;
 
     this.#touchStarted = false;
 
@@ -413,18 +393,13 @@ export default class extends Controller {
     if (!this.#triggerElement || !this.#tooltipElement) return;
     if (this.#cleanupAutoUpdate) return;
 
-    this.#cleanupAutoUpdate = autoUpdate(
-      this.#triggerElement,
-      this.#tooltipElement,
-      () => this.#positionTooltip(),
-      {
-        ancestorScroll: this.ancestorScrollValue,
-        ancestorResize: this.ancestorResizeValue,
-        elementResize: this.elementResizeValue,
-        layoutShift: this.layoutShiftValue,
-        animationFrame: this.animationFrameValue,
-      },
-    );
+    this.#cleanupAutoUpdate = autoUpdate(this.#triggerElement, this.#tooltipElement, () => this.#positionTooltip(), {
+      ancestorScroll: this.ancestorScrollValue,
+      ancestorResize: this.ancestorResizeValue,
+      elementResize: this.elementResizeValue,
+      layoutShift: this.layoutShiftValue,
+      animationFrame: this.animationFrameValue,
+    });
   }
 
   #stopAutoUpdate() {
@@ -490,42 +465,29 @@ export default class extends Controller {
 
     const tooltipId = this.#tooltipElement.id;
     if (!tooltipId) {
-      console.error(
-        "[Pathogen::Tooltip] Tooltip element must have an id attribute.",
-      );
+      console.error("[Pathogen::Tooltip] Tooltip element must have an id attribute.");
       return;
     }
 
     const describedBy = triggerElement.getAttribute("aria-describedby");
     if (!describedBy) {
       triggerElement.setAttribute("aria-describedby", tooltipId);
-      console.error(
-        `[Pathogen::Tooltip] Trigger missing aria-describedby="${tooltipId}".`,
-      );
+      console.error(`[Pathogen::Tooltip] Trigger missing aria-describedby="${tooltipId}".`);
       return;
     }
 
     const ids = describedBy.split(/\s+/).filter(Boolean);
     if (!ids.includes(tooltipId)) {
-      triggerElement.setAttribute(
-        "aria-describedby",
-        `${describedBy} ${tooltipId}`.trim(),
-      );
-      console.error(
-        `[Pathogen::Tooltip] aria-describedby must include "${tooltipId}".`,
-      );
+      triggerElement.setAttribute("aria-describedby", `${describedBy} ${tooltipId}`.trim());
+      console.error(`[Pathogen::Tooltip] aria-describedby must include "${tooltipId}".`);
     }
   }
 
   #validateKeyboardAccessibility(triggerElement) {
-    const focusable = triggerElement.matches(
-      'a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
+    const focusable = triggerElement.matches('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
 
     if (!focusable) {
-      console.warn(
-        `[Pathogen::Tooltip] Trigger not keyboard-focusable. Add tabindex="0".`,
-      );
+      console.warn(`[Pathogen::Tooltip] Trigger not keyboard-focusable. Add tabindex="0".`);
     }
   }
 }
