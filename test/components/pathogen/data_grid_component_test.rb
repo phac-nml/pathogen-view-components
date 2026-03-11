@@ -108,7 +108,7 @@ module Pathogen
       assert_selector 'strong', text: 'Sample three'
     end
 
-    test 'delegates initial focus to interactive elements in active cell' do
+    test 'active cell owns roving tabindex even when it contains interactive elements' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
                       rows: [
@@ -127,10 +127,13 @@ module Pathogen
         end
       end
 
+      # The cell (not its interactive descendants) owns tabindex="0" as the roving
+      # tabindex entry point. The controller transfers focus to interactive descendants
+      # on Enter/F2 (widget mode), per WAI-ARIA grid pattern.
       assert_selector(
-        'tbody tr:first-child td:first-child[tabindex="-1"][data-pathogen--data-grid-has-interactive="true"]'
+        'tbody tr:first-child td:first-child[tabindex="0"][data-pathogen--data-grid-has-interactive="true"]'
       )
-      assert_selector 'tbody tr:first-child td:first-child a[tabindex="0"]'
+      assert_selector 'tbody tr:first-child td:first-child a[tabindex="-1"]'
       assert_selector 'tbody tr:first-child td:first-child button[tabindex="-1"]'
       assert_selector 'tbody tr:nth-child(2) td:first-child a[tabindex="-1"]'
       assert_selector 'tbody tr:nth-child(2) td:first-child button[tabindex="-1"]'

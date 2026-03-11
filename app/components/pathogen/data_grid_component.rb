@@ -77,7 +77,9 @@ module Pathogen
       }
 
       label_attributes = table_aria_attributes
-      attributes[:aria] = label_attributes if label_attributes.present?
+      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
+      label_attributes[:colcount] = columns.size
+      attributes[:aria] = label_attributes
       attributes
     end
 
@@ -87,20 +89,22 @@ module Pathogen
       rendered_value = column.render_value(row, column_index)
 
       # Declarative opt-in: consumer signals the cell contains interactive elements.
-      # Skip Nokogiri parsing — tabindex management is the consumer's responsibility.
-      return { content: rendered_value, focus_on_cell: false, interactive: true } if column.interactive?
+      # The cell itself owns tabindex="0" as the roving tabindex entry point; the
+      # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
+      return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
 
       fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
       interactive_nodes = fragment.css(INTERACTIVE_SELECTOR)
 
       return { content: rendered_value, focus_on_cell: active, interactive: false } if interactive_nodes.empty?
 
+      # All interactive elements start at tabindex="-1"; the controller enters widget
+      # mode on Enter/F2 and transfers tabindex="0" to the first interactive element.
       interactive_nodes.each { |node| node['tabindex'] = '-1' }
-      interactive_nodes.first['tabindex'] = '0' if active
 
       {
         content: safe_fragment_content(fragment),
-        focus_on_cell: false,
+        focus_on_cell: active,
         interactive: true
       }
     end
@@ -115,6 +119,8 @@ module Pathogen
 
     private
 
+    # Trusted: input comes from component rendering (Rails-escaped). SafeBuffer.new
+    # is intentional — Nokogiri re-serialises already-escaped HTML, so no XSS risk.
     def safe_fragment_content(fragment)
       helpers.safe_join(fragment.children.map { |node| ActiveSupport::SafeBuffer.new(node.to_html) })
     end
