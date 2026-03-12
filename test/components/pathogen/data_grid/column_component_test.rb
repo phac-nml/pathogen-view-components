@@ -23,23 +23,27 @@ module Pathogen
 
       test 'header_cell_attributes returns correct classes' do
         column = ColumnComponent.new(label: 'Name', key: :name)
-        attrs = column.header_cell_attributes
+        attrs = column.header_cell_attributes(column_index: 0)
 
         assert_includes attrs[:class], 'pathogen-data-grid__cell'
         assert_includes attrs[:class], 'pathogen-data-grid__cell--header'
+        assert_equal 'columnheader', attrs[:role]
+        assert_equal(-1, attrs[:tabindex])
       end
 
       test 'body_cell_attributes returns correct classes' do
         column = ColumnComponent.new(label: 'Name', key: :name)
-        attrs = column.body_cell_attributes
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 0)
 
         assert_includes attrs[:class], 'pathogen-data-grid__cell'
         assert_includes attrs[:class], 'pathogen-data-grid__cell--body'
+        assert_equal 'gridcell', attrs[:role]
+        assert_equal(-1, attrs[:tabindex])
       end
 
       test 'attributes include sticky class when sticky' do
         column = ColumnComponent.new(label: 'ID', key: :id, sticky: true, sticky_left: 0)
-        attrs = column.header_cell_attributes
+        attrs = column.header_cell_attributes(column_index: 0)
 
         assert_includes attrs[:class], 'pathogen-data-grid__cell--sticky'
         assert_includes attrs[:style], '--pathogen-data-grid-sticky-left: 0px;'
@@ -47,16 +51,42 @@ module Pathogen
 
       test 'attributes include alignment class when align specified' do
         column = ColumnComponent.new(label: 'Amount', key: :amount, align: :right)
-        attrs = column.body_cell_attributes
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 0)
 
         assert_includes attrs[:class], 'pathogen-data-grid__cell--align-right'
       end
 
       test 'attributes include width style when width specified' do
         column = ColumnComponent.new(label: 'ID', key: :id, width: '150px')
-        attrs = column.header_cell_attributes
+        attrs = column.header_cell_attributes(column_index: 0)
 
         assert_includes attrs[:style], '--pathogen-data-grid-col-width: 150px;'
+      end
+
+      test 'body_cell_attributes marks active body cell as focus target' do
+        column = ColumnComponent.new(label: 'Name', key: :name)
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 0, active: true)
+
+        assert_equal 0, attrs[:tabindex]
+      end
+
+      test 'body_cell_attributes sets interactive marker when interactive content is present' do
+        column = ColumnComponent.new(label: 'Actions')
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 1, interactive: true)
+
+        assert_equal true, attrs[:data][:'pathogen--data-grid-has-interactive']
+      end
+
+      test 'interactive? returns false by default' do
+        column = ColumnComponent.new(label: 'Name', key: :name)
+
+        assert_equal false, column.interactive?
+      end
+
+      test 'interactive? returns true when declared' do
+        column = ColumnComponent.new(label: 'Actions', interactive: true)
+
+        assert_equal true, column.interactive?
       end
 
       test 'render_value uses block when provided' do

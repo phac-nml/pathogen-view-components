@@ -127,6 +127,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Lightweight tooltip behavior (Flowbite-backed)
+- `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
 
@@ -141,11 +142,25 @@ Use `bin/setup --skip-demo` if you only want the library dependencies and hooks 
 Run tests:
 
 ```bash
-bin/test
-pnpm test
+bin/test           # Ruby component tests
+pnpm test          # JavaScript controller tests (requires pnpm install)
 ```
 
-Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, then auto-fixes staged JavaScript with ESLint and re-stages any changes.
+Git hooks are managed with `lefthook`. The pre-commit hook formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, auto-fixes staged JavaScript with ESLint, runs RuboCop autocorrections on staged Ruby files, and re-stages any changes.
+
+### Screen reader testing
+
+Before merging keyboard navigation changes, manually verify with a screen reader:
+
+- **macOS:** VoiceOver + Safari (`Cmd+F5` to toggle VO)
+- **Windows:** NVDA + Firefox (free at nvaccess.org)
+
+Key behaviors to spot-check:
+
+- Arrow key navigation announces cell content and grid position (e.g., "row 2 of 3, column 1 of 2")
+- `Enter` or `F2` enters widget mode and announces the focused interactive element
+- `Escape` exits widget mode and returns announcement to the cell
+- `Ctrl+Home` / `Ctrl+End` announces first/last cell
 
 ### Lookbook demo app
 

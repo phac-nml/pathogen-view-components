@@ -27,6 +27,8 @@ module Pathogen
   #
   # CSS dependency: pathogen/pathogen.css
   class DataGridComponent < Pathogen::Component
+    include DataGrid::InteractiveContent
+
     renders_one :empty_state
     renders_one :footer
     renders_one :live_region
@@ -50,6 +52,7 @@ module Pathogen
     renders_many :columns, lambda { |label, **system_arguments, &block|
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
+    DEFAULT_ARIA_LABEL = 'Data grid'
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
@@ -65,14 +68,54 @@ module Pathogen
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
-    def caption?
-      @caption.present?
-    end
+    def caption? = @caption.present?
 
     def table_attributes
-      return { class: 'pathogen-data-grid__table' } unless @caption_id
+      attributes = {
+        class: 'pathogen-data-grid__table',
+        role: 'grid',
+        data: { 'pathogen--data-grid-target': 'grid' }
+      }
 
-      { class: 'pathogen-data-grid__table', aria: { labelledby: @caption_id } }
+      label_attributes = table_aria_attributes
+      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
+      label_attributes[:colcount] = columns.size
+      attributes[:aria] = label_attributes
+      attributes
+    end
+
+    def default_active_row_index = @rows.present? ? 1 : nil
+
+    def body_cell_payload(column:, row:, column_index:, active:)
+      rendered_value = column.render_value(row, column_index)
+
+      # Declarative opt-in: consumer signals the cell contains interactive elements.
+      # The cell itself owns tabindex="0" as the roving tabindex entry point; the
+      # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
+      return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
+
+      # Only invoke Nokogiri when the value is already html_safe (i.e. produced by a
+      # view helper or content_tag) AND plausibly contains an interactive tag.
+      # Plain strings are never html_safe, so they take the fast path here, which also
+      # prevents treating raw user input as HTML (XSS guard).
+      unless html_safe_with_interactive?(rendered_value)
+        return { content: rendered_value, focus_on_cell: active, interactive: false }
+      end
+
+      fragment = Nokogiri::HTML::DocumentFragment.parse(rendered_value.to_s)
+      interactive_nodes = fragment.css(DataGrid::InteractiveContent::INTERACTIVE_SELECTOR)
+
+      return { content: rendered_value, focus_on_cell: active, interactive: false } if interactive_nodes.empty?
+
+      # All interactive elements start at tabindex="-1"; the controller enters widget
+      # mode on Enter/F2 and transfers tabindex="0" to the first interactive element.
+      interactive_nodes.each { |node| node['tabindex'] = '-1' }
+
+      {
+        content: safe_fragment_content(fragment),
+        focus_on_cell: active,
+        interactive: true
+      }
     end
 
     def before_render
@@ -80,14 +123,15 @@ module Pathogen
       apply_dense_class!
       apply_column_defaults!
       apply_responsive_sticky_class!
+      apply_data_grid_controller!
     end
 
     private
 
-    def apply_dense_class!
-      return unless @dense
+    def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
 
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--dense')
+    def apply_dense_class!
+      append_component_class!('pathogen-data-grid--dense') if @dense
     end
 
     def apply_column_defaults!
@@ -110,21 +154,23 @@ module Pathogen
     end
 
     def apply_fill_container_class!
-      return unless @fill_container
-
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--fill')
+      append_component_class!('pathogen-data-grid--fill') if @fill_container
     end
 
-    def sticky_column?(column, index)
-      return column.sticky unless column.sticky.nil?
-
-      index < @sticky_columns
-    end
+    def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
 
     def apply_responsive_sticky_class!
-      return unless columns.many?(&:sticky)
+      append_component_class!('pathogen-data-grid--multi-sticky') if columns.many?(&:sticky)
+    end
 
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid--multi-sticky')
+    def apply_data_grid_controller!
+      @system_arguments[:data] ||= {}
+      existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
+      @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+    end
+
+    def append_component_class!(component_class)
+      @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
 end

@@ -27,7 +27,7 @@ module Pathogen
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(label:, key: nil, width: nil, align: nil, sticky: nil, sticky_left: nil, header_content: nil,
-                     **system_arguments, &block)
+                     interactive: false, **system_arguments, &block)
         # rubocop:enable Metrics/ParameterLists
         @label = label
         @key = key
@@ -36,16 +36,25 @@ module Pathogen
         @sticky = sticky
         @sticky_left = sticky_left
         @header_content = header_content
+        @interactive = interactive
         @system_arguments = system_arguments
         @block = block
       end
 
-      def header_cell_attributes
-        attributes_for(header: true)
+      def interactive? = @interactive
+
+      def header_cell_attributes(column_index:)
+        attributes_for(header: true, row_index: 0, column_index: column_index)
       end
 
-      def body_cell_attributes
-        attributes_for(header: false)
+      def body_cell_attributes(row_index:, column_index:, active: false, interactive: false)
+        attributes_for(
+          header: false,
+          row_index: row_index,
+          column_index: column_index,
+          active: active,
+          interactive: interactive
+        )
       end
 
       def render_value(row, index)
@@ -61,9 +70,7 @@ module Pathogen
         @label
       end
 
-      def default_header_label?
-        @header_content.blank?
-      end
+      def default_header_label? = @header_content.blank?
 
       def normalize_width!
         return if @width.blank?
@@ -81,20 +88,57 @@ module Pathogen
 
       private
 
-      def attributes_for(header:)
-        classes = ['pathogen-data-grid__cell', @system_arguments[:class]]
-        classes << (header ? 'pathogen-data-grid__cell--header' : 'pathogen-data-grid__cell--body')
-        classes << 'pathogen-data-grid__cell--sticky' if @sticky
-        classes << "pathogen-data-grid__cell--align-#{@align}" if @align
+      def attributes_for(header:, row_index:, column_index:, active: false, interactive: false)
+        {
+          class: class_names(*cell_classes(header:)),
+          data: cell_data_attributes(row_index:, column_index:, interactive:),
+          role: cell_role(header:),
+          style: cell_styles,
+          tabindex: cell_tabindex(header:, active:)
+        }
+      end
 
+      def cell_classes(header:)
+        [
+          'pathogen-data-grid__cell',
+          @system_arguments[:class],
+          "pathogen-data-grid__cell--#{header ? 'header' : 'body'}",
+          (@sticky ? 'pathogen-data-grid__cell--sticky' : nil),
+          (@align ? "pathogen-data-grid__cell--align-#{@align}" : nil)
+        ]
+      end
+
+      def cell_data_attributes(row_index:, column_index:, interactive:)
+        data_attributes = @system_arguments[:data]&.dup || {}
+        existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
+                           data_attributes.delete('pathogen--data-grid-target')
+        merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
+
+        data_attributes.merge(
+          'pathogen--data-grid-target': merged_targets,
+          'pathogen--data-grid-row-index': row_index,
+          'pathogen--data-grid-column-index': column_index,
+          'pathogen--data-grid-has-interactive': interactive
+        )
+      end
+
+      def cell_role(header:) = header ? 'columnheader' : 'gridcell'
+
+      def cell_styles
         styles = []
         styles << "--pathogen-data-grid-col-width: #{@width};" if @width
-        if @sticky
-          sticky_left_value = @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
-          styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};"
-        end
+        styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};" if @sticky
+        styles.join(' ')
+      end
 
-        { class: class_names(*classes), style: styles.join(' ') }
+      def sticky_left_value
+        @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
+      end
+
+      def cell_tabindex(header:, active:)
+        return -1 if header
+
+        active ? 0 : -1
       end
 
       def value_for(row, index)

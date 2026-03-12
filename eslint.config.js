@@ -19,6 +19,15 @@ export default defineConfig([
     ],
   },
   {
+    name: "config-files",
+    files: ["*.config.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: { ...globals.node },
+    },
+  },
+  {
     name: "pathogen-javascript",
     files: ["app/assets/javascripts/**/*.js", "test/javascript/**/*.js"],
     languageOptions: {
