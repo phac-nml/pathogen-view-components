@@ -47,6 +47,9 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
+      - name: Check i18n health
+        run: bundle exec i18n-tasks health
+
       - name: Lint
         run: bin/bundle exec rubocop
 

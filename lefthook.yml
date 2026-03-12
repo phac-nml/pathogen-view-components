@@ -1,6 +1,8 @@
 pre-commit:
   parallel: false
   jobs:
+    - name: i18n_health
+      run: bundle exec i18n-tasks health
     - name: prettier
       glob:
         - "*.js"
