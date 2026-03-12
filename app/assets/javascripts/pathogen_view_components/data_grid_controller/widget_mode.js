@@ -6,6 +6,24 @@
 // interactive elements within the cell while in widget mode.
 
 const INTERACTIVE_SELECTOR = "a, button, input, select, textarea";
+const WIDGET_NEXT_KEYS = new Set(["ArrowRight", "ArrowDown"]);
+const WIDGET_PREVIOUS_KEYS = new Set(["ArrowLeft", "ArrowUp"]);
+const ARROW_CONSUMING_INPUT_TYPES = new Set([
+  "color",
+  "date",
+  "datetime-local",
+  "email",
+  "month",
+  "number",
+  "password",
+  "range",
+  "search",
+  "tel",
+  "text",
+  "time",
+  "url",
+  "week",
+]);
 
 /**
  * Returns all interactive descendants of a cell.
@@ -78,6 +96,7 @@ export function focusInteractiveElement(cell, targetElement, onVisible) {
  * Handles keydown events when focus is on an interactive descendant (widget mode).
  * - Escape: exit widget mode (returns focus to cell)
  * - Tab: cycle through interactive elements in the cell
+ * - Arrow keys: move focus between widgets in the same cell when appropriate
  *
  * @param {KeyboardEvent} event
  * @param {HTMLElement} activeCell
@@ -94,6 +113,11 @@ export function handleInteractiveKeydown(event, activeCell, { exitWidgetMode, mo
 
   if (event.key === "Tab") {
     handleTab(event, activeCell, { moveToInteractiveCell });
+    return;
+  }
+
+  if (WIDGET_NEXT_KEYS.has(event.key) || WIDGET_PREVIOUS_KEYS.has(event.key)) {
+    handleWidgetArrow(event, activeCell);
   }
 }
 
@@ -146,4 +170,44 @@ export function handleTab(event, activeCell, { moveToInteractiveCell }) {
   if (moveToInteractiveCell?.(activeCell, 1)) {
     event.preventDefault();
   }
+}
+
+/**
+ * Handles arrow-key traversal between interactive widgets inside one cell.
+ * Leaves arrows untouched for controls that conventionally consume them.
+ *
+ * @param {KeyboardEvent} event
+ * @param {HTMLElement} activeCell
+ */
+export function handleWidgetArrow(event, activeCell) {
+  if (event.altKey || event.ctrlKey || event.metaKey) return;
+  if (!hasInteractiveElements(activeCell)) return;
+
+  const elements = interactiveElements(activeCell);
+  if (elements.length < 2) return;
+
+  const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
+  const activeIndex = elements.indexOf(focused);
+  if (activeIndex < 0 || consumesArrowKeys(focused)) return;
+
+  const direction = WIDGET_NEXT_KEYS.has(event.key) ? 1 : -1;
+  const nextIndex = activeIndex + direction;
+  if (nextIndex < 0 || nextIndex >= elements.length) return;
+
+  event.preventDefault();
+  const next = elements[nextIndex];
+  activateInteractiveElement(activeCell, next);
+  next.focus({ preventScroll: true });
+}
+
+function consumesArrowKeys(element) {
+  if (!(element instanceof HTMLElement)) return false;
+  if (element.isContentEditable) return true;
+
+  const tagName = element.tagName;
+  if (tagName === "TEXTAREA" || tagName === "SELECT") return true;
+  if (tagName !== "INPUT") return false;
+
+  const type = (element.getAttribute("type") || "text").toLowerCase();
+  return ARROW_CONSUMING_INPUT_TYPES.has(type);
 }

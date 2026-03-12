@@ -133,6 +133,69 @@ describe("data_grid_controller", () => {
     expect(interactiveCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
 
+  it("uses arrow keys to move between widgets in widget mode", () => {
+    const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');
+    const link = interactiveCell.querySelector("a");
+    const button = interactiveCell.querySelector("button");
+
+    interactiveCell.focus();
+    dispatchKey(interactiveCell, "Enter");
+
+    const forward = dispatchKey(link, "ArrowRight");
+    expect(forward.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(button);
+    expect(button.tabIndex).toBe(0);
+    expect(link.tabIndex).toBe(-1);
+
+    const backward = dispatchKey(button, "ArrowLeft");
+    expect(backward.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(link);
+    expect(link.tabIndex).toBe(0);
+    expect(button.tabIndex).toBe(-1);
+  });
+
+  it("passes arrow keys through to text inputs in widget mode", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="true"
+                >
+                  <input type="text" value="abc" tabindex="-1" />
+                  <button type="button" tabindex="-1">Apply</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
+    const input = interactiveCell.querySelector("input");
+
+    interactiveCell.focus();
+    dispatchKey(interactiveCell, "Enter");
+    const event = dispatchKey(input, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(input);
+  });
+
   it("moves focus to the last body cell with Ctrl+End", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--data-grid">
