@@ -5,12 +5,14 @@
     label: "Light Theme",
     checked: true,
   ) %>
+
   <%= render ::Pathogen::Form::RadioButton.new(
     attribute: :theme,
     value: "dark",
     label: "Dark Theme",
     disabled: true,
   ) %>
+
   <%= render ::Pathogen::Form::RadioButton.new(
     attribute: :theme,
     value: "system",
