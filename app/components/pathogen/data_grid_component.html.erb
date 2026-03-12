@@ -35,6 +35,7 @@
                   column_index: index,
                   active: (default_active_row_index == row_index + 1 && index.zero?)
                 ) %>
+
                 <%= tag.td(
                   cell_payload[:content],
                   **column.body_cell_attributes(
