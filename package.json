@@ -7,7 +7,7 @@
   "packageManager": "pnpm@10.25.0",
   "scripts": {
     "herb:format": "herb-format",
-    "herb:format:check": "herb-format --check",
+    "herb:format:check": "herb-format --check .",
     "herb:lint": "herb-lint",
     "format": "pnpm run herb:format && prettier --write . && eslint app/assets/javascripts test/javascript --fix",
     "format:changed": "pnpm run herb:format && prettier --write . && eslint app/assets/javascripts test/javascript --fix",
