@@ -409,20 +409,14 @@ export default class extends Controller {
    * @returns {void}
    */
   #updateTabClasses(tab, isSelected) {
-    const selectedClasses = this.#parseClassList(
-      tab.dataset.pathogenTabsSelectedClasses,
-    );
-    const unselectedClasses = this.#parseClassList(
-      tab.dataset.pathogenTabsUnselectedClasses,
-    );
+    const selectedClasses = this.#parseClassList(tab.dataset.pathogenTabsSelectedClasses);
+    const unselectedClasses = this.#parseClassList(tab.dataset.pathogenTabsUnselectedClasses);
 
     if (selectedClasses.length === 0 && unselectedClasses.length === 0) {
       return;
     }
 
-    tab.classList.remove(
-      ...(isSelected ? unselectedClasses : selectedClasses),
-    );
+    tab.classList.remove(...(isSelected ? unselectedClasses : selectedClasses));
     tab.classList.add(...(isSelected ? selectedClasses : unselectedClasses));
   }
 

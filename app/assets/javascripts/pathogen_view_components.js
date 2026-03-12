@@ -12,7 +12,7 @@ function registerPathogenControllers(application) {
   application.register("pathogen--tooltip", TooltipController);
 
   if (import.meta.env?.DEV) {
-    console.debug("[pathogen] Registered 2 Stimulus controllers");
+    console.warn("[pathogen] Registered 2 Stimulus controllers");
   }
 }
 

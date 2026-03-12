@@ -198,8 +198,7 @@
 
 @layer pathogen.components {
   /* Tabs component */
-  [data-controller="pathogen--tabs"]:not(.tabs-initialized)
-    [data-pathogen--tabs-target="panel"]:not(:first-child) {
+  [data-controller="pathogen--tabs"]:not(.tabs-initialized) [data-pathogen--tabs-target="panel"]:not(:first-child) {
     display: none;
   }
 
@@ -218,17 +217,13 @@
       border-color 200ms ease;
   }
 
-  [data-controller="pathogen--tabs"]
-    [role="tablist"][aria-orientation="horizontal"]
-    [role="tab"] {
+  [data-controller="pathogen--tabs"] [role="tablist"][aria-orientation="horizontal"] [role="tab"] {
     border-bottom: 2px solid transparent;
     border-top-left-radius: var(--pathogen-radius-surface);
     border-top-right-radius: var(--pathogen-radius-surface);
   }
 
-  [data-controller="pathogen--tabs"]
-    [role="tablist"][aria-orientation="vertical"]
-    [role="tab"] {
+  [data-controller="pathogen--tabs"] [role="tablist"][aria-orientation="vertical"] [role="tab"] {
     border-right: 2px solid transparent;
     border-bottom: 0;
     border-top-left-radius: var(--pathogen-radius-surface);
@@ -257,17 +252,13 @@
     color: var(--pathogen-color-text-default);
   }
 
-  [data-controller="pathogen--tabs"]
-    [role="tablist"][aria-orientation="vertical"]
-    [role="tab"][aria-selected="true"] {
+  [data-controller="pathogen--tabs"] [role="tablist"][aria-orientation="vertical"] [role="tab"][aria-selected="true"] {
     border-right-color: var(--pathogen-color-text-default);
     background: transparent;
     color: var(--pathogen-color-text-default);
   }
 
-  [data-controller="pathogen--tabs"]
-    [role="tablist"][aria-orientation="vertical"]
-    [role="tab"][aria-selected="false"] {
+  [data-controller="pathogen--tabs"] [role="tablist"][aria-orientation="vertical"] [role="tab"][aria-selected="false"] {
     border-right-color: transparent;
     color: var(--pathogen-color-text-muted);
   }

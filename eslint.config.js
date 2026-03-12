@@ -21,18 +21,18 @@ export default defineConfig([
   {
     name: "pathogen-javascript",
     files: ["app/assets/javascripts/**/*.js", "test/javascript/**/*.js"],
-      languageOptions: {
-        ecmaVersion: 2022,
-        sourceType: "module",
-        globals: {
-          ...globals.browser,
-          ...globals.node,
-          Turbo: "readonly",
-        },
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        Turbo: "readonly",
       },
-      rules: {
-        "no-console": ["warn", { allow: ["error", "warn"] }],
-        "no-var": "error",
+    },
+    rules: {
+      "no-console": ["warn", { allow: ["error", "warn"] }],
+      "no-var": "error",
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
       "prefer-const": "error",
     },
