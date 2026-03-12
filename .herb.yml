@@ -1,0 +1,25 @@
+version: 0.8.10
+
+files:
+  exclude:
+    - ".git/**/*"
+    - "coverage/**/*"
+    - "log/**/*"
+    - "node_modules/**/*"
+    - "public/**/*"
+    - "storage/**/*"
+    - "tmp/**/*"
+    - "vendor/**/*"
+
+linter:
+  enabled: true
+
+formatter:
+  enabled: true
+  indentWidth: 2
+  maxLineLength: 120
+
+  rewriter:
+    pre:
+      - tailwind-class-sorter
+    post: []
