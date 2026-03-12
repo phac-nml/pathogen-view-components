@@ -1,6 +1,17 @@
 pre-commit:
-  parallel: false
+  parallel: true
   jobs:
+    - name: herb_format
+      glob:
+        - "*.erb"
+        - "**/*.erb"
+      run: pnpm exec herb-format {staged_files}
+      stage_fixed: true
+    - name: herb_lint
+      glob:
+        - "*.erb"
+        - "**/*.erb"
+      run: pnpm exec herb-lint --format=simple {staged_files}
     - name: prettier
       glob:
         - "*.js"

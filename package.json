@@ -6,15 +6,20 @@
   "type": "module",
   "packageManager": "pnpm@10.25.0",
   "scripts": {
-    "format": "prettier --write . && eslint app/assets/javascripts test/javascript --fix",
-    "format:changed": "prettier --write . && eslint app/assets/javascripts test/javascript --fix",
+    "herb:format": "herb-format",
+    "herb:format:check": "herb-format --check",
+    "herb:lint": "herb-lint",
+    "format": "pnpm run herb:format && prettier --write . && eslint app/assets/javascripts test/javascript --fix",
+    "format:changed": "pnpm run herb:format && prettier --write . && eslint app/assets/javascripts test/javascript --fix",
     "test": "vitest run",
     "test:unit": "vitest run test/javascript",
-    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript",
-    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix"
+    "lint": "pnpm run herb:format:check && pnpm run herb:lint && prettier --check . && eslint app/assets/javascripts test/javascript",
+    "lint:fix": "pnpm run herb:format && prettier --write . && eslint app/assets/javascripts test/javascript --fix"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@herb-tools/formatter": "^0.8.10",
+    "@herb-tools/linter": "^0.8.10",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
