@@ -305,7 +305,12 @@ export default class extends Controller {
       passive: true,
     });
 
-    window.addEventListener("resize", render, {
+    let resizeTimer = null;
+    const onResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(render, 100);
+    };
+    window.addEventListener("resize", onResize, {
       signal: this.#abortController.signal,
       passive: true,
     });
