@@ -3,6 +3,9 @@
 module Pathogen
   # @label Data Grid
   class DataGridPreview < ViewComponent::Preview
+    MASSIVE_ROW_COUNT = 25_000
+    MASSIVE_COLUMN_COUNT = 10_000
+
     # @label Basic
     def basic
       render Pathogen::DataGridComponent.new(
@@ -95,6 +98,9 @@ module Pathogen
       end
     end
 
+    # @label Massive Virtualized Grid (25k x 10k)
+    def massive_virtualized_grid; end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
@@ -171,6 +177,45 @@ module Pathogen
     ].freeze
 
     private
+
+    def massive_virtualized_component
+      Pathogen::DataGridComponent.new(
+        rows: [],
+        caption: 'Virtualized benchmark grid',
+        fill_container: true,
+        virtual: true,
+        virtual_dataset: massive_virtual_dataset,
+        virtual_row_height: 44,
+        virtual_overscan_rows: 8,
+        virtual_overscan_columns: 4
+      )
+    end
+
+    def massive_virtual_dataset
+      {
+        mode: 'synthetic',
+        rowCount: MASSIVE_ROW_COUNT,
+        columns: massive_virtual_columns
+      }
+    end
+
+    def massive_virtual_columns
+      @massive_virtual_columns ||= begin
+        columns = [
+          { id: 'sample_id', label: 'Sample ID', width: 180, sticky: true },
+          { id: 'sample_name', label: 'Sample Name', width: 260, sticky: true },
+          { id: 'details', label: 'Details', width: 200, kind: 'link' },
+          { id: 'queue', label: 'Queue', width: 160, kind: 'button' }
+        ]
+
+        (MASSIVE_COLUMN_COUNT - columns.size).times do |index|
+          width = 140 + ((index % 5) * 12)
+          columns << { id: "meta_#{index + 1}", label: "Meta #{index + 1}", width: width }
+        end
+
+        columns
+      end
+    end
 
     def interactive_actions(row)
       helpers = ActionController::Base.helpers
