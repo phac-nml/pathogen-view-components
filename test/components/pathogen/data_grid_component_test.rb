@@ -289,6 +289,40 @@ module Pathogen
       assert_selector 'tbody[data-pathogen--data-grid-target="body"] td.pathogen-data-grid__cell--virtual-placeholder'
     end
 
+    STATIC_VIRTUAL_DATASET = {
+      mode: 'static',
+      rowCount: 2,
+      columns: [
+        { id: 'sample_id', label: 'Sample ID', width: 180 },
+        { id: 'name', label: 'Name', width: 240 }
+      ],
+      rows: [
+        { id: 'r1', cells: { sample_id: 'SAM-001', name: 'Alpha' } },
+        { id: 'r2', cells: { sample_id: 'SAM-002', name: 'Beta' } }
+      ]
+    }.freeze
+
+    test 'renders static virtual dataset HTML shell with correct aria dimensions' do
+      render_inline(Pathogen::DataGridComponent.new(rows: [], virtual: true, virtual_dataset: STATIC_VIRTUAL_DATASET))
+
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-value="true"]'
+      assert_selector '.pathogen-data-grid__table[aria-rowcount="3"][aria-colcount="2"]'
+      assert_selector 'thead tr[data-pathogen--data-grid-target="headerRow"]'
+    end
+
+    test 'serializes static virtual dataset rows and cells into the controller payload' do
+      render_inline(Pathogen::DataGridComponent.new(rows: [], virtual: true, virtual_dataset: STATIC_VIRTUAL_DATASET))
+
+      dataset_json = JSON.parse(
+        page.find('.pathogen-data-grid')['data-pathogen--data-grid-virtual-dataset-value']
+      )
+      assert_equal 'static', dataset_json['mode']
+      assert_equal 2, dataset_json['row_count']
+      assert_equal 2, dataset_json['columns'].size
+      assert_equal 2, dataset_json['rows'].size
+      assert_equal({ 'sample_id' => 'SAM-001', 'name' => 'Alpha' }, dataset_json['rows'][0]['cells'])
+    end
+
     test 'falls back to regular table rendering when virtual dataset is invalid' do
       render_inline(Pathogen::DataGridComponent.new(
                       rows: [{ id: 'S-501', name: 'Fallback sample' }],
