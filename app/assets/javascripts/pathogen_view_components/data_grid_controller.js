@@ -115,6 +115,7 @@ function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
     overscanColumns: integerOr(DEFAULT_OVERSCAN_COLUMNS, overscanColumns),
     columns,
     stickyColumns,
+    stickyTotalWidth: stickyOffset,
     centerColumns,
     centerOffsets,
     centerTotalWidth: centerOffset,
@@ -308,6 +309,13 @@ export default class extends Controller {
 
     this.#setupVirtualizers();
     this.#renderVirtualGrid({ restoreFocus: false });
+
+    requestAnimationFrame(() => {
+      if (!this.#virtualMode()) return;
+      this.#rowVirtualizer?.measure();
+      this.#columnVirtualizer?.measure();
+      this.#renderVirtualGrid({ restoreFocus: false });
+    });
   }
 
   #setupVirtualizers() {
@@ -506,24 +514,93 @@ export default class extends Controller {
 
   #rowsToRender(virtualRows) {
     if (virtualRows.length > 0) return virtualRows;
-
-    const fallbackIndex = Math.max(0, this.#virtualState.activeRowIndex - 1);
-    const start = fallbackIndex * this.#virtualState.rowHeight;
-    const size = this.#virtualState.rowHeight;
-
-    return [{ index: fallbackIndex, start, size, end: start + size }];
+    return this.#manualRowWindow();
   }
 
   #centerColumnsToRender(virtualColumns) {
     if (this.#virtualState.centerColumns.length === 0) return [];
     if (virtualColumns.length > 0) return virtualColumns;
+    return this.#manualCenterWindow();
+  }
+
+  #manualRowWindow() {
+    const rowHeight = this.#virtualState.rowHeight;
+    const rowCount = this.#virtualState.rowCount;
+    const overscan = this.#virtualState.overscanRows;
+    const scrollTop = this.hasScrollContainerTarget ? this.scrollContainerTarget.scrollTop : 0;
+    const viewportHeight =
+      this.hasScrollContainerTarget && this.scrollContainerTarget.clientHeight > 0
+        ? this.scrollContainerTarget.clientHeight
+        : rowHeight * (overscan + 4);
+
+    let startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
+    let endIndex = Math.min(rowCount - 1, Math.ceil((scrollTop + viewportHeight) / rowHeight) + overscan);
+    const activeRowIndex = Math.max(0, this.#virtualState.activeRowIndex - 1);
+    startIndex = Math.min(startIndex, activeRowIndex);
+    endIndex = Math.max(endIndex, activeRowIndex);
+
+    const items = [];
+    for (let index = startIndex; index <= endIndex; index += 1) {
+      const start = index * rowHeight;
+      items.push({
+        index,
+        start,
+        size: rowHeight,
+        end: start + rowHeight,
+      });
+    }
+
+    return items;
+  }
+
+  #manualCenterWindow() {
+    const centerColumns = this.#virtualState.centerColumns;
+    const centerOffsets = this.#virtualState.centerOffsets;
+    const overscan = this.#virtualState.overscanColumns;
+    const scrollLeft = this.hasScrollContainerTarget ? this.scrollContainerTarget.scrollLeft : 0;
+    const viewportWidth =
+      this.hasScrollContainerTarget && this.scrollContainerTarget.clientWidth > 0
+        ? Math.max(1, this.scrollContainerTarget.clientWidth - this.#virtualState.stickyTotalWidth)
+        : 1200;
+
+    const visibleStart = Math.max(0, scrollLeft);
+    const visibleEnd = visibleStart + viewportWidth;
+
+    let startIndex = 0;
+    while (
+      startIndex < centerColumns.length - 1 &&
+      centerOffsets[startIndex] + centerColumns[startIndex].width <= visibleStart
+    ) {
+      startIndex += 1;
+    }
+
+    let endIndex = startIndex;
+    while (endIndex < centerColumns.length - 1 && centerOffsets[endIndex] < visibleEnd) {
+      endIndex += 1;
+    }
+
+    startIndex = Math.max(0, startIndex - overscan);
+    endIndex = Math.min(centerColumns.length - 1, endIndex + overscan);
 
     const activeCenterIndex = this.#virtualState.centerIndexByGlobal.get(this.#virtualState.activeColumnIndex);
-    const fallbackIndex = Number.isInteger(activeCenterIndex) ? activeCenterIndex : 0;
-    const start = this.#virtualState.centerOffsets[fallbackIndex] || 0;
-    const size = this.#virtualState.centerColumns[fallbackIndex]?.width || 180;
+    if (Number.isInteger(activeCenterIndex)) {
+      startIndex = Math.min(startIndex, activeCenterIndex);
+      endIndex = Math.max(endIndex, activeCenterIndex);
+    }
 
-    return [{ index: fallbackIndex, start, size, end: start + size }];
+    const items = [];
+    for (let index = startIndex; index <= endIndex; index += 1) {
+      const start = centerOffsets[index] || 0;
+      const size = centerColumns[index].width;
+      items.push({
+        index,
+        start,
+        size,
+        end: start + size,
+      });
+    }
+
+    return items;
   }
 
   #renderVirtualHeader(centerItems, leftSpacerWidth, rightSpacerWidth, activeRowIndex, activeColumnIndex) {
