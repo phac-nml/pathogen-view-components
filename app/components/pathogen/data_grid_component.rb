@@ -12,6 +12,11 @@ module Pathogen
   #   by default. Individual columns can override with `sticky: true/false`.
   # @param fill_container [Boolean] When true, enables flex/min-height behavior
   #   so the grid can fill and scroll within a constrained parent container.
+  # @param virtual [Boolean] Enables client-side virtualization mode.
+  # @param virtual_dataset [Hash, nil] JSON-like dataset contract used in virtual mode.
+  # @param virtual_row_height [Integer] Fixed virtual row height in pixels.
+  # @param virtual_overscan_rows [Integer] Number of extra rows rendered above/below viewport.
+  # @param virtual_overscan_columns [Integer] Number of extra columns rendered left/right of viewport.
   # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
   #
   # @example Basic usage
@@ -26,6 +31,7 @@ module Pathogen
   #   <% end %>
   #
   # CSS dependency: pathogen/pathogen.css
+  # rubocop:disable Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
 
@@ -56,7 +62,19 @@ module Pathogen
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false, **system_arguments)
+    def initialize(
+      rows:,
+      caption: nil,
+      sticky_columns: 0,
+      fill_container: false,
+      dense: false,
+      virtual: false,
+      virtual_dataset: nil,
+      virtual_row_height: 44,
+      virtual_overscan_rows: 8,
+      virtual_overscan_columns: 4,
+      **system_arguments
+    )
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -64,11 +82,21 @@ module Pathogen
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
+      @virtual_requested = virtual
+      @virtual_dataset_input = virtual_dataset
+      @virtual_row_height = virtual_row_height
+      @virtual_overscan_rows = virtual_overscan_rows
+      @virtual_overscan_columns = virtual_overscan_columns
       @system_arguments = system_arguments
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
     def caption? = @caption.present?
+    def virtual? = @virtual_requested && virtual_dataset.present?
+
+    def virtual_dataset
+      @virtual_dataset ||= DataGrid::VirtualDataset.build(@virtual_dataset_input)
+    end
 
     def table_attributes
       attributes = {
@@ -78,13 +106,17 @@ module Pathogen
       }
 
       label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
-      label_attributes[:colcount] = columns.size
+      label_attributes[:rowcount] = row_count + 1 # +1 for header row
+      label_attributes[:colcount] = column_count
       attributes[:aria] = label_attributes
       attributes
     end
 
-    def default_active_row_index = @rows.present? ? 1 : nil
+    def default_active_row_index = row_count.positive? ? 1 : nil
+
+    def row_count = virtual? ? virtual_dataset[:row_count] : @rows.size
+
+    def column_count = virtual? ? virtual_dataset[:columns].size : columns.size
 
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
@@ -134,7 +166,10 @@ module Pathogen
       append_component_class!('pathogen-data-grid--dense') if @dense
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def apply_column_defaults!
+      return if virtual?
+
       sticky_offset = 0
 
       columns.each_with_index do |column, index|
@@ -152,6 +187,7 @@ module Pathogen
         sticky_offset += column.width_px if column.width_px
       end
     end
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def apply_fill_container_class!
       append_component_class!('pathogen-data-grid--fill') if @fill_container
@@ -160,17 +196,34 @@ module Pathogen
     def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
 
     def apply_responsive_sticky_class!
-      append_component_class!('pathogen-data-grid--multi-sticky') if columns.many?(&:sticky)
+      sticky_count = if virtual?
+                       virtual_dataset[:columns].count { |column| column[:sticky] }
+                     else
+                       columns.count(&:sticky)
+                     end
+
+      append_component_class!('pathogen-data-grid--multi-sticky') if sticky_count > 1
     end
 
+    # rubocop:disable Metrics/AbcSize
     def apply_data_grid_controller!
       @system_arguments[:data] ||= {}
       existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
       @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+
+      return unless virtual?
+
+      @system_arguments[:data][:'pathogen--data-grid-virtual-value'] = true
+      @system_arguments[:data][:'pathogen--data-grid-virtual-dataset-value'] = virtual_dataset.to_json
+      @system_arguments[:data][:'pathogen--data-grid-virtual-row-height-value'] = @virtual_row_height
+      @system_arguments[:data][:'pathogen--data-grid-virtual-overscan-rows-value'] = @virtual_overscan_rows
+      @system_arguments[:data][:'pathogen--data-grid-virtual-overscan-columns-value'] = @virtual_overscan_columns
     end
+    # rubocop:enable Metrics/AbcSize
 
     def append_component_class!(component_class)
       @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
