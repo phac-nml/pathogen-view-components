@@ -638,3 +638,138 @@ describe("data_grid_controller", () => {
     expect(link.tabIndex).toBe(-1);
   });
 });
+
+const mountVirtualGrid = (dataset) => {
+  document.body.innerHTML = "";
+
+  const root = document.createElement("div");
+  root.setAttribute("data-controller", "pathogen--data-grid");
+  root.setAttribute("data-pathogen--data-grid-virtual-value", "true");
+  root.setAttribute("data-pathogen--data-grid-virtual-row-height-value", "40");
+  root.setAttribute("data-pathogen--data-grid-virtual-overscan-rows-value", "6");
+  root.setAttribute("data-pathogen--data-grid-virtual-overscan-columns-value", "3");
+  root.setAttribute("data-pathogen--data-grid-virtual-dataset-value", JSON.stringify(dataset));
+
+  const scroll = document.createElement("div");
+  scroll.setAttribute("data-pathogen--data-grid-target", "scrollContainer");
+  scroll.style.height = "320px";
+  scroll.style.width = "640px";
+  scroll.style.overflow = "auto";
+
+  const table = document.createElement("table");
+  table.setAttribute("role", "grid");
+  table.setAttribute("data-pathogen--data-grid-target", "grid");
+
+  const thead = document.createElement("thead");
+  thead.className = "pathogen-data-grid__header";
+  const headerRow = document.createElement("tr");
+  headerRow.className = "pathogen-data-grid__row pathogen-data-grid__row--header";
+  headerRow.setAttribute("role", "row");
+  headerRow.setAttribute("data-pathogen--data-grid-target", "headerRow");
+  thead.appendChild(headerRow);
+
+  const tbody = document.createElement("tbody");
+  tbody.className = "pathogen-data-grid__body";
+  tbody.setAttribute("data-pathogen--data-grid-target", "body");
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+  scroll.appendChild(table);
+  root.appendChild(scroll);
+  document.body.appendChild(root);
+};
+
+describe("data_grid_controller virtual mode", () => {
+  let application;
+
+  const startController = async (dataset) => {
+    mountVirtualGrid(dataset);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+  };
+
+  afterEach(() => {
+    application?.stop();
+    document.body.innerHTML = "";
+  });
+
+  it("renders a viewport-bounded window while keeping sticky columns mounted", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 25000,
+      columns: [
+        { id: "sample_id", label: "Sample ID", width: 180, sticky: true },
+        { id: "name", label: "Name", width: 240, sticky: true },
+        { id: "status", label: "Status", width: 160 },
+        { id: "collection", label: "Collection", width: 180 },
+        { id: "owner", label: "Owner", width: 180 },
+      ],
+    });
+    const renderedRows = document.querySelectorAll("tbody tr[role='row']").length;
+    expect(renderedRows).toBeGreaterThan(0);
+    expect(renderedRows).toBeLessThan(25000);
+
+    const stickyHeader = document.querySelector(
+      "th.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-column-index='0']",
+    );
+    expect(stickyHeader).not.toBeNull();
+  });
+
+  it("navigates to an offscreen row/column with Ctrl+End and restores active focus", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 512,
+      columns: Array.from({ length: 20 }, (_, index) => ({
+        id: `col_${index}`,
+        label: `Column ${index + 1}`,
+        width: 140,
+        sticky: index < 2,
+      })),
+    });
+
+    const firstCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='1'][data-pathogen--data-grid-column-index='0']",
+    );
+    firstCell.focus();
+    dispatchKey(firstCell, "End", { ctrlKey: true });
+    await flush();
+
+    const lastCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='512'][data-pathogen--data-grid-column-index='19']",
+    );
+    expect(lastCell).not.toBeNull();
+    expect(document.activeElement).toBe(lastCell);
+    expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("keeps widget mode enter/escape behavior in virtual cells", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 120,
+      columns: [
+        { id: "sample_id", label: "Sample ID", width: 180, sticky: true },
+        { id: "details", label: "Details", width: 200, kind: "link" },
+        { id: "queue", label: "Queue", width: 160, kind: "button" },
+      ],
+    });
+
+    const linkCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='1'][data-pathogen--data-grid-column-index='1']",
+    );
+    linkCell.focus();
+    dispatchKey(linkCell, "Enter");
+    await flush();
+
+    const link = linkCell.querySelector("a");
+    expect(document.activeElement).toBe(link);
+    expect(link.tabIndex).toBe(0);
+
+    dispatchKey(link, "Escape");
+    await flush();
+
+    expect(document.activeElement).toBe(linkCell);
+    expect(linkCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(link.tabIndex).toBe(-1);
+  });
+});

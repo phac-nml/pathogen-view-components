@@ -87,6 +87,8 @@ function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
   const stickyColumns = [];
   const centerColumns = [];
   const centerIndexByGlobal = new Map();
+  const centerOffsets = [];
+  let centerOffset = 0;
   let stickyOffset = 0;
 
   columns.forEach((column) => {
@@ -100,7 +102,9 @@ function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
     }
 
     centerIndexByGlobal.set(column.globalIndex, centerColumns.length);
+    centerOffsets.push(centerOffset);
     centerColumns.push(column);
+    centerOffset += column.width;
   });
 
   return {
@@ -112,6 +116,8 @@ function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
     columns,
     stickyColumns,
     centerColumns,
+    centerOffsets,
+    centerTotalWidth: centerOffset,
     centerIndexByGlobal,
     rows: Array.isArray(dataset.rows) ? dataset.rows : [],
     activeRowIndex: 1,
@@ -461,9 +467,13 @@ export default class extends Controller {
     const activeRowIndex = this.#virtualState.activeRowIndex;
     const activeColumnIndex = this.#virtualState.activeColumnIndex;
 
-    const rowItems = this.#rowVirtualizer ? this.#rowVirtualizer.getVirtualItems() : [];
-    const centerItems = this.#columnVirtualizer ? this.#columnVirtualizer.getVirtualItems() : [];
-    const centerTotalWidth = this.#columnVirtualizer ? this.#columnVirtualizer.getTotalSize() : 0;
+    const rowItems = this.#rowsToRender(this.#rowVirtualizer ? this.#rowVirtualizer.getVirtualItems() : []);
+    const centerItems = this.#centerColumnsToRender(
+      this.#columnVirtualizer ? this.#columnVirtualizer.getVirtualItems() : [],
+    );
+    const centerTotalWidth = this.#columnVirtualizer
+      ? this.#columnVirtualizer.getTotalSize()
+      : this.#virtualState.centerTotalWidth;
     const leftSpacerWidth = centerItems.length > 0 ? centerItems[0].start : 0;
     const rightSpacerWidth =
       centerItems.length > 0
@@ -492,6 +502,28 @@ export default class extends Controller {
 
     activeCell.focus({ preventScroll: true });
     this.#scrollCellIntoView(activeCell);
+  }
+
+  #rowsToRender(virtualRows) {
+    if (virtualRows.length > 0) return virtualRows;
+
+    const fallbackIndex = Math.max(0, this.#virtualState.activeRowIndex - 1);
+    const start = fallbackIndex * this.#virtualState.rowHeight;
+    const size = this.#virtualState.rowHeight;
+
+    return [{ index: fallbackIndex, start, size, end: start + size }];
+  }
+
+  #centerColumnsToRender(virtualColumns) {
+    if (this.#virtualState.centerColumns.length === 0) return [];
+    if (virtualColumns.length > 0) return virtualColumns;
+
+    const activeCenterIndex = this.#virtualState.centerIndexByGlobal.get(this.#virtualState.activeColumnIndex);
+    const fallbackIndex = Number.isInteger(activeCenterIndex) ? activeCenterIndex : 0;
+    const start = this.#virtualState.centerOffsets[fallbackIndex] || 0;
+    const size = this.#virtualState.centerColumns[fallbackIndex]?.width || 180;
+
+    return [{ index: fallbackIndex, start, size, end: start + size }];
   }
 
   #renderVirtualHeader(centerItems, leftSpacerWidth, rightSpacerWidth, activeRowIndex, activeColumnIndex) {

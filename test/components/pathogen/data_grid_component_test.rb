@@ -263,5 +263,45 @@ module Pathogen
       assert_no_selector '.pathogen-data-grid__scroll .test-metadata-warning'
       assert_no_selector '.pathogen-data-grid__scroll .test-footer'
     end
+
+    test 'renders virtualization controller payload and placeholder shell when virtual mode is enabled' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      rows: [],
+                      virtual: true,
+                      virtual_dataset: {
+                        mode: 'synthetic',
+                        rowCount: 250,
+                        columns: [
+                          { id: 'sample_id', label: 'Sample ID', width: 180, sticky: true },
+                          { id: 'name', label: 'Name', width: 240 },
+                          { id: 'status', label: 'Status', width: 160 }
+                        ]
+                      }
+                    ))
+
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-value="true"]'
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-dataset-value]'
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-row-height-value="44"]'
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-overscan-rows-value="8"]'
+      assert_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-overscan-columns-value="4"]'
+      assert_selector '.pathogen-data-grid__table[aria-rowcount="251"][aria-colcount="3"]'
+      assert_selector 'thead tr[data-pathogen--data-grid-target="headerRow"]'
+      assert_selector 'tbody[data-pathogen--data-grid-target="body"] td.pathogen-data-grid__cell--virtual-placeholder'
+    end
+
+    test 'falls back to regular table rendering when virtual dataset is invalid' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      rows: [{ id: 'S-501', name: 'Fallback sample' }],
+                      virtual: true,
+                      virtual_dataset: { mode: 'invalid', columns: [] }
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+        grid.with_column('Name', key: :name)
+      end
+
+      assert_no_selector '.pathogen-data-grid[data-pathogen--data-grid-virtual-value="true"]'
+      assert_selector 'tbody tr td', text: 'S-501'
+      assert_selector 'tbody tr td', text: 'Fallback sample'
+    end
   end
 end
