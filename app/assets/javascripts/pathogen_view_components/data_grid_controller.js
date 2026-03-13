@@ -1,11 +1,4 @@
 import { Controller } from "@hotwired/stimulus";
-import {
-  Virtualizer,
-  defaultRangeExtractor,
-  elementScroll,
-  observeElementOffset,
-  observeElementRect,
-} from "@tanstack/virtual-core";
 
 import { buildCellMap, firstDataCell, nextCellForKey } from "pathogen_view_components/data_grid_controller/navigation";
 
@@ -68,10 +61,6 @@ function normalizeColumns(rawColumns) {
       };
     })
     .filter(Boolean);
-}
-
-function uniqueSortedIndexes(indexes) {
-  return [...new Set(indexes)].sort((a, b) => a - b);
 }
 
 function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
@@ -191,8 +180,6 @@ export default class extends Controller {
 
   #abortController = null;
   #lastActiveCell = null;
-  #rowVirtualizer = null;
-  #columnVirtualizer = null;
   #virtualState = null;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -210,7 +197,6 @@ export default class extends Controller {
   disconnect() {
     this.#abortController?.abort();
     this.#abortController = null;
-    this.#teardownVirtualizers();
     this.#virtualState = null;
   }
 
@@ -307,71 +293,22 @@ export default class extends Controller {
     );
     if (!this.#virtualState) return;
 
-    this.#setupVirtualizers();
+    this.#bindVirtualRenderEvents();
     this.#renderVirtualGrid({ restoreFocus: false });
-
-    requestAnimationFrame(() => {
-      if (!this.#virtualMode()) return;
-      this.#rowVirtualizer?.measure();
-      this.#columnVirtualizer?.measure();
-      this.#renderVirtualGrid({ restoreFocus: false });
-    });
   }
 
-  #setupVirtualizers() {
-    const scrollElement = () => (this.hasScrollContainerTarget ? this.scrollContainerTarget : null);
-    const rowCount = this.#virtualState.rowCount;
-    const centerCount = this.#virtualState.centerColumns.length;
+  #bindVirtualRenderEvents() {
+    const render = () => this.#renderVirtualGrid({ restoreFocus: false });
 
-    this.#rowVirtualizer = new Virtualizer({
-      count: rowCount,
-      estimateSize: () => this.#virtualState.rowHeight,
-      getScrollElement: scrollElement,
-      overscan: this.#virtualState.overscanRows,
-      observeElementRect,
-      observeElementOffset,
-      scrollToFn: elementScroll,
-      rangeExtractor: (range) => {
-        const activeRow = this.#virtualState.activeRowIndex;
-        const activeIndex = activeRow > 0 ? activeRow - 1 : null;
-        const indexes = [...defaultRangeExtractor(range)];
-        if (activeIndex !== null) indexes.push(activeIndex);
-        return uniqueSortedIndexes(indexes);
-      },
-      onChange: () => this.#renderVirtualGrid(),
+    this.scrollContainerTarget.addEventListener("scroll", render, {
+      signal: this.#abortController.signal,
+      passive: true,
     });
 
-    if (centerCount === 0) return;
-
-    this.#columnVirtualizer = new Virtualizer({
-      horizontal: true,
-      count: centerCount,
-      estimateSize: (index) => this.#virtualState.centerColumns[index]?.width || 180,
-      getScrollElement: scrollElement,
-      overscan: this.#virtualState.overscanColumns,
-      observeElementRect,
-      observeElementOffset,
-      scrollToFn: elementScroll,
-      rangeExtractor: (range) => {
-        const indexes = [...defaultRangeExtractor(range)];
-        const activeCenterIndex = this.#virtualState.centerIndexByGlobal.get(this.#virtualState.activeColumnIndex);
-        if (Number.isInteger(activeCenterIndex)) indexes.push(activeCenterIndex);
-        return uniqueSortedIndexes(indexes);
-      },
-      onChange: () => this.#renderVirtualGrid(),
+    window.addEventListener("resize", render, {
+      signal: this.#abortController.signal,
+      passive: true,
     });
-  }
-
-  #teardownVirtualizers() {
-    if (this.#rowVirtualizer) {
-      this.#rowVirtualizer.setOptions({ ...this.#rowVirtualizer.options, enabled: false });
-      this.#rowVirtualizer = null;
-    }
-
-    if (this.#columnVirtualizer) {
-      this.#columnVirtualizer.setOptions({ ...this.#columnVirtualizer.options, enabled: false });
-      this.#columnVirtualizer = null;
-    }
   }
 
   #handleVirtualKeydown(event) {
@@ -455,17 +392,47 @@ export default class extends Controller {
   #focusVirtualCoordinates(rowIndex, columnIndex) {
     this.#virtualState.activeRowIndex = rowIndex;
     this.#virtualState.activeColumnIndex = columnIndex;
+    this.#scrollVirtualCoordinatesIntoView(rowIndex, columnIndex);
 
-    if (rowIndex > 0 && this.#rowVirtualizer) {
-      this.#rowVirtualizer.scrollToIndex(rowIndex - 1, { align: "auto" });
+    this.#renderVirtualGrid({ restoreFocus: true });
+  }
+
+  #scrollVirtualCoordinatesIntoView(rowIndex, columnIndex) {
+    if (!this.hasScrollContainerTarget) return;
+
+    const container = this.scrollContainerTarget;
+    const rowHeight = this.#virtualState.rowHeight;
+
+    if (rowIndex <= 0) {
+      container.scrollTop = 0;
+    } else {
+      const rowStart = (rowIndex - 1) * rowHeight;
+      const rowEnd = rowStart + rowHeight;
+      const viewportStart = container.scrollTop;
+      const viewportEnd = viewportStart + container.clientHeight;
+
+      if (rowStart < viewportStart) {
+        container.scrollTop = rowStart;
+      } else if (rowEnd > viewportEnd) {
+        container.scrollTop = Math.max(0, rowEnd - container.clientHeight);
+      }
     }
 
     const centerIndex = this.#virtualState.centerIndexByGlobal.get(columnIndex);
-    if (Number.isInteger(centerIndex) && this.#columnVirtualizer) {
-      this.#columnVirtualizer.scrollToIndex(centerIndex, { align: "auto" });
-    }
+    if (!Number.isInteger(centerIndex)) return;
 
-    this.#renderVirtualGrid({ restoreFocus: true });
+    const colStart = this.#virtualState.centerOffsets[centerIndex] || 0;
+    const colWidth = this.#virtualState.centerColumns[centerIndex]?.width || 180;
+    const colEnd = colStart + colWidth;
+    const visibleWidth = Math.max(1, container.clientWidth - this.#virtualState.stickyTotalWidth);
+    const viewportStart = container.scrollLeft;
+    const viewportEnd = viewportStart + visibleWidth;
+
+    if (colStart < viewportStart) {
+      container.scrollLeft = colStart;
+    } else if (colEnd > viewportEnd) {
+      container.scrollLeft = Math.max(0, colEnd - visibleWidth);
+    }
   }
 
   #renderVirtualGrid({ restoreFocus = true } = {}) {
@@ -475,13 +442,9 @@ export default class extends Controller {
     const activeRowIndex = this.#virtualState.activeRowIndex;
     const activeColumnIndex = this.#virtualState.activeColumnIndex;
 
-    const rowItems = this.#rowsToRender(this.#rowVirtualizer ? this.#rowVirtualizer.getVirtualItems() : []);
-    const centerItems = this.#centerColumnsToRender(
-      this.#columnVirtualizer ? this.#columnVirtualizer.getVirtualItems() : [],
-    );
-    const centerTotalWidth = this.#columnVirtualizer
-      ? this.#columnVirtualizer.getTotalSize()
-      : this.#virtualState.centerTotalWidth;
+    const rowItems = this.#manualRowWindow();
+    const centerItems = this.#manualCenterWindow();
+    const centerTotalWidth = this.#virtualState.centerTotalWidth;
     const leftSpacerWidth = centerItems.length > 0 ? centerItems[0].start : 0;
     const rightSpacerWidth =
       centerItems.length > 0
@@ -512,17 +475,6 @@ export default class extends Controller {
     this.#scrollCellIntoView(activeCell);
   }
 
-  #rowsToRender(virtualRows) {
-    if (virtualRows.length > 0) return virtualRows;
-    return this.#manualRowWindow();
-  }
-
-  #centerColumnsToRender(virtualColumns) {
-    if (this.#virtualState.centerColumns.length === 0) return [];
-    if (virtualColumns.length > 0) return virtualColumns;
-    return this.#manualCenterWindow();
-  }
-
   #manualRowWindow() {
     const rowHeight = this.#virtualState.rowHeight;
     const rowCount = this.#virtualState.rowCount;
@@ -533,11 +485,8 @@ export default class extends Controller {
         ? this.scrollContainerTarget.clientHeight
         : rowHeight * (overscan + 4);
 
-    let startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
-    let endIndex = Math.min(rowCount - 1, Math.ceil((scrollTop + viewportHeight) / rowHeight) + overscan);
-    const activeRowIndex = Math.max(0, this.#virtualState.activeRowIndex - 1);
-    startIndex = Math.min(startIndex, activeRowIndex);
-    endIndex = Math.max(endIndex, activeRowIndex);
+    const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight) - overscan);
+    const endIndex = Math.min(rowCount - 1, Math.ceil((scrollTop + viewportHeight) / rowHeight) + overscan);
 
     const items = [];
     for (let index = startIndex; index <= endIndex; index += 1) {
@@ -581,12 +530,6 @@ export default class extends Controller {
 
     startIndex = Math.max(0, startIndex - overscan);
     endIndex = Math.min(centerColumns.length - 1, endIndex + overscan);
-
-    const activeCenterIndex = this.#virtualState.centerIndexByGlobal.get(this.#virtualState.activeColumnIndex);
-    if (Number.isInteger(activeCenterIndex)) {
-      startIndex = Math.min(startIndex, activeCenterIndex);
-      endIndex = Math.max(endIndex, activeCenterIndex);
-    }
 
     const items = [];
     for (let index = startIndex; index <= endIndex; index += 1) {
@@ -644,7 +587,7 @@ export default class extends Controller {
 
   #renderVirtualBody(rowItems, centerItems, leftSpacerWidth, rightSpacerWidth, activeRowIndex, activeColumnIndex) {
     const fragment = document.createDocumentFragment();
-    const totalRowSize = this.#rowVirtualizer ? this.#rowVirtualizer.getTotalSize() : 0;
+    const totalRowSize = this.#virtualState.rowCount * this.#virtualState.rowHeight;
     const topSpacerHeight = rowItems.length > 0 ? rowItems[0].start : 0;
     const bottomSpacerHeight =
       rowItems.length > 0 ? Math.max(0, totalRowSize - rowItems[rowItems.length - 1].end) : totalRowSize;

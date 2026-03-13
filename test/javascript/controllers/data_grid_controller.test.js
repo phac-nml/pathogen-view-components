@@ -716,6 +716,48 @@ describe("data_grid_controller virtual mode", () => {
     expect(stickyHeader).not.toBeNull();
   });
 
+  it("keeps render bounds small during rapid scroll jumps", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 100000,
+      columns: Array.from({ length: 1200 }, (_, index) => ({
+        id: `col_${index}`,
+        label: `Column ${index + 1}`,
+        width: 140,
+        sticky: index < 2,
+      })),
+    });
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.scrollTop = 320_000;
+    scrollContainer.scrollLeft = 120_000;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const renderedBodyRows = document.querySelectorAll(
+      "tbody tr.pathogen-data-grid__row:not(.pathogen-data-grid__row--spacer)",
+    );
+    expect(renderedBodyRows.length).toBeGreaterThan(0);
+    expect(renderedBodyRows.length).toBeLessThan(200);
+
+    const focusedCell = document.querySelector(
+      "tbody td.pathogen-data-grid__cell--body:not(.pathogen-data-grid__cell--spacer)",
+    );
+    focusedCell.focus();
+    dispatchKey(focusedCell, "End", { ctrlKey: true });
+    await flush();
+
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const renderedCenterHeaders = document.querySelectorAll(
+      "thead th.pathogen-data-grid__cell--header:not(.pathogen-data-grid__cell--sticky):not(.pathogen-data-grid__cell--spacer)",
+    );
+    expect(renderedCenterHeaders.length).toBeGreaterThan(0);
+    expect(renderedCenterHeaders.length).toBeLessThan(80);
+  });
+
   it("navigates to an offscreen row/column with Ctrl+End and restores active focus", async () => {
     await startController({
       mode: "synthetic",
