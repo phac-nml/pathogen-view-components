@@ -298,7 +298,7 @@ export default class extends Controller {
   }
 
   #bindVirtualRenderEvents() {
-    const render = () => this.#renderVirtualGrid({ restoreFocus: false });
+    const render = () => this.#renderVirtualGrid({ restoreFocus: this.element.contains(document.activeElement) });
 
     this.scrollContainerTarget.addEventListener("scroll", render, {
       signal: this.#abortController.signal,
@@ -419,7 +419,10 @@ export default class extends Controller {
     }
 
     const centerIndex = this.#virtualState.centerIndexByGlobal.get(columnIndex);
-    if (!Number.isInteger(centerIndex)) return;
+    if (!Number.isInteger(centerIndex)) {
+      container.scrollLeft = 0;
+      return;
+    }
 
     const colStart = this.#virtualState.centerOffsets[centerIndex] || 0;
     const colWidth = this.#virtualState.centerColumns[centerIndex]?.width || 180;

@@ -689,6 +689,13 @@ describe("data_grid_controller virtual mode", () => {
     await flush();
   };
 
+  const setScrollViewport = (height = 320, width = 640) => {
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: height });
+    Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: width });
+    return scrollContainer;
+  };
+
   afterEach(() => {
     application?.stop();
     document.body.innerHTML = "";
@@ -714,6 +721,79 @@ describe("data_grid_controller virtual mode", () => {
       "th.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-column-index='0']",
     );
     expect(stickyHeader).not.toBeNull();
+  });
+
+  it("scrolls to and focuses the top-left cell with Ctrl+Home", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 2000,
+      columns: Array.from({ length: 80 }, (_, index) => ({
+        id: `col_${index}`,
+        label: `Column ${index + 1}`,
+        width: 140,
+        sticky: index < 2,
+      })),
+    });
+
+    const scrollContainer = setScrollViewport();
+    scrollContainer.scrollTop = 8_000;
+    scrollContainer.scrollLeft = 6_000;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const focusedCell = document.querySelector(
+      "tbody td.pathogen-data-grid__cell--body:not(.pathogen-data-grid__cell--spacer)",
+    );
+    focusedCell.focus();
+    dispatchKey(focusedCell, "Home", { ctrlKey: true });
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const topLeftCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='0'][data-pathogen--data-grid-column-index='0']",
+    );
+    expect(scrollContainer.scrollTop).toBe(0);
+    expect(scrollContainer.scrollLeft).toBe(0);
+    expect(document.activeElement).toBe(topLeftCell);
+    expect(topLeftCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("scrolls to and focuses the bottom-right cell with Ctrl+End", async () => {
+    const rowCount = 1000;
+    const columnCount = 300;
+
+    await startController({
+      mode: "synthetic",
+      rowCount,
+      columns: Array.from({ length: columnCount }, (_, index) => ({
+        id: `col_${index}`,
+        label: `Column ${index + 1}`,
+        width: 140,
+        sticky: index < 2,
+      })),
+    });
+
+    const scrollContainer = setScrollViewport();
+    const focusedCell = document.querySelector(
+      "tbody td.pathogen-data-grid__cell--body:not(.pathogen-data-grid__cell--spacer)",
+    );
+    focusedCell.focus();
+    dispatchKey(focusedCell, "End", { ctrlKey: true });
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const expectedTop = rowCount * 40 - 320;
+    const stickyWidth = 2 * 140;
+    const centerWidth = (columnCount - 2) * 140;
+    const expectedLeft = centerWidth - (640 - stickyWidth);
+    const bottomRightCell = document.querySelector(
+      `[data-pathogen--data-grid-row-index='${rowCount}'][data-pathogen--data-grid-column-index='${columnCount - 1}']`,
+    );
+
+    expect(scrollContainer.scrollTop).toBe(expectedTop);
+    expect(scrollContainer.scrollLeft).toBe(expectedLeft);
+    expect(document.activeElement).toBe(bottomRightCell);
+    expect(bottomRightCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
 
   it("keeps render bounds small during rapid scroll jumps", async () => {
