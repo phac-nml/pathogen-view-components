@@ -99,7 +99,11 @@ module Pathogen
     end
 
     # @label Massive Virtualized Grid (25k x 10k)
-    def massive_virtualized_grid; end
+    def massive_virtualized_grid
+      render_with_template(locals: {
+                             massive_virtualized_component: massive_virtualized_component
+                           })
+    end
 
     ROWS = [
       {
