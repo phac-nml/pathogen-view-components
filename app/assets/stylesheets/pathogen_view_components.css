@@ -249,6 +249,12 @@
     white-space: nowrap;
   }
 
+  .pathogen-data-grid[data-pathogen--data-grid-virtual-value="true"] .pathogen-data-grid__table {
+    width: max-content;
+    min-width: 100%;
+    table-layout: fixed;
+  }
+
   .pathogen-data-grid__caption {
     color: var(--pathogen-data-grid-text-color);
     font-weight: 600;
@@ -299,6 +305,22 @@
     background-clip: padding-box;
     padding: var(--pathogen-data-grid-cell-padding-y) var(--pathogen-data-grid-cell-padding-x);
     vertical-align: middle;
+  }
+
+  .pathogen-data-grid__cell--virtual-placeholder {
+    color: var(--pathogen-data-grid-text-muted-color);
+    font-style: italic;
+  }
+
+  .pathogen-data-grid__row--spacer {
+    background: transparent;
+  }
+
+  .pathogen-data-grid__cell--spacer {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    pointer-events: none;
   }
 
   /* Last row needs no border bottom */
