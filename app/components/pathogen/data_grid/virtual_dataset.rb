@@ -48,7 +48,7 @@ module Pathogen
       end
 
       def normalize_key(key)
-        key.to_s.gsub(/([A-Z])/, '_\1').downcase.to_sym
+        key.to_s.underscore.to_sym
       end
 
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
