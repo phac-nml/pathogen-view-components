@@ -4,5 +4,7 @@ fr:
     label:
       required_indicator: "*"
       title: obligatoire
+    data_grid:
+      virtual_loading: "Chargement de la grille de données\u2026"
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"

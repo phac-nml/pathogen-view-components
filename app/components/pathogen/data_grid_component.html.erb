@@ -37,7 +37,7 @@
           <% if virtual? %>
             <%= tag.tr(class: 'pathogen-data-grid__row pathogen-data-grid__row--placeholder', role: 'row') do %>
               <%= tag.td(
-                'Loading virtual data grid…',
+                t('pathogen.data_grid.virtual_loading'),
                 class: 'pathogen-data-grid__cell pathogen-data-grid__cell--body pathogen-data-grid__cell--virtual-placeholder',
                 role: 'gridcell',
                 colspan: [column_count, 1].max,
