@@ -6,7 +6,7 @@ const args = new Set(process.argv.slice(2));
 const once = args.has("--once");
 const root = process.cwd();
 const buildScript = resolve(root, "scripts/build-pathogen-css.mjs");
-const watchGlob = resolve(root, "app/assets/stylesheets/pathogen/**/*.css");
+const watchRoot = resolve(root, "app/assets/stylesheets/pathogen");
 
 function runBuild() {
   return new Promise((resolveBuild, rejectBuild) => {
@@ -57,13 +57,20 @@ async function main() {
     }
   };
 
-  const watcher = chokidar.watch(watchGlob, {
-    ignoreInitial: false,
+  const watcher = chokidar.watch(watchRoot, {
+    ignoreInitial: true,
   });
 
-  watcher.on("add", () => void triggerBuild("File added"));
-  watcher.on("change", () => void triggerBuild("File changed"));
-  watcher.on("unlink", () => void triggerBuild("File removed"));
+  const onFsEvent = (event, filePath) => {
+    if (!filePath.endsWith(".css")) return;
+    void triggerBuild(`File ${event}: ${filePath}`);
+  };
+
+  watcher.on("add", (filePath) => onFsEvent("added", filePath));
+  watcher.on("change", (filePath) => onFsEvent("changed", filePath));
+  watcher.on("unlink", (filePath) => onFsEvent("removed", filePath));
+
+  await triggerBuild("Initial build");
 
   process.on("SIGINT", async () => {
     await watcher.close();
