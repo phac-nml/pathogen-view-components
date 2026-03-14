@@ -112,7 +112,7 @@ module Pathogen
       attributes
     end
 
-    def default_active_row_index = row_count.positive? ? 1 : nil
+    def default_active_row_index = 0
 
     def row_count = virtual? ? virtual_dataset[:row_count] : @rows.size
 

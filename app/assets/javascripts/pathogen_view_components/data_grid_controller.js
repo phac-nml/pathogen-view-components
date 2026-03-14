@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 
 import { buildCellMap, firstDataCell, nextCellForKey } from "pathogen_view_components/data_grid_controller/navigation";
 
-import { ensureCellFullyVisible } from "pathogen_view_components/data_grid_controller/scroll";
+import { ensureBoundsFullyVisible, ensureCellFullyVisible } from "pathogen_view_components/data_grid_controller/scroll";
 
 import {
   activateInteractiveElement,
@@ -110,7 +110,7 @@ function buildVirtualState(dataset, rowHeight, overscanRows, overscanColumns) {
     centerTotalWidth: centerOffset,
     centerIndexByGlobal,
     rows: Array.isArray(dataset.rows) ? dataset.rows : [],
-    activeRowIndex: 1,
+    activeRowIndex: 0,
     activeColumnIndex: 0,
     widgetMode: false,
   };
@@ -168,6 +168,20 @@ function virtualPageSize(scrollContainer, rowHeight) {
   return Math.max(1, Math.floor(scrollContainer.clientHeight / rowHeight));
 }
 
+function dataGridDebugEnabled() {
+  if (typeof globalThis === "undefined") return false;
+  return globalThis.__PATHOGEN_DATA_GRID_DEBUG__ === true;
+}
+
+function debugTargetLabel(target) {
+  if (!(target instanceof Element)) return String(target);
+
+  const role = target.getAttribute("role") || "";
+  const row = target.getAttribute("data-pathogen--data-grid-row-index") || "-";
+  const col = target.getAttribute("data-pathogen--data-grid-column-index") || "-";
+  return `${target.tagName.toLowerCase()}(role=${role},r=${row},c=${col})`;
+}
+
 export default class extends Controller {
   static targets = ["cell", "grid", "scrollContainer", "headerRow", "body"];
   static values = {
@@ -181,6 +195,35 @@ export default class extends Controller {
   #abortController = null;
   #lastActiveCell = null;
   #virtualState = null;
+  #virtualFocusWithin = false;
+  #programmaticScroll = false;
+  #virtualFocusRestorePending = false;
+  #lastRenderedRowWindowKey = null;
+  #lastRenderedCenterWindowKey = null;
+  #lastObservedScrollTop = 0;
+  #lastObservedScrollLeft = 0;
+  #lastNonZeroScrollTop = 0;
+  #lastNonZeroScrollLeft = 0;
+  #expectingKeyboardNavigationScroll = false;
+  #keyboardNavigationExpectationTimer = null;
+  #lastKeyboardNavigationAt = 0;
+  #lastNavigationKey = null;
+  #pointerInteractingWithScroll = false;
+  #virtualFocusRetryTimer = null;
+  #virtualFocusRetryFrameTimer = null;
+  #virtualFocusRetryLateTimer = null;
+
+  #debug(label, payload = null) {
+    if (!dataGridDebugEnabled()) return;
+    if (payload === null) {
+      // eslint-disable-next-line no-console
+      console.log(`[data-grid] ${label}`);
+      return;
+    }
+
+    // eslint-disable-next-line no-console
+    console.log(`[data-grid] ${label}`, payload);
+  }
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -188,6 +231,14 @@ export default class extends Controller {
     this.#abortController?.abort();
     this.#abortController = new AbortController();
     this.#bindEvents(this.#abortController.signal);
+
+    if (dataGridDebugEnabled()) {
+      // eslint-disable-next-line no-console
+      console.log("[data-grid] debug enabled", {
+        element: debugTargetLabel(this.element),
+        virtual: this.virtualValue,
+      });
+    }
 
     if (this.virtualValue) {
       this.#connectVirtualMode();
@@ -198,6 +249,24 @@ export default class extends Controller {
     this.#abortController?.abort();
     this.#abortController = null;
     this.#virtualState = null;
+    this.#virtualFocusWithin = false;
+    this.#programmaticScroll = false;
+    this.#virtualFocusRestorePending = false;
+    this.#lastRenderedRowWindowKey = null;
+    this.#lastRenderedCenterWindowKey = null;
+    this.#lastObservedScrollTop = 0;
+    this.#lastObservedScrollLeft = 0;
+    this.#lastNonZeroScrollTop = 0;
+    this.#lastNonZeroScrollLeft = 0;
+    this.#expectingKeyboardNavigationScroll = false;
+    if (this.#keyboardNavigationExpectationTimer) {
+      clearTimeout(this.#keyboardNavigationExpectationTimer);
+      this.#keyboardNavigationExpectationTimer = null;
+    }
+    this.#lastKeyboardNavigationAt = 0;
+    this.#lastNavigationKey = null;
+    this.#pointerInteractingWithScroll = false;
+    this.#clearVirtualFocusRetryTimers();
   }
 
   // ── DOM event handlers ────────────────────────────────────────────────────
@@ -206,6 +275,12 @@ export default class extends Controller {
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
 
+    if (this.#virtualMode()) this.#virtualFocusWithin = true;
+    this.#debug("focusin", {
+      target: debugTargetLabel(event.target),
+      activeElement: debugTargetLabel(document.activeElement),
+      virtualFocusWithin: this.#virtualFocusWithin,
+    });
     this.#setActiveCell(cell);
 
     const interactiveTarget = resolveInteractiveTarget(event.target, cell);
@@ -224,6 +299,7 @@ export default class extends Controller {
 
     const interactiveTarget = resolveInteractiveTarget(event.target, cell);
     if (interactiveTarget) {
+      if (this.#virtualMode()) this.#virtualFocusWithin = true;
       this.#setActiveCell(cell);
       activateInteractiveElement(cell, interactiveTarget);
       if (this.#virtualMode()) this.#virtualState.widgetMode = true;
@@ -232,8 +308,67 @@ export default class extends Controller {
 
     // Prevent default to avoid text-selection flicker when clicking to focus a plain cell.
     event.preventDefault();
+    if (this.#virtualMode()) this.#virtualFocusWithin = true;
     this.#focusCell(cell);
     if (this.#virtualMode()) this.#virtualState.widgetMode = false;
+  }
+
+  handleFocusout(event) {
+    if (!this.#virtualMode()) return;
+    if (this.element.contains(event.relatedTarget)) return;
+
+    this.#debug("focusout", {
+      target: debugTargetLabel(event.target),
+      relatedTarget: debugTargetLabel(event.relatedTarget),
+      activeElement: debugTargetLabel(document.activeElement),
+      virtualFocusWithin: this.#virtualFocusWithin,
+    });
+
+    if (event.relatedTarget === document.body || event.relatedTarget === document.documentElement) {
+      queueMicrotask(() => {
+        if (!this.#virtualMode()) return;
+        if (this.element.contains(document.activeElement)) return;
+        if (!this.#virtualFocusWithin) return;
+
+        const activeCell = this.#cellByCoordinates(
+          this.#virtualState.activeRowIndex,
+          this.#virtualState.activeColumnIndex,
+        );
+        if (activeCell) activeCell.focus({ preventScroll: true });
+        this.#debug("focusout-reclaim", {
+          reclaimed: Boolean(activeCell),
+          activeCell: debugTargetLabel(activeCell),
+          activeElement: debugTargetLabel(document.activeElement),
+        });
+      });
+      return;
+    }
+
+    // Virtual rerenders can temporarily remove the focused cell, producing
+    // focusout with relatedTarget === null before focus is restored.
+    if (event.relatedTarget === null) {
+      queueMicrotask(() => {
+        if (!this.#virtualMode()) return;
+        if (this.element.contains(document.activeElement)) return;
+
+        const keyboardNavigationIsRecent = Date.now() - this.#lastKeyboardNavigationAt < 1500;
+        const keepVirtualFocusContext =
+          this.#virtualFocusRestorePending || this.#expectingKeyboardNavigationScroll || keyboardNavigationIsRecent;
+
+        if (keepVirtualFocusContext) {
+          this.#virtualFocusWithin = true;
+          this.#virtualFocusRestorePending = true;
+          return;
+        }
+
+        this.#virtualFocusWithin = false;
+        this.#virtualFocusRestorePending = false;
+      });
+      return;
+    }
+
+    this.#virtualFocusWithin = false;
+    this.#virtualFocusRestorePending = false;
   }
 
   handleKeydown(event) {
@@ -293,22 +428,149 @@ export default class extends Controller {
     );
     if (!this.#virtualState) return;
 
+    if (!this.scrollContainerTarget.hasAttribute("tabindex")) {
+      this.scrollContainerTarget.tabIndex = -1;
+    }
+
     this.#bindVirtualRenderEvents();
     this.#renderVirtualGrid({ restoreFocus: false });
   }
 
   #bindVirtualRenderEvents() {
-    const render = () => this.#renderVirtualGrid({ restoreFocus: this.element.contains(document.activeElement) });
+    const onScroll = () => {
+      const scrollTop = this.scrollContainerTarget.scrollTop;
+      const scrollLeft = this.scrollContainerTarget.scrollLeft;
+      const isProgrammatic = this.#programmaticScroll;
+      this.#programmaticScroll = false;
+      const keyboardNavigationIsRecent = Date.now() - this.#lastKeyboardNavigationAt < 1500;
+      const deepGridFocus = this.#virtualState.activeRowIndex > 50;
+      const focusContextLikelyOwnedByGrid =
+        this.#virtualFocusWithin || this.#virtualFocusRestorePending || this.#expectingKeyboardNavigationScroll;
+      const keyboardRestoreLikely =
+        this.#virtualFocusRestorePending || this.#expectingKeyboardNavigationScroll || keyboardNavigationIsRecent;
+      const deepZeroTopReset =
+        focusContextLikelyOwnedByGrid &&
+        scrollTop === 0 &&
+        this.#virtualState.activeRowIndex > 1 &&
+        !this.#pointerInteractingWithScroll;
+      const deepProgrammaticTopReset =
+        deepZeroTopReset && isProgrammatic && this.#virtualState.activeRowIndex > 50 && this.#lastNonZeroScrollTop > 0;
+      const unexpectedTopReset =
+        deepZeroTopReset &&
+        (deepProgrammaticTopReset || (keyboardRestoreLikely && (!isProgrammatic || this.#virtualFocusRestorePending)));
+      const shouldGuardReset =
+        unexpectedTopReset &&
+        (deepGridFocus ||
+          this.#expectingKeyboardNavigationScroll ||
+          keyboardNavigationIsRecent ||
+          deepProgrammaticTopReset);
 
-    this.scrollContainerTarget.addEventListener("scroll", render, {
+      if (shouldGuardReset) {
+        const fallbackScrollTop = this.#virtualScrollTopForRow(this.#virtualState.activeRowIndex);
+        const verticalNavigationReset =
+          this.#lastNavigationKey === "ArrowUp" || this.#lastNavigationKey === "ArrowDown";
+        const shouldPreferFallbackTop =
+          fallbackScrollTop > 0 && (deepProgrammaticTopReset || (keyboardRestoreLikely && verticalNavigationReset));
+        const restoringScrollTop = shouldPreferFallbackTop
+          ? fallbackScrollTop
+          : this.#lastObservedScrollTop > 0
+            ? this.#lastObservedScrollTop
+            : this.#lastNonZeroScrollTop > 0
+              ? this.#lastNonZeroScrollTop
+              : fallbackScrollTop;
+        const restoringScrollLeft =
+          this.#lastObservedScrollTop > 0 ? this.#lastObservedScrollLeft : this.#lastNonZeroScrollLeft;
+
+        this.#debug("scroll-reset-guard", {
+          blockedScrollTop: scrollTop,
+          restoringScrollTop,
+          restoringScrollLeft,
+          fallbackScrollTop,
+          keyboardNavigationIsRecent,
+          activeRowIndex: this.#virtualState.activeRowIndex,
+          pointerInteractingWithScroll: this.#pointerInteractingWithScroll,
+        });
+        this.#programmaticScroll = true;
+        this.scrollContainerTarget.scrollTop = restoringScrollTop;
+        this.scrollContainerTarget.scrollLeft = restoringScrollLeft;
+        this.#lastObservedScrollTop = restoringScrollTop;
+        this.#lastObservedScrollLeft = restoringScrollLeft;
+        return;
+      }
+
+      const preservesFocusedCell = this.element.contains(document.activeElement);
+      const wantsRestoreFocus = isProgrammatic || this.#virtualFocusRestorePending || preservesFocusedCell;
+      this.#debug("scroll", {
+        scrollTop,
+        scrollLeft,
+        isProgrammatic,
+        preservesFocusedCell,
+        wantsRestoreFocus,
+        activeElement: debugTargetLabel(document.activeElement),
+        activeRowIndex: this.#virtualState.activeRowIndex,
+        activeColumnIndex: this.#virtualState.activeColumnIndex,
+      });
+      const didRestoreFocus = this.#renderVirtualGrid({
+        restoreFocus: wantsRestoreFocus,
+        snapActiveRow: wantsRestoreFocus,
+        allowWindowReuse: true,
+      });
+      if (wantsRestoreFocus) {
+        this.#virtualFocusRestorePending = !didRestoreFocus;
+      }
+
+      this.#lastObservedScrollTop = this.scrollContainerTarget.scrollTop;
+      this.#lastObservedScrollLeft = this.scrollContainerTarget.scrollLeft;
+      if (this.#lastObservedScrollTop > 0) {
+        this.#lastNonZeroScrollTop = this.#lastObservedScrollTop;
+        this.#lastNonZeroScrollLeft = this.#lastObservedScrollLeft;
+      }
+    };
+
+    this.scrollContainerTarget.addEventListener("scroll", onScroll, {
       signal: this.#abortController.signal,
       passive: true,
     });
 
+    this.scrollContainerTarget.addEventListener(
+      "pointerdown",
+      () => {
+        this.#pointerInteractingWithScroll = true;
+        this.#virtualFocusWithin = true;
+        this.scrollContainerTarget.focus({ preventScroll: true });
+      },
+      {
+        signal: this.#abortController.signal,
+        passive: true,
+      },
+    );
+
+    window.addEventListener(
+      "pointerup",
+      () => {
+        this.#pointerInteractingWithScroll = false;
+      },
+      {
+        signal: this.#abortController.signal,
+        passive: true,
+      },
+    );
+
+    window.addEventListener(
+      "pointercancel",
+      () => {
+        this.#pointerInteractingWithScroll = false;
+      },
+      {
+        signal: this.#abortController.signal,
+        passive: true,
+      },
+    );
+
     let resizeTimer = null;
     const onResize = () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(render, 100);
+      resizeTimer = setTimeout(() => this.#renderVirtualGrid({ restoreFocus: false }), 100);
     };
     window.addEventListener("resize", onResize, {
       signal: this.#abortController.signal,
@@ -317,6 +579,15 @@ export default class extends Controller {
   }
 
   #handleVirtualKeydown(event) {
+    this.#debug("keydown", {
+      key: event.key,
+      target: debugTargetLabel(event.target),
+      activeElement: debugTargetLabel(document.activeElement),
+      activeRowIndex: this.#virtualState.activeRowIndex,
+      activeColumnIndex: this.#virtualState.activeColumnIndex,
+      defaultPrevented: event.defaultPrevented,
+    });
+
     const activeCell = this.#activeCell();
     if (!activeCell) return;
 
@@ -344,10 +615,46 @@ export default class extends Controller {
     if (!NAVIGATION_KEYS.has(event.key)) return;
 
     const nextCoordinates = this.#nextVirtualCoordinatesForKey(event);
-    if (!nextCoordinates) return;
+    if (!nextCoordinates) {
+      // Prevent page/container native scrolling when the grid owns navigation keys.
+      event.preventDefault();
+      return;
+    }
 
     event.preventDefault();
     this.#virtualState.widgetMode = false;
+    this.#pointerInteractingWithScroll = false;
+    this.#lastKeyboardNavigationAt = Date.now();
+    this.#lastNavigationKey = event.key;
+    this.#expectingKeyboardNavigationScroll = true;
+    if (this.#keyboardNavigationExpectationTimer) {
+      clearTimeout(this.#keyboardNavigationExpectationTimer);
+    }
+    this.#keyboardNavigationExpectationTimer = setTimeout(() => {
+      this.#expectingKeyboardNavigationScroll = false;
+      this.#keyboardNavigationExpectationTimer = null;
+    }, 200);
+
+    const nextCell = this.#cellByCoordinates(nextCoordinates.rowIndex, nextCoordinates.columnIndex);
+    const allowTopBoundaryFocus =
+      event.key === "ArrowUp" && nextCoordinates.rowIndex > 0 && this.#isVirtualCellPartiallyVisible(nextCell);
+    const shouldUseDirectFocus =
+      nextCell &&
+      !isGridEdge &&
+      event.key !== "PageDown" &&
+      event.key !== "PageUp" &&
+      (allowTopBoundaryFocus || this.#virtualCoordinatesVisible(nextCoordinates.rowIndex, nextCoordinates.columnIndex));
+
+    if (shouldUseDirectFocus) {
+      if (allowTopBoundaryFocus) {
+        this.#focusVirtualCoordinates(nextCoordinates.rowIndex, nextCoordinates.columnIndex);
+        return;
+      }
+
+      this.#focusCell(nextCell);
+      return;
+    }
+
     this.#focusVirtualCoordinates(nextCoordinates.rowIndex, nextCoordinates.columnIndex);
   }
 
@@ -375,6 +682,9 @@ export default class extends Controller {
       case "ArrowLeft":
         return columnIndex > 0 ? { rowIndex, columnIndex: columnIndex - 1 } : null;
       case "ArrowDown":
+        if (rowIndex === 0) {
+          return { rowIndex: this.#firstVisibleVirtualRowIndex(), columnIndex };
+        }
         return rowIndex < rowCount ? { rowIndex: rowIndex + 1, columnIndex } : null;
       case "ArrowUp":
         return rowIndex > 0 ? { rowIndex: rowIndex - 1, columnIndex } : null;
@@ -394,64 +704,178 @@ export default class extends Controller {
     }
   }
 
+  #firstVisibleVirtualRowIndex() {
+    if (!this.hasScrollContainerTarget) return 1;
+
+    const rowHeight = Math.max(1, this.#virtualState.rowHeight);
+    const visibleOffset = Math.floor(this.scrollContainerTarget.scrollTop / rowHeight);
+    return Math.max(1, Math.min(this.#virtualState.rowCount, visibleOffset + 1));
+  }
+
+  #virtualScrollTopForRow(rowIndex) {
+    if (!this.hasScrollContainerTarget) return 0;
+    if (!Number.isInteger(rowIndex) || rowIndex <= 1) return 0;
+
+    const container = this.scrollContainerTarget;
+    const rowHeight = Math.max(1, this.#virtualState.rowHeight);
+    const rowTop = (rowIndex - 1) * rowHeight;
+    const maxScrollTop = Math.max(0, container.scrollHeight - container.clientHeight);
+    if (maxScrollTop <= 0) {
+      // During transient virtual rerenders some environments briefly report
+      // zero scrollable height; prefer row-derived offset over resetting to top.
+      return rowTop;
+    }
+    return Math.max(0, Math.min(maxScrollTop, rowTop));
+  }
+
+  #snapActiveRowToWindow(rowItems) {
+    if (rowItems.length === 0) return;
+
+    const activeRowIndex = this.#virtualState.activeRowIndex;
+    if (activeRowIndex <= 0) return; // Header row is always rendered.
+
+    let firstWindowRow = rowItems[0].index + 1;
+    let lastWindowRow = rowItems[rowItems.length - 1].index + 1;
+
+    if (this.hasScrollContainerTarget) {
+      const rowHeight = Math.max(1, this.#virtualState.rowHeight);
+      const headerHeight = this.hasHeaderRowTarget ? this.headerRowTarget.offsetHeight : 0;
+      const viewportHeight = Math.max(1, this.scrollContainerTarget.clientHeight - headerHeight);
+      const visibleStart = Math.floor(this.scrollContainerTarget.scrollTop / rowHeight) + 1;
+      const visibleSpan = Math.max(1, Math.ceil(viewportHeight / rowHeight));
+      const visibleEnd = Math.min(this.#virtualState.rowCount, visibleStart + visibleSpan - 1);
+
+      firstWindowRow = Math.max(1, visibleStart);
+      lastWindowRow = Math.max(firstWindowRow, visibleEnd);
+    }
+
+    if (activeRowIndex >= firstWindowRow && activeRowIndex <= lastWindowRow) return;
+
+    this.#virtualState.activeRowIndex = activeRowIndex < firstWindowRow ? firstWindowRow : lastWindowRow;
+  }
+
   #focusVirtualCoordinates(rowIndex, columnIndex) {
     this.#virtualState.activeRowIndex = rowIndex;
     this.#virtualState.activeColumnIndex = columnIndex;
-    this.#scrollVirtualCoordinatesIntoView(rowIndex, columnIndex);
+    const didScroll = this.#scrollVirtualCoordinatesIntoView(rowIndex, columnIndex);
+    if (!didScroll) {
+      this.#programmaticScroll = false;
+      this.#virtualFocusRestorePending = false;
+      this.#renderVirtualGrid({ restoreFocus: true });
+      return;
+    }
 
-    this.#renderVirtualGrid({ restoreFocus: true });
+    this.#virtualFocusRestorePending = true;
+    queueMicrotask(() => {
+      if (!this.#virtualMode()) return;
+      if (!this.#virtualFocusRestorePending) return;
+
+      const didRestoreFocus = this.#renderVirtualGrid({
+        restoreFocus: true,
+        snapActiveRow: false,
+        allowWindowReuse: true,
+      });
+      if (didRestoreFocus) {
+        this.#virtualFocusRestorePending = false;
+      }
+    });
   }
 
   #scrollVirtualCoordinatesIntoView(rowIndex, columnIndex) {
-    if (!this.hasScrollContainerTarget) return;
+    if (!this.hasScrollContainerTarget) return false;
 
+    this.#programmaticScroll = true;
     const container = this.scrollContainerTarget;
     const rowHeight = this.#virtualState.rowHeight;
+    const headerHeight = this.hasHeaderRowTarget ? this.headerRowTarget.offsetHeight : 0;
+    const startScrollTop = container.scrollTop;
+    const startScrollLeft = container.scrollLeft;
 
     if (rowIndex <= 0) {
       container.scrollTop = 0;
     } else {
       const rowStart = (rowIndex - 1) * rowHeight;
       const rowEnd = rowStart + rowHeight;
-      const viewportStart = container.scrollTop;
-      const viewportEnd = viewportStart + container.clientHeight;
 
-      if (rowStart < viewportStart) {
-        container.scrollTop = rowStart;
-      } else if (rowEnd > viewportEnd) {
-        container.scrollTop = Math.max(0, rowEnd - container.clientHeight);
-      }
+      ensureBoundsFullyVisible(
+        {
+          top: headerHeight + rowStart,
+          bottom: headerHeight + rowEnd,
+          left: container.scrollLeft,
+          right: container.scrollLeft,
+        },
+        container,
+        { topInset: headerHeight },
+      );
     }
 
     const centerIndex = this.#virtualState.centerIndexByGlobal.get(columnIndex);
     if (!Number.isInteger(centerIndex)) {
-      container.scrollLeft = 0;
-      return;
+      if (columnIndex === 0) container.scrollLeft = 0;
+    } else {
+      const colStart = this.#virtualState.centerOffsets[centerIndex] || 0;
+      const colWidth = this.#virtualState.centerColumns[centerIndex]?.width || 180;
+      const colEnd = colStart + colWidth;
+
+      ensureBoundsFullyVisible(
+        {
+          top: container.scrollTop,
+          bottom: container.scrollTop,
+          left: this.#virtualState.stickyTotalWidth + colStart,
+          right: this.#virtualState.stickyTotalWidth + colEnd,
+        },
+        container,
+        { leftInset: this.#virtualState.stickyTotalWidth },
+      );
     }
 
-    const colStart = this.#virtualState.centerOffsets[centerIndex] || 0;
-    const colWidth = this.#virtualState.centerColumns[centerIndex]?.width || 180;
-    const colEnd = colStart + colWidth;
-    const visibleWidth = Math.max(1, container.clientWidth - this.#virtualState.stickyTotalWidth);
-    const viewportStart = container.scrollLeft;
-    const viewportEnd = viewportStart + visibleWidth;
-
-    if (colStart < viewportStart) {
-      container.scrollLeft = colStart;
-    } else if (colEnd > viewportEnd) {
-      container.scrollLeft = Math.max(0, colEnd - visibleWidth);
-    }
+    return container.scrollTop !== startScrollTop || container.scrollLeft !== startScrollLeft;
   }
 
-  #renderVirtualGrid({ restoreFocus = true } = {}) {
+  #renderVirtualGrid({ restoreFocus = true, snapActiveRow = true, allowWindowReuse = false } = {}) {
     if (!this.#virtualMode()) return;
 
-    const hadFocusInside = restoreFocus && this.element.contains(document.activeElement);
-    const activeRowIndex = this.#virtualState.activeRowIndex;
-    const activeColumnIndex = this.#virtualState.activeColumnIndex;
+    const hadFocusInside = restoreFocus && (this.#virtualFocusRestorePending || this.#shouldRestoreVirtualFocus());
 
     const rowItems = this.#manualRowWindow();
     const centerItems = this.#manualCenterWindow();
+
+    const rowWindowKey = rowItems.length > 0 ? `${rowItems[0].index}:${rowItems[rowItems.length - 1].index}` : "empty";
+    const centerWindowKey =
+      centerItems.length > 0 ? `${centerItems[0].index}:${centerItems[centerItems.length - 1].index}` : "empty";
+
+    if (
+      allowWindowReuse &&
+      rowWindowKey === this.#lastRenderedRowWindowKey &&
+      centerWindowKey === this.#lastRenderedCenterWindowKey
+    ) {
+      const shouldRestoreFocus = this.#virtualFocusRestorePending || this.#shouldRestoreVirtualFocus();
+      if (!restoreFocus || !shouldRestoreFocus) return !restoreFocus;
+
+      const activeCell = this.#cellByCoordinates(
+        this.#virtualState.activeRowIndex,
+        this.#virtualState.activeColumnIndex,
+      );
+      if (!activeCell) return false;
+
+      if (this.#virtualState.widgetMode && hasInteractiveElements(activeCell)) {
+        focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell));
+        return activeCell.contains(document.activeElement);
+      }
+
+      return this.#focusVirtualCellWithRetry(activeCell);
+    }
+
+    // Only snap the active row when we intend to restore focus.
+    // During passive scrollbar drags the tracked row may be outside the
+    // rendered window — that is fine; we just won't have a tabindex="0"
+    // cell until the user clicks or presses a key again.
+    if (restoreFocus && snapActiveRow) {
+      this.#snapActiveRowToWindow(rowItems);
+    }
+
+    const activeRowIndex = this.#virtualState.activeRowIndex;
+    const activeColumnIndex = this.#virtualState.activeColumnIndex;
     const centerTotalWidth = this.#virtualState.centerTotalWidth;
     const leftSpacerWidth = centerItems.length > 0 ? centerItems[0].start : 0;
     const rightSpacerWidth =
@@ -469,18 +893,131 @@ export default class extends Controller {
       activeColumnIndex,
     );
 
-    if (!hadFocusInside) return;
+    this.#lastRenderedRowWindowKey = rowWindowKey;
+    this.#lastRenderedCenterWindowKey = centerWindowKey;
+
+    if (!hadFocusInside) return false;
 
     const activeCell = this.#cellByCoordinates(activeRowIndex, activeColumnIndex);
-    if (!activeCell) return;
+    if (!activeCell) return false;
 
     if (this.#virtualState.widgetMode && hasInteractiveElements(activeCell)) {
       focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell));
-      return;
+      return activeCell.contains(document.activeElement);
     }
 
+    return this.#focusVirtualCellWithRetry(activeCell);
+  }
+
+  #focusVirtualCellWithRetry(cell) {
+    this.#setActiveCell(cell);
+    cell.focus({ preventScroll: true });
+
+    if (document.activeElement === cell) return true;
+
+    queueMicrotask(() => {
+      this.#focusCurrentVirtualActiveCell();
+    });
+
+    this.#clearVirtualFocusRetryTimers();
+    this.#virtualFocusRetryTimer = setTimeout(() => {
+      this.#virtualFocusRetryTimer = null;
+      if (this.#focusCurrentVirtualActiveCell()) return;
+
+      // Frame-delayed retries for iframe + virtualized rerender timing.
+      this.#virtualFocusRetryFrameTimer = setTimeout(() => {
+        this.#virtualFocusRetryFrameTimer = null;
+        if (this.#focusCurrentVirtualActiveCell()) return;
+
+        this.#virtualFocusRetryLateTimer = setTimeout(() => {
+          this.#virtualFocusRetryLateTimer = null;
+          this.#focusCurrentVirtualActiveCell();
+        }, 48);
+      }, 16);
+    }, 0);
+
+    return false;
+  }
+
+  #clearVirtualFocusRetryTimers() {
+    if (this.#virtualFocusRetryTimer) {
+      clearTimeout(this.#virtualFocusRetryTimer);
+      this.#virtualFocusRetryTimer = null;
+    }
+
+    if (this.#virtualFocusRetryFrameTimer) {
+      clearTimeout(this.#virtualFocusRetryFrameTimer);
+      this.#virtualFocusRetryFrameTimer = null;
+    }
+
+    if (this.#virtualFocusRetryLateTimer) {
+      clearTimeout(this.#virtualFocusRetryLateTimer);
+      this.#virtualFocusRetryLateTimer = null;
+    }
+  }
+
+  #focusCurrentVirtualActiveCell() {
+    if (!this.#virtualMode()) return false;
+
+    const activeCell = this.#cellByCoordinates(this.#virtualState.activeRowIndex, this.#virtualState.activeColumnIndex);
+    if (!activeCell) return false;
+
+    this.#setActiveCell(activeCell);
     activeCell.focus({ preventScroll: true });
-    this.#scrollCellIntoView(activeCell);
+    return document.activeElement === activeCell;
+  }
+
+  #virtualCoordinatesVisible(rowIndex, columnIndex) {
+    if (!this.hasScrollContainerTarget) return false;
+
+    const container = this.scrollContainerTarget;
+    const headerHeight = this.hasHeaderRowTarget ? this.headerRowTarget.offsetHeight : 0;
+
+    if (rowIndex <= 0) {
+      if (container.scrollTop !== 0) return false;
+    } else {
+      const rowStart = (rowIndex - 1) * this.#virtualState.rowHeight;
+      const rowEnd = rowStart + this.#virtualState.rowHeight;
+      const maxVisibleRowEnd = container.scrollTop + container.clientHeight - headerHeight;
+
+      if (rowStart < container.scrollTop || rowEnd > maxVisibleRowEnd) {
+        return false;
+      }
+    }
+
+    const centerIndex = this.#virtualState.centerIndexByGlobal.get(columnIndex);
+    if (!Number.isInteger(centerIndex)) {
+      return columnIndex === 0 || container.scrollLeft === 0;
+    }
+
+    const colStart = this.#virtualState.centerOffsets[centerIndex] || 0;
+    const colEnd = colStart + (this.#virtualState.centerColumns[centerIndex]?.width || 180);
+    const maxVisibleColEnd = container.scrollLeft + container.clientWidth - this.#virtualState.stickyTotalWidth;
+
+    return colStart >= container.scrollLeft && colEnd <= maxVisibleColEnd;
+  }
+
+  #isVirtualCellPartiallyVisible(cell) {
+    if (!(cell instanceof HTMLElement) || !this.hasScrollContainerTarget) return false;
+
+    const containerRect = this.scrollContainerTarget.getBoundingClientRect();
+    const cellRect = cell.getBoundingClientRect();
+    const hasGeometry =
+      containerRect.width > 0 && containerRect.height > 0 && cellRect.width > 0 && cellRect.height > 0;
+
+    if (hasGeometry) {
+      const headerHeight = this.hasHeaderRowTarget ? this.headerRowTarget.offsetHeight : 0;
+      const topBoundary = containerRect.top + headerHeight;
+      return cellRect.bottom > topBoundary && cellRect.top < containerRect.bottom;
+    }
+
+    // jsdom fallback: geometry is 0x0, so use index math with a 1-row tolerance
+    // only when scrollTop is between row boundaries (partial top row visible).
+    const rowIndex = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
+    if (!Number.isInteger(rowIndex) || rowIndex <= 0) return false;
+
+    const firstVisibleRowIndex = this.#firstVisibleVirtualRowIndex();
+    return rowIndex >= firstVisibleRowIndex;
   }
 
   #manualRowWindow() {
@@ -759,6 +1296,9 @@ export default class extends Controller {
     if (!this.hasGridTarget) return null;
 
     const cells = this.#allCells();
+    const fromFocused = this.#resolveCell(document.activeElement);
+    if (fromFocused && cells.includes(fromFocused)) return fromFocused;
+
     if (this.#virtualMode()) {
       const activeVirtualCell = this.#cellByCoordinates(
         this.#virtualState.activeRowIndex,
@@ -766,9 +1306,6 @@ export default class extends Controller {
       );
       if (activeVirtualCell) return activeVirtualCell;
     }
-
-    const fromFocused = this.#resolveCell(document.activeElement);
-    if (fromFocused && cells.includes(fromFocused)) return fromFocused;
 
     return (
       cells.find((cell) => cell.matches(ACTIVE_CELL_SELECTOR)) ||
@@ -784,15 +1321,33 @@ export default class extends Controller {
   #focusCell(cell) {
     this.#setActiveCell(cell);
     cell.focus({ preventScroll: true });
+
+    if (this.#virtualMode()) {
+      this.#programmaticScroll = true;
+      this.#virtualFocusRestorePending = true;
+      const didScroll = this.#scrollVirtualCoordinatesIntoView(
+        this.#virtualState.activeRowIndex,
+        this.#virtualState.activeColumnIndex,
+      );
+      if (!didScroll) {
+        this.#programmaticScroll = false;
+        this.#virtualFocusRestorePending = false;
+      }
+      return;
+    }
+
     this.#scrollCellIntoView(cell);
   }
 
   #scrollCellIntoView(cell) {
-    ensureCellFullyVisible(
-      cell,
-      this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
-      this.hasGridTarget ? this.gridTarget : null,
-    );
+    const container = this.hasScrollContainerTarget ? this.scrollContainerTarget : null;
+    const startScrollTop = container?.scrollTop ?? 0;
+    const startScrollLeft = container?.scrollLeft ?? 0;
+
+    ensureCellFullyVisible(cell, container, this.hasGridTarget ? this.gridTarget : null);
+
+    if (!container) return false;
+    return container.scrollTop !== startScrollTop || container.scrollLeft !== startScrollLeft;
   }
 
   #focusAdjacentInteractiveCell(cell, direction) {
@@ -900,8 +1455,17 @@ export default class extends Controller {
       signal,
     });
 
+    this.element.addEventListener("focusout", (event) => this.handleFocusout(event), {
+      signal,
+    });
+
     this.element.addEventListener("click", (event) => this.handleClick(event), {
       signal,
     });
+  }
+
+  #shouldRestoreVirtualFocus() {
+    if (!this.#virtualMode()) return false;
+    return this.#virtualFocusWithin || this.element.contains(document.activeElement);
   }
 }

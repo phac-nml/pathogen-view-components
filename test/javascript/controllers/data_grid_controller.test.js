@@ -696,6 +696,20 @@ describe("data_grid_controller virtual mode", () => {
     return scrollContainer;
   };
 
+  const setHeaderHeight = (height = 40) => {
+    const headerRow = document.querySelector('[data-pathogen--data-grid-target="headerRow"]');
+    Object.defineProperty(headerRow, "offsetHeight", { configurable: true, value: height });
+    return headerRow;
+  };
+
+  const virtualColumns = (count = 10) =>
+    Array.from({ length: count }, (_, index) => ({
+      id: `col_${index}`,
+      label: `Column ${index + 1}`,
+      width: 140,
+      sticky: index < 2,
+    }));
+
   afterEach(() => {
     application?.stop();
     document.body.innerHTML = "";
@@ -721,6 +735,513 @@ describe("data_grid_controller virtual mode", () => {
       "th.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-column-index='0']",
     );
     expect(stickyHeader).not.toBeNull();
+  });
+
+  it("keeps the current scroll position when arrow navigation stays within the visible rows", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const middleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='4']",
+    );
+    middleCell.focus();
+    dispatchKey(middleCell, "ArrowDown");
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='14'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(400);
+    expect(scrollContainer.scrollLeft).toBe(280);
+    expect(document.activeElement).toBe(nextCell);
+  });
+
+  it("keeps the current scroll position when moving up within the visible rows", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const middleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='14'][data-pathogen--data-grid-column-index='4']",
+    );
+    middleCell.focus();
+    dispatchKey(middleCell, "ArrowUp");
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(400);
+    expect(scrollContainer.scrollLeft).toBe(280);
+    expect(document.activeElement).toBe(nextCell);
+  });
+
+  it("moves into the top visible row before scrolling further up", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 401;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nearTopCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='12'][data-pathogen--data-grid-column-index='4']",
+    );
+    nearTopCell.focus();
+    dispatchKey(nearTopCell, "ArrowUp");
+    await flush();
+
+    const topVisibleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='11'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBeLessThanOrEqual(401);
+    expect(document.activeElement).toBe(topVisibleCell);
+
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+    const movedRowCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='11'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(document.activeElement).toBe(movedRowCell);
+
+    dispatchKey(topVisibleCell, "ArrowUp");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const aboveBoundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='10'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBeLessThan(401);
+    expect(document.activeElement).toBe(aboveBoundaryCell);
+  });
+
+  it("moves focus between already-mounted virtual cells without forcing a rerender", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const bodyBefore = document.querySelector('[data-pathogen--data-grid-target="body"]');
+    const firstVisibleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='4']",
+    );
+
+    firstVisibleCell.focus();
+    dispatchKey(firstVisibleCell, "ArrowDown");
+    await flush();
+
+    const secondVisibleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='14'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(document.querySelector('[data-pathogen--data-grid-target="body"]')).toBe(bodyBefore);
+    expect(document.activeElement).toBe(secondVisibleCell);
+    expect(scrollContainer.scrollTop).toBe(400);
+  });
+
+  it("scrolls by the minimum row amount when moving to the first row above the visible viewport", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='11'][data-pathogen--data-grid-column-index='4']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowUp");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='10'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(360);
+    expect(document.activeElement).toBe(nextCell);
+  });
+
+  it("scrolls by the minimum row amount when moving to the first row below the visible viewport", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='17'][data-pathogen--data-grid-column-index='4']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowDown");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='18'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(440);
+    expect(document.activeElement).toBe(nextCell);
+  });
+
+  it("restores focus after the scroll-driven rerender when moving down past the viewport", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='17'][data-pathogen--data-grid-column-index='4']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowDown");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='18'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(440);
+    expect(document.activeElement).toBe(nextCell);
+    expect(nextCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("keeps focus on the navigated cell when an extra scroll event fires after ArrowDown", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='17'][data-pathogen--data-grid-column-index='4']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowDown");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='18'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(440);
+    expect(document.activeElement).toBe(nextCell);
+    expect(nextCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("keeps focus on the navigated cell when an extra scroll event fires after ArrowUp", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='11'][data-pathogen--data-grid-column-index='4']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowUp");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='10'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(360);
+    expect(document.activeElement).toBe(nextCell);
+    expect(nextCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("moves from header to first visible data row instead of jumping to top when ArrowDown is pressed mid-scroll", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const headerCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='0'][data-pathogen--data-grid-column-index='4']",
+    );
+    headerCell.focus();
+    dispatchKey(headerCell, "ArrowDown");
+    await flush();
+
+    const firstVisibleCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='11'][data-pathogen--data-grid-column-index='4']",
+    );
+    expect(scrollContainer.scrollTop).toBe(400);
+    expect(document.activeElement).toBe(firstVisibleCell);
+    expect(firstVisibleCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("does not allow ArrowUp on header to bubble into native page/grid scrolling", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const headerCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='0'][data-pathogen--data-grid-column-index='4']",
+    );
+    headerCell.focus();
+    const event = dispatchKey(headerCell, "ArrowUp");
+    await flush();
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(scrollContainer.scrollTop).toBe(400);
+    expect(document.activeElement).toBe(headerCell);
+  });
+
+  it("keeps focus in-grid after manual scrollbar jump that unmounts the previously focused row", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 2000,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const focusedCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='4']",
+    );
+    focusedCell.focus();
+
+    // Simulate dragging the scrollbar far enough that the focused row is no longer mounted.
+    scrollContainer.scrollTop = 4000;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const snappedCell = document.querySelector('[data-pathogen--data-grid-active="true"]');
+    const firstVisibleRow = Math.floor(scrollContainer.scrollTop / 40) + 1;
+    expect(snappedCell).not.toBeNull();
+    expect(document.activeElement).toBe(snappedCell);
+    expect(snappedCell.getAttribute("data-pathogen--data-grid-row-index")).toBe(String(firstVisibleRow));
+
+    const beforeTop = scrollContainer.scrollTop;
+    dispatchKey(document.activeElement, "ArrowDown");
+    await flush();
+
+    expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe(String(firstVisibleRow + 1));
+    expect(scrollContainer.scrollTop).toBe(beforeTop);
+  });
+
+  it("recovers in-grid focus when transient focus loss occurs after manual scroll jump", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 2000,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const focusedCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='4']",
+    );
+    focusedCell.focus();
+
+    scrollContainer.scrollTop = 4000;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    // Simulate browser behavior where recycled DOM briefly drops focus to body.
+    document.body.focus();
+    const focusout = new FocusEvent("focusout", { bubbles: true, relatedTarget: null });
+    scrollContainer.dispatchEvent(focusout);
+    await flush();
+
+    const activeCell = document.querySelector('[data-pathogen--data-grid-active="true"]');
+    activeCell.focus();
+    const beforeTop = scrollContainer.scrollTop;
+    dispatchKey(activeCell, "ArrowDown");
+    await flush();
+
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe(
+      String(Number(activeCell.getAttribute("data-pathogen--data-grid-row-index")) + 1),
+    );
+    expect(scrollContainer.scrollTop).toBe(beforeTop);
+  });
+
+  it("handles ArrowDown after pointerdown focuses virtual scroll container", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 2000,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 4000;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    // Simulate scrollbar interaction owning focus on the scroll container.
+    scrollContainer.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+    expect(document.activeElement).toBe(scrollContainer);
+
+    const event = dispatchKey(scrollContainer, "ArrowDown");
+    await flush();
+
+    const activeCell = document.querySelector('[data-pathogen--data-grid-active="true"]');
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(activeCell);
+    expect(activeCell.getAttribute("data-pathogen--data-grid-row-index")).toBe("101");
+  });
+
+  it("guards against delayed second scroll reset to top after arrow navigation", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 10000,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 429360;
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const focusedCell = document.querySelector('[data-pathogen--data-grid-active="true"]');
+    focusedCell.focus();
+    dispatchKey(focusedCell, "ArrowDown");
+    await flush();
+
+    const firstTop = scrollContainer.scrollTop;
+    scrollContainer.scrollTop = firstTop + 50;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    scrollContainer.scrollTop = 0;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    expect(scrollContainer.scrollTop).toBeGreaterThan(0);
+    expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).not.toBe("11");
+  });
+
+  it("scrolls by one column when moving to the first column beyond the visible viewport", async () => {
+    await startController({
+      mode: "synthetic",
+      rowCount: 200,
+      columns: virtualColumns(),
+    });
+
+    const scrollContainer = setScrollViewport(320, 700);
+    setHeaderHeight(40);
+    scrollContainer.scrollTop = 400;
+    scrollContainer.scrollLeft = 280;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const boundaryCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='6']",
+    );
+    boundaryCell.focus();
+    dispatchKey(boundaryCell, "ArrowRight");
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await flush();
+
+    const nextCell = document.querySelector(
+      "[data-pathogen--data-grid-row-index='13'][data-pathogen--data-grid-column-index='7']",
+    );
+    expect(scrollContainer.scrollLeft).toBe(420);
+    expect(document.activeElement).toBe(nextCell);
   });
 
   it("scrolls to and focuses the top-left cell with Ctrl+Home", async () => {
@@ -855,6 +1376,7 @@ describe("data_grid_controller virtual mode", () => {
     );
     firstCell.focus();
     dispatchKey(firstCell, "End", { ctrlKey: true });
+    document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]').dispatchEvent(new Event("scroll"));
     await flush();
 
     const lastCell = document.querySelector(

@@ -25,10 +25,11 @@ module Pathogen
       assert_selector '.pathogen-data-grid__caption', text: 'Sample grid'
       assert_no_selector '.pathogen-data-grid--multi-sticky'
       assert_selector 'th.pathogen-data-grid__cell--header[role="columnheader"][tabindex="-1"]'
+      assert_selector 'th.pathogen-data-grid__cell--header:first-child[tabindex="0"]'
       assert_selector 'th.pathogen-data-grid__cell--header > span.pathogen-data-grid__header-label', count: 2
       assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 0px"]'
       assert_selector 'td.pathogen-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
-      assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
+      assert_selector 'tbody tr:first-child td:first-child[tabindex="-1"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
     end
 
@@ -127,11 +128,11 @@ module Pathogen
         end
       end
 
-      # The cell (not its interactive descendants) owns tabindex="0" as the roving
-      # tabindex entry point. The controller transfers focus to interactive descendants
-      # on Enter/F2 (widget mode), per WAI-ARIA grid pattern.
+      # The first header cell owns tabindex="0" as the initial roving tabindex
+      # entry point. Body cells start at tabindex="-1" until focused.
+      assert_selector 'thead th:first-child[tabindex="0"]'
       assert_selector(
-        'tbody tr:first-child td:first-child[tabindex="0"][data-pathogen--data-grid-has-interactive="true"]'
+        'tbody tr:first-child td:first-child[tabindex="-1"][data-pathogen--data-grid-has-interactive="true"]'
       )
       assert_selector 'tbody tr:first-child td:first-child a[tabindex="-1"]'
       assert_selector 'tbody tr:first-child td:first-child button[tabindex="-1"]'
@@ -212,7 +213,7 @@ module Pathogen
       assert_no_selector '.pathogen-data-grid__table'
     end
 
-    test 'initial header cells are not tabbable' do
+    test 'initial first header cell is tabbable, rest are not' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
                       rows: [
@@ -223,7 +224,8 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'thead th[tabindex="-1"]', count: 2
+      assert_selector 'thead th:first-child[tabindex="0"]'
+      assert_selector 'thead th[tabindex="-1"]', count: 1
     end
 
     test 'declarative interactive: true column marks cell as interactive' do

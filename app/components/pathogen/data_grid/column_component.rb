@@ -43,8 +43,8 @@ module Pathogen
 
       def interactive? = @interactive
 
-      def header_cell_attributes(column_index:)
-        attributes_for(header: true, row_index: 0, column_index: column_index)
+      def header_cell_attributes(column_index:, active: false)
+        attributes_for(header: true, row_index: 0, column_index: column_index, active: active)
       end
 
       def body_cell_attributes(row_index:, column_index:, active: false, interactive: false)
@@ -135,9 +135,7 @@ module Pathogen
         @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
       end
 
-      def cell_tabindex(header:, active:)
-        return -1 if header
-
+      def cell_tabindex(_header:, active:)
         active ? 0 : -1
       end
 

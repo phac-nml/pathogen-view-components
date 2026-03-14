@@ -21,7 +21,7 @@
           <% else %>
             <%= tag.tr(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row') do %>
               <% columns.each_with_index do |column, index| %>
-                <%= tag.th(scope: "col", **column.header_cell_attributes(column_index: index)) do %>
+                <%= tag.th(scope: "col", **column.header_cell_attributes(column_index: index, active: index.zero?)) do %>
                   <% if column.default_header_label? %>
                     <%= tag.span(column.render_header, class: 'pathogen-data-grid__header-label') %>
                   <% else %>

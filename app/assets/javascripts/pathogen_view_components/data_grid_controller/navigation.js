@@ -2,7 +2,7 @@
 // All functions take explicit arguments; none rely on controller state.
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
-const FIRST_DATA_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]`;
+const FIRST_DATA_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]`;
 
 export function columnIndexOf(cell) {
   const value = Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
