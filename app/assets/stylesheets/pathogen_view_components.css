@@ -451,10 +451,21 @@
     display: grid;
   }
 
+  .pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
   .pathogen-data-grid__viewport {
     position: relative;
     overflow: hidden;
     contain: layout style;
+  }
+
+  /* Hide server-rendered rows until the controller has virtualized them (prevents FOUC) */
+  .pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+    visibility: hidden;
   }
 
   .pathogen-data-grid__spacer {

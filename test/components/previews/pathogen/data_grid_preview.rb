@@ -95,6 +95,37 @@ module Pathogen
       end
     end
 
+    # @label Virtual Grid (1000 rows)
+    def virtual_grid
+      render Pathogen::DataGridComponent.new(
+        caption: 'Virtual grid with 1,000 rows',
+        virtual: true,
+        fill_container: true,
+        rows: VIRTUAL_ROWS
+      ) do |grid|
+        grid.with_column('Sample ID', key: :sample_id, width: 160)
+        grid.with_column('Name', key: :name, width: 260)
+        grid.with_column('Organism', key: :organism, width: 220)
+        grid.with_column('Collected', key: :collected_at, width: 160)
+        grid.with_column('Status', key: :status, width: 140)
+      end
+    end
+
+    # @label Virtual Grid with Interactive Cells
+    def virtual_grid_with_interactive_cells
+      render Pathogen::DataGridComponent.new(
+        caption: 'Virtual grid with interactive cell content',
+        virtual: true,
+        fill_container: true,
+        rows: VIRTUAL_ROWS[0..99]
+      ) do |grid|
+        grid.with_column('Sample ID', key: :sample_id, width: 160)
+        grid.with_column('Name', key: :name, width: 260)
+        grid.with_column('Organism', key: :organism, width: 220)
+        grid.with_column('Actions', width: 240) { |row| interactive_actions(row) }
+      end
+    end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
@@ -169,6 +200,38 @@ module Pathogen
         collected_at: '2026-01-19', status: 'Queued'
       }
     ].freeze
+
+    ORGANISMS = [
+      'Listeria monocytogenes',
+      'Salmonella enterica',
+      'Campylobacter jejuni',
+      'Vibrio parahaemolyticus',
+      'Escherichia coli',
+      'Yersinia enterocolitica',
+      'Shigella sonnei',
+      'Bacillus cereus',
+      'Staphylococcus aureus',
+      'Klebsiella pneumoniae',
+      'Pseudomonas aeruginosa',
+      'Enterococcus faecalis'
+    ].freeze
+
+    SITE_NAMES = %w[
+      Basin Channel Marsh Bank Terrace Inlet Ridge Reserve
+      Creek Valley Plateau Delta Estuary Lagoon Fjord
+    ].freeze
+
+    STATUSES = %w[Active Review Queued Pending Complete].freeze
+
+    VIRTUAL_ROWS = Array.new(1_000) do |i|
+      {
+        sample_id: format('SAM-%04d', i + 1),
+        name: "#{%w[North South East West Upper Lower Central Outer][i % 8]} #{SITE_NAMES[i % SITE_NAMES.size]}",
+        organism: ORGANISMS[i % ORGANISMS.size],
+        collected_at: (Date.new(2026, 1, 1) + i).to_s,
+        status: STATUSES[i % STATUSES.size]
+      }
+    end.freeze
 
     private
 
