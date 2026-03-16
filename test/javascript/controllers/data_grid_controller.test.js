@@ -1,5 +1,5 @@
 import { Application } from "@hotwired/stimulus";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import DataGridController from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller";
 
@@ -794,5 +794,48 @@ describe("data_grid_controller (virtual mode)", () => {
       '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
     );
     expect(document.activeElement).toBe(headerCell);
+  });
+
+  it("coalesces multiple scroll events into one animation-frame render", async () => {
+    document.body.innerHTML = virtualGridHTML(200);
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame");
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    expect(rafSpy).toHaveBeenCalledTimes(1);
+    rafSpy.mockRestore();
+  });
+
+  it("updates row measurements on debounced resize", async () => {
+    vi.useFakeTimers();
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const firstRenderedRow = viewport.querySelector('[role="row"]');
+    Object.defineProperty(firstRenderedRow, "offsetHeight", { value: 60, configurable: true });
+
+    window.dispatchEvent(new Event("resize"));
+    window.dispatchEvent(new Event("resize"));
+    vi.advanceTimersByTime(120);
+
+    const spacer = document.querySelector(".pathogen-data-grid__spacer");
+    expect(spacer.style.height).toBe("1200px");
+
+    rafSpy.mockRestore();
+    vi.useRealTimers();
   });
 });
