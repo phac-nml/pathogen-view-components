@@ -12,6 +12,8 @@ import {
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
+import { computeVisibleRange, scrollTopForRow } from "pathogen_view_components/data_grid_controller/virtualizer";
+
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
 const FOCUSABLE_CELL_SELECTOR = `${CELL_SELECTOR}[tabindex="0"]`;
@@ -31,10 +33,17 @@ const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
 const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 
 export default class extends Controller {
-  static targets = ["cell", "grid", "scrollContainer"];
+  static targets = ["cell", "grid", "scrollContainer", "viewport"];
   #abortController = null;
   // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
   #lastActiveCell = null;
+
+  // Virtual mode state
+  #allRowElements = null; // Detached row elements (only in virtual mode)
+  #rowHeight = 0;
+  #visibleStartIndex = -1;
+  #visibleEndIndex = -1;
+  #rafId = null;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -42,11 +51,19 @@ export default class extends Controller {
     this.#abortController?.abort();
     this.#abortController = new AbortController();
     this.#bindEvents(this.#abortController.signal);
+
+    if (this.#isVirtual()) {
+      this.#initVirtualMode();
+    }
   }
 
   disconnect() {
     this.#abortController?.abort();
     this.#abortController = null;
+    if (this.#rafId) cancelAnimationFrame(this.#rafId);
+    this.#rafId = null;
+    this.#allRowElements = null;
+    this.element.removeAttribute("data-virtual-ready");
   }
 
   // ── DOM event handlers ────────────────────────────────────────────────────
@@ -131,10 +148,31 @@ export default class extends Controller {
   }
 
   #allCells() {
+    if (this.#isVirtual() && this.#allRowElements) {
+      // In virtual mode, include cells from ALL rows (including detached ones)
+      // so navigation can operate on the full virtual coordinate space.
+      const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
+      const virtualCells = [];
+      this.#allRowElements.forEach((row) => {
+        row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
+          if (!domCells.includes(cell)) virtualCells.push(cell);
+        });
+      });
+      return [...domCells, ...virtualCells];
+    }
     return this.hasCellTarget ? [...this.cellTargets] : [];
   }
 
   #focusCell(cell) {
+    if (this.#isVirtual()) {
+      // In virtual mode, ensure the target row is in the DOM before focusing
+      const rowIndex = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
+      if (!Number.isNaN(rowIndex) && rowIndex > 0) {
+        // rowIndex is 1-based in data attributes, convert to 0-based for virtualizer
+        this.#ensureVirtualRowVisible(rowIndex - 1);
+      }
+    }
+
     this.#setActiveCell(cell);
     cell.focus({ preventScroll: true });
     this.#scrollCellIntoView(cell);
@@ -172,8 +210,9 @@ export default class extends Controller {
   }
 
   #pageSize() {
-    const firstDataRow = this.gridTarget.querySelector("tbody tr");
-    const rowHeight = firstDataRow?.offsetHeight || 1;
+    const rowHeight = this.#isVirtual()
+      ? this.#rowHeight || 40
+      : this.gridTarget.querySelector("tbody tr")?.offsetHeight || 1;
 
     if (
       this.hasScrollContainerTarget &&
@@ -237,5 +276,123 @@ export default class extends Controller {
     this.element.addEventListener("click", (event) => this.handleClick(event), {
       signal,
     });
+  }
+
+  // ── Virtual mode ────────────────────────────────────────────────────────
+
+  #isVirtual() {
+    return this.hasViewportTarget;
+  }
+
+  #initVirtualMode() {
+    const viewport = this.viewportTarget;
+    const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
+
+    // Collect all body rows (skip the spacer)
+    const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
+    this.#allRowElements = rows;
+
+    // Measure row height from the first rendered row
+    this.#rowHeight = rows[0]?.offsetHeight || 40;
+
+    // Set spacer to represent total content height
+    const totalHeight = rows.length * this.#rowHeight;
+    if (spacer) spacer.style.height = `${totalHeight}px`;
+
+    // Detach all rows — we'll render only the visible range
+    rows.forEach((row) => row.remove());
+
+    // Render initial visible range
+    this.#renderVisibleRows();
+
+    // Reveal viewport now that only visible rows are in the DOM (prevents FOUC)
+    this.element.setAttribute("data-virtual-ready", "");
+
+    // Listen for scroll on the scroll container
+    if (this.hasScrollContainerTarget) {
+      this.scrollContainerTarget.addEventListener("scroll", () => this.#onScroll(), {
+        signal: this.#abortController.signal,
+        passive: true,
+      });
+    }
+  }
+
+  #onScroll() {
+    if (this.#rafId) return;
+    this.#rafId = requestAnimationFrame(() => {
+      this.#rafId = null;
+      this.#renderVisibleRows();
+    });
+  }
+
+  #renderVisibleRows() {
+    if (!this.#allRowElements) return;
+
+    const scrollTop = this.hasScrollContainerTarget ? this.scrollContainerTarget.scrollTop : 0;
+    const containerHeight = this.hasScrollContainerTarget ? this.scrollContainerTarget.clientHeight : 0;
+    const viewportHeight = containerHeight > 0 ? containerHeight : window.innerHeight;
+
+    const { startIndex, endIndex } = computeVisibleRange({
+      scrollTop,
+      viewportHeight,
+      rowHeight: this.#rowHeight,
+      totalRows: this.#allRowElements.length,
+    });
+
+    // Skip re-render if range hasn't changed
+    if (startIndex === this.#visibleStartIndex && endIndex === this.#visibleEndIndex) return;
+
+    this.#visibleStartIndex = startIndex;
+    this.#visibleEndIndex = endIndex;
+
+    const viewport = this.viewportTarget;
+    const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
+
+    // Remove current body rows (keep the spacer)
+    const currentRows = viewport.querySelectorAll('[role="row"]');
+    currentRows.forEach((row) => row.remove());
+
+    // Insert visible rows after the spacer, positioned absolutely at their virtual coordinate
+    const fragment = document.createDocumentFragment();
+    for (let i = startIndex; i < endIndex; i++) {
+      const row = this.#allRowElements[i];
+      row.style.top = `${i * this.#rowHeight}px`;
+      fragment.appendChild(row);
+    }
+
+    if (spacer) {
+      spacer.after(fragment);
+    } else {
+      viewport.appendChild(fragment);
+    }
+  }
+
+  /**
+   * Ensures a virtual row is in the DOM and scroll position before focusing a cell.
+   * Called by keyboard navigation when the target row might be outside the current range.
+   * @param {number} rowIndex - The 0-based virtual row index
+   */
+  #ensureVirtualRowVisible(rowIndex) {
+    if (!this.#isVirtual() || !this.#allRowElements) return;
+
+    const scrollContainer = this.hasScrollContainerTarget ? this.scrollContainerTarget : null;
+    if (!scrollContainer) return;
+
+    const newScrollTop = scrollTopForRow({
+      rowIndex,
+      scrollTop: scrollContainer.scrollTop,
+      viewportHeight: scrollContainer.clientHeight,
+      rowHeight: this.#rowHeight,
+    });
+
+    if (newScrollTop !== null) {
+      scrollContainer.scrollTop = newScrollTop;
+      // Force synchronous re-render to ensure cells are in DOM
+      if (this.#rafId) {
+        cancelAnimationFrame(this.#rafId);
+        this.#rafId = null;
+      }
+      this.#renderVisibleRows();
+    }
   }
 }
