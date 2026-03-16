@@ -13,6 +13,10 @@ export default defineConfig({
         jsRoot,
         "data_grid_controller/widget_mode.js",
       ),
+      "pathogen_view_components/data_grid_controller/virtualizer": resolve(
+        jsRoot,
+        "data_grid_controller/virtualizer.js",
+      ),
     },
   },
   test: {
