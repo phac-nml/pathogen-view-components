@@ -129,19 +129,14 @@ module Pathogen
     # @label Fixed Window (Horizontal + Vertical Scroll)
     def fixed_window_scroll
       render Pathogen::DataGridComponent.new(
-        caption: 'Fixed window with horizontal and vertical scrolling',
+        caption: 'Responsive viewport with horizontal and vertical scrolling',
         sticky_columns: 1,
         fill_container: true,
-        style: 'width: 44rem; height: 16rem;',
-        rows: VIRTUAL_ROWS[0..59]
+        style: 'width: 100%; height: min(70vh, 34rem);',
+        rows: VIRTUAL_ROWS[0..399]
       ) do |grid|
-        grid.with_column('Sample ID', key: :sample_id, width: 170)
-        grid.with_column('Name', key: :name, width: 260)
-        grid.with_column('Organism', key: :organism, width: 240)
-        grid.with_column('Collected', key: :collected_at, width: 170)
-        grid.with_column('Status', key: :status, width: 160)
-        grid.with_column('Site', width: 200) { |row| row[:name].split.last }
-        grid.with_column('Region', width: 220) { |row| row[:name].split.first }
+        build_fixed_window_base_columns(grid)
+        build_fixed_window_metric_columns(grid)
       end
     end
 
@@ -253,6 +248,27 @@ module Pathogen
     end.freeze
 
     private
+
+    def build_fixed_window_base_columns(grid)
+      grid.with_column('Sample ID', key: :sample_id, width: 170)
+      grid.with_column('Name', key: :name, width: 260)
+      grid.with_column('Organism', key: :organism, width: 240)
+      grid.with_column('Collected', key: :collected_at, width: 170)
+      grid.with_column('Status', key: :status, width: 160)
+      grid.with_column('Site', width: 200) { |row| row[:name].split.last }
+      grid.with_column('Region', width: 220) { |row| row[:name].split.first }
+    end
+
+    def build_fixed_window_metric_columns(grid)
+      (1..100).each do |index|
+        grid.with_column("Metric #{index}", width: 140) { |row| fixed_window_metric(row, index) }
+      end
+    end
+
+    def fixed_window_metric(row, index)
+      sample_number = row[:sample_id].delete('^0-9').to_i
+      "M#{index}-#{(sample_number + index) % 997}"
+    end
 
     def interactive_actions(row)
       helpers = ActionController::Base.helpers

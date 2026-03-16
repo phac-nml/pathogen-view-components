@@ -451,6 +451,107 @@ describe("data_grid_controller", () => {
     expect(scrollContainer.scrollTop).toBe(90);
   });
 
+  it("ArrowUp keeps focused body cell visible below sticky header", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  class="pathogen-data-grid__cell pathogen-data-grid__cell--header"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Header
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 2
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const headerCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const firstRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    scrollContainer.scrollTop = 40;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 100,
+    });
+    headerCell.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 24,
+    });
+    firstRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 10,
+      bottom: 30,
+    });
+    secondRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 45,
+      bottom: 65,
+    });
+
+    secondRowCell.focus();
+    dispatchKey(secondRowCell, "ArrowUp");
+
+    expect(document.activeElement).toBe(firstRowCell);
+    expect(scrollContainer.scrollTop).toBe(26);
+  });
+
   it("does not intercept Tab in grid mode — allows browser to exit the grid", () => {
     const firstCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
     const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');
