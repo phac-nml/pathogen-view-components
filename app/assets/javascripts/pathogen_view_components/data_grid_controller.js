@@ -31,6 +31,7 @@ const NAVIGATION_KEYS = new Set([
 
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
 const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
+const RESIZE_DEBOUNCE_MS = 120;
 
 export default class extends Controller {
   static targets = ["cell", "grid", "scrollContainer", "viewport"];
@@ -44,6 +45,7 @@ export default class extends Controller {
   #visibleStartIndex = -1;
   #visibleEndIndex = -1;
   #rafId = null;
+  #resizeTimerId = null;
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -62,6 +64,8 @@ export default class extends Controller {
     this.#abortController = null;
     if (this.#rafId) cancelAnimationFrame(this.#rafId);
     this.#rafId = null;
+    if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
+    this.#resizeTimerId = null;
     this.#allRowElements = null;
     this.element.removeAttribute("data-virtual-ready");
   }
@@ -315,14 +319,48 @@ export default class extends Controller {
         passive: true,
       });
     }
+
+    window.addEventListener("resize", () => this.#onResize(), {
+      signal: this.#abortController.signal,
+      passive: true,
+    });
   }
 
   #onScroll() {
+    this.#scheduleVirtualRender();
+  }
+
+  #onResize() {
+    if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
+    this.#resizeTimerId = setTimeout(() => {
+      this.#resizeTimerId = null;
+      this.#refreshVirtualMeasurements();
+      this.#scheduleVirtualRender();
+    }, RESIZE_DEBOUNCE_MS);
+  }
+
+  #scheduleVirtualRender() {
     if (this.#rafId) return;
     this.#rafId = requestAnimationFrame(() => {
       this.#rafId = null;
       this.#renderVisibleRows();
     });
+  }
+
+  #refreshVirtualMeasurements() {
+    if (!this.#allRowElements) return;
+
+    const measuredRow = this.viewportTarget.querySelector('[role="row"]');
+    this.#rowHeight = measuredRow?.offsetHeight || this.#rowHeight || 40;
+
+    const spacer = this.viewportTarget.querySelector(".pathogen-data-grid__spacer");
+    if (spacer) {
+      spacer.style.height = `${this.#allRowElements.length * this.#rowHeight}px`;
+    }
+
+    // Force re-render after resize even if indices did not change.
+    this.#visibleStartIndex = -1;
+    this.#visibleEndIndex = -1;
   }
 
   #renderVisibleRows() {
