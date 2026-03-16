@@ -35,6 +35,22 @@ export function buildCellMap(cells) {
   return map;
 }
 
+function lowerBoundColumnIndex(rowCells, targetColumnIndex) {
+  let low = 0;
+  let high = rowCells.length;
+
+  while (low < high) {
+    const mid = low + Math.floor((high - low) / 2);
+    if (columnIndexOf(rowCells[mid]) < targetColumnIndex) {
+      low = mid + 1;
+    } else {
+      high = mid;
+    }
+  }
+
+  return low;
+}
+
 export function firstDataCell(cells) {
   return cells.find((cell) => cell.matches(FIRST_DATA_CELL_SELECTOR)) || null;
 }
@@ -47,11 +63,13 @@ export function cellAt(rowIndex, columnIndex, map) {
   const rowCells = map.get(rowIndex);
   if (!rowCells || rowCells.length === 0) return null;
 
-  const exact = rowCells.find((cell) => columnIndexOf(cell) === columnIndex);
-  if (exact) return exact;
+  const lowerBound = lowerBoundColumnIndex(rowCells, columnIndex);
+  if (lowerBound < rowCells.length && columnIndexOf(rowCells[lowerBound]) === columnIndex) {
+    return rowCells[lowerBound];
+  }
 
-  const fallback = rowCells.filter((cell) => columnIndexOf(cell) <= columnIndex).pop();
-  return fallback || rowCells[0];
+  const fallbackIndex = lowerBound - 1;
+  return fallbackIndex >= 0 ? rowCells[fallbackIndex] : rowCells[0];
 }
 
 export function lastCellInRow(map, rowIndex) {
@@ -82,8 +100,8 @@ export function nextHorizontalCell(map, rowIndex, columnIndex, direction) {
   const rowCells = map.get(rowIndex);
   if (!rowCells || rowCells.length === 0) return null;
 
-  const currentPos = rowCells.findIndex((cell) => columnIndexOf(cell) === columnIndex);
-  if (currentPos === -1) return null;
+  const currentPos = lowerBoundColumnIndex(rowCells, columnIndex);
+  if (currentPos >= rowCells.length || columnIndexOf(rowCells[currentPos]) !== columnIndex) return null;
 
   const nextPos = currentPos + direction;
   if (nextPos >= 0 && nextPos < rowCells.length) return rowCells[nextPos];
