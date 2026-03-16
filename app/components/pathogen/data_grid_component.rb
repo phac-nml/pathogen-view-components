@@ -24,7 +24,8 @@ module Pathogen
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false, **system_arguments)
+    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
+                   virtual: false, **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -32,19 +33,26 @@ module Pathogen
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
+      @virtual = virtual
       @system_arguments = system_arguments
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:pathogen_grid] = true
       @system_arguments[:class] = class_names(@system_arguments[:class], GRID_ROOT_CLASSES)
     end
 
+    def virtual? = @virtual
+
     def caption? = @caption.present?
 
     def table_attributes
+      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
       attributes = {
-        class: 'w-full border-collapse border-separate border-spacing-0 bg-[var(--pvc-data-grid-body-bg)] ' \
-               'text-[var(--pvc-data-grid-text-color)] text-[length:var(--pvc-data-grid-font-size)] ' \
-               'leading-[var(--pvc-data-grid-line-height)] whitespace-nowrap',
+      class: class_names(
+        tag_name_class,
+        'w-full border-collapse border-separate border-spacing-0 bg-[var(--pvc-data-grid-body-bg)] ' \
+        'text-[var(--pvc-data-grid-text-color)] text-[length:var(--pvc-data-grid-font-size)] ' \
+        'leading-[var(--pvc-data-grid-line-height)] whitespace-nowrap'
+      ),
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
@@ -54,6 +62,14 @@ module Pathogen
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
+    end
+
+    def grid_template_columns_style
+      columns.map { |col| col.width.presence || 'minmax(120px, 1fr)' }.join(' ')
+    end
+
+    def row_style
+      "grid-template-columns: #{grid_template_columns_style};"
     end
 
     def default_active_row_index = @rows.present? ? 1 : nil
@@ -82,6 +98,9 @@ module Pathogen
     end
 
     def before_render
+      apply_fill_container_class!
+      apply_dense_class!
+      apply_virtual_class!
       apply_column_defaults!
       set_grid_data_flags!
       apply_data_grid_controller!
@@ -95,6 +114,10 @@ module Pathogen
       @system_arguments[:data][:pathogen_grid_dense] = true if @dense
       @system_arguments[:data][:pathogen_grid_fill] = true if @fill_container
       @system_arguments[:data][:pathogen_grid_multi_sticky] = true if columns.many?(&:sticky)
+    end
+
+    def apply_virtual_class!
+      append_component_class!('pathogen-data-grid--virtual') if @virtual
     end
 
     def apply_column_defaults!
