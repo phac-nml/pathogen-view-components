@@ -5,131 +5,111 @@
 
 @layer pathogen.tokens {
   :root {
-    --pathogen-color-neutral-950: oklch(26.9% 0.036 263.7);
-    --pathogen-color-neutral-900: oklch(32.6% 0.048 264.3);
-    --pathogen-color-neutral-700: oklch(48.3% 0.05 260.3);
-    --pathogen-color-neutral-500: oklch(64% 0.037 259.4);
-    --pathogen-color-neutral-300: oklch(82.4% 0.025 259.8);
-    --pathogen-color-neutral-200: oklch(90.4% 0.017 256.3);
-    --pathogen-color-neutral-100: oklch(95.2% 0.01 248.1);
-    --pathogen-color-neutral-50: oklch(98.1% 0.005 248.1);
-    --pathogen-color-brand-500: oklch(72.3% 0.192 149.6);
-    --pathogen-color-brand-600: oklch(62.7% 0.17 149.2);
-    --pathogen-color-brand-700: oklch(52.7% 0.137 150.1);
-    --pathogen-color-success-500: oklch(62.7% 0.17 149.2);
-    --pathogen-color-warning-500: oklch(68.1% 0.142 75.8);
-    --pathogen-color-danger-500: oklch(57.7% 0.215 27.3);
+    --pathogen-color-neutral-950: oklch(26.9% .036 263.7);
+    --pathogen-color-neutral-900: oklch(32.6% .048 264.3);
+    --pathogen-color-neutral-700: oklch(48.3% .05 260.3);
+    --pathogen-color-neutral-500: oklch(64% .037 259.4);
+    --pathogen-color-neutral-300: oklch(82.4% .025 259.8);
+    --pathogen-color-neutral-200: oklch(90.4% .017 256.3);
+    --pathogen-color-neutral-100: oklch(95.2% .01 248.1);
+    --pathogen-color-neutral-50: oklch(98.1% .005 248.1);
+    --pathogen-color-brand-500: oklch(72.3% .192 149.6);
+    --pathogen-color-brand-600: oklch(62.7% .17 149.2);
+    --pathogen-color-brand-700: oklch(52.7% .137 150.1);
+    --pathogen-color-success-500: oklch(62.7% .17 149.2);
+    --pathogen-color-warning-500: oklch(68.1% .142 75.8);
+    --pathogen-color-danger-500: oklch(57.7% .215 27.3);
     --pathogen-color-text-default: var(--pathogen-color-neutral-900);
     --pathogen-color-text-muted: var(--pathogen-color-neutral-700);
     --pathogen-color-border-default: var(--pathogen-color-neutral-200);
     --pathogen-color-border-strong: var(--pathogen-color-neutral-300);
     --pathogen-color-surface-default: oklch(100% 0 0);
     --pathogen-color-surface-subtle: var(--pathogen-color-neutral-50);
-    --pathogen-color-surface-sticky: oklch(96.2% 0.012 252.2);
+    --pathogen-color-surface-sticky: oklch(96.2% .012 252.2);
     --pathogen-color-focus-ring: var(--pathogen-color-neutral-700);
-    --pathogen-color-link: color-mix(
-      in oklab,
+    --pathogen-color-link: color-mix(in oklab,
       var(--pathogen-color-text-default) 76%,
-      var(--pathogen-color-brand-600) 24%
-    );
+      var(--pathogen-color-brand-600) 24%);
     --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 34%, transparent);
     --pathogen-font-sans: "Inter", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-    --pathogen-font-mono:
-      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --pathogen-text-sm: 0.875rem;
+    --pathogen-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --pathogen-text-sm: .875rem;
     --pathogen-leading-normal: 1.45;
-    --pathogen-radius-control: 0.375rem;
-    --pathogen-radius-surface: 0.5rem;
-    --pathogen-space-cell-x: 0.875rem;
-    --pathogen-space-cell-y: 0.75rem;
-    --pathogen-shadow-border: oklch(32.6% 0.048 264.3 / 0.14);
+    --pathogen-radius-control: .375rem;
+    --pathogen-radius-surface: .5rem;
+    --pathogen-space-cell-x: .875rem;
+    --pathogen-space-cell-y: .75rem;
+    --pathogen-shadow-border: oklch(32.6% .048 264.3 / .14);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not(.light) {
-      --pathogen-color-text-default: oklch(91.9% 0.017 256.3);
-      --pathogen-color-text-muted: oklch(82.6% 0.029 258.4);
-      --pathogen-color-border-default: oklch(37.6% 0.048 263.7);
-      --pathogen-color-border-strong: oklch(45.4% 0.056 260);
-      --pathogen-color-surface-default: oklch(19.8% 0.037 264.2);
-      --pathogen-color-surface-subtle: oklch(25% 0.051 262.5);
-      --pathogen-color-surface-sticky: oklch(27.5% 0.058 261.5);
-      --pathogen-color-focus-ring: oklch(82.6% 0.029 258.4);
-      --pathogen-color-link: color-mix(
-        in oklab,
+      --pathogen-color-text-default: oklch(91.9% .017 256.3);
+      --pathogen-color-text-muted: oklch(82.6% .029 258.4);
+      --pathogen-color-border-default: oklch(37.6% .048 263.7);
+      --pathogen-color-border-strong: oklch(45.4% .056 260);
+      --pathogen-color-surface-default: oklch(19.8% .037 264.2);
+      --pathogen-color-surface-subtle: oklch(25% .051 262.5);
+      --pathogen-color-surface-sticky: oklch(27.5% .058 261.5);
+      --pathogen-color-focus-ring: oklch(82.6% .029 258.4);
+      --pathogen-color-link: color-mix(in oklab,
         var(--pathogen-color-text-default) 82%,
-        var(--pathogen-color-brand-500) 18%
-      );
+        var(--pathogen-color-brand-500) 18%);
       --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 56%, transparent);
-      --pathogen-shadow-border: oklch(82.6% 0.029 258.4 / 0.24);
+      --pathogen-shadow-border: oklch(82.6% .029 258.4 / .24);
     }
   }
 
   .dark {
-    --pathogen-color-text-default: oklch(91.9% 0.017 256.3);
-    --pathogen-color-text-muted: oklch(82.6% 0.029 258.4);
-    --pathogen-color-border-default: oklch(37.6% 0.048 263.7);
-    --pathogen-color-border-strong: oklch(45.4% 0.056 260);
-    --pathogen-color-surface-default: oklch(19.8% 0.037 264.2);
-    --pathogen-color-surface-subtle: oklch(25% 0.051 262.5);
-    --pathogen-color-surface-sticky: oklch(27.5% 0.058 261.5);
-    --pathogen-color-focus-ring: oklch(82.6% 0.029 258.4);
-    --pathogen-color-link: color-mix(
-      in oklab,
+    --pathogen-color-text-default: oklch(91.9% .017 256.3);
+    --pathogen-color-text-muted: oklch(82.6% .029 258.4);
+    --pathogen-color-border-default: oklch(37.6% .048 263.7);
+    --pathogen-color-border-strong: oklch(45.4% .056 260);
+    --pathogen-color-surface-default: oklch(19.8% .037 264.2);
+    --pathogen-color-surface-subtle: oklch(25% .051 262.5);
+    --pathogen-color-surface-sticky: oklch(27.5% .058 261.5);
+    --pathogen-color-focus-ring: oklch(82.6% .029 258.4);
+    --pathogen-color-link: color-mix(in oklab,
       var(--pathogen-color-text-default) 82%,
-      var(--pathogen-color-brand-500) 18%
-    );
+      var(--pathogen-color-brand-500) 18%);
     --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 56%, transparent);
-    --pathogen-shadow-border: oklch(82.6% 0.029 258.4 / 0.24);
+    --pathogen-shadow-border: oklch(82.6% .029 258.4 / .24);
   }
 }
 
 @layer pathogen.utilities {
-  .pathogen-u-text-default,
-  .pathogen-data-grid__text--default {
+  .pathogen-u-text-default, .pathogen-data-grid__text--default {
     color: var(--pathogen-color-text-default);
   }
 
-  .pathogen-u-text-muted,
-  .pathogen-data-grid__text--muted {
+  .pathogen-u-text-muted, .pathogen-data-grid__text--muted {
     color: var(--pathogen-color-text-muted);
   }
 
-  .pathogen-u-link,
-  .pathogen-data-grid__link {
+  .pathogen-u-link, .pathogen-data-grid__link {
     color: var(--pathogen-color-link);
-    text-underline-offset: 0.12em;
+    text-underline-offset: .12em;
     font-weight: 600;
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
-    transition:
-      color 0.14s,
-      text-decoration-thickness 0.14s;
+    transition: color .14s, text-decoration-thickness .14s;
   }
 
-  .pathogen-u-link:hover,
-  .pathogen-data-grid__link:hover {
+  .pathogen-u-link:hover, .pathogen-data-grid__link:hover {
     text-decoration-thickness: 2px;
   }
 
-  .pathogen-u-link:focus-visible,
-  .pathogen-data-grid__link:focus-visible {
+  .pathogen-u-link:focus-visible, .pathogen-data-grid__link:focus-visible {
     outline: 2px solid var(--pathogen-color-focus-ring);
     outline-offset: 2px;
     border-radius: var(--pathogen-radius-control);
   }
 
-  .pathogen-u-link--subtle,
-  .pathogen-data-grid__link--subtle,
-  .pathogen-data-grid__link--sample,
-  .pathogen-data-grid__link--project {
+  .pathogen-u-link--subtle, .pathogen-data-grid__link--subtle, .pathogen-data-grid__link--sample, .pathogen-data-grid__link--project {
     color: color-mix(in oklab, var(--pathogen-color-text-default) 84%, transparent);
   }
 
-  .pathogen-u-link--subtle:hover,
-  .pathogen-data-grid__link--subtle:hover,
-  .pathogen-data-grid__link--sample:hover,
-  .pathogen-data-grid__link--project:hover {
+  .pathogen-u-link--subtle:hover, .pathogen-data-grid__link--subtle:hover, .pathogen-data-grid__link--sample:hover, .pathogen-data-grid__link--project:hover {
     color: var(--pathogen-color-link);
   }
 
@@ -137,21 +117,18 @@
     color: var(--pathogen-color-text-default);
   }
 
-  .pathogen-u-font-mono,
-  .pathogen-data-grid__value--mono {
+  .pathogen-u-font-mono, .pathogen-data-grid__value--mono {
     font-family: var(--pathogen-font-mono);
     font-weight: 600;
   }
 
-  .pathogen-u-highlight,
-  .pathogen-data-grid__highlight {
+  .pathogen-u-highlight, .pathogen-data-grid__highlight {
     background: var(--pathogen-color-highlight);
     border-radius: var(--pathogen-radius-control);
-    padding-inline: 0.06em;
+    padding-inline: .06em;
   }
 
-  .pathogen-u-highlight--strong,
-  .pathogen-data-grid__highlight--strong {
+  .pathogen-u-highlight--strong, .pathogen-data-grid__highlight--strong {
     font-weight: 600;
   }
 
@@ -180,7 +157,7 @@
     --pathogen-data-grid-sticky-shadow: 4px 0 12px -2px
       color-mix(in oklab, var(--pathogen-color-neutral-950) 8%, transparent);
     --pathogen-data-grid-row-hover-bg: var(--pathogen-color-surface-subtle);
-    --pathogen-data-grid-focus-ring: oklch(63% 0.16 255);
+    --pathogen-data-grid-focus-ring: oklch(63% .16 255);
     --pathogen-data-grid-cell-padding-y: 1rem;
     --pathogen-data-grid-cell-padding-x: 1rem;
     --pathogen-data-grid-font-size: var(--pathogen-text-sm);
@@ -236,7 +213,7 @@
 
   .pathogen-data-grid__row {
     background: var(--pathogen-data-grid-body-bg);
-    transition: background-color 0.15s;
+    transition: background-color .15s;
   }
 
   .pathogen-data-grid__row--header {
@@ -244,9 +221,9 @@
   }
 
   .pathogen-data-grid--dense {
-    --pathogen-data-grid-cell-padding-y: 0.5rem;
-    --pathogen-data-grid-cell-padding-x: 0.75rem;
-    --pathogen-data-grid-font-size: 0.8125rem;
+    --pathogen-data-grid-cell-padding-y: .5rem;
+    --pathogen-data-grid-cell-padding-x: .75rem;
+    --pathogen-data-grid-font-size: .8125rem;
   }
 
   .pathogen-data-grid--dense .pathogen-data-grid__cell {
@@ -290,7 +267,7 @@
   .pathogen-data-grid__header-label {
     color: var(--pathogen-data-grid-text-muted-color);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: .05em;
     white-space: nowrap;
     font-weight: 600;
     display: inline-block;
@@ -321,8 +298,7 @@
     text-align: right;
   }
 
-  .pathogen-data-grid__body .pathogen-data-grid__row:hover,
-  .pathogen-data-grid__body .pathogen-data-grid__row:focus-within {
+  .pathogen-data-grid__body .pathogen-data-grid__row:hover, .pathogen-data-grid__body .pathogen-data-grid__row:focus-within {
     background: var(--pathogen-data-grid-row-hover-bg);
   }
 
@@ -330,20 +306,12 @@
     background: inherit;
   }
 
-  .pathogen-data-grid__cell:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
+  .pathogen-data-grid__cell:focus, .pathogen-data-grid__table:focus-within .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
     box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
     outline: none;
   }
 
-  .pathogen-data-grid__cell--sticky:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
+  .pathogen-data-grid__cell--sticky:focus, .pathogen-data-grid__table:focus-within .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
     z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 
@@ -358,7 +326,7 @@
     border-radius: var(--pathogen-radius-control);
     background: color-mix(in oklab, var(--pathogen-color-warning-500) 12%, transparent);
     margin: 0 0 1rem;
-    padding: 0.625rem 0.875rem;
+    padding: .625rem .875rem;
   }
 
   .pathogen-data-grid__metadata-warning-text {
@@ -396,5 +364,35 @@
     .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
       z-index: var(--pathogen-data-grid-header-z);
     }
+  }
+
+  .pathogen-data-grid__grid {
+    background: var(--pathogen-data-grid-body-bg);
+    width: 100%;
+    color: var(--pathogen-data-grid-text-color);
+    font-size: var(--pathogen-data-grid-font-size);
+    line-height: var(--pathogen-data-grid-line-height);
+    white-space: nowrap;
+  }
+
+  .pathogen-data-grid--virtual .pathogen-data-grid__row {
+    display: grid;
+  }
+
+  .pathogen-data-grid__viewport {
+    contain: layout style;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pathogen-data-grid__spacer {
+    pointer-events: none;
+    visibility: hidden;
+    width: 1px;
+  }
+
+  .pathogen-data-grid__grid:focus-within .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
+    box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
+    outline: none;
   }
 }
