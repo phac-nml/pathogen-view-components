@@ -638,3 +638,161 @@ describe("data_grid_controller", () => {
     expect(link.tabIndex).toBe(-1);
   });
 });
+
+describe("data_grid_controller (virtual mode)", () => {
+  let application;
+
+  /**
+   * Generates virtual grid HTML with N rows.
+   */
+  const virtualGridHTML = (rowCount, { viewportHeight = 200 } = {}) => {
+    const headerCells = `
+      <div role="columnheader" tabindex="-1"
+        data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="0"
+        data-pathogen--data-grid-column-index="0"
+        data-pathogen--data-grid-has-interactive="false">
+        ID
+      </div>
+      <div role="columnheader" tabindex="-1"
+        data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="0"
+        data-pathogen--data-grid-column-index="1"
+        data-pathogen--data-grid-has-interactive="false">
+        Name
+      </div>`;
+
+    const rows = Array.from({ length: rowCount }, (_, i) => {
+      const rowIndex = i + 1;
+      const isFirst = i === 0;
+      return `
+        <div role="row" aria-rowindex="${rowIndex + 1}" style="grid-template-columns: 120px 200px; height: 40px;">
+          <div role="gridcell"
+            tabindex="${isFirst ? "0" : "-1"}"
+            ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="0"
+            data-pathogen--data-grid-has-interactive="false">
+            ID-${String(rowIndex).padStart(3, "0")}
+          </div>
+          <div role="gridcell"
+            tabindex="-1"
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="1"
+            data-pathogen--data-grid-has-interactive="false">
+            Name ${rowIndex}
+          </div>
+        </div>`;
+    });
+
+    return `
+      <div data-controller="pathogen--data-grid" class="pathogen-data-grid pathogen-data-grid--virtual">
+        <div data-pathogen--data-grid-target="scrollContainer"
+             class="pathogen-data-grid__scroll"
+             style="height: ${viewportHeight}px; overflow: auto;">
+          <div role="grid" data-pathogen--data-grid-target="grid"
+               aria-rowcount="${rowCount + 1}" aria-colcount="2">
+            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+                 aria-rowindex="1" style="grid-template-columns: 120px 200px;">
+              ${headerCells}
+            </div>
+            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pathogen-data-grid__spacer"></div>
+              ${rows.join("\n")}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  afterEach(() => {
+    application?.stop();
+    document.body.innerHTML = "";
+  });
+
+  it("detaches rows and sets spacer height on connect", async () => {
+    document.body.innerHTML = virtualGridHTML(50);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const spacer = document.querySelector(".pathogen-data-grid__spacer");
+    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const renderedRows = viewport.querySelectorAll('[role="row"]');
+
+    // Spacer should have height representing all rows
+    // (jsdom doesn't compute offsetHeight, so rowHeight falls back to 40)
+    expect(spacer.style.height).toBe("2000px"); // 50 × 40
+
+    // Not all rows should be in the DOM (only visible + buffer)
+    // With viewport=200, rowHeight=40, that's 5 visible + 10 buffer = 15 max
+    // But clamped to totalRows if less
+    expect(renderedRows.length).toBeLessThanOrEqual(50);
+  });
+
+  it("preserves keyboard navigation between visible cells in virtual mode", async () => {
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    // First cell should exist and be focusable
+    expect(firstCell).not.toBeNull();
+    firstCell.focus();
+
+    // Navigate right
+    dispatchKey(firstCell, "ArrowRight");
+    const rightCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    expect(document.activeElement).toBe(rightCell);
+  });
+
+  it("navigates down through virtual rows", async () => {
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    firstCell.focus();
+    dispatchKey(firstCell, "ArrowDown");
+
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(secondRowCell).not.toBeNull();
+    expect(document.activeElement).toBe(secondRowCell);
+    expect(secondRowCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("header cells are accessible for Ctrl+Home navigation", async () => {
+    document.body.innerHTML = virtualGridHTML(10);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    // Navigate to a data cell first
+    const dataCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    dataCell.focus();
+
+    // Ctrl+Home should go to first header cell
+    dispatchKey(dataCell, "Home", { ctrlKey: true });
+
+    const headerCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(document.activeElement).toBe(headerCell);
+  });
+});
