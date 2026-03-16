@@ -47,6 +47,13 @@ export default class extends Controller {
   #rafId = null;
   #resizeTimerId = null;
 
+  // Cell caches for keyboard hot paths
+  #allCellsCache = null;
+  #cellSetCache = null;
+  #cellIndexCache = new WeakMap();
+  #coordinateCellCache = null;
+  #navigationCellMapCache = null;
+
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   connect() {
@@ -67,6 +74,7 @@ export default class extends Controller {
     if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
     this.#resizeTimerId = null;
     this.#allRowElements = null;
+    this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
 
@@ -127,7 +135,7 @@ export default class extends Controller {
 
     if (!NAVIGATION_KEYS.has(event.key)) return;
 
-    const map = buildCellMap(this.#allCells());
+    const map = this.#navigationCellMap();
     const nextCell = nextCellForKey(activeCell, event, map, this.#pageSize());
     if (!nextCell) return;
 
@@ -140,9 +148,16 @@ export default class extends Controller {
   #activeCell() {
     if (!this.hasGridTarget) return null;
 
+    if (this.#lastActiveCell && this.#hasCachedCell(this.#lastActiveCell)) return this.#lastActiveCell;
+
     const cells = this.#allCells();
     const fromFocused = this.#resolveCell(document.activeElement);
-    if (fromFocused && cells.includes(fromFocused)) return fromFocused;
+    if (fromFocused && this.#hasCachedCell(fromFocused)) {
+      const rowIndex = Number(fromFocused.getAttribute("data-pathogen--data-grid-row-index"));
+      const columnIndex = Number(fromFocused.getAttribute("data-pathogen--data-grid-column-index"));
+      const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+      return mappedCell || fromFocused;
+    }
 
     return (
       cells.find((cell) => cell.matches(ACTIVE_CELL_SELECTOR)) ||
@@ -152,19 +167,27 @@ export default class extends Controller {
   }
 
   #allCells() {
+    if (this.#allCellsCache) return this.#allCellsCache;
+
+    let cells;
     if (this.#isVirtual() && this.#allRowElements) {
       // In virtual mode, include cells from ALL rows (including detached ones)
       // so navigation can operate on the full virtual coordinate space.
       const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
+      const domCellSet = new Set(domCells);
       const virtualCells = [];
       this.#allRowElements.forEach((row) => {
         row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
-          if (!domCells.includes(cell)) virtualCells.push(cell);
+          if (!domCellSet.has(cell)) virtualCells.push(cell);
         });
       });
-      return [...domCells, ...virtualCells];
+      cells = [...domCells, ...virtualCells];
+    } else {
+      cells = this.hasCellTarget ? [...this.cellTargets] : [];
     }
-    return this.hasCellTarget ? [...this.cellTargets] : [];
+
+    this.#primeCellCaches(cells);
+    return cells;
   }
 
   #focusCell(cell) {
@@ -192,7 +215,7 @@ export default class extends Controller {
 
   #focusAdjacentInteractiveCell(cell, direction) {
     const cells = this.#allCells();
-    const startIndex = cells.indexOf(cell);
+    const startIndex = this.#cellIndex(cell);
     if (startIndex === -1) return false;
 
     let index = startIndex + direction;
@@ -262,6 +285,57 @@ export default class extends Controller {
     this.#lastActiveCell = cell;
   }
 
+  #primeCellCaches(cells) {
+    this.#allCellsCache = cells;
+    this.#cellSetCache = new Set(cells);
+    this.#coordinateCellCache = new Map();
+    this.#navigationCellMapCache = buildCellMap(cells);
+    this.#cellIndexCache = new WeakMap();
+
+    cells.forEach((cell, index) => {
+      this.#cellIndexCache.set(cell, index);
+
+      const rowIndex = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
+      const columnIndex = Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
+      if (Number.isNaN(rowIndex) || Number.isNaN(columnIndex)) return;
+
+      this.#coordinateCellCache.set(`${rowIndex}:${columnIndex}`, cell);
+    });
+  }
+
+  #invalidateCellCaches() {
+    this.#allCellsCache = null;
+    this.#cellSetCache = null;
+    this.#coordinateCellCache = null;
+    this.#navigationCellMapCache = null;
+    this.#cellIndexCache = new WeakMap();
+  }
+
+  #navigationCellMap() {
+    if (this.#navigationCellMapCache) return this.#navigationCellMapCache;
+
+    this.#allCells();
+    return this.#navigationCellMapCache || new Map();
+  }
+
+  #hasCachedCell(cell) {
+    if (!this.#cellSetCache) this.#allCells();
+    return this.#cellSetCache ? this.#cellSetCache.has(cell) : false;
+  }
+
+  #cellByCoordinate(rowIndex, columnIndex) {
+    if (!this.#coordinateCellCache) this.#allCells();
+    if (!this.#coordinateCellCache) return null;
+    return this.#coordinateCellCache.get(`${rowIndex}:${columnIndex}`) || null;
+  }
+
+  #cellIndex(cell) {
+    if (this.#cellIndexCache.has(cell)) return this.#cellIndexCache.get(cell);
+
+    this.#allCells();
+    return this.#cellIndexCache.has(cell) ? this.#cellIndexCache.get(cell) : -1;
+  }
+
   #lastInteractiveElement(cell) {
     const interactiveElements = cell.querySelectorAll("a, button, input, select, textarea");
     return interactiveElements[interactiveElements.length - 1] || null;
@@ -295,6 +369,7 @@ export default class extends Controller {
     // Collect all body rows (skip the spacer)
     const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
     this.#allRowElements = rows;
+    this.#invalidateCellCaches();
 
     // Measure row height from the first rendered row
     this.#rowHeight = rows[0]?.offsetHeight || 40;
@@ -403,6 +478,9 @@ export default class extends Controller {
     } else {
       viewport.appendChild(fragment);
     }
+
+    // Visible DOM cell targets changed; invalidate so caches refresh lazily.
+    this.#invalidateCellCaches();
   }
 
   /**
