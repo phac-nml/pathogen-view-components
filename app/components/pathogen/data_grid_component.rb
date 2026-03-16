@@ -56,7 +56,8 @@ module Pathogen
     attr_reader :rows
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false, **system_arguments)
+    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
+                   virtual: false, **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -64,15 +65,19 @@ module Pathogen
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
+      @virtual = virtual
       @system_arguments = system_arguments
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
+    def virtual? = @virtual
+
     def caption? = @caption.present?
 
     def table_attributes
+      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
       attributes = {
-        class: 'pathogen-data-grid__table',
+        class: tag_name_class,
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
@@ -82,6 +87,14 @@ module Pathogen
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
+    end
+
+    def grid_template_columns_style
+      columns.map { |col| col.width.presence || 'minmax(120px, 1fr)' }.join(' ')
+    end
+
+    def row_style
+      "grid-template-columns: #{grid_template_columns_style};"
     end
 
     def default_active_row_index = @rows.present? ? 1 : nil
@@ -121,6 +134,7 @@ module Pathogen
     def before_render
       apply_fill_container_class!
       apply_dense_class!
+      apply_virtual_class!
       apply_column_defaults!
       apply_responsive_sticky_class!
       apply_data_grid_controller!
@@ -132,6 +146,10 @@ module Pathogen
 
     def apply_dense_class!
       append_component_class!('pathogen-data-grid--dense') if @dense
+    end
+
+    def apply_virtual_class!
+      append_component_class!('pathogen-data-grid--virtual') if @virtual
     end
 
     def apply_column_defaults!

@@ -263,5 +263,207 @@ module Pathogen
       assert_no_selector '.pathogen-data-grid__scroll .test-metadata-warning'
       assert_no_selector '.pathogen-data-grid__scroll .test-footer'
     end
+
+    # === Virtual mode tests ===
+
+    test 'virtual mode renders div-based grid instead of table elements' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      caption: 'Virtual grid',
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Sample one' },
+                        { id: 'S-002', name: 'Sample two' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      # No native table elements
+      assert_no_selector 'table'
+      assert_no_selector 'thead'
+      assert_no_selector 'tbody'
+      assert_no_selector 'tr'
+      assert_no_selector 'th'
+      assert_no_selector 'td'
+
+      # Div-based grid with ARIA roles
+      assert_selector '.pathogen-data-grid--virtual'
+      assert_selector 'div[role="grid"]'
+      assert_selector 'div[role="row"]', count: 3 # 1 header + 2 body rows
+      assert_selector 'div[role="columnheader"]', count: 2
+      assert_selector 'div[role="gridcell"]', count: 4 # 2 rows × 2 columns
+
+      # Caption
+      assert_selector '.pathogen-data-grid__caption', text: 'Virtual grid'
+    end
+
+    test 'virtual mode sets aria-rowcount and aria-colcount on the grid' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Alpha' },
+                        { id: 'S-002', name: 'Beta' },
+                        { id: 'S-003', name: 'Gamma' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector 'div[role="grid"][aria-rowcount="4"]' # 3 data + 1 header
+      assert_selector 'div[role="grid"][aria-colcount="2"]'
+    end
+
+    test 'virtual mode sets aria-rowindex on each row' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Alpha' },
+                        { id: 'S-002', name: 'Beta' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      # Header row has aria-rowindex 1 (ARIA 1-based)
+      assert_selector 'div[role="row"][aria-rowindex="1"] div[role="columnheader"]'
+      # Data rows
+      assert_selector 'div[role="row"][aria-rowindex="2"] div[role="gridcell"]'
+      assert_selector 'div[role="row"][aria-rowindex="3"] div[role="gridcell"]'
+    end
+
+    test 'virtual mode preserves roving tabindex with first body cell active' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Alpha' },
+                        { id: 'S-002', name: 'Beta' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      # First body cell is active (tabindex="0")
+      assert_selector 'div[role="gridcell"][tabindex="0"]', count: 1
+      # All other cells are tabindex="-1"
+      assert_selector 'div[role="gridcell"][tabindex="-1"]', count: 3
+      assert_selector 'div[role="columnheader"][tabindex="-1"]', count: 2
+    end
+
+    test 'virtual mode applies data-grid Stimulus controller' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [{ id: 'S-001' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+      end
+
+      assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
+      assert_selector 'div[data-pathogen--data-grid-target="grid"]'
+      assert_selector 'div[data-pathogen--data-grid-target="scrollContainer"]'
+    end
+
+    test 'virtual mode cell data attributes match non-virtual convention' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [{ id: 'S-001', name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector(
+        'div[role="gridcell"]' \
+        '[data-pathogen--data-grid-target="cell"]' \
+        '[data-pathogen--data-grid-row-index="1"]' \
+        '[data-pathogen--data-grid-column-index="0"]' \
+        '[data-pathogen--data-grid-has-interactive="false"]'
+      )
+      assert_selector(
+        'div[role="gridcell"]' \
+        '[data-pathogen--data-grid-row-index="1"]' \
+        '[data-pathogen--data-grid-column-index="1"]'
+      )
+    end
+
+    test 'virtual mode renders interactive cells with tabindex on descendants' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [{ id: 'S-301' }]
+                    )) do |grid|
+        grid.with_column('Actions') do |row|
+          ActionController::Base.helpers.safe_join(
+            [
+              ActionController::Base.helpers.link_to("View #{row[:id]}", "/samples/#{row[:id]}"),
+              ActionController::Base.helpers.button_tag("Edit #{row[:id]}", type: 'button')
+            ],
+            ' '
+          )
+        end
+      end
+
+      assert_selector(
+        'div[role="gridcell"][tabindex="0"][data-pathogen--data-grid-has-interactive="true"]'
+      )
+      assert_selector 'div[role="gridcell"] a[tabindex="-1"]'
+      assert_selector 'div[role="gridcell"] button[tabindex="-1"]'
+    end
+
+    test 'virtual mode renders viewport and spacer for scroll virtualization' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Alpha' },
+                        { id: 'S-002', name: 'Beta' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      # Body region has a viewport container and spacer for virtual scrolling
+      assert_selector '.pathogen-data-grid__viewport'
+      assert_selector '.pathogen-data-grid__spacer'
+    end
+
+    test 'virtual mode renders empty state when rows are blank' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: []
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+        grid.with_empty_state { 'No rows' }
+      end
+
+      assert_selector '.pathogen-data-grid__scroll', text: 'No rows'
+      assert_no_selector 'div[role="grid"]'
+    end
+
+    test 'virtual mode with fill_container applies fill class' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      fill_container: true,
+                      rows: [{ id: 'S-001' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+      end
+
+      assert_selector '.pathogen-data-grid.pathogen-data-grid--fill.pathogen-data-grid--virtual'
+    end
+
+    test 'virtual mode uses grid-template-columns style from column widths' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [{ id: 'S-001', name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector 'div[role="row"][style*="grid-template-columns"]'
+    end
   end
 end
