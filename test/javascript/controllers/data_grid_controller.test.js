@@ -297,6 +297,160 @@ describe("data_grid_controller", () => {
     expect(lastCell.tabIndex).toBe(0);
   });
 
+  it("ArrowRight scrolls horizontally when target cell is out of view", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Left
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Right
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const leftCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const rightCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.scrollTop = 0;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 100,
+      top: 0,
+      bottom: 100,
+    });
+    leftCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 50,
+      top: 10,
+      bottom: 30,
+    });
+    rightCell.getBoundingClientRect = () => ({
+      left: 150,
+      right: 230,
+      top: 10,
+      bottom: 30,
+    });
+
+    leftCell.focus();
+    dispatchKey(leftCell, "ArrowRight");
+
+    expect(document.activeElement).toBe(rightCell);
+    expect(scrollContainer.scrollLeft).toBe(130);
+  });
+
+  it("ArrowDown scrolls vertically when target cell is out of view", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 2
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const firstRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.scrollTop = 0;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 100,
+    });
+    firstRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 10,
+      bottom: 30,
+    });
+    secondRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 150,
+      bottom: 190,
+    });
+
+    firstRowCell.focus();
+    dispatchKey(firstRowCell, "ArrowDown");
+
+    expect(document.activeElement).toBe(secondRowCell);
+    expect(scrollContainer.scrollTop).toBe(90);
+  });
+
   it("does not intercept Tab in grid mode — allows browser to exit the grid", () => {
     const firstCell = document.querySelector('[data-pathogen--data-grid-column-index="0"]');
     const interactiveCell = document.querySelector('[data-pathogen--data-grid-column-index="1"]');
