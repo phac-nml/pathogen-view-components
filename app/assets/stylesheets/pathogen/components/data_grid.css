@@ -251,6 +251,10 @@
 
   .pathogen-data-grid__grid {
     width: 100%;
+    /* Expand to the full content width so absolutely-positioned body rows (width: 100%)
+       match the header row width. Without this, rows are clipped to the visible container
+       width by the viewport's overflow: hidden, hiding columns beyond the scroll edge. */
+    min-width: max-content;
     background: var(--pathogen-data-grid-body-bg);
     color: var(--pathogen-data-grid-text-color);
     font-size: var(--pathogen-data-grid-font-size);
@@ -262,10 +266,28 @@
     display: grid;
   }
 
+  .pathogen-data-grid--virtual .pathogen-data-grid__row--header {
+    position: sticky;
+    top: 0;
+    z-index: var(--pathogen-data-grid-header-z);
+    background: var(--pathogen-data-grid-header-bg);
+  }
+
+  .pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
   .pathogen-data-grid__viewport {
     position: relative;
     overflow: hidden;
     contain: layout style;
+  }
+
+  /* Hide server-rendered rows until the controller has virtualized them (prevents FOUC) */
+  .pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+    visibility: hidden;
   }
 
   .pathogen-data-grid__spacer {

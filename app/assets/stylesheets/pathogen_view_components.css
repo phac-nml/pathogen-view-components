@@ -369,6 +369,7 @@
   .pathogen-data-grid__grid {
     background: var(--pathogen-data-grid-body-bg);
     width: 100%;
+    min-width: max-content;
     color: var(--pathogen-data-grid-text-color);
     font-size: var(--pathogen-data-grid-font-size);
     line-height: var(--pathogen-data-grid-line-height);
@@ -380,16 +381,16 @@
   }
 
   .pathogen-data-grid--virtual .pathogen-data-grid__row--header {
-    position: sticky;
-    top: 0;
     z-index: var(--pathogen-data-grid-header-z);
     background: var(--pathogen-data-grid-header-bg);
+    position: sticky;
+    top: 0;
   }
 
   .pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
+    width: 100%;
     position: absolute;
     left: 0;
-    width: 100%;
   }
 
   .pathogen-data-grid__viewport {
@@ -398,7 +399,6 @@
     overflow: hidden;
   }
 
-  /* Hide server-rendered rows until the controller has virtualized them (prevents FOUC) */
   .pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
     visibility: hidden;
   }
