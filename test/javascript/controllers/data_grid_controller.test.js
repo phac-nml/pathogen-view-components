@@ -944,7 +944,7 @@ describe("data_grid_controller (virtual mode)", () => {
     });
 
     return `
-      <div data-controller="pathogen--data-grid" class="pathogen-data-grid pathogen-data-grid--virtual">
+      <div data-controller="pathogen--data-grid" class="pathogen-data-grid">
         <div data-pathogen--data-grid-target="scrollContainer"
              class="pathogen-data-grid__scroll"
              style="height: ${viewportHeight}px; overflow: auto;">
