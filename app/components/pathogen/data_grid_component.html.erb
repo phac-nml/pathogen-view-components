@@ -9,10 +9,8 @@
   <%= tag.div(class: 'pathogen-data-grid__scroll', data: { 'pathogen--data-grid-target': 'scrollContainer' }) do %>
     <% if @rows.blank? && empty_state? %>
       <%= empty_state %>
-    <% elsif virtual? %>
-      <%= render Pathogen::DataGrid::VirtualStateComponent.new(grid: self) %>
     <% else %>
-      <%= render Pathogen::DataGrid::RegularStateComponent.new(grid: self) %>
+      <%= render Pathogen::DataGrid::VirtualStateComponent.new(grid: self) %>
     <% end %>
   <% end %>
 

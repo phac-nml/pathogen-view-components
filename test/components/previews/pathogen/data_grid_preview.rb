@@ -99,7 +99,6 @@ module Pathogen
     def virtual_grid
       render Pathogen::DataGridComponent.new(
         caption: 'Virtual grid with 1,000 rows',
-        virtual: true,
         fill_container: true,
         rows: VIRTUAL_ROWS
       ) do |grid|
@@ -115,7 +114,6 @@ module Pathogen
     def virtual_grid_with_interactive_cells
       render Pathogen::DataGridComponent.new(
         caption: 'Virtual grid with interactive cell content',
-        virtual: true,
         fill_container: true,
         rows: VIRTUAL_ROWS[0..99]
       ) do |grid|
@@ -133,7 +131,6 @@ module Pathogen
         sticky_columns: 1,
         fill_container: true,
         style: 'width: 100%; height: min(70vh, 34rem);',
-        virtual: true,
         rows: VIRTUAL_ROWS[0..399]
       ) do |grid|
         build_fixed_window_base_columns(grid)
