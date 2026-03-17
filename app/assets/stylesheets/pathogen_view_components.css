@@ -379,6 +379,13 @@
     display: grid;
   }
 
+  .pathogen-data-grid--virtual .pathogen-data-grid__row--header {
+    position: sticky;
+    top: 0;
+    z-index: var(--pathogen-data-grid-header-z);
+    background: var(--pathogen-data-grid-header-bg);
+  }
+
   .pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
     position: absolute;
     left: 0;
