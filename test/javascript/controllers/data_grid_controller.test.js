@@ -899,6 +899,7 @@ describe("data_grid_controller (virtual mode)", () => {
 
   /**
    * Generates virtual grid HTML with N rows.
+   * NOTE: This markup must stay in sync with virtual_state_component.html.erb.
    */
   const virtualGridHTML = (rowCount, { viewportHeight = 200 } = {}) => {
     const headerCells = `
