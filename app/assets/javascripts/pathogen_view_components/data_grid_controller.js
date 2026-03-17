@@ -145,6 +145,14 @@ export default class extends Controller {
 
     event.preventDefault();
     this.#focusCell(nextCell);
+
+    // ctrl+Home: snap scroll to origin so the top-left corner is fully visible.
+    // ensureCellFullyVisible skips sticky cells (they appear always visible),
+    // so we must reset both axes explicitly.
+    if ((event.ctrlKey || event.metaKey) && event.key === "Home" && this.hasScrollContainerTarget) {
+      this.scrollContainerTarget.scrollTop = 0;
+      this.scrollContainerTarget.scrollLeft = 0;
+    }
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
