@@ -3,10 +3,11 @@
 
 /**
  * Computes which rows should be rendered given the current scroll position.
+ * Assumes uniform row height — variable-height rows are not supported.
  * @param {object} options
  * @param {number} options.scrollTop - Current scroll position of the viewport
  * @param {number} options.viewportHeight - Visible height of the viewport
- * @param {number} options.rowHeight - Height of each row
+ * @param {number} options.rowHeight - Uniform height of each row (px)
  * @param {number} options.totalRows - Total number of data rows
  * @param {number} [options.buffer=10] - Number of extra rows to render above and below
  * @returns {{ startIndex: number, endIndex: number, offsetY: number, totalHeight: number }}
