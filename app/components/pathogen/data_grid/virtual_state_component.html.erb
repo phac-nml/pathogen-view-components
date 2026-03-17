@@ -1,13 +1,7 @@
 <%= tag.div(**@grid.table_attributes) do %>
   <%= tag.div(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row', aria: { rowindex: 1 }, style: @grid.row_style) do %>
     <% @grid.columns.each_with_index do |column, index| %>
-      <%= tag.div(**column.header_cell_attributes(column_index: index)) do %>
-        <% if column.default_header_label? %>
-          <%= tag.span(column.render_header, class: 'pathogen-data-grid__header-label') %>
-        <% else %>
-          <%= column.render_header %>
-        <% end %>
-      <% end %>
+      <%= header_cell_tag(tag_name: :div, column: column, column_index: index) %>
     <% end %>
   <% end %>
 
@@ -16,21 +10,7 @@
     <% @grid.rows.each_with_index do |row, row_index| %>
       <%= tag.div(class: 'pathogen-data-grid__row', role: 'row', aria: { rowindex: row_index + 2 }, style: @grid.row_style) do %>
         <% @grid.columns.each_with_index do |column, index| %>
-          <% cell_payload = @grid.body_cell_payload(
-            column: column,
-            row: row,
-            column_index: index,
-            active: (@grid.default_active_row_index == row_index + 1 && index.zero?)
-          ) %>
-          <%= tag.div(
-            cell_payload[:content],
-            **column.body_cell_attributes(
-              row_index: row_index + 1,
-              column_index: index,
-              active: cell_payload[:focus_on_cell],
-              interactive: cell_payload[:interactive]
-            )
-          ) %>
+          <%= body_cell_tag(tag_name: :div, column: column, row: row, row_index: row_index, column_index: index) %>
         <% end %>
       <% end %>
     <% end %>
