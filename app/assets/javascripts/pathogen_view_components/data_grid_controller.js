@@ -82,6 +82,16 @@ export default class extends Controller {
     this.element.removeAttribute("data-virtual-ready");
   }
 
+  // Stimulus target callbacks — invalidate caches when Turbo morphs or
+  // reconnects modify the cell set underneath us.
+  cellTargetConnected() {
+    this.#invalidateCellCaches();
+  }
+
+  cellTargetDisconnected() {
+    this.#invalidateCellCaches();
+  }
+
   // ── DOM event handlers ────────────────────────────────────────────────────
 
   handleFocusin(event) {
@@ -270,8 +280,11 @@ export default class extends Controller {
 
   #setActiveCell(cell) {
     if (this.#lastActiveCell === null) {
-      // First call: sweep all cells to normalize the server-rendered initial state.
-      this.#allCells().forEach((node) => {
+      // First call: normalize server-rendered initial state.
+      // In virtual mode, only sweep DOM-connected cells to avoid touching
+      // every detached row element (can be thousands in large datasets).
+      const targets = this.#isVirtual() && this.hasCellTarget ? this.cellTargets : this.#allCells();
+      targets.forEach((node) => {
         node.removeAttribute("data-pathogen--data-grid-active");
         node.tabIndex = -1;
         node.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
