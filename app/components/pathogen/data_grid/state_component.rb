@@ -47,6 +47,9 @@ module Pathogen
           interactive: cell_payload[:interactive]
         )
       end
+
+      # ARIA row indices are 1-based and offset by 1 for the header row.
+      def aria_row_index(row_index) = row_index + 2
     end
   end
 end
