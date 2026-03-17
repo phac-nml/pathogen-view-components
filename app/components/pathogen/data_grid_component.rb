@@ -6,16 +6,16 @@ module Pathogen
   # == Public API
   #
   # @param rows [Array<Hash, Array, Object>] The data rows to render.
-  # @param caption [String, nil] Optional visual caption rendered above the table.
-  #   When present, the table uses `aria-labelledby` to associate the caption.
   # @param sticky_columns [Integer] Number of leading columns to treat as sticky
   #   by default. Individual columns can override with `sticky: true/false`.
   # @param fill_container [Boolean] When true, enables flex/min-height behavior
   #   so the grid can fill and scroll within a constrained parent container.
   # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
+  #   Pass `aria: { label: "..." }` or `aria: { labelledby: "..." }` to override
+  #   the default `aria-label="Data grid"`.
   #
   # @example Basic usage
-  #   <%= render Pathogen::DataGridComponent.new(rows: @rows, caption: "Samples") do |grid| %>
+  #   <%= render Pathogen::DataGridComponent.new(rows: @rows) do |grid| %>
   #     <% grid.with_column("ID", key: :id, width: 120) %>
   #     <% grid.with_column("Name", key: :name, width: 240) %>
   #   <% end %>
@@ -54,37 +54,27 @@ module Pathogen
     DEFAULT_ARIA_LABEL = 'Data grid'
     attr_reader :rows
 
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
-                   virtual: false, **system_arguments)
-      # rubocop:enable Metrics/ParameterLists
+    def initialize(rows:, sticky_columns: 0, fill_container: false, dense: false, **system_arguments)
       @rows = rows
-      @caption = caption
-      @caption_id = @caption.present? ? self.class.generate_id(base_name: 'data-grid-caption') : nil
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
-      @virtual = virtual
       @system_arguments = system_arguments
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
-    def virtual? = @virtual
-
-    def caption? = @caption.present?
-
     def table_attributes
-      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
       attributes = {
-        class: tag_name_class,
+        class: 'pathogen-data-grid__grid',
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
 
-      label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
-      label_attributes[:colcount] = columns.size
-      attributes[:aria] = label_attributes
+      attributes[:aria] = {
+        **grid_aria_label,
+        rowcount: @rows.size + 1, # +1 for header row
+        colcount: columns.size
+      }
       attributes
     end
 
@@ -133,7 +123,6 @@ module Pathogen
     def before_render
       apply_fill_container_class!
       apply_dense_class!
-      apply_virtual_class!
       apply_column_defaults!
       apply_responsive_sticky_class!
       apply_data_grid_controller!
@@ -141,14 +130,16 @@ module Pathogen
 
     private
 
-    def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
+    def grid_aria_label
+      aria = @system_arguments.fetch(:aria, {})
+      return { labelledby: aria[:labelledby] } if aria[:labelledby].present?
+      return { label: aria[:label] } if aria[:label].present?
+
+      { label: DEFAULT_ARIA_LABEL }
+    end
 
     def apply_dense_class!
       append_component_class!('pathogen-data-grid--dense') if @dense
-    end
-
-    def apply_virtual_class!
-      append_component_class!('pathogen-data-grid--virtual') if @virtual
     end
 
     def apply_column_defaults!
