@@ -25,11 +25,13 @@
 
   // ── ERB ────────────────────────────────────────────────────────────────────
   "[erb]": {
-    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.defaultFormatter": "marcoroth.herb-lsp",
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.formatOnSave": true
   },
+  "languageServerHerb.linter.enabled": true,
+  "languageServerHerb.formatter.enabled": true,
 
   // ── JavaScript ─────────────────────────────────────────────────────────────
   "[javascript]": {
