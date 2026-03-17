@@ -57,7 +57,7 @@ module Pathogen
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
-                   virtual: false, **system_arguments)
+                   **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -65,19 +65,15 @@ module Pathogen
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
-      @virtual = virtual
       @system_arguments = system_arguments
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
-    def virtual? = @virtual
-
     def caption? = @caption.present?
 
     def table_attributes
-      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
       attributes = {
-        class: tag_name_class,
+        class: 'pathogen-data-grid__grid',
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
@@ -149,7 +145,7 @@ module Pathogen
     end
 
     def apply_virtual_class!
-      append_component_class!('pathogen-data-grid--virtual') if @virtual
+      append_component_class!('pathogen-data-grid--virtual')
     end
 
     def apply_column_defaults!
