@@ -12,7 +12,11 @@ import {
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
-import { computeVisibleRange, scrollTopForRow } from "pathogen_view_components/data_grid_controller/virtualizer";
+import {
+  computeVisibleRange,
+  measureRowHeight,
+  scrollTopForRow,
+} from "pathogen_view_components/data_grid_controller/virtualizer";
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
@@ -359,7 +363,7 @@ export default class extends Controller {
   // ── Virtual mode ────────────────────────────────────────────────────────
 
   #isVirtual() {
-    return this.hasViewportTarget;
+    return this.element.classList.contains("pathogen-data-grid--virtual");
   }
 
   #initVirtualMode() {
@@ -372,7 +376,7 @@ export default class extends Controller {
     this.#invalidateCellCaches();
 
     // Measure row height from the first rendered row
-    this.#rowHeight = rows[0]?.offsetHeight || 40;
+    this.#rowHeight = measureRowHeight(viewport);
 
     // Set spacer to represent total content height
     const totalHeight = rows.length * this.#rowHeight;
@@ -425,8 +429,7 @@ export default class extends Controller {
   #refreshVirtualMeasurements() {
     if (!this.#allRowElements) return;
 
-    const measuredRow = this.viewportTarget.querySelector('[role="row"]');
-    this.#rowHeight = measuredRow?.offsetHeight || this.#rowHeight || 40;
+    this.#rowHeight = measureRowHeight(this.viewportTarget) || this.#rowHeight;
 
     const spacer = this.viewportTarget.querySelector(".pathogen-data-grid__spacer");
     if (spacer) {
@@ -478,9 +481,8 @@ export default class extends Controller {
     } else {
       viewport.appendChild(fragment);
     }
-
-    // Visible DOM cell targets changed; invalidate so caches refresh lazily.
-    this.#invalidateCellCaches();
+    // Cell caches built from #allRowElements cover all rows (in- and out-of-DOM)
+    // and remain valid across window slides — no invalidation needed here.
   }
 
   /**
@@ -503,7 +505,12 @@ export default class extends Controller {
 
     if (newScrollTop !== null) {
       scrollContainer.scrollTop = newScrollTop;
-      // Force synchronous re-render to ensure cells are in DOM
+    }
+
+    // Only force a synchronous re-render if the row is outside the currently rendered range.
+    // When the row is already in the window, the RAF-coalesced path handles any scroll.
+    const alreadyRendered = rowIndex >= this.#visibleStartIndex && rowIndex < this.#visibleEndIndex;
+    if (!alreadyRendered) {
       if (this.#rafId) {
         cancelAnimationFrame(this.#rafId);
         this.#rafId = null;
