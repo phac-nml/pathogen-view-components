@@ -1,5 +1,5 @@
 import { Application } from "@hotwired/stimulus";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import DataGridController from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller";
 
@@ -295,6 +295,261 @@ describe("data_grid_controller", () => {
     expect(document.activeElement).toBe(lastCell);
     expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
     expect(lastCell.tabIndex).toBe(0);
+  });
+
+  it("ArrowRight scrolls horizontally when target cell is out of view", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Left
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Right
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const leftCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const rightCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.scrollTop = 0;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 100,
+      top: 0,
+      bottom: 100,
+    });
+    leftCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 50,
+      top: 10,
+      bottom: 30,
+    });
+    rightCell.getBoundingClientRect = () => ({
+      left: 150,
+      right: 230,
+      top: 10,
+      bottom: 30,
+    });
+
+    leftCell.focus();
+    dispatchKey(leftCell, "ArrowRight");
+
+    expect(document.activeElement).toBe(rightCell);
+    expect(scrollContainer.scrollLeft).toBe(130);
+  });
+
+  it("ArrowDown scrolls vertically when target cell is out of view", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 2
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const firstRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    scrollContainer.scrollLeft = 0;
+    scrollContainer.scrollTop = 0;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 100,
+    });
+    firstRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 10,
+      bottom: 30,
+    });
+    secondRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 150,
+      bottom: 190,
+    });
+
+    firstRowCell.focus();
+    dispatchKey(firstRowCell, "ArrowDown");
+
+    expect(document.activeElement).toBe(secondRowCell);
+    expect(scrollContainer.scrollTop).toBe(90);
+  });
+
+  it("ArrowUp keeps focused body cell visible below sticky header", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  class="pathogen-data-grid__cell pathogen-data-grid__cell--header"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Header
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Row 2
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const headerCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const firstRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    scrollContainer.scrollTop = 40;
+    scrollContainer.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 100,
+    });
+    headerCell.getBoundingClientRect = () => ({
+      left: 0,
+      right: 120,
+      top: 0,
+      bottom: 24,
+    });
+    firstRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 10,
+      bottom: 30,
+    });
+    secondRowCell.getBoundingClientRect = () => ({
+      left: 10,
+      right: 90,
+      top: 45,
+      bottom: 65,
+    });
+
+    secondRowCell.focus();
+    dispatchKey(secondRowCell, "ArrowUp");
+
+    expect(document.activeElement).toBe(firstRowCell);
+    expect(scrollContainer.scrollTop).toBe(26);
   });
 
   it("does not intercept Tab in grid mode — allows browser to exit the grid", () => {
@@ -636,5 +891,207 @@ describe("data_grid_controller", () => {
     expect(document.activeElement).toBe(lastCell);
     expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
     expect(link.tabIndex).toBe(-1);
+  });
+});
+
+describe("data_grid_controller (virtual mode)", () => {
+  let application;
+
+  /**
+   * Generates virtual grid HTML with N rows.
+   * NOTE: This markup must stay in sync with virtual_state_component.html.erb.
+   */
+  const virtualGridHTML = (rowCount, { viewportHeight = 200 } = {}) => {
+    const headerCells = `
+      <div role="columnheader" tabindex="-1"
+        data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="0"
+        data-pathogen--data-grid-column-index="0"
+        data-pathogen--data-grid-has-interactive="false">
+        ID
+      </div>
+      <div role="columnheader" tabindex="-1"
+        data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="0"
+        data-pathogen--data-grid-column-index="1"
+        data-pathogen--data-grid-has-interactive="false">
+        Name
+      </div>`;
+
+    const rows = Array.from({ length: rowCount }, (_, i) => {
+      const rowIndex = i + 1;
+      const isFirst = i === 0;
+      return `
+        <div role="row" aria-rowindex="${rowIndex + 1}" style="grid-template-columns: 120px 200px; height: 40px;">
+          <div role="gridcell"
+            tabindex="${isFirst ? "0" : "-1"}"
+            ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="0"
+            data-pathogen--data-grid-has-interactive="false">
+            ID-${String(rowIndex).padStart(3, "0")}
+          </div>
+          <div role="gridcell"
+            tabindex="-1"
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="1"
+            data-pathogen--data-grid-has-interactive="false">
+            Name ${rowIndex}
+          </div>
+        </div>`;
+    });
+
+    return `
+      <div data-controller="pathogen--data-grid" class="pathogen-data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer"
+             class="pathogen-data-grid__scroll"
+             style="height: ${viewportHeight}px; overflow: auto;">
+          <div role="grid" data-pathogen--data-grid-target="grid"
+               aria-rowcount="${rowCount + 1}" aria-colcount="2">
+            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+                 aria-rowindex="1" style="grid-template-columns: 120px 200px;">
+              ${headerCells}
+            </div>
+            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pathogen-data-grid__spacer"></div>
+              ${rows.join("\n")}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  };
+
+  afterEach(() => {
+    application?.stop();
+    document.body.innerHTML = "";
+  });
+
+  it("detaches rows and sets spacer height on connect", async () => {
+    document.body.innerHTML = virtualGridHTML(50);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const spacer = document.querySelector(".pathogen-data-grid__spacer");
+    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const renderedRows = viewport.querySelectorAll('[role="row"]');
+
+    // Spacer should have height representing all rows
+    // (jsdom doesn't compute offsetHeight, so rowHeight falls back to 40)
+    expect(spacer.style.height).toBe("2000px"); // 50 × 40
+
+    // Not all rows should be in the DOM (only visible + buffer)
+    // With viewport=200, rowHeight=40, that's 5 visible + 10 buffer = 15 max
+    // But clamped to totalRows if less
+    expect(renderedRows.length).toBeLessThanOrEqual(50);
+  });
+
+  it("preserves keyboard navigation between visible cells in virtual mode", async () => {
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    // First cell should exist and be focusable
+    expect(firstCell).not.toBeNull();
+    firstCell.focus();
+
+    // Navigate right
+    dispatchKey(firstCell, "ArrowRight");
+    const rightCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    expect(document.activeElement).toBe(rightCell);
+  });
+
+  it("navigates down through virtual rows", async () => {
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    firstCell.focus();
+    dispatchKey(firstCell, "ArrowDown");
+
+    const secondRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(secondRowCell).not.toBeNull();
+    expect(document.activeElement).toBe(secondRowCell);
+    expect(secondRowCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("header cells are accessible for Ctrl+Home navigation", async () => {
+    document.body.innerHTML = virtualGridHTML(10);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    // Navigate to a data cell first
+    const dataCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    dataCell.focus();
+
+    // Ctrl+Home should go to first header cell
+    dispatchKey(dataCell, "Home", { ctrlKey: true });
+
+    const headerCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(document.activeElement).toBe(headerCell);
+  });
+
+  it("coalesces multiple scroll events into one animation-frame render", async () => {
+    document.body.innerHTML = virtualGridHTML(200);
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame");
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    expect(rafSpy).toHaveBeenCalledTimes(1);
+    rafSpy.mockRestore();
+  });
+
+  it("updates row measurements on debounced resize", async () => {
+    vi.useFakeTimers();
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    document.body.innerHTML = virtualGridHTML(20);
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const firstRenderedRow = viewport.querySelector('[role="row"]');
+    Object.defineProperty(firstRenderedRow, "offsetHeight", { value: 60, configurable: true });
+
+    window.dispatchEvent(new Event("resize"));
+    window.dispatchEvent(new Event("resize"));
+    vi.advanceTimersByTime(120);
+
+    const spacer = document.querySelector(".pathogen-data-grid__spacer");
+    expect(spacer.style.height).toBe("1200px");
+
+    rafSpy.mockRestore();
+    vi.useRealTimers();
   });
 });

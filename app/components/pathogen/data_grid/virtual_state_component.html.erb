@@ -1,0 +1,18 @@
+<%= tag.div(**@grid.table_attributes) do %>
+  <%= tag.div(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row', aria: { rowindex: 1 }, style: @grid.row_style) do %>
+    <% @grid.columns.each_with_index do |column, index| %>
+      <%= header_cell_tag(tag_name: :div, column: column, column_index: index) %>
+    <% end %>
+  <% end %>
+
+  <%= tag.div(class: 'pathogen-data-grid__viewport', data: { 'pathogen--data-grid-target': 'viewport' }) do %>
+    <%= tag.div(class: 'pathogen-data-grid__spacer') %>
+    <% @grid.rows.each_with_index do |row, row_index| %>
+      <%= tag.div(class: 'pathogen-data-grid__row', role: 'row', aria: { rowindex: aria_row_index(row_index) }, style: @grid.row_style) do %>
+        <% @grid.columns.each_with_index do |column, index| %>
+          <%= body_cell_tag(tag_name: :div, column: column, row: row, row_index: row_index, column_index: index) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

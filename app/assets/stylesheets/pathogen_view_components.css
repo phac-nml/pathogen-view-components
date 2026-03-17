@@ -238,24 +238,6 @@
     border-radius: inherit;
   }
 
-  .pathogen-data-grid__table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: var(--pathogen-data-grid-body-bg);
-    color: var(--pathogen-data-grid-text-color);
-    font-size: var(--pathogen-data-grid-font-size);
-    line-height: var(--pathogen-data-grid-line-height);
-    white-space: nowrap;
-  }
-
-  .pathogen-data-grid__caption {
-    color: var(--pathogen-data-grid-text-color);
-    font-weight: 600;
-    padding: 1rem;
-    text-align: left;
-  }
-
   .pathogen-data-grid__row {
     background: var(--pathogen-data-grid-body-bg);
     transition: background-color 150ms ease;
@@ -298,7 +280,18 @@
     background: inherit;
     background-clip: padding-box;
     padding: var(--pathogen-data-grid-cell-padding-y) var(--pathogen-data-grid-cell-padding-x);
-    vertical-align: middle;
+    vertical-align: middle; /* Truncate overflowing text: virtual rows are absolutely positioned and
+     * don't contribute to the grid's intrinsic width, so cells must clip
+     * content within their allocated column track. */
+    overflow: hidden;
+    text-overflow: ellipsis; /*
+     * Grid items default to `min-width: auto` which prevents overflow: hidden
+     * from working. Resetting to 0 lets text-overflow: ellipsis kick in when
+     * nowrap content exceeds the fr-based track width.
+     */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Last row needs no border bottom */
@@ -366,21 +359,7 @@
     background: inherit;
   }
 
-  .pathogen-data-grid__cell:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
-    /* Inset ring avoids clipping artifacts on sticky table cells. */
-    outline: none;
-    box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
-  }
-
-  .pathogen-data-grid__cell--sticky:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
+  .pathogen-data-grid__cell--sticky:focus {
     z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 
@@ -434,5 +413,72 @@
     .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
       z-index: var(--pathogen-data-grid-header-z);
     }
+  }
+
+  .pathogen-data-grid__grid {
+    width: 100%;
+    /* Expand to the full content width so absolutely-positioned body rows (width: 100%)
+       match the header row width. Without this, rows are clipped to the visible container
+       width by the viewport's overflow: hidden, hiding columns beyond the scroll edge. */
+    min-width: max-content;
+    background: var(--pathogen-data-grid-body-bg);
+    color: var(--pathogen-data-grid-text-color);
+    font-size: var(--pathogen-data-grid-font-size);
+    line-height: var(--pathogen-data-grid-line-height);
+    white-space: nowrap;
+  }
+
+  .pathogen-data-grid__row {
+    display: grid;
+  }
+
+  .pathogen-data-grid__row--header {
+    position: sticky;
+    top: 0;
+    z-index: var(--pathogen-data-grid-header-z);
+    background: var(--pathogen-data-grid-header-bg);
+  }
+
+  .pathogen-data-grid__viewport .pathogen-data-grid__row {
+    position: absolute;
+    left: 0;
+    width: 100%;
+  }
+
+  .pathogen-data-grid__viewport {
+    position: relative;
+    /* overflow: clip (not hidden) is intentional: both values clip content visually, but
+     * `hidden` creates a scroll container which prevents position:sticky from referencing
+     * the outer .pathogen-data-grid__scroll. `clip` clips without creating a scroll
+     * container, so sticky body cells correctly follow horizontal scrolling. */
+    overflow: clip;
+    contain: layout style;
+  }
+
+  /* Hide server-rendered rows until the controller has virtualized them (prevents FOUC) */
+  .pathogen-data-grid:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+    visibility: hidden;
+  }
+
+  .pathogen-data-grid__spacer {
+    /* Height set dynamically by Stimulus controller to represent total content height */
+    width: 1px;
+    pointer-events: none;
+    visibility: hidden;
+  }
+
+  .pathogen-data-grid__grid:focus-within
+    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
+    outline: none;
+    box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
+  }
+
+  .pathogen-data-grid__grid:focus-within
+    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
+    z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 } /* end @layer pathogen.components */
