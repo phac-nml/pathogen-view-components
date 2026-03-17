@@ -10,86 +10,9 @@
     <% if @rows.blank? && empty_state? %>
       <%= empty_state %>
     <% elsif virtual? %>
-      <%= tag.div(**table_attributes) do %>
-        <%# Header row %>
-        <%= tag.div(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row', aria: { rowindex: 1 }, style: row_style) do %>
-          <% columns.each_with_index do |column, index| %>
-            <%= tag.div(**column.header_cell_attributes(column_index: index)) do %>
-              <% if column.default_header_label? %>
-                <%= tag.span(column.render_header, class: 'pathogen-data-grid__header-label') %>
-              <% else %>
-                <%= column.render_header %>
-              <% end %>
-            <% end %>
-          <% end %>
-        <% end %>
-
-        <%# Virtual scroll viewport %>
-        <%= tag.div(class: 'pathogen-data-grid__viewport', data: { 'pathogen--data-grid-target': 'viewport' }) do %>
-          <%= tag.div(class: 'pathogen-data-grid__spacer') %>
-          <% @rows.each_with_index do |row, row_index| %>
-            <%= tag.div(class: 'pathogen-data-grid__row', role: 'row', aria: { rowindex: row_index + 2 }, style: row_style) do %>
-              <% columns.each_with_index do |column, index| %>
-                <% cell_payload = body_cell_payload(
-                  column: column,
-                  row: row,
-                  column_index: index,
-                  active: (default_active_row_index == row_index + 1 && index.zero?)
-                ) %>
-                <%= tag.div(
-                  cell_payload[:content],
-                  **column.body_cell_attributes(
-                    row_index: row_index + 1,
-                    column_index: index,
-                    active: cell_payload[:focus_on_cell],
-                    interactive: cell_payload[:interactive]
-                  )
-                ) %>
-              <% end %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
+      <%= render Pathogen::DataGrid::VirtualStateComponent.new(grid: self) %>
     <% else %>
-      <%= tag.table(**table_attributes) do %>
-        <%= tag.thead(class: 'pathogen-data-grid__header') do %>
-          <%= tag.tr(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row') do %>
-            <% columns.each_with_index do |column, index| %>
-              <%= tag.th(scope: "col", **column.header_cell_attributes(column_index: index)) do %>
-                <% if column.default_header_label? %>
-                  <%= tag.span(column.render_header, class: 'pathogen-data-grid__header-label') %>
-                <% else %>
-                  <%= column.render_header %>
-                <% end %>
-              <% end %>
-            <% end %>
-          <% end %>
-        <% end %>
-
-        <%= tag.tbody(class: 'pathogen-data-grid__body') do %>
-          <% @rows.each_with_index do |row, row_index| %>
-            <%= tag.tr(class: 'pathogen-data-grid__row', role: 'row') do %>
-              <% columns.each_with_index do |column, index| %>
-                <% cell_payload = body_cell_payload(
-                  column: column,
-                  row: row,
-                  column_index: index,
-                  active: (default_active_row_index == row_index + 1 && index.zero?)
-                ) %>
-                <%= tag.td(
-                  cell_payload[:content],
-                  **column.body_cell_attributes(
-                    row_index: row_index + 1,
-                    column_index: index,
-                    active: cell_payload[:focus_on_cell],
-                    interactive: cell_payload[:interactive]
-                  )
-                ) %>
-              <% end %>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
+      <%= render Pathogen::DataGrid::RegularStateComponent.new(grid: self) %>
     <% end %>
   <% end %>
 
