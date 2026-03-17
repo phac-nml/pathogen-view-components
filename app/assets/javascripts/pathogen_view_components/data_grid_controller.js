@@ -384,7 +384,7 @@ export default class extends Controller {
   // ── Virtual mode ────────────────────────────────────────────────────────
 
   #isVirtual() {
-    return this.element.classList.contains("pathogen-data-grid--virtual");
+    return this.hasViewportTarget;
   }
 
   #initVirtualMode() {
