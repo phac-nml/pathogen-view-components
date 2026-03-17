@@ -454,6 +454,21 @@ module Pathogen
       assert_selector '.pathogen-data-grid.pathogen-data-grid--fill.pathogen-data-grid--virtual'
     end
 
+    test 'virtual mode with empty rows and no empty_state slot renders grid with header only' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: []
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+      end
+
+      assert_selector 'div[role="grid"]'
+      assert_selector 'div[role="columnheader"]'
+      assert_no_selector 'div[role="gridcell"]'
+      assert_selector '.pathogen-data-grid__viewport'
+      assert_no_selector 'div[role="row"].pathogen-data-grid__row:not(.pathogen-data-grid__row--header)'
+    end
+
     test 'virtual mode uses grid-template-columns style from column widths' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
