@@ -20,7 +20,6 @@
     --pathogen-data-grid-header-z: 3;
 
     max-width: 100%;
-    /* Remove outer border for cleaner look, or make very subtle */
     border: 1px solid var(--pathogen-data-grid-border-color);
     border-radius: var(--pathogen-radius-surface);
     background: var(--pathogen-data-grid-body-bg);
@@ -49,30 +48,15 @@
     border-radius: inherit;
   }
 
-  .pathogen-data-grid__table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    background: var(--pathogen-data-grid-body-bg);
-    color: var(--pathogen-data-grid-text-color);
-    font-size: var(--pathogen-data-grid-font-size);
-    line-height: var(--pathogen-data-grid-line-height);
-    white-space: nowrap;
-  }
-
-  .pathogen-data-grid__caption {
-    color: var(--pathogen-data-grid-text-color);
-    font-weight: 600;
-    padding: 1rem;
-    text-align: left;
-  }
-
   .pathogen-data-grid__row {
     background: var(--pathogen-data-grid-body-bg);
     transition: background-color 150ms ease;
   }
 
   .pathogen-data-grid__row--header {
+    position: sticky;
+    top: 0;
+    z-index: var(--pathogen-data-grid-header-z);
     background: var(--pathogen-data-grid-header-bg);
   }
 
@@ -97,19 +81,24 @@
     min-height: 2.5rem;
     box-sizing: border-box;
     color: var(--pathogen-data-grid-text-color);
-    /*
-     * Keep all table cells on a shared text baseline so `ch`-based sticky
-     * offsets/widths resolve consistently across header and body cells.
-     */
     font-size: var(--pathogen-data-grid-font-size);
     font-weight: 400;
     line-height: var(--pathogen-data-grid-line-height);
-    /* Default: No vertical borders */
     border-bottom: 1px solid var(--pathogen-data-grid-row-border);
     background: inherit;
-    background-clip: padding-box;
     padding: var(--pathogen-data-grid-cell-padding-y) var(--pathogen-data-grid-cell-padding-x);
     vertical-align: middle;
+    /* Truncate overflowing text: virtual rows are absolutely positioned and
+     * don't contribute to the grid's intrinsic width, so cells must clip
+     * content within their allocated column track. */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*
+     * Grid items default to `min-width: auto` which prevents overflow: hidden
+     * from working. Resetting to 0 lets text-overflow: ellipsis kick in when
+     * nowrap content exceeds the fr-based track width.
+     */
+    min-width: 0;
   }
 
   /* Last row needs no border bottom */
@@ -140,12 +129,7 @@
     position: sticky;
     left: var(--pathogen-data-grid-sticky-left, 0px);
     z-index: var(--pathogen-data-grid-sticky-z);
-    background: inherit; /* Should match row bg (even on hover) */
-    /*
-     * Keep sticky rendering simple: Windows Chrome can rasterize sticky table
-     * cells with clip-path/composited shadows at slightly different widths.
-     * A stable separator avoids visual width drift while scrolling.
-     */
+    background: inherit;
     box-shadow: 1px 0 0 var(--pathogen-data-grid-border-color);
   }
 
@@ -166,7 +150,6 @@
     text-align: right;
   }
 
-  /* No default zebra striping in modern look */
   .pathogen-data-grid__body .pathogen-data-grid__row:hover,
   .pathogen-data-grid__body .pathogen-data-grid__row:focus-within {
     background: var(--pathogen-data-grid-row-hover-bg);
@@ -177,21 +160,7 @@
     background: inherit;
   }
 
-  .pathogen-data-grid__cell:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
-    /* Inset ring avoids clipping artifacts on sticky table cells. */
-    outline: none;
-    box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
-  }
-
-  .pathogen-data-grid__cell--sticky:focus,
-  .pathogen-data-grid__table:focus-within
-    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
-      [data-pathogen--data-grid-has-interactive="true"]
-    ) {
+  .pathogen-data-grid__cell--sticky:focus {
     z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 
@@ -262,21 +231,13 @@
     white-space: nowrap;
   }
 
-  .pathogen-data-grid--virtual .pathogen-data-grid__row {
+  .pathogen-data-grid__row {
     display: grid;
   }
 
-  .pathogen-data-grid--virtual .pathogen-data-grid__row--header {
-    position: sticky;
-    top: 0;
-    z-index: var(--pathogen-data-grid-header-z);
-    background: var(--pathogen-data-grid-header-bg);
-  }
-
-  .pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
+  .pathogen-data-grid__viewport .pathogen-data-grid__row {
     position: absolute;
     left: 0;
-    width: 100%;
   }
 
   .pathogen-data-grid__viewport {
@@ -290,7 +251,7 @@
   }
 
   /* Hide server-rendered rows until the controller has virtualized them (prevents FOUC) */
-  .pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+  .pathogen-data-grid:not([data-virtual-ready]) .pathogen-data-grid__viewport {
     visibility: hidden;
   }
 
@@ -308,5 +269,12 @@
     ) {
     outline: none;
     box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
+  }
+
+  .pathogen-data-grid__grid:focus-within
+    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
+    z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 } /* end @layer pathogen.components */
