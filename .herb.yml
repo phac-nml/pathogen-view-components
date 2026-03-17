@@ -6,7 +6,6 @@ linter:
   exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
-    - "test/components/previews/**/*"
 
 formatter:
   enabled: true
