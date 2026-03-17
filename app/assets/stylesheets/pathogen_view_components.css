@@ -396,7 +396,7 @@
   .pathogen-data-grid__viewport {
     contain: layout style;
     position: relative;
-    overflow: hidden;
+    overflow: clip;
   }
 
   .pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
