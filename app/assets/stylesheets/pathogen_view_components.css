@@ -470,7 +470,11 @@
 
   .pathogen-data-grid__viewport {
     position: relative;
-    overflow: hidden;
+    /* overflow: clip (not hidden) is intentional: both values clip content visually, but
+     * `hidden` creates a scroll container which prevents position:sticky from referencing
+     * the outer .pathogen-data-grid__scroll. `clip` clips without creating a scroll
+     * container, so sticky body cells correctly follow horizontal scrolling. */
+    overflow: clip;
     contain: layout style;
   }
 
