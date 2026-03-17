@@ -133,6 +133,7 @@ module Pathogen
         sticky_columns: 1,
         fill_container: true,
         style: 'width: 100%; height: min(70vh, 34rem);',
+        virtual: true,
         rows: VIRTUAL_ROWS[0..399]
       ) do |grid|
         build_fixed_window_base_columns(grid)

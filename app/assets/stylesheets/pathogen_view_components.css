@@ -440,6 +440,10 @@
 
   .pathogen-data-grid__grid {
     width: 100%;
+    /* Expand to the full content width so absolutely-positioned body rows (width: 100%)
+       match the header row width. Without this, rows are clipped to the visible container
+       width by the viewport's overflow: hidden, hiding columns beyond the scroll edge. */
+    min-width: max-content;
     background: var(--pathogen-data-grid-body-bg);
     color: var(--pathogen-data-grid-text-color);
     font-size: var(--pathogen-data-grid-font-size);
