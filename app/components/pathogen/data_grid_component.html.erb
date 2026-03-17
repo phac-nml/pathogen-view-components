@@ -4,7 +4,6 @@
   <% end %>
 
   <%= live_region if live_region? %>
-  <%= metadata_warning if metadata_warning? %>
 
   <%= tag.div(class: "max-w-full overflow-auto rounded-[inherit]", data: { 'pathogen--data-grid-target': 'scrollContainer' }) do %>
     <% if @rows.blank? && empty_state? %>
