@@ -10,8 +10,10 @@ linter:
 formatter:
   enabled: true
   indentWidth: 2
-  maxLineLength: 120  include:
+  maxLineLength: 120
+  include:
     - "app/**/*.erb"
-    - "demo/app/**/*.erb"  exclude:
+    - "demo/app/**/*.erb"
+  exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
