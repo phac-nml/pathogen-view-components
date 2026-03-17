@@ -44,11 +44,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">First Name</label>
-                <input type="text" value="John" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                <input type="text" value="John" autocomplete="given-name" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Last Name</label>
-                <input type="text" value="Doe" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                <input type="text" value="Doe" autocomplete="family-name" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               </div>
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Bio</label>
@@ -56,11 +56,11 @@
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location</label>
-                <input type="text" value="San Francisco, CA" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                <input type="text" value="San Francisco, CA" autocomplete="address-line1" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               </div>
               <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Website</label>
-                <input type="url" value="https://johndoe.dev" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                <input type="url" value="https://johndoe.dev" autocomplete="url" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
               </div>
             </div>
           </div>
@@ -73,11 +73,11 @@
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email Address</label>
-                  <input type="email" value="john.doe@example.com" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <input type="email" value="john.doe@example.com" autocomplete="email" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Username</label>
-                  <input type="text" value="johndoe" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <input type="text" value="johndoe" autocomplete="username" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 </div>
               </div>
             </div>
@@ -115,15 +115,15 @@
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Current Password</label>
-                  <input type="password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <input type="password" autocomplete="current-password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">New Password</label>
-                  <input type="password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <input type="password" autocomplete="new-password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Confirm New Password</label>
-                  <input type="password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+                  <input type="password" autocomplete="new-password" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
                 </div>
               </div>
             </div>
@@ -176,7 +176,11 @@
                   { label: 'Weekly digest', description: 'Summary of activity from the past week', checked: true }
                 ].each do |setting| %>
                   <label class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors">
-                    <input type="checkbox" <%= 'checked' if setting[:checked] %> class="mt-1 w-4 h-4 text-blue-600 rounded">
+                    <% if setting[:checked] %>
+                      <input type="checkbox" checked class="mt-1 w-4 h-4 text-blue-600 rounded">
+                    <% else %>
+                      <input type="checkbox" class="mt-1 w-4 h-4 text-blue-600 rounded">
+                    <% end %>
                     <div>
                       <div class="font-medium text-slate-900 dark:text-white"><%= setting[:label] %></div>
                       <div class="text-sm text-slate-600 dark:text-slate-400"><%= setting[:description] %></div>
