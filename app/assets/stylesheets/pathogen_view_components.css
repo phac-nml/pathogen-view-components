@@ -3305,7 +3305,7 @@
 }
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__viewport {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   contain: layout style;
 }
 [data-pathogen-grid].pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
