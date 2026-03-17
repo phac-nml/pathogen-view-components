@@ -1,0 +1,17 @@
+linter:
+  enabled: true
+  include:
+    - "app/**/*.erb"
+    - "demo/app/**/*.erb"
+  exclude:
+    - "node_modules/**/*"
+    - "vendor/**/*"
+    - "test/components/previews/**/*"
+
+formatter:
+  enabled: true
+  indentWidth: 2
+  maxLineLength: 120
+  exclude:
+    - "node_modules/**/*"
+    - "vendor/**/*"
