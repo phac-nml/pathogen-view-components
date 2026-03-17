@@ -4,7 +4,6 @@
   <% end %>
 
   <%= live_region if live_region? %>
-  <%= metadata_warning if metadata_warning? %>
 
   <%= tag.div(class: 'pathogen-data-grid__scroll', data: { 'pathogen--data-grid-target': 'scrollContainer' }) do %>
     <% if @rows.blank? && empty_state? %>
