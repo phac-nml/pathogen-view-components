@@ -3060,6 +3060,12 @@
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row {
   display: grid;
 }
+[data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row--header {
+  position: sticky;
+  top: 0;
+  z-index: var(--pvc-data-grid-header-z);
+  background: var(--pvc-data-grid-header-bg);
+}
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__viewport {
   position: relative;
   overflow: hidden;
