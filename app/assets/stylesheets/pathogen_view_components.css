@@ -3294,6 +3294,9 @@
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row {
   display: grid;
 }
+[data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__grid {
+  min-width: max-content;
+}
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row--header {
   position: sticky;
   top: 0;
@@ -3304,6 +3307,9 @@
   position: relative;
   overflow: hidden;
   contain: layout style;
+}
+[data-pathogen-grid].pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+  visibility: hidden;
 }
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__viewport [role="row"] {
   position: absolute;

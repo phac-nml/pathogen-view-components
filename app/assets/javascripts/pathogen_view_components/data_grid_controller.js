@@ -464,6 +464,14 @@ export default class extends Controller {
     const viewport = this.viewportTarget;
     const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
 
+    // Preserve focus across DOM removal/reinsertion.
+    // Removing a focused element causes the browser to move focus to <body>.
+    // We save the active element and restore it after reinsertion so keyboard
+    // navigation stays on the intended cell even when a RAF re-render fires after
+    // #focusCell() (e.g. buffer rows that scroll into view trigger a range shift).
+    const focusedElement = document.activeElement;
+    const focusInViewport = focusedElement instanceof HTMLElement && viewport.contains(focusedElement);
+
     // Remove current body rows (keep the spacer)
     const currentRows = viewport.querySelectorAll('[role="row"]');
     currentRows.forEach((row) => row.remove());
@@ -481,6 +489,13 @@ export default class extends Controller {
     } else {
       viewport.appendChild(fragment);
     }
+
+    // Restore focus if the element was re-inserted (its row is in the new range).
+    // isConnected becomes true again once the row element is back in the document.
+    if (focusInViewport && focusedElement.isConnected) {
+      focusedElement.focus({ preventScroll: true });
+    }
+
     // Cell caches built from #allRowElements cover all rows (in- and out-of-DOM)
     // and remain valid across window slides — no invalidation needed here.
   }
