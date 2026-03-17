@@ -23,6 +23,11 @@ pre-commit:
         - "**/*.js"
       run: pnpm exec eslint --fix {staged_files}
       stage_fixed: true
+    - name: herb-lint
+      glob:
+        - "*.erb"
+        - "**/*.erb"
+      run: pnpm exec herb-lint {staged_files}
     - name: rubocop
       glob:
         - "*.rb"

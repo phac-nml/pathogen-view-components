@@ -28,7 +28,7 @@ jobs:
       - name: Verify lockfile
         run: pnpm install --frozen-lockfile
 
-      - name: Lint JavaScript
+      - name: Lint JavaScript and ERB
         run: pnpm lint
 
       - name: Run JavaScript tests
