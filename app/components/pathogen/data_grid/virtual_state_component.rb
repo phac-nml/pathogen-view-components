@@ -3,10 +3,6 @@
 module Pathogen
   module DataGrid
     # Renders the virtualized div-grid state for DataGridComponent.
-    class VirtualStateComponent < Pathogen::Component
-      def initialize(grid:)
-        @grid = grid
-      end
-    end
+    class VirtualStateComponent < StateComponent; end
   end
 end
