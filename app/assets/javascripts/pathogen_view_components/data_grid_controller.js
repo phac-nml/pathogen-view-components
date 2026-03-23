@@ -247,22 +247,20 @@ export default class extends Controller {
 
     let cells;
     if (this.#isVirtual() && this.#virtualAllCells) {
-      const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
-      const domCellSet = new Set(domCells);
-      const virtualCells = this.#virtualAllCells.filter((cell) => !domCellSet.has(cell));
-      cells = [...domCells, ...virtualCells];
+      // Virtual mode must use stable logical ordering (row-major across all rows),
+      // not current DOM window ordering, so interactive traversal is deterministic.
+      cells = [...this.#virtualAllCells];
     } else if (this.#isVirtual() && this.#allRowElements) {
-      // In virtual mode, include cells from ALL rows (including detached ones)
-      // so navigation can operate on the full virtual coordinate space.
-      const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
-      const domCellSet = new Set(domCells);
-      const virtualCells = [];
+      const headerCells = this.hasGridTarget
+        ? Array.from(this.gridTarget.querySelectorAll(`${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"]`))
+        : [];
+      const bodyCells = [];
       this.#allRowElements.forEach((row) => {
         row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
-          if (!domCellSet.has(cell)) virtualCells.push(cell);
+          bodyCells.push(cell);
         });
       });
-      cells = [...domCells, ...virtualCells];
+      cells = [...headerCells, ...bodyCells];
     } else {
       cells = this.hasCellTarget ? [...this.cellTargets] : [];
     }
@@ -314,10 +312,23 @@ export default class extends Controller {
     while (index >= 0 && index < cells.length) {
       const candidate = cells[index];
       if (hasInteractiveElements(candidate)) {
-        this.#setActiveCell(candidate);
+        const rowIndex = rowIndexOf(candidate);
+        const columnIndex = columnIndexOf(candidate);
+        this.#focusCell(candidate);
+
+        let focusCandidate = candidate;
+        if (rowIndex !== null && columnIndex !== null) {
+          const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+          if (mappedCell) focusCandidate = mappedCell;
+        }
+        if (!focusCandidate.isConnected) {
+          index += direction;
+          continue;
+        }
+
         focusInteractiveElement(
-          candidate,
-          direction < 0 ? this.#lastInteractiveElement(candidate) : null,
+          focusCandidate,
+          direction < 0 ? this.#lastInteractiveElement(focusCandidate) : null,
           (activeCandidate) => this.#scrollCellIntoView(activeCandidate),
         );
         return true;

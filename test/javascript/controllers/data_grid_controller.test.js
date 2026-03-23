@@ -1051,6 +1051,62 @@ describe("data_grid_controller (virtual mode)", () => {
       </div>`;
   };
 
+  const virtualInteractiveGridHTML = (rowCount, { viewportHeight = 200 } = {}) => {
+    const headerCells = `
+      <div role="columnheader" tabindex="-1"
+        data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="0"
+        data-pathogen--data-grid-column-index="0"
+        data-pathogen--data-grid-has-interactive="false">
+        Actions
+      </div>`;
+
+    const rows = Array.from({ length: rowCount }, (_, i) => {
+      const rowIndex = i + 1;
+      const isFirst = i === 0;
+      return `
+        <div role="row" aria-rowindex="${rowIndex + 1}" style="grid-template-columns: 260px; height: 40px;">
+          <div role="gridcell"
+            tabindex="${isFirst ? "0" : "-1"}"
+            ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="0"
+            data-pathogen--data-grid-has-interactive="true">
+            <a href="/samples/${rowIndex}" tabindex="-1">Open ${rowIndex}</a>
+            <button type="button" tabindex="-1">Edit ${rowIndex}</button>
+          </div>
+        </div>`;
+    });
+
+    return `
+      <div data-controller="pathogen--data-grid" class="pathogen-data-grid pathogen-data-grid--virtual">
+        <div data-pathogen--data-grid-target="scrollContainer"
+             class="pathogen-data-grid__scroll"
+             style="height: ${viewportHeight}px; overflow: auto;">
+          <div role="grid" data-pathogen--data-grid-target="grid"
+               aria-rowcount="${rowCount + 1}" aria-colcount="1">
+            <div class="pathogen-data-grid__virtual-status"
+                 data-pathogen--data-grid-target="virtualStatus"
+                 data-loading-text="Loading rows…"
+                 data-loaded-text="Rows loaded."
+                 role="status"
+                 aria-live="polite">
+              Loading rows…
+            </div>
+            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+                 aria-rowindex="1" style="grid-template-columns: 260px;">
+              ${headerCells}
+            </div>
+            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pathogen-data-grid__spacer"></div>
+              ${rows.join("\n")}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  };
+
   const virtualLaneGridHTML = (
     rowCount,
     { viewportHeight = 200, columnWidths = [120, 160, 160, 160], pinnedCount = 1, columnOverscan = 0 } = {},
@@ -1308,6 +1364,74 @@ describe("data_grid_controller (virtual mode)", () => {
       '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
     );
     expect(document.activeElement).toBe(headerCell);
+  });
+
+  it("Tab moves to the next logical interactive row across a virtual window boundary", async () => {
+    document.body.innerHTML = virtualInteractiveGridHTML(40);
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.scrollTop = 600;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    const currentCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="30"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(currentCell).not.toBeNull();
+
+    currentCell.focus();
+    dispatchKey(currentCell, "Enter");
+    const currentButton = currentCell.querySelector("button");
+    const tabFromLast = dispatchKey(currentButton, "Tab");
+
+    const nextLink = document.querySelector(
+      '[data-pathogen--data-grid-row-index="31"][data-pathogen--data-grid-column-index="0"] a',
+    );
+    expect(tabFromLast.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(nextLink);
+
+    rafSpy.mockRestore();
+  });
+
+  it("Shift+Tab moves to the previous logical interactive row across a virtual window boundary", async () => {
+    document.body.innerHTML = virtualInteractiveGridHTML(40);
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.scrollTop = 600;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    const currentCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="6"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(currentCell).not.toBeNull();
+
+    currentCell.focus();
+    dispatchKey(currentCell, "Enter");
+    const currentLink = currentCell.querySelector("a");
+    const shiftTabFromFirst = dispatchKey(currentLink, "Tab", { shiftKey: true });
+
+    const previousButton = document.querySelector(
+      '[data-pathogen--data-grid-row-index="5"][data-pathogen--data-grid-column-index="0"] button',
+    );
+    expect(shiftTabFromFirst.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(previousButton);
+
+    rafSpy.mockRestore();
   });
 
   it("coalesces multiple scroll events into one animation-frame render", async () => {
