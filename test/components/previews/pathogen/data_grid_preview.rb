@@ -132,9 +132,9 @@ module Pathogen
         caption: 'Responsive viewport with horizontal and vertical scrolling',
         sticky_columns: 1,
         fill_container: true,
-        style: 'width: 100%; height: min(70vh, 34rem);',
+        style: 'width: 100%; height: min(56vh, 26rem);',
         virtual: true,
-        rows: VIRTUAL_ROWS[0..399]
+        rows: VIRTUAL_ROWS.first(FIXED_WINDOW_ROW_COUNT)
       ) do |grid|
         build_fixed_window_base_columns(grid)
         build_fixed_window_metric_columns(grid)
@@ -237,6 +237,8 @@ module Pathogen
     ].freeze
 
     STATUSES = %w[Active Review Queued Pending Complete].freeze
+    FIXED_WINDOW_ROW_COUNT = 120
+    FIXED_WINDOW_METRIC_COLUMN_COUNT = 24
 
     VIRTUAL_ROWS = Array.new(1_000) do |i|
       {
@@ -261,7 +263,7 @@ module Pathogen
     end
 
     def build_fixed_window_metric_columns(grid)
-      (1..100).each do |index|
+      (1..FIXED_WINDOW_METRIC_COLUMN_COUNT).each do |index|
         grid.with_column("Metric #{index}", width: 140) { |row| fixed_window_metric(row, index) }
       end
     end
