@@ -125,17 +125,18 @@ export function nextVerticalCell(map, rowIndex, columnIndex, direction, lastRow)
 export function pageCell(map, rowIndex, columnIndex, direction, pageSize) {
   const lastRow = lastDataRowIndex(map);
   if (lastRow < 1) return null;
+  const normalizedPageSize = Number.isFinite(pageSize) && pageSize > 0 ? pageSize : 1;
 
   if (direction > 0) {
     const baseline = rowIndex === 0 ? 1 : rowIndex;
-    const clamped = Math.min(lastRow, baseline + pageSize);
+    const clamped = Math.min(lastRow, baseline + normalizedPageSize);
     const targetRow = nextRowWithCells(map, clamped, -1);
     return targetRow === null ? null : cellAt(targetRow, columnIndex, map);
   }
 
   if (rowIndex === 0) return null;
 
-  const clamped = Math.max(1, rowIndex - pageSize);
+  const clamped = Math.max(1, rowIndex - normalizedPageSize);
   const targetRow = nextRowWithCells(map, clamped, 1);
   return targetRow === null ? null : cellAt(targetRow, columnIndex, map);
 }
