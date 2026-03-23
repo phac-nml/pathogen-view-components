@@ -38,7 +38,16 @@ const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 const RESIZE_DEBOUNCE_MS = 120;
 
 export default class extends Controller {
-  static targets = ["cell", "grid", "scrollContainer", "viewport"];
+  static targets = [
+    "cell",
+    "grid",
+    "scrollContainer",
+    "viewport",
+    "scrollHint",
+    "virtualStatus",
+    "errorState",
+    "errorMessage",
+  ];
   #abortController = null;
   // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
   #lastActiveCell = null;
@@ -64,9 +73,16 @@ export default class extends Controller {
     this.#abortController?.abort();
     this.#abortController = new AbortController();
     this.#bindEvents(this.#abortController.signal);
+    this.#hideErrorState();
 
-    if (this.#isVirtual()) {
-      this.#initVirtualMode();
+    try {
+      if (this.#isVirtual()) {
+        this.#initVirtualMode();
+      }
+
+      this.#syncScrollAffordance();
+    } catch (error) {
+      this.#reportError(error);
     }
   }
 
@@ -163,6 +179,13 @@ export default class extends Controller {
       this.scrollContainerTarget.scrollTop = 0;
       this.scrollContainerTarget.scrollLeft = 0;
     }
+  }
+
+  handleErrorEvent(event) {
+    const detail = event instanceof CustomEvent ? event.detail : null;
+    const message =
+      typeof detail?.message === "string" && detail.message.trim().length > 0 ? detail.message.trim() : null;
+    this.#showErrorState(message);
   }
 
   // ── Private helpers ───────────────────────────────────────────────────────
@@ -379,6 +402,26 @@ export default class extends Controller {
     this.element.addEventListener("click", (event) => this.handleClick(event), {
       signal,
     });
+
+    this.element.addEventListener("pathogen:data-grid:error", (event) => this.handleErrorEvent(event), {
+      signal,
+    });
+
+    this.element.addEventListener("pathogen:data-grid:clear-error", () => this.#hideErrorState(), {
+      signal,
+    });
+
+    if (this.hasScrollContainerTarget) {
+      this.scrollContainerTarget.addEventListener("scroll", () => this.#syncScrollAffordance(), {
+        signal,
+        passive: true,
+      });
+    }
+
+    window.addEventListener("resize", () => this.#syncScrollAffordance(), {
+      signal,
+      passive: true,
+    });
   }
 
   // ── Virtual mode ────────────────────────────────────────────────────────
@@ -388,6 +431,19 @@ export default class extends Controller {
   }
 
   #initVirtualMode() {
+    const loadingText = this.#virtualStatusMessage(
+      "loadingText",
+      this.virtualStatusTarget?.textContent?.trim() || null,
+    );
+    const loadedText = this.#virtualStatusMessage("loadedText", null);
+
+    if (this.hasGridTarget) {
+      this.gridTarget.setAttribute("aria-busy", "true");
+    }
+    if (this.hasVirtualStatusTarget && loadingText) {
+      this.virtualStatusTarget.textContent = loadingText;
+    }
+
     const viewport = this.viewportTarget;
     const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
 
@@ -411,6 +467,12 @@ export default class extends Controller {
 
     // Reveal viewport now that only visible rows are in the DOM (prevents FOUC)
     this.element.setAttribute("data-virtual-ready", "");
+    if (this.hasGridTarget) {
+      this.gridTarget.setAttribute("aria-busy", "false");
+    }
+    if (this.hasVirtualStatusTarget && loadedText) {
+      this.virtualStatusTarget.textContent = loadedText;
+    }
 
     // Listen for scroll on the scroll container
     if (this.hasScrollContainerTarget) {
@@ -427,6 +489,7 @@ export default class extends Controller {
   }
 
   #onScroll() {
+    this.#syncScrollAffordance();
     this.#scheduleVirtualRender();
   }
 
@@ -435,6 +498,7 @@ export default class extends Controller {
     this.#resizeTimerId = setTimeout(() => {
       this.#resizeTimerId = null;
       this.#refreshVirtualMeasurements();
+      this.#syncScrollAffordance();
       this.#scheduleVirtualRender();
     }, RESIZE_DEBOUNCE_MS);
   }
@@ -443,7 +507,11 @@ export default class extends Controller {
     if (this.#rafId) return;
     this.#rafId = requestAnimationFrame(() => {
       this.#rafId = null;
-      this.#renderVisibleRows();
+      try {
+        this.#renderVisibleRows();
+      } catch (error) {
+        this.#reportError(error);
+      }
     });
   }
 
@@ -551,7 +619,98 @@ export default class extends Controller {
         cancelAnimationFrame(this.#rafId);
         this.#rafId = null;
       }
-      this.#renderVisibleRows();
+      try {
+        this.#renderVisibleRows();
+      } catch (error) {
+        this.#reportError(error);
+      }
     }
+  }
+
+  #syncScrollAffordance() {
+    if (!this.hasScrollContainerTarget) return;
+
+    const scrollContainer = this.scrollContainerTarget;
+    const horizontalOverflow = scrollContainer.scrollWidth - scrollContainer.clientWidth > 1;
+
+    if (!horizontalOverflow) {
+      delete this.element.dataset.pathogenDataGridOverflowing;
+      delete this.element.dataset.pathogenDataGridScrollPosition;
+      if (this.hasScrollHintTarget) this.scrollHintTarget.hidden = true;
+      return;
+    }
+
+    this.element.dataset.pathogenDataGridOverflowing = "true";
+
+    const atStart = scrollContainer.scrollLeft <= 1;
+    const atEnd = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 1;
+    this.element.dataset.pathogenDataGridScrollPosition = atStart ? "start" : atEnd ? "end" : "middle";
+
+    if (this.hasScrollHintTarget) this.scrollHintTarget.hidden = !atStart;
+  }
+
+  #virtualStatusMessage(datasetKey, fallback = null) {
+    if (!this.hasVirtualStatusTarget) return fallback;
+
+    const datasetValue = this.virtualStatusTarget.dataset[datasetKey];
+    if (typeof datasetValue === "string" && datasetValue.trim().length > 0) {
+      return datasetValue;
+    }
+
+    return fallback;
+  }
+
+  #errorStateMessage(fallback = null) {
+    if (!this.hasErrorStateTarget) return fallback;
+
+    const datasetValue = this.errorStateTarget.dataset.defaultMessage;
+    if (typeof datasetValue === "string" && datasetValue.trim().length > 0) {
+      return datasetValue;
+    }
+
+    return fallback;
+  }
+
+  #showErrorState(message = null) {
+    if (!this.hasErrorStateTarget) return;
+
+    const resolvedMessage =
+      typeof message === "string" && message.trim().length > 0 ? message.trim() : this.#errorStateMessage(null);
+
+    if (resolvedMessage && this.hasErrorMessageTarget) {
+      this.errorMessageTarget.textContent = resolvedMessage;
+    }
+
+    if (this.hasGridTarget) {
+      this.gridTarget.setAttribute("aria-busy", "false");
+    }
+
+    this.element.dataset.pathogenDataGridState = "error";
+    this.errorStateTarget.hidden = false;
+  }
+
+  #hideErrorState() {
+    if (!this.hasErrorStateTarget) return;
+
+    delete this.element.dataset.pathogenDataGridState;
+    this.errorStateTarget.hidden = true;
+
+    const defaultMessage = this.#errorStateMessage(null);
+    if (defaultMessage && this.hasErrorMessageTarget) {
+      this.errorMessageTarget.textContent = defaultMessage;
+    }
+  }
+
+  #reportError(error) {
+    console.error("[pathogen--data-grid] Runtime error", error);
+
+    this.element.dispatchEvent(
+      new CustomEvent("pathogen:data-grid:error", {
+        bubbles: true,
+        detail: {
+          message: this.#errorStateMessage("Something went wrong while rendering this grid. Refresh or try again."),
+        },
+      }),
+    );
   }
 }

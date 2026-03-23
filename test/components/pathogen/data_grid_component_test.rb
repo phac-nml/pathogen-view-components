@@ -5,6 +5,7 @@ require 'view_component_test_case'
 module Pathogen
   # Tests for Pathogen::DataGridComponent rendering behavior.
   class DataGridComponentTest < ViewComponentTestCase
+    # rubocop:disable Metrics/BlockLength
     test 'renders grid with caption and sticky columns' do
       render_inline(Pathogen::DataGridComponent.new(
                       caption: 'Sample grid',
@@ -19,6 +20,7 @@ module Pathogen
       end
 
       assert_selector '.pathogen-data-grid__table[aria-labelledby]'
+      assert_selector '.pathogen-data-grid__table[aria-describedby]'
       assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
       assert_selector '.pathogen-data-grid__table[role="grid"]'
       assert_selector '.pathogen-data-grid__row[role="row"]', count: 3
@@ -30,7 +32,10 @@ module Pathogen
       assert_selector 'td.pathogen-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
       assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
+      assert_selector '.pathogen-data-grid__keyboard-help',
+                      text: 'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
     end
+    # rubocop:enable Metrics/BlockLength
 
     test 'adds multi sticky class when more than one sticky column is active' do
       render_inline(Pathogen::DataGridComponent.new(
@@ -76,6 +81,7 @@ module Pathogen
       assert_no_selector '.pathogen-data-grid__caption'
       assert_no_selector '.pathogen-data-grid__table[aria-labelledby]'
       assert_selector '.pathogen-data-grid__table[aria-label="Data grid"]'
+      assert_selector '.pathogen-data-grid__table[aria-describedby]'
     end
 
     test 'does not apply sticky when width is missing' do
@@ -212,6 +218,107 @@ module Pathogen
       assert_no_selector '.pathogen-data-grid__table'
     end
 
+    test 'renders default empty state when rows are blank and no empty_state slot is provided' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      sticky_columns: 0,
+                      rows: []
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+      end
+
+      assert_selector '.pathogen-data-grid__empty-state-text',
+                      text: 'No rows found. Try adjusting filters or refreshing the data.'
+      assert_no_selector '.pathogen-data-grid__table'
+    end
+
+    test 'renders default error state container for non-empty rows' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      sticky_columns: 0,
+                      rows: [
+                        { id: 'S-001', name: 'Sample one' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector '.pathogen-data-grid__error-state[role="alert"][hidden]', visible: :all
+      assert_selector '.pathogen-data-grid__error-state-title', text: 'Unable to load grid content', visible: :all
+      assert_selector '.pathogen-data-grid__error-state-message',
+                      text: 'Something went wrong while rendering this grid. Refresh or try again.',
+                      visible: :all
+      assert_selector '.pathogen-data-grid__state .pathogen-data-grid__table'
+    end
+
+    test 'renders custom error state slot content' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      sticky_columns: 0,
+                      rows: [
+                        { id: 'S-001', name: 'Sample one' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_error_state do
+          ActionController::Base.helpers.content_tag(:p, 'Custom runtime failure', class: 'custom-error-state')
+        end
+      end
+
+      assert_selector '.pathogen-data-grid__error-state .custom-error-state',
+                      text: 'Custom runtime failure',
+                      visible: :all
+    end
+
+    test 'localizes default empty-state and keyboard-help copy' do
+      I18n.with_locale(:fr) do
+        render_inline(Pathogen::DataGridComponent.new(
+                        sticky_columns: 0,
+                        rows: [
+                          { id: 'S-001', name: 'Sample one' }
+                        ]
+                      )) do |grid|
+          grid.with_column('ID', key: :id, width: 120)
+          grid.with_column('Name', key: :name, width: 200)
+        end
+
+        assert_selector '.pathogen-data-grid__keyboard-help',
+                        text: 'Clavier : les flèches déplacent les cellules; ' \
+                              'Entrée ou F2 active les contrôles; Échap revient à la grille.'
+      end
+
+      I18n.with_locale(:fr) do
+        render_inline(Pathogen::DataGridComponent.new(
+                        sticky_columns: 0,
+                        rows: []
+                      )) do |grid|
+          grid.with_column('ID', key: :id)
+        end
+
+        assert_selector '.pathogen-data-grid__empty-state-text',
+                        text: 'Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser les données.'
+      end
+    end
+
+    test 'localizes default error-state copy' do
+      I18n.with_locale(:fr) do
+        render_inline(Pathogen::DataGridComponent.new(
+                        sticky_columns: 0,
+                        rows: [
+                          { id: 'S-001', name: 'Sample one' }
+                        ]
+                      )) do |grid|
+          grid.with_column('ID', key: :id, width: 120)
+        end
+
+        assert_selector '.pathogen-data-grid__error-state-title',
+                        text: 'Impossible de charger le contenu de la grille',
+                        visible: :all
+        assert_selector '.pathogen-data-grid__error-state-message',
+                        text: 'Un problème est survenu pendant l’affichage de cette grille. ' \
+                              'Actualisez la page ou réessayez.',
+                        visible: :all
+      end
+    end
+
     test 'initial header cells are not tabbable' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
@@ -236,6 +343,7 @@ module Pathogen
       assert_selector 'td[data-pathogen--data-grid-has-interactive="true"]'
     end
 
+    # rubocop:disable Metrics/BlockLength
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
@@ -257,12 +365,18 @@ module Pathogen
 
       assert_selector '.pathogen-data-grid > .test-live-region'
       assert_selector '.pathogen-data-grid > .test-metadata-warning'
-      assert_selector '.pathogen-data-grid > .pathogen-data-grid__scroll + .test-footer'
+      assert_selector '.pathogen-data-grid > .pathogen-data-grid__scroll + .pathogen-data-grid__scroll-hint[hidden]',
+                      visible: :all
+      assert_selector(
+        '.pathogen-data-grid > .pathogen-data-grid__scroll + .pathogen-data-grid__scroll-hint + ' \
+        '.pathogen-data-grid__keyboard-help + .test-footer'
+      )
       assert_selector '.pathogen-data-grid > .test-live-region + .test-metadata-warning + .pathogen-data-grid__scroll'
       assert_no_selector '.pathogen-data-grid__scroll .test-live-region'
       assert_no_selector '.pathogen-data-grid__scroll .test-metadata-warning'
       assert_no_selector '.pathogen-data-grid__scroll .test-footer'
     end
+    # rubocop:enable Metrics/BlockLength
 
     # === Virtual mode tests ===
 
@@ -290,12 +404,32 @@ module Pathogen
       # Div-based grid with ARIA roles
       assert_selector '.pathogen-data-grid--virtual'
       assert_selector 'div[role="grid"]'
+      assert_selector 'div[role="grid"][aria-describedby]'
       assert_selector 'div[role="row"]', count: 3 # 1 header + 2 body rows
       assert_selector 'div[role="columnheader"]', count: 2
       assert_selector 'div[role="gridcell"]', count: 4 # 2 rows × 2 columns
+      assert_selector '.pathogen-data-grid__virtual-status', text: 'Loading rows…'
 
       # Caption
       assert_selector '.pathogen-data-grid__caption', text: 'Virtual grid'
+    end
+
+    test 'virtual mode localizes status copy and exposes translated data attributes' do
+      I18n.with_locale(:fr) do
+        render_inline(Pathogen::DataGridComponent.new(
+                        caption: 'Grille virtuelle',
+                        virtual: true,
+                        rows: [
+                          { id: 'S-001', name: 'Sample one' }
+                        ]
+                      )) do |grid|
+          grid.with_column('ID', key: :id, width: 120)
+        end
+
+        assert_selector '.pathogen-data-grid__virtual-status',
+                        text: 'Chargement des lignes…'
+        assert_selector '.pathogen-data-grid__virtual-status[data-loaded-text="Lignes chargées."]'
+      end
     end
 
     test 'virtual mode sets aria-rowcount and aria-colcount on the grid' do
@@ -454,7 +588,7 @@ module Pathogen
       assert_selector '.pathogen-data-grid.pathogen-data-grid--fill.pathogen-data-grid--virtual'
     end
 
-    test 'virtual mode with empty rows and no empty_state slot renders grid with header only' do
+    test 'virtual mode with empty rows and no empty_state slot renders default empty state' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
                       rows: []
@@ -462,11 +596,10 @@ module Pathogen
         grid.with_column('ID', key: :id)
       end
 
-      assert_selector 'div[role="grid"]'
-      assert_selector 'div[role="columnheader"]'
-      assert_no_selector 'div[role="gridcell"]'
-      assert_selector '.pathogen-data-grid__viewport'
-      assert_no_selector 'div[role="row"].pathogen-data-grid__row:not(.pathogen-data-grid__row--header)'
+      assert_selector '.pathogen-data-grid__empty-state-text',
+                      text: 'No rows found. Try adjusting filters or refreshing the data.'
+      assert_no_selector 'div[role="grid"]'
+      assert_no_selector '.pathogen-data-grid__viewport'
     end
 
     test 'virtual mode uses grid-template-columns style from column widths' do

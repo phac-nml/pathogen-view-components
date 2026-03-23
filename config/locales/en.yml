@@ -1,6 +1,19 @@
 ---
 en:
   pathogen:
+    data_grid:
+      error_state:
+        title: "Unable to load grid content"
+        message: "Something went wrong while rendering this grid. Refresh or try again."
+      empty_state:
+        default: "No rows found. Try adjusting filters or refreshing the data."
+      scroll:
+        hint: "Scroll horizontally to view more columns."
+      keyboard:
+        help: "Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid."
+      virtual:
+        loading: "Loading rows…"
+        loaded: "Rows loaded."
     label:
       required_indicator: "*"
       title: required
