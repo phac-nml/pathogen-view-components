@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   computeVisibleRange,
+  computeVisibleColumnRange,
   scrollTopForRow,
+  scrollLeftForColumn,
   measureRowHeight,
 } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer";
 
@@ -139,6 +141,97 @@ describe("scrollTopForRow", () => {
     });
 
     expect(result).toBeNull();
+  });
+});
+
+describe("computeVisibleColumnRange", () => {
+  it("computes center-lane range from scrollLeft and pinned width", () => {
+    const result = computeVisibleColumnRange({
+      scrollLeft: 50,
+      viewportWidth: 450,
+      columnWidths: [100, 120, 140, 160, 180, 200],
+      pinnedCount: 2,
+      overscan: 1,
+    });
+
+    expect(result).toEqual({
+      startIndex: 2,
+      endIndex: 6,
+      pinnedCount: 2,
+    });
+  });
+
+  it("returns only pinned lane when there are no center columns", () => {
+    const result = computeVisibleColumnRange({
+      scrollLeft: 0,
+      viewportWidth: 300,
+      columnWidths: [100, 120],
+      pinnedCount: 2,
+      overscan: 2,
+    });
+
+    expect(result).toEqual({
+      startIndex: 2,
+      endIndex: 2,
+      pinnedCount: 2,
+    });
+  });
+
+  it("excludes pinned columns from center windowing", () => {
+    const result = computeVisibleColumnRange({
+      scrollLeft: 0,
+      viewportWidth: 360,
+      columnWidths: [80, 90, 100, 110, 120],
+      pinnedCount: 2,
+      overscan: 0,
+    });
+
+    expect(result.startIndex).toBe(2);
+    expect(result.endIndex).toBe(5);
+  });
+});
+
+describe("scrollLeftForColumn", () => {
+  const columnWidths = [100, 120, 140, 160, 180];
+  const columnOffsets = [0, 100, 220, 360, 520];
+
+  it("returns null when target center column is already fully visible", () => {
+    const result = scrollLeftForColumn({
+      columnIndex: 2,
+      scrollLeft: 20,
+      viewportWidth: 500,
+      pinnedWidth: 220,
+      columnOffsets,
+      columnWidths,
+    });
+
+    expect(result).toBeNull();
+  });
+
+  it("returns minimal leftward scroll when target is left of viewport", () => {
+    const result = scrollLeftForColumn({
+      columnIndex: 2,
+      scrollLeft: 200,
+      viewportWidth: 500,
+      pinnedWidth: 220,
+      columnOffsets,
+      columnWidths,
+    });
+
+    expect(result).toBe(0);
+  });
+
+  it("returns minimal rightward scroll when target is right of viewport", () => {
+    const result = scrollLeftForColumn({
+      columnIndex: 4,
+      scrollLeft: 0,
+      viewportWidth: 500,
+      pinnedWidth: 220,
+      columnOffsets,
+      columnWidths,
+    });
+
+    expect(result).toBe(200);
   });
 });
 
