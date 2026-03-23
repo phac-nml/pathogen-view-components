@@ -8,8 +8,8 @@ en:
         message: Something went wrong while rendering this grid. Refresh or try again.
         title: Unable to load grid content
       keyboard:
-        help: 'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape
-          returns to the grid.'
+        help: "Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape
+          returns to the grid."
       scroll:
         hint: Scroll horizontally to view more columns.
       virtual:
