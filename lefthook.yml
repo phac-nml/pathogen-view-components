@@ -17,9 +17,6 @@ pre-commit:
         - "**/*.yml"
         - "*.yaml"
         - "**/*.yaml"
-      exclude:
-        - "config/locales/*.yml"
-        - "app/components/**/*.yml"
       run: pnpm exec prettier --write {staged_files}
       stage_fixed: true
     - name: eslint
