@@ -3,12 +3,6 @@
 module Pathogen
   # @label Data Grid
   class DataGridPreview < ViewComponent::Preview
-    LINK_CLASSES = 'font-semibold text-neutral-900 underline decoration-1 underline-offset-[0.12em] ' \
-                   'transition-[color,text-decoration-thickness] hover:text-primary-600 hover:decoration-2 ' \
-                   'dark:text-neutral-100 dark:hover:text-primary-400 ' \
-                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600 ' \
-                   'dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2 rounded-md'
-
     # @label Basic
     def basic
       render Pathogen::DataGridComponent.new(
@@ -279,22 +273,32 @@ module Pathogen
       "M#{index}-#{(sample_number + index) % 997}"
     end
 
+    # rubocop:disable Metrics/MethodLength
     def interactive_actions(row)
       helpers = ActionController::Base.helpers
+      sample_id = row[:sample_id]
 
       helpers.safe_join(
         [
           helpers.link_to(
-            'View',
-            "/samples/#{row[:sample_id]}",
-            class: LINK_CLASSES
+            "View #{sample_id}",
+            "/samples/#{sample_id}",
+            class: 'pathogen-u-link',
+            aria: { label: "View sample #{sample_id}" }
           ),
-          helpers.render(Pathogen::Button.new(type: :button, size: :small)) do
-            'Inspect'
+          helpers.render(
+            Pathogen::Button.new(
+              type: :button,
+              size: :small,
+              aria: { label: "Inspect sample #{sample_id}" }
+            )
+          ) do
+            "Inspect #{sample_id}"
           end
         ],
         ' '
       )
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
