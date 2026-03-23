@@ -143,14 +143,7 @@ module Pathogen
 
     # @label Virtual + Fallback Parity
     def virtual_fallback_parity
-      helpers.tag.div(class: 'pathogen-data-grid-preview-parity', style: 'display: grid; gap: 1rem;') do
-        helpers.safe_join(
-          [
-            parity_variant(title: 'Fallback table path', virtual: false),
-            parity_variant(title: 'Virtual lane path', virtual: true)
-          ]
-        )
-      end
+      render_with_template
     end
 
     ROWS = [
@@ -264,6 +257,10 @@ module Pathogen
 
     private
 
+    def helpers
+      ActionController::Base.helpers
+    end
+
     def build_fixed_window_base_columns(grid)
       grid.with_column('Sample ID', key: :sample_id, width: 170)
       grid.with_column('Name', key: :name, width: 260)
@@ -280,32 +277,6 @@ module Pathogen
       end
     end
 
-    def build_parity_columns(grid)
-      grid.with_column('Sample ID', key: :sample_id, width: 170)
-      grid.with_column('Name', key: :name, width: 260)
-      grid.with_column('Organism', key: :organism, width: 240)
-      grid.with_column('Collected', key: :collected_at, width: 170)
-      grid.with_column('Status', key: :status, width: 160)
-    end
-
-    def parity_variant(title:, virtual:)
-      helpers.tag.section(class: 'pathogen-data-grid-preview-parity__variant') do
-        helpers.safe_join(
-          [
-            helpers.tag.h3(title, class: 'pathogen-data-grid-preview-parity__title'),
-            render(
-              Pathogen::DataGridComponent.new(
-                caption: "#{title} comparison",
-                sticky_columns: 1,
-                virtual: virtual,
-                rows: NAVIGATION_ROWS.first(6)
-              )
-            ) { |grid| build_parity_columns(grid) }
-          ]
-        )
-      end
-    end
-
     def fixed_window_metric(row, index)
       sample_number = row[:sample_id].delete('^0-9').to_i
       "M#{index}-#{(sample_number + index) % 997}"
@@ -313,7 +284,6 @@ module Pathogen
 
     # rubocop:disable Metrics/MethodLength
     def interactive_actions(row)
-      helpers = ActionController::Base.helpers
       sample_id = row[:sample_id]
 
       helpers.safe_join(
