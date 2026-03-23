@@ -54,6 +54,16 @@ describe("data_grid_controller", () => {
             </tbody>
           </table>
         </div>
+        <p data-pathogen--data-grid-target="scrollHint" hidden>Scroll horizontally to view more columns.</p>
+        <div
+          data-pathogen--data-grid-target="errorState"
+          data-default-message="Something went wrong while rendering this grid. Refresh or try again."
+          hidden
+        >
+          <p data-pathogen--data-grid-target="errorMessage">
+            Something went wrong while rendering this grid. Refresh or try again.
+          </p>
+        </div>
       </div>
     `;
 
@@ -72,6 +82,76 @@ describe("data_grid_controller", () => {
 
     expect(document.activeElement).toBe(document.body);
     expect(firstCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("shows the error state when a runtime error event is dispatched", () => {
+    const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
+    const errorMessage = document.querySelector('[data-pathogen--data-grid-target="errorMessage"]');
+
+    gridRoot.dispatchEvent(
+      new CustomEvent("pathogen:data-grid:error", {
+        bubbles: true,
+        detail: { message: "Grid render failed. Please retry." },
+      }),
+    );
+
+    expect(gridRoot.dataset.pathogenDataGridState).toBe("error");
+    expect(errorState.hidden).toBe(false);
+    expect(errorMessage.textContent).toContain("Grid render failed. Please retry.");
+  });
+
+  it("clears the error state when clear-error is dispatched", () => {
+    const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
+
+    gridRoot.dispatchEvent(
+      new CustomEvent("pathogen:data-grid:error", {
+        bubbles: true,
+        detail: { message: "Grid render failed. Please retry." },
+      }),
+    );
+    expect(errorState.hidden).toBe(false);
+
+    gridRoot.dispatchEvent(new CustomEvent("pathogen:data-grid:clear-error", { bubbles: true }));
+
+    expect(errorState.hidden).toBe(true);
+    expect(gridRoot.dataset.pathogenDataGridState).toBeUndefined();
+  });
+
+  it("shows horizontal overflow affordance and hint at the starting edge", () => {
+    const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const scrollHint = document.querySelector('[data-pathogen--data-grid-target="scrollHint"]');
+
+    Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: 200 });
+    Object.defineProperty(scrollContainer, "scrollWidth", { configurable: true, value: 420 });
+    Object.defineProperty(scrollContainer, "scrollLeft", { configurable: true, writable: true, value: 0 });
+
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    expect(gridRoot.dataset.pathogenDataGridOverflowing).toBe("true");
+    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("start");
+    expect(scrollHint.hidden).toBe(false);
+  });
+
+  it("updates horizontal overflow state as the user scrolls", () => {
+    const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const scrollHint = document.querySelector('[data-pathogen--data-grid-target="scrollHint"]');
+
+    Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: 200 });
+    Object.defineProperty(scrollContainer, "scrollWidth", { configurable: true, value: 420 });
+    Object.defineProperty(scrollContainer, "scrollLeft", { configurable: true, writable: true, value: 80 });
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("middle");
+    expect(scrollHint.hidden).toBe(true);
+
+    scrollContainer.scrollLeft = 220;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("end");
   });
 
   it("keeps focus on the cell during grid navigation until widget mode is entered", () => {
@@ -950,6 +1030,14 @@ describe("data_grid_controller (virtual mode)", () => {
              style="height: ${viewportHeight}px; overflow: auto;">
           <div role="grid" data-pathogen--data-grid-target="grid"
                aria-rowcount="${rowCount + 1}" aria-colcount="2">
+            <div class="pathogen-data-grid__virtual-status"
+                 data-pathogen--data-grid-target="virtualStatus"
+                 data-loading-text="Loading rows…"
+                 data-loaded-text="Rows loaded."
+                 role="status"
+                 aria-live="polite">
+              Loading rows…
+            </div>
             <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
                  aria-rowindex="1" style="grid-template-columns: 120px 200px;">
               ${headerCells}
@@ -986,6 +1074,24 @@ describe("data_grid_controller (virtual mode)", () => {
     // With viewport=200, rowHeight=40, that's 5 visible + 10 buffer = 15 max
     // But clamped to totalRows if less
     expect(renderedRows.length).toBeLessThanOrEqual(50);
+  });
+
+  it("toggles aria-busy and updates virtual status text when initialization completes", async () => {
+    document.body.innerHTML = virtualGridHTML(25);
+    const grid = document.querySelector('[data-pathogen--data-grid-target="grid"]');
+    const status = document.querySelector('[data-pathogen--data-grid-target="virtualStatus"]');
+    const setAttributeSpy = vi.spyOn(grid, "setAttribute");
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    expect(setAttributeSpy).toHaveBeenCalledWith("aria-busy", "true");
+    expect(setAttributeSpy).toHaveBeenCalledWith("aria-busy", "false");
+    expect(grid.getAttribute("aria-busy")).toBe("false");
+    expect(status.textContent.trim()).toBe("Rows loaded.");
+
+    setAttributeSpy.mockRestore();
   });
 
   it("preserves keyboard navigation between visible cells in virtual mode", async () => {

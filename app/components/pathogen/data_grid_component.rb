@@ -26,10 +26,12 @@ module Pathogen
   #   <% end %>
   #
   # CSS dependency: pathogen/pathogen.css
+  # rubocop:disable Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
 
     renders_one :empty_state
+    renders_one :error_state
     renders_one :footer
     renders_one :live_region
     renders_one :metadata_warning
@@ -53,7 +55,15 @@ module Pathogen
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
-    attr_reader :rows
+    DEFAULT_EMPTY_STATE_MESSAGE = 'No rows found. Try adjusting filters or refreshing the data.'
+    DEFAULT_ERROR_STATE_TITLE = 'Unable to load grid content'
+    DEFAULT_ERROR_STATE_MESSAGE = 'Something went wrong while rendering this grid. Refresh or try again.'
+    DEFAULT_SCROLL_HINT_MESSAGE = 'Scroll horizontally to view more columns.'
+    DEFAULT_KEYBOARD_HELP_MESSAGE =
+      'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
+    DEFAULT_VIRTUAL_LOADING_MESSAGE = 'Loading rows…'
+    DEFAULT_VIRTUAL_LOADED_MESSAGE = 'Rows loaded.'
+    attr_reader :rows, :keyboard_help_id
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
@@ -67,6 +77,7 @@ module Pathogen
       @dense = dense
       @virtual = virtual
       @system_arguments = system_arguments
+      @keyboard_help_id = self.class.generate_id(base_name: 'data-grid-help')
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
 
@@ -98,6 +109,51 @@ module Pathogen
     end
 
     def default_active_row_index = @rows.present? ? 1 : nil
+
+    def default_empty_state
+      tag.div(class: 'pathogen-data-grid__empty-state', role: 'status') do
+        tag.p(default_empty_state_message, class: 'pathogen-data-grid__empty-state-text')
+      end
+    end
+
+    def default_empty_state_message
+      t('pathogen.data_grid.empty_state.default', default: DEFAULT_EMPTY_STATE_MESSAGE)
+    end
+
+    def default_error_state
+      tag.div(class: 'pathogen-data-grid__error-state-content') do
+        tag.p(default_error_state_title, class: 'pathogen-data-grid__error-state-title') +
+          tag.p(
+            default_error_state_message,
+            class: 'pathogen-data-grid__error-state-message',
+            data: { 'pathogen--data-grid-target': 'errorMessage' }
+          )
+      end
+    end
+
+    def default_error_state_title
+      t('pathogen.data_grid.error_state.title', default: DEFAULT_ERROR_STATE_TITLE)
+    end
+
+    def default_error_state_message
+      t('pathogen.data_grid.error_state.message', default: DEFAULT_ERROR_STATE_MESSAGE)
+    end
+
+    def scroll_hint_message
+      t('pathogen.data_grid.scroll.hint', default: DEFAULT_SCROLL_HINT_MESSAGE)
+    end
+
+    def keyboard_help_text
+      t('pathogen.data_grid.keyboard.help', default: DEFAULT_KEYBOARD_HELP_MESSAGE)
+    end
+
+    def virtual_loading_text
+      t('pathogen.data_grid.virtual.loading', default: DEFAULT_VIRTUAL_LOADING_MESSAGE)
+    end
+
+    def virtual_loaded_text
+      t('pathogen.data_grid.virtual.loaded', default: DEFAULT_VIRTUAL_LOADED_MESSAGE)
+    end
 
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
@@ -142,7 +198,11 @@ module Pathogen
 
     private
 
-    def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
+    def table_aria_attributes
+      attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
+      attributes[:describedby] = @keyboard_help_id if @rows.present?
+      attributes
+    end
 
     def apply_dense_class!
       append_component_class!('pathogen-data-grid--dense') if @dense
@@ -191,4 +251,5 @@ module Pathogen
       @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
