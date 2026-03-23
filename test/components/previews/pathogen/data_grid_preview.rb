@@ -141,6 +141,18 @@ module Pathogen
       end
     end
 
+    # @label Virtual + Fallback Parity
+    def virtual_fallback_parity
+      helpers.tag.div(class: 'pathogen-data-grid-preview-parity', style: 'display: grid; gap: 1rem;') do
+        helpers.safe_join(
+          [
+            parity_variant(title: 'Fallback table path', virtual: false),
+            parity_variant(title: 'Virtual lane path', virtual: true)
+          ]
+        )
+      end
+    end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
@@ -265,6 +277,32 @@ module Pathogen
     def build_fixed_window_metric_columns(grid)
       (1..FIXED_WINDOW_METRIC_COLUMN_COUNT).each do |index|
         grid.with_column("Metric #{index}", width: 140) { |row| fixed_window_metric(row, index) }
+      end
+    end
+
+    def build_parity_columns(grid)
+      grid.with_column('Sample ID', key: :sample_id, width: 170)
+      grid.with_column('Name', key: :name, width: 260)
+      grid.with_column('Organism', key: :organism, width: 240)
+      grid.with_column('Collected', key: :collected_at, width: 170)
+      grid.with_column('Status', key: :status, width: 160)
+    end
+
+    def parity_variant(title:, virtual:)
+      helpers.tag.section(class: 'pathogen-data-grid-preview-parity__variant') do
+        helpers.safe_join(
+          [
+            helpers.tag.h3(title, class: 'pathogen-data-grid-preview-parity__title'),
+            render(
+              Pathogen::DataGridComponent.new(
+                caption: "#{title} comparison",
+                sticky_columns: 1,
+                virtual: virtual,
+                rows: NAVIGATION_ROWS.first(6)
+              )
+            ) { |grid| build_parity_columns(grid) }
+          ]
+        )
       end
     end
 
