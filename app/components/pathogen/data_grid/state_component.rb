@@ -10,8 +10,14 @@ module Pathogen
 
       private
 
-      def header_cell_tag(tag_name:, column:, column_index:, scope: nil)
-        attributes = column.header_cell_attributes(column_index: column_index)
+      # rubocop:disable Metrics/ParameterLists
+      def header_cell_tag(tag_name:, column:, column_index:, aria_column_index: column_index + 1,
+                          virtual_column_index: nil, scope: nil)
+        attributes = column.header_cell_attributes(
+          column_index: column_index,
+          aria_column_index: aria_column_index,
+          virtual_column_index: virtual_column_index
+        )
         attributes = { scope: scope }.merge(attributes) if scope
 
         tag.public_send(tag_name, **attributes) do
@@ -23,7 +29,8 @@ module Pathogen
         end
       end
 
-      def body_cell_tag(tag_name:, column:, row:, row_index:, column_index:)
+      def body_cell_tag(tag_name:, column:, row:, row_index:, column_index:, aria_column_index: column_index + 1,
+                        virtual_column_index: nil)
         cell_payload = @grid.body_cell_payload(
           column: column,
           row: row,
@@ -35,18 +42,25 @@ module Pathogen
           tag_name,
           cell_payload[:content],
           **body_cell_attributes(column: column, row_index: row_index, column_index: column_index,
-                                 cell_payload: cell_payload)
+                                 cell_payload: cell_payload, aria_column_index: aria_column_index,
+                                 virtual_column_index: virtual_column_index)
         )
       end
 
-      def body_cell_attributes(column:, row_index:, column_index:, cell_payload:)
+      def body_cell_attributes(column:, row_index:, column_index:, cell_payload:, aria_column_index:,
+                               virtual_column_index:)
         column.body_cell_attributes(
           row_index: row_index + 1,
           column_index: column_index,
-          active: cell_payload[:focus_on_cell],
-          interactive: cell_payload[:interactive]
+          state: {
+            active: cell_payload[:focus_on_cell],
+            interactive: cell_payload[:interactive],
+            aria_column_index: aria_column_index,
+            virtual_column_index: virtual_column_index
+          }
         )
       end
+      # rubocop:enable Metrics/ParameterLists
 
       # ARIA row indices are 1-based and offset by 1 for the header row.
       def aria_row_index(row_index) = row_index + 2

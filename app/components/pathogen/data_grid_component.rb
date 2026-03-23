@@ -113,6 +113,21 @@ module Pathogen
       "grid-template-columns: #{grid_template_columns_style};"
     end
 
+    def virtual_pinned_column_entries
+      columns.each_with_index.take(virtual_pinned_count)
+    end
+
+    def virtual_center_column_entries
+      columns.each_with_index.drop(virtual_pinned_count)
+    end
+
+    def virtual_lane_row_style(column_entries)
+      widths = column_entries.map { |column, _index| column.width.presence || 'minmax(120px, 1fr)' }
+      return nil if widths.empty?
+
+      "grid-template-columns: #{widths.join(' ')};"
+    end
+
     def default_active_row_index = @rows.present? ? 1 : nil
 
     def default_empty_state
