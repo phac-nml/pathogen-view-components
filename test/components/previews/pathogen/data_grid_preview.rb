@@ -273,18 +273,32 @@ module Pathogen
       "M#{index}-#{(sample_number + index) % 997}"
     end
 
+    # rubocop:disable Metrics/MethodLength
     def interactive_actions(row)
       helpers = ActionController::Base.helpers
+      sample_id = row[:sample_id]
 
       helpers.safe_join(
         [
-          helpers.link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-u-link'),
-          helpers.render(Pathogen::Button.new(type: :button, size: :small)) do
-            'Inspect'
+          helpers.link_to(
+            "View #{sample_id}",
+            "/samples/#{sample_id}",
+            class: 'pathogen-u-link',
+            aria: { label: "View sample #{sample_id}" }
+          ),
+          helpers.render(
+            Pathogen::Button.new(
+              type: :button,
+              size: :small,
+              aria: { label: "Inspect sample #{sample_id}" }
+            )
+          ) do
+            "Inspect #{sample_id}"
           end
         ],
         ' '
       )
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
