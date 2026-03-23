@@ -414,6 +414,43 @@ module Pathogen
       assert_selector '.pathogen-data-grid__caption', text: 'Virtual grid'
     end
 
+    # rubocop:disable Metrics/BlockLength
+    test 'virtual and non-virtual variants keep column and row content parity' do
+      rows = [
+        { sample_id: 'S-501', name: 'Aurora basin', status: 'Ready' },
+        { sample_id: 'S-502', name: 'Prairie creek', status: 'Queued' }
+      ]
+
+      render_variant = lambda do |virtual|
+        render_inline(Pathogen::DataGridComponent.new(
+                        caption: virtual ? 'Virtual parity' : 'Fallback parity',
+                        sticky_columns: 1,
+                        virtual: virtual,
+                        rows: rows
+                      )) do |grid|
+          grid.with_column('Sample ID', key: :sample_id, width: 160)
+          grid.with_column('Name', key: :name, width: 260)
+          grid.with_column('Status', key: :status, width: 160)
+        end
+
+        Nokogiri::HTML.fragment(rendered_content)
+      end
+
+      non_virtual = render_variant.call(false)
+      virtual = render_variant.call(true)
+
+      assert_equal(
+        non_virtual.css('[role="columnheader"]').map { |node| node.text.strip },
+        virtual.css('[role="columnheader"]').map { |node| node.text.strip }
+      )
+
+      assert_equal(
+        non_virtual.css('tbody tr:first-child [role="gridcell"]').map { |node| node.text.strip },
+        virtual.css('[role="row"][aria-rowindex="2"] [role="gridcell"]').map { |node| node.text.strip }
+      )
+    end
+    # rubocop:enable Metrics/BlockLength
+
     test 'virtual mode localizes status copy and exposes translated data attributes' do
       I18n.with_locale(:fr) do
         render_inline(Pathogen::DataGridComponent.new(
