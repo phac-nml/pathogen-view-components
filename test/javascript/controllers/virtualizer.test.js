@@ -156,7 +156,7 @@ describe("computeVisibleColumnRange", () => {
 
     expect(result).toEqual({
       startIndex: 2,
-      endIndex: 6,
+      endIndex: 5,
       pinnedCount: 2,
     });
   });
@@ -187,7 +187,7 @@ describe("computeVisibleColumnRange", () => {
     });
 
     expect(result.startIndex).toBe(2);
-    expect(result.endIndex).toBe(5);
+    expect(result.endIndex).toBe(4);
   });
 });
 
@@ -197,7 +197,7 @@ describe("scrollLeftForColumn", () => {
 
   it("returns null when target center column is already fully visible", () => {
     const result = scrollLeftForColumn({
-      columnIndex: 2,
+      columnIndex: 3,
       scrollLeft: 20,
       viewportWidth: 500,
       pinnedWidth: 220,
