@@ -77,6 +77,8 @@ module Pathogen
       @dense = dense
       @virtual = virtual
       @system_arguments = system_arguments
+      @system_arguments[:data] ||= {}
+      @system_arguments[:data][:pathogen_grid] = true
       @keyboard_help_id = self.class.generate_id(base_name: 'data-grid-help')
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
