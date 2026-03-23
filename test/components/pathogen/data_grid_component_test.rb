@@ -543,6 +543,50 @@ module Pathogen
       )
     end
 
+    test 'virtual mode renders pinned and center lanes with stable logical column hooks' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      sticky_columns: 1,
+                      rows: [{ id: 'S-001', name: 'Alpha', status: 'Ready' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+        grid.with_column('Status', key: :status, width: 160)
+      end
+
+      assert_selector '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"]'
+      assert_selector '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"]'
+      assert_selector(
+        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
+        'div[role="columnheader"][data-pathogen-data-grid-virtual-col-index="1"]'
+      )
+      assert_selector(
+        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
+        'div[role="gridcell"][data-pathogen-data-grid-virtual-col-index="2"]'
+      )
+      assert_no_selector(
+        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"] ' \
+        '[data-pathogen-data-grid-virtual-col-index]'
+      )
+    end
+
+    test 'virtual mode preserves global aria-colindex values across lane split' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      sticky_columns: 1,
+                      rows: [{ id: 'S-001', name: 'Alpha', status: 'Ready' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+        grid.with_column('Status', key: :status, width: 160)
+      end
+
+      assert_selector 'div[role="columnheader"][aria-colindex="1"]', text: 'ID'
+      assert_selector 'div[role="columnheader"][aria-colindex="2"]', text: 'Name'
+      assert_selector 'div[role="columnheader"][aria-colindex="3"]', text: 'Status'
+      assert_selector 'div[role="row"][aria-rowindex="2"] div[role="gridcell"][aria-colindex="3"]', text: 'Ready'
+    end
+
     test 'virtual mode renders interactive cells with tabindex on descendants' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
