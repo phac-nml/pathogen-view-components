@@ -10,8 +10,8 @@ fr:
           la page ou réessayez.
         title: Impossible de charger le contenu de la grille
       keyboard:
-        help: "Clavier : les flèches déplacent les cellules; Entrée ou F2 active les
-          contrôles; Échap revient à la grille."
+        help: 'Clavier : les flèches déplacent les cellules; Entrée ou F2 active les
+          contrôles; Échap revient à la grille.'
       scroll:
         hint: Faites défiler horizontalement pour voir plus de colonnes.
       virtual:
