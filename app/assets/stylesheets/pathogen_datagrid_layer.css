@@ -265,11 +265,31 @@
 }
 
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row {
-  display: grid;
+  display: flex;
+  min-width: max-content;
 }
 
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__grid {
   min-width: max-content;
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane {
+  display: grid;
+  align-items: stretch;
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned {
+  position: sticky;
+  left: 0;
+  z-index: calc(var(--pvc-data-grid-sticky-z) + 1);
+  border-right: 1px solid var(--pvc-data-grid-border-color);
+  background: var(--pvc-data-grid-body-bg);
+  box-shadow: 1px 0 0 var(--pvc-data-grid-border-color);
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane--center {
+  min-width: max-content;
+  background: var(--pvc-data-grid-body-bg);
 }
 
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__row--header {
@@ -277,6 +297,38 @@
   top: 0;
   z-index: var(--pvc-data-grid-header-z);
   background: var(--pvc-data-grid-header-bg);
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__row--header
+  .pathogen-data-grid__lane--pinned {
+  z-index: calc(var(--pvc-data-grid-header-z) + 2);
+  background: var(--pvc-data-grid-header-bg);
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__row--header
+  .pathogen-data-grid__lane--center {
+  background: var(--pvc-data-grid-header-bg);
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__lane--pinned
+  [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+  position: static;
+  left: auto;
+  box-shadow: none;
+}
+
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__lane--pinned
+  [data-pathogen--data-grid-target~="cell"],
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__lane--pinned
+  .pathogen-data-grid__header-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__viewport {
@@ -293,7 +345,8 @@
   position: absolute;
   right: 0;
   left: 0;
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   align-items: center;
 }
 
