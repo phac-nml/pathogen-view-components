@@ -63,6 +63,10 @@ module Pathogen
       'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
     DEFAULT_VIRTUAL_LOADING_MESSAGE = 'Loading rows…'
     DEFAULT_VIRTUAL_LOADED_MESSAGE = 'Rows loaded.'
+    DEFAULT_VIRTUAL_ROW_HEIGHT = 40
+    DEFAULT_VIRTUAL_ROW_OVERSCAN = 10
+    DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2
+    DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
     attr_reader :rows, :keyboard_help_id
 
     # rubocop:disable Metrics/ParameterLists
@@ -92,6 +96,7 @@ module Pathogen
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
+      attributes.merge!(virtual_metadata_attributes) if @virtual
 
       label_attributes = table_aria_attributes
       label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
@@ -245,6 +250,24 @@ module Pathogen
       @system_arguments[:data] ||= {}
       existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
       @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+    end
+
+    def virtual_metadata_attributes
+      {
+        'data-pathogen-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
+        'data-pathogen-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
+        'data-pathogen-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
+        'data-pathogen-data-grid-pinned-count': virtual_pinned_count,
+        'data-pathogen-data-grid-column-widths': virtual_column_widths
+      }
+    end
+
+    def virtual_pinned_count
+      columns.take_while(&:sticky).count
+    end
+
+    def virtual_column_widths
+      columns.map { |column| column.width_px || DEFAULT_VIRTUAL_COLUMN_WIDTH }.join(',')
     end
 
     def append_component_class!(component_class)
