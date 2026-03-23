@@ -54,8 +54,9 @@ export function headerOverlayHeight(containerRect, gridTarget) {
  * @param {HTMLElement} cell
  * @param {HTMLElement|null} scrollContainer
  * @param {HTMLElement|null} gridTarget
+ * @param {{ pinnedWidth?: number|null }} [options]
  */
-export function ensureCellFullyVisible(cell, scrollContainer, gridTarget) {
+export function ensureCellFullyVisible(cell, scrollContainer, gridTarget, options = {}) {
   if (!(cell instanceof HTMLElement)) return;
 
   if (!scrollContainer) {
@@ -66,7 +67,8 @@ export function ensureCellFullyVisible(cell, scrollContainer, gridTarget) {
   const containerRect = scrollContainer.getBoundingClientRect();
   const cellRect = cell.getBoundingClientRect();
 
-  const overlap = stickyOverlayWidth(containerRect, gridTarget);
+  const resolvedPinnedWidth = Number.isFinite(options.pinnedWidth) ? options.pinnedWidth : null;
+  const overlap = resolvedPinnedWidth === null ? stickyOverlayWidth(containerRect, gridTarget) : resolvedPinnedWidth;
   const headerOverlap = headerOverlayHeight(containerRect, gridTarget);
   const isStickyCell =
     cell.hasAttribute("data-sticky-cell") || cell.classList.contains("pathogen-data-grid__cell--sticky");

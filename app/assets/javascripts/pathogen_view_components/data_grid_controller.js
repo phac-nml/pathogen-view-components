@@ -1,6 +1,12 @@
 import { Controller } from "@hotwired/stimulus";
 
-import { buildCellMap, firstDataCell, nextCellForKey } from "pathogen_view_components/data_grid_controller/navigation";
+import {
+  buildCellMap,
+  columnIndexOf,
+  firstDataCell,
+  nextCellForKey,
+  rowIndexOf,
+} from "pathogen_view_components/data_grid_controller/navigation";
 
 import { ensureCellFullyVisible } from "pathogen_view_components/data_grid_controller/scroll";
 
@@ -13,8 +19,10 @@ import {
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
 import {
+  computeVisibleColumnRange,
   computeVisibleRange,
   measureRowHeight,
+  scrollLeftForColumn,
   scrollTopForRow,
 } from "pathogen_view_components/data_grid_controller/virtualizer";
 
@@ -36,6 +44,8 @@ const NAVIGATION_KEYS = new Set([
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
 const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 const RESIZE_DEBOUNCE_MS = 120;
+const DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2;
+const DEFAULT_VIRTUAL_COLUMN_WIDTH = 120;
 
 export default class extends Controller {
   static targets = [
@@ -57,8 +67,17 @@ export default class extends Controller {
   #rowHeight = 0;
   #visibleStartIndex = -1;
   #visibleEndIndex = -1;
+  #visibleColumnStartIndex = -1;
+  #visibleColumnEndIndex = -1;
   #rafId = null;
   #resizeTimerId = null;
+  #virtualColumnWidths = [];
+  #virtualColumnOffsets = [];
+  #virtualPinnedCount = 0;
+  #virtualPinnedWidth = 0;
+  #virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+  #virtualAllCells = null;
+  #centerLaneCellCache = new WeakMap();
 
   // Cell caches for keyboard hot paths
   #allCellsCache = null;
@@ -94,6 +113,15 @@ export default class extends Controller {
     if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
     this.#resizeTimerId = null;
     this.#allRowElements = null;
+    this.#virtualAllCells = null;
+    this.#virtualColumnWidths = [];
+    this.#virtualColumnOffsets = [];
+    this.#virtualPinnedCount = 0;
+    this.#virtualPinnedWidth = 0;
+    this.#virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+    this.#visibleColumnStartIndex = -1;
+    this.#visibleColumnEndIndex = -1;
+    this.#centerLaneCellCache = new WeakMap();
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
@@ -198,10 +226,13 @@ export default class extends Controller {
     const cells = this.#allCells();
     const fromFocused = this.#resolveCell(document.activeElement);
     if (fromFocused && this.#hasCachedCell(fromFocused)) {
-      const rowIndex = Number(fromFocused.getAttribute("data-pathogen--data-grid-row-index"));
-      const columnIndex = Number(fromFocused.getAttribute("data-pathogen--data-grid-column-index"));
-      const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
-      return mappedCell || fromFocused;
+      const rowIndex = rowIndexOf(fromFocused);
+      const columnIndex = columnIndexOf(fromFocused);
+      if (rowIndex !== null && columnIndex !== null) {
+        const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+        return mappedCell || fromFocused;
+      }
+      return fromFocused;
     }
 
     return (
@@ -215,7 +246,12 @@ export default class extends Controller {
     if (this.#allCellsCache) return this.#allCellsCache;
 
     let cells;
-    if (this.#isVirtual() && this.#allRowElements) {
+    if (this.#isVirtual() && this.#virtualAllCells) {
+      const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
+      const domCellSet = new Set(domCells);
+      const virtualCells = this.#virtualAllCells.filter((cell) => !domCellSet.has(cell));
+      cells = [...domCells, ...virtualCells];
+    } else if (this.#isVirtual() && this.#allRowElements) {
       // In virtual mode, include cells from ALL rows (including detached ones)
       // so navigation can operate on the full virtual coordinate space.
       const domCells = this.hasCellTarget ? [...this.cellTargets] : [];
@@ -236,18 +272,26 @@ export default class extends Controller {
   }
 
   #focusCell(cell) {
+    let targetCell = cell;
+    const rowIndex = rowIndexOf(cell);
+    const columnIndex = columnIndexOf(cell);
+
     if (this.#isVirtual()) {
-      // In virtual mode, ensure the target row is in the DOM before focusing
-      const rowIndex = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
-      if (!Number.isNaN(rowIndex) && rowIndex > 0) {
-        // rowIndex is 1-based in data attributes, convert to 0-based for virtualizer
-        this.#ensureVirtualRowVisible(rowIndex - 1);
+      // In virtual mode, reveal target logical coordinates before focusing.
+      const virtualRowIndex = rowIndex === null ? null : rowIndex - 1;
+      this.#ensureVirtualRowVisible(virtualRowIndex, columnIndex);
+
+      if (rowIndex !== null && columnIndex !== null) {
+        const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+        if (mappedCell) targetCell = mappedCell;
       }
     }
 
-    this.#setActiveCell(cell);
-    cell.focus({ preventScroll: true });
-    this.#scrollCellIntoView(cell);
+    if (!targetCell.isConnected) return;
+
+    this.#setActiveCell(targetCell);
+    targetCell.focus({ preventScroll: true });
+    this.#scrollCellIntoView(targetCell);
   }
 
   #scrollCellIntoView(cell) {
@@ -255,6 +299,9 @@ export default class extends Controller {
       cell,
       this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
       this.hasGridTarget ? this.gridTarget : null,
+      {
+        pinnedWidth: this.#isVirtual() ? this.#virtualPinnedWidth : null,
+      },
     );
   }
 
@@ -343,9 +390,9 @@ export default class extends Controller {
     cells.forEach((cell, index) => {
       this.#cellIndexCache.set(cell, index);
 
-      const rowIndex = Number(cell.getAttribute("data-pathogen--data-grid-row-index"));
-      const columnIndex = Number(cell.getAttribute("data-pathogen--data-grid-column-index"));
-      if (Number.isNaN(rowIndex) || Number.isNaN(columnIndex)) return;
+      const rowIndex = rowIndexOf(cell);
+      const columnIndex = columnIndexOf(cell);
+      if (rowIndex === null || columnIndex === null) return;
 
       this.#coordinateCellCache.set(`${rowIndex}:${columnIndex}`, cell);
     });
@@ -450,6 +497,8 @@ export default class extends Controller {
     // Collect all body rows (skip the spacer)
     const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
     this.#allRowElements = rows;
+    this.#virtualAllCells = this.hasGridTarget ? Array.from(this.gridTarget.querySelectorAll(CELL_SELECTOR)) : null;
+    this.#readVirtualColumnContract();
     this.#invalidateCellCaches();
 
     // Measure row height from the first rendered row
@@ -528,6 +577,8 @@ export default class extends Controller {
     // Force re-render after resize even if indices did not change.
     this.#visibleStartIndex = -1;
     this.#visibleEndIndex = -1;
+    this.#visibleColumnStartIndex = -1;
+    this.#visibleColumnEndIndex = -1;
   }
 
   #renderVisibleRows() {
@@ -536,6 +587,7 @@ export default class extends Controller {
     const scrollTop = this.hasScrollContainerTarget ? this.scrollContainerTarget.scrollTop : 0;
     const containerHeight = this.hasScrollContainerTarget ? this.scrollContainerTarget.clientHeight : 0;
     const viewportHeight = containerHeight > 0 ? containerHeight : window.innerHeight;
+    const columnRange = this.#computeVisibleColumnRange();
 
     const { startIndex, endIndex } = computeVisibleRange({
       scrollTop,
@@ -544,22 +596,29 @@ export default class extends Controller {
       totalRows: this.#allRowElements.length,
     });
 
-    // Skip re-render if range hasn't changed
-    if (startIndex === this.#visibleStartIndex && endIndex === this.#visibleEndIndex) return;
+    const rowRangeUnchanged = startIndex === this.#visibleStartIndex && endIndex === this.#visibleEndIndex;
+    const columnRangeUnchanged =
+      (columnRange === null && this.#visibleColumnStartIndex === -1 && this.#visibleColumnEndIndex === -1) ||
+      (columnRange !== null &&
+        columnRange.startIndex === this.#visibleColumnStartIndex &&
+        columnRange.endIndex === this.#visibleColumnEndIndex);
+    if (rowRangeUnchanged && columnRangeUnchanged) return;
 
     this.#visibleStartIndex = startIndex;
     this.#visibleEndIndex = endIndex;
+    this.#visibleColumnStartIndex = columnRange ? columnRange.startIndex : -1;
+    this.#visibleColumnEndIndex = columnRange ? columnRange.endIndex : -1;
 
     const viewport = this.viewportTarget;
     const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
 
-    // Preserve focus across DOM removal/reinsertion.
-    // Removing a focused element causes the browser to move focus to <body>.
-    // We save the active element and restore it after reinsertion so keyboard
-    // navigation stays on the intended cell even when a RAF re-render fires after
-    // #focusCell() (e.g. buffer rows that scroll into view trigger a range shift).
-    const focusedElement = document.activeElement;
-    const focusInViewport = focusedElement instanceof HTMLElement && viewport.contains(focusedElement);
+    // Preserve logical focus coordinates across virtual re-renders.
+    // If widget mode was active, restore focus to the owning cell so Enter/F2 is
+    // required to re-enter widget mode after a render boundary.
+    const focusedCell = this.#resolveCell(document.activeElement);
+    const focusedRowIndex = focusedCell ? rowIndexOf(focusedCell) : null;
+    const focusedColumnIndex = focusedCell ? columnIndexOf(focusedCell) : null;
+    const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
 
     // Remove current body rows (keep the spacer)
     const currentRows = viewport.querySelectorAll('[role="row"]');
@@ -570,6 +629,7 @@ export default class extends Controller {
     for (let i = startIndex; i < endIndex; i++) {
       const row = this.#allRowElements[i];
       row.style.top = `${i * this.#rowHeight}px`;
+      this.#applyCenterColumnWindow(row, columnRange);
       fragment.appendChild(row);
     }
 
@@ -579,10 +639,14 @@ export default class extends Controller {
       viewport.appendChild(fragment);
     }
 
-    // Restore focus if the element was re-inserted (its row is in the new range).
-    // isConnected becomes true again once the row element is back in the document.
-    if (focusInViewport && focusedElement.isConnected) {
-      focusedElement.focus({ preventScroll: true });
+    this.#applyCenterColumnWindow(this.#virtualHeaderRow(), columnRange);
+
+    if (shouldRestoreCellFocus) {
+      const mappedCell = this.#cellByCoordinate(focusedRowIndex, focusedColumnIndex);
+      if (mappedCell && mappedCell.isConnected) {
+        this.#setActiveCell(mappedCell);
+        mappedCell.focus({ preventScroll: true });
+      }
     }
 
     // Cell caches built from #allRowElements cover all rows (in- and out-of-DOM)
@@ -590,31 +654,59 @@ export default class extends Controller {
   }
 
   /**
-   * Ensures a virtual row is in the DOM and scroll position before focusing a cell.
-   * Called by keyboard navigation when the target row might be outside the current range.
-   * @param {number} rowIndex - The 0-based virtual row index
+   * Ensures a virtual cell's logical row/column are rendered before focusing.
+   * @param {number|null} rowIndex - 0-based virtual row index
+   * @param {number|null} columnIndex - absolute logical column index
    */
-  #ensureVirtualRowVisible(rowIndex) {
+  #ensureVirtualRowVisible(rowIndex, columnIndex = null) {
     if (!this.#isVirtual() || !this.#allRowElements) return;
 
     const scrollContainer = this.hasScrollContainerTarget ? this.scrollContainerTarget : null;
     if (!scrollContainer) return;
 
-    const newScrollTop = scrollTopForRow({
-      rowIndex,
-      scrollTop: scrollContainer.scrollTop,
-      viewportHeight: scrollContainer.clientHeight,
-      rowHeight: this.#rowHeight,
-    });
+    let didAdjustScroll = false;
 
-    if (newScrollTop !== null) {
-      scrollContainer.scrollTop = newScrollTop;
+    if (typeof rowIndex === "number" && rowIndex >= 0) {
+      const newScrollTop = scrollTopForRow({
+        rowIndex,
+        scrollTop: scrollContainer.scrollTop,
+        viewportHeight: scrollContainer.clientHeight,
+        rowHeight: this.#rowHeight,
+      });
+
+      if (newScrollTop !== null) {
+        scrollContainer.scrollTop = newScrollTop;
+        didAdjustScroll = true;
+      }
     }
 
-    // Only force a synchronous re-render if the row is outside the currently rendered range.
-    // When the row is already in the window, the RAF-coalesced path handles any scroll.
-    const alreadyRendered = rowIndex >= this.#visibleStartIndex && rowIndex < this.#visibleEndIndex;
-    if (!alreadyRendered) {
+    if (
+      columnIndex !== null &&
+      columnIndex >= this.#virtualPinnedCount &&
+      this.#virtualColumnWidths.length > 0 &&
+      this.#virtualColumnOffsets.length === this.#virtualColumnWidths.length
+    ) {
+      const newScrollLeft = scrollLeftForColumn({
+        columnIndex,
+        scrollLeft: scrollContainer.scrollLeft,
+        viewportWidth: scrollContainer.clientWidth,
+        pinnedWidth: this.#virtualPinnedWidth,
+        columnOffsets: this.#virtualColumnOffsets,
+        columnWidths: this.#virtualColumnWidths,
+      });
+
+      if (newScrollLeft !== null) {
+        scrollContainer.scrollLeft = newScrollLeft;
+        didAdjustScroll = true;
+      }
+    }
+
+    const rowRendered =
+      rowIndex === null || rowIndex < 0 || (rowIndex >= this.#visibleStartIndex && rowIndex < this.#visibleEndIndex);
+    const columnRendered = this.#isColumnRendered(columnIndex);
+
+    // Synchronize render before focus if a scroll move happened or target coords are not mounted.
+    if (didAdjustScroll || !rowRendered || !columnRendered) {
       if (this.#rafId) {
         cancelAnimationFrame(this.#rafId);
         this.#rafId = null;
@@ -625,6 +717,109 @@ export default class extends Controller {
         this.#reportError(error);
       }
     }
+  }
+
+  #readVirtualColumnContract() {
+    if (!this.hasGridTarget) return;
+
+    const widthsValue = this.gridTarget.dataset.pathogenDataGridColumnWidths || "";
+    let widths = widthsValue
+      .split(",")
+      .map((value) => Number(value.trim()))
+      .filter((value) => Number.isFinite(value) && value > 0);
+
+    if (widths.length === 0 && this.#virtualAllCells) {
+      const maxColumnIndex = this.#virtualAllCells.reduce((maxIndex, cell) => {
+        const columnIndex = columnIndexOf(cell);
+        return columnIndex === null ? maxIndex : Math.max(maxIndex, columnIndex);
+      }, -1);
+      if (maxColumnIndex >= 0) {
+        widths = Array.from({ length: maxColumnIndex + 1 }, () => DEFAULT_VIRTUAL_COLUMN_WIDTH);
+      }
+    }
+
+    this.#virtualColumnWidths = widths;
+
+    const totalColumns = this.#virtualColumnWidths.length;
+    const pinnedCountValue = Number.parseInt(this.gridTarget.dataset.pathogenDataGridPinnedCount || "0", 10);
+    this.#virtualPinnedCount =
+      Number.isFinite(pinnedCountValue) && totalColumns > 0 ? Math.max(0, Math.min(totalColumns, pinnedCountValue)) : 0;
+
+    const overscanValue = Number.parseInt(this.gridTarget.dataset.pathogenDataGridColumnOverscan || "", 10);
+    this.#virtualColumnOverscan =
+      Number.isFinite(overscanValue) && overscanValue >= 0 ? overscanValue : DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+
+    this.#virtualColumnOffsets = [];
+    let runningOffset = 0;
+    this.#virtualColumnWidths.forEach((width) => {
+      this.#virtualColumnOffsets.push(runningOffset);
+      runningOffset += width;
+    });
+
+    this.#virtualPinnedWidth = this.#virtualColumnWidths
+      .slice(0, this.#virtualPinnedCount)
+      .reduce((sum, width) => sum + width, 0);
+  }
+
+  #computeVisibleColumnRange() {
+    if (
+      !this.hasScrollContainerTarget ||
+      this.#virtualColumnWidths.length === 0 ||
+      this.#virtualPinnedCount >= this.#virtualColumnWidths.length
+    ) {
+      return null;
+    }
+
+    const viewportWidth =
+      this.scrollContainerTarget.clientWidth > 0 ? this.scrollContainerTarget.clientWidth : window.innerWidth;
+    return computeVisibleColumnRange({
+      scrollLeft: this.scrollContainerTarget.scrollLeft,
+      viewportWidth,
+      columnWidths: this.#virtualColumnWidths,
+      pinnedCount: this.#virtualPinnedCount,
+      overscan: this.#virtualColumnOverscan,
+    });
+  }
+
+  #isColumnRendered(columnIndex) {
+    if (columnIndex === null || columnIndex < this.#virtualPinnedCount) return true;
+    if (this.#visibleColumnStartIndex === -1 && this.#visibleColumnEndIndex === -1) return true;
+
+    return columnIndex >= this.#visibleColumnStartIndex && columnIndex < this.#visibleColumnEndIndex;
+  }
+
+  #virtualHeaderRow() {
+    if (!this.hasGridTarget) return null;
+    return this.gridTarget.querySelector('.pathogen-data-grid__row--header[role="row"]');
+  }
+
+  #centerLaneCells(centerLane) {
+    if (!centerLane) return [];
+
+    const cachedCells = this.#centerLaneCellCache.get(centerLane);
+    if (cachedCells) return cachedCells;
+
+    const cells = Array.from(centerLane.querySelectorAll(CELL_SELECTOR));
+    this.#centerLaneCellCache.set(centerLane, cells);
+    return cells;
+  }
+
+  #applyCenterColumnWindow(row, columnRange) {
+    if (!row || !columnRange) return;
+
+    const centerLane = row.querySelector('[data-pathogen-data-grid-lane="center"]');
+    if (!centerLane) return;
+
+    const allCenterCells = this.#centerLaneCells(centerLane);
+    if (allCenterCells.length === 0) return;
+
+    const visibleCells = allCenterCells.filter((cell) => {
+      const columnIndex = columnIndexOf(cell);
+      if (columnIndex === null) return false;
+      return columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex;
+    });
+
+    centerLane.replaceChildren(...visibleCells);
   }
 
   #syncScrollAffordance() {
