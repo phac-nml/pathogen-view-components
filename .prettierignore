@@ -19,3 +19,5 @@ demo/public/
 Gemfile.lock
 demo/Gemfile.lock
 pnpm-lock.yaml
+config/locales/*.yml
+app/components/**/*.yml
