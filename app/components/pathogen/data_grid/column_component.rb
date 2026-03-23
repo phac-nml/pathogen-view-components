@@ -60,17 +60,25 @@ module Pathogen
 
       def interactive? = @interactive
 
-      def header_cell_attributes(column_index:)
-        attributes_for(header: true, row_index: 0, column_index: column_index)
+      def header_cell_attributes(column_index:, aria_column_index: column_index + 1, virtual_column_index: nil)
+        attributes_for(
+          header: true,
+          row_index: 0,
+          column_index: column_index,
+          aria_column_index: aria_column_index,
+          virtual_column_index: virtual_column_index
+        )
       end
 
-      def body_cell_attributes(row_index:, column_index:, active: false, interactive: false)
+      def body_cell_attributes(row_index:, column_index:, state: {})
         attributes_for(
           header: false,
           row_index: row_index,
           column_index: column_index,
-          active: active,
-          interactive: interactive
+          active: state.fetch(:active, false),
+          interactive: state.fetch(:interactive, false),
+          aria_column_index: state.fetch(:aria_column_index, column_index + 1),
+          virtual_column_index: state.fetch(:virtual_column_index, nil)
         )
       end
 
@@ -101,15 +109,18 @@ module Pathogen
 
       private
 
-      def attributes_for(header:, row_index:, column_index:, active: false, interactive: false)
-        {
+      # rubocop:disable Metrics/ParameterLists
+      def attributes_for(header:, row_index:, column_index:, aria_column_index:, active: false, interactive: false,
+                         virtual_column_index: nil)
+        attributes = {
           class: class_names(*cell_classes(header:)),
           data: cell_data_attributes(row_index:, column_index:, interactive:),
           role: cell_role(header:),
+          aria: { colindex: aria_column_index },
           style: cell_styles,
           tabindex: cell_tabindex(header:, active:)
-        }
-      end
+
+            out = data_attributes.merge(
 
       def cell_classes(header:)
         parts = [*COLUMN_CELL_BASE, @system_arguments[:class]]
@@ -129,8 +140,12 @@ module Pathogen
         existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
                            data_attributes.delete('pathogen--data-grid-target')
         merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
+<<<<<<< HEAD
 
         out = data_attributes.merge(
+=======
+        data_attributes.merge(
+>>>>>>> 353a5edc (feat(02-01): split virtual grid into pinned and center lanes)
           'pathogen--data-grid-target': merged_targets,
           'pathogen--data-grid-row-index': row_index,
           'pathogen--data-grid-column-index': column_index,
