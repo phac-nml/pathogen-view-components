@@ -2,18 +2,21 @@
 fr:
   pathogen:
     data_grid:
-      error_state:
-        title: "Impossible de charger le contenu de la grille"
-        message: "Un problème est survenu pendant l’affichage de cette grille. Actualisez la page ou réessayez."
       empty_state:
-        default: "Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser les données."
-      scroll:
-        hint: "Faites défiler horizontalement pour voir plus de colonnes."
+        default: Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser
+          les données.
+      error_state:
+        message: Un problème est survenu pendant l’affichage de cette grille. Actualisez
+          la page ou réessayez.
+        title: Impossible de charger le contenu de la grille
       keyboard:
-        help: "Clavier : les flèches déplacent les cellules; Entrée ou F2 active les contrôles; Échap revient à la grille."
+        help: "Clavier : les flèches déplacent les cellules; Entrée ou F2 active les
+          contrôles; Échap revient à la grille."
+      scroll:
+        hint: Faites défiler horizontalement pour voir plus de colonnes.
       virtual:
-        loading: "Chargement des lignes…"
-        loaded: "Lignes chargées."
+        loaded: Lignes chargées.
+        loading: Chargement des lignes…
     label:
       required_indicator: "*"
       title: obligatoire
