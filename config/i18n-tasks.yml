@@ -24,7 +24,3 @@ search:
 
   relative_exclude_method_name_paths:
     - app/components
-
-ignore_missing:
-  en:
-    - "pathogen.*"
