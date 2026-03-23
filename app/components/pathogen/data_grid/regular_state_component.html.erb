@@ -1,0 +1,19 @@
+<%= tag.table(**@grid.table_attributes) do %>
+  <%= tag.thead(class: 'pathogen-data-grid__header') do %>
+    <%= tag.tr(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row') do %>
+      <% @grid.columns.each_with_index do |column, index| %>
+        <%= header_cell_tag(tag_name: :th, column: column, column_index: index, scope: 'col') %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%= tag.tbody(class: 'pathogen-data-grid__body') do %>
+    <% @grid.rows.each_with_index do |row, row_index| %>
+      <%= tag.tr(class: 'pathogen-data-grid__row', role: 'row') do %>
+        <% @grid.columns.each_with_index do |column, index| %>
+          <%= body_cell_tag(tag_name: :td, column: column, row: row, row_index: row_index, column_index: index) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>
