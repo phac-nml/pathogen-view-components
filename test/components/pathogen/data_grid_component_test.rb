@@ -500,6 +500,26 @@ module Pathogen
       assert_selector 'div[data-pathogen--data-grid-target="scrollContainer"]'
     end
 
+    test 'virtual mode exposes lane metadata contract on grid root' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      sticky_columns: 1,
+                      rows: [{ id: 'S-001', name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector(
+        'div[role="grid"]' \
+        '[data-pathogen-data-grid-row-height]' \
+        '[data-pathogen-data-grid-row-overscan]' \
+        '[data-pathogen-data-grid-column-overscan]' \
+        '[data-pathogen-data-grid-pinned-count]' \
+        '[data-pathogen-data-grid-column-widths]'
+      )
+    end
+
     test 'virtual mode cell data attributes match non-virtual convention' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
