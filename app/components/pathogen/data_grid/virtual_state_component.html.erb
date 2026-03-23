@@ -1,4 +1,16 @@
 <%= tag.div(**@grid.table_attributes) do %>
+  <%= tag.div(
+    @grid.virtual_loading_text,
+    class: 'pathogen-data-grid__virtual-status',
+    data: {
+      'pathogen--data-grid-target': 'virtualStatus',
+      loading_text: @grid.virtual_loading_text,
+      loaded_text: @grid.virtual_loaded_text
+    },
+    role: 'status',
+    aria: { live: 'polite' }
+  ) %>
+
   <%= tag.div(class: 'pathogen-data-grid__row pathogen-data-grid__row--header', role: 'row', aria: { rowindex: 1 }, style: @grid.row_style) do %>
     <% @grid.columns.each_with_index do |column, index| %>
       <%= header_cell_tag(tag_name: :div, column: column, column_index: index) %>
