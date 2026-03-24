@@ -28,8 +28,8 @@ async function main() {
     minify: false,
     sourceMap: false,
     drafts: {
-      nesting: true
-    }
+      nesting: true,
+    },
   });
 
   if (checkOnly) {

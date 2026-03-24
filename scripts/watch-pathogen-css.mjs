@@ -12,7 +12,7 @@ function runBuild() {
   return new Promise((resolveBuild, rejectBuild) => {
     const child = spawn(process.execPath, [buildScript], {
       cwd: root,
-      stdio: "inherit"
+      stdio: "inherit",
     });
 
     child.on("error", rejectBuild);
@@ -58,7 +58,7 @@ async function main() {
   };
 
   const watcher = chokidar.watch(watchGlob, {
-    ignoreInitial: false
+    ignoreInitial: false,
   });
 
   watcher.on("add", () => void triggerBuild("File added"));
