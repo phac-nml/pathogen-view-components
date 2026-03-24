@@ -27,9 +27,12 @@ pre-commit:
       stage_fixed: true
     - name: herb-lint
       glob:
-        - "app/**/*.erb"
-        - "demo/app/**/*.erb"
+        - "**/*.erb"
       run: pnpm exec herb-lint {staged_files}
+    - name: herb-format-check
+      glob:
+        - "**/*.erb"
+      run: pnpm exec herb-format --check {staged_files}
     - name: rubocop
       glob:
         - "*.rb"
