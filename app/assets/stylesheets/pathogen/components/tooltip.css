@@ -1,0 +1,5 @@
+@layer pathogen.components {
+  /* Tooltip component ownership scaffold. Runtime migration lands in 03-04. */
+  .pathogen-tooltip {
+  }
+}

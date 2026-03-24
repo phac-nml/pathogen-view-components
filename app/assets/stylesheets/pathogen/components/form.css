@@ -1,0 +1,5 @@
+@layer pathogen.components {
+  /* Form component ownership scaffold. Runtime migration lands in 03-06. */
+  .pathogen-form {
+  }
+}

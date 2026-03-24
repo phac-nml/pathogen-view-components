@@ -1,0 +1,5 @@
+@layer pathogen.components {
+  /* Typography component ownership scaffold. Runtime migration lands in 03-07/03-13/03-14. */
+  .pathogen-typography {
+  }
+}
