@@ -972,6 +972,477 @@ describe("data_grid_controller", () => {
     expect(lastCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
     expect(link.tabIndex).toBe(-1);
   });
+
+  it("Home moves focus to first cell in current row", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  ID
+                </th>
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Name
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Alpha
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  A-1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Beta
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  B-1
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const secondColumn = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    const firstColumn = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    secondColumn.focus();
+    dispatchKey(secondColumn, "Home");
+
+    expect(document.activeElement).toBe(firstColumn);
+    expect(firstColumn.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(firstColumn.tabIndex).toBe(0);
+  });
+
+  it("End moves focus to last cell in current row", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  ID
+                </th>
+                <th
+                  role="columnheader"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Name
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="0"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-active="true"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Alpha
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="1"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  A-1
+                </td>
+              </tr>
+              <tr role="row">
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  Beta
+                </td>
+                <td
+                  role="gridcell"
+                  tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="2"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false"
+                >
+                  B-1
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstColumn = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const lastColumn = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    firstColumn.focus();
+    dispatchKey(firstColumn, "End");
+
+    expect(document.activeElement).toBe(lastColumn);
+    expect(lastColumn.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    expect(lastColumn.tabIndex).toBe(0);
+  });
+
+  it("PageDown moves focus down by page size preserving column", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</th>
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array.from({ length: 5 }, (_, i) => {
+                const r = i + 1;
+                const isFirst = r === 1;
+                return `
+              <tr role="row">
+                <td role="gridcell" tabindex="${isFirst ? "0" : "-1"}"
+                  ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C0</td>
+                <td role="gridcell" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C1</td>
+              </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    // Mock dimensions so pageSize = Math.floor(2 / 1) = 2
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
+
+    const startCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    const expectedCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="3"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    startCell.focus();
+    dispatchKey(startCell, "PageDown");
+
+    expect(document.activeElement).toBe(expectedCell);
+    expect(expectedCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("PageUp moves focus up by page size preserving column", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</th>
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array.from({ length: 5 }, (_, i) => {
+                const r = i + 1;
+                const isFirst = r === 1;
+                return `
+              <tr role="row">
+                <td role="gridcell" tabindex="${isFirst ? "0" : "-1"}"
+                  ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C0</td>
+                <td role="gridcell" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C1</td>
+              </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
+
+    const startCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="5"][data-pathogen--data-grid-column-index="1"]',
+    );
+    const expectedCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="3"][data-pathogen--data-grid-column-index="1"]',
+    );
+
+    startCell.focus();
+    dispatchKey(startCell, "PageUp");
+
+    expect(document.activeElement).toBe(expectedCell);
+    expect(expectedCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("PageDown clamps to last row when near bottom", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</th>
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array.from({ length: 5 }, (_, i) => {
+                const r = i + 1;
+                const isFirst = r === 1;
+                return `
+              <tr role="row">
+                <td role="gridcell" tabindex="${isFirst ? "0" : "-1"}"
+                  ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C0</td>
+                <td role="gridcell" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C1</td>
+              </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
+
+    const startCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="4"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const lastRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="5"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    startCell.focus();
+    dispatchKey(startCell, "PageDown");
+
+    expect(document.activeElement).toBe(lastRowCell);
+    expect(lastRowCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("PageUp clamps to first body row when near top", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</th>
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array.from({ length: 5 }, (_, i) => {
+                const r = i + 1;
+                const isFirst = r === 1;
+                return `
+              <tr role="row">
+                <td role="gridcell" tabindex="${isFirst ? "0" : "-1"}"
+                  ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C0</td>
+                <td role="gridcell" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">R${r}-C1</td>
+              </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
+
+    const startCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const firstBodyCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    startCell.focus();
+    dispatchKey(startCell, "PageUp");
+
+    expect(document.activeElement).toBe(firstBodyCell);
+    expect(firstBodyCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
 });
 
 describe("data_grid_controller (virtual mode)", () => {
