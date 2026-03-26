@@ -41,6 +41,11 @@ module Pathogen
           app.config.assets.precompile += %w[
             pathogen_view_components.js pathogen_view_components.css
           ]
+
+          # Keep source CSS as implementation detail; publish bundled asset only.
+          if app.config.assets.respond_to?(:excluded_paths)
+            app.config.assets.excluded_paths << root.join('app/assets/stylesheets/pathogen').to_s
+          end
         end
       end
 

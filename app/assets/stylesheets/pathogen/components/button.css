@@ -1,0 +1,5 @@
+@layer pathogen.components {
+  /* Button component ownership scaffold. Runtime migration lands in 03-05. */
+  .pathogen-button {
+  }
+}
