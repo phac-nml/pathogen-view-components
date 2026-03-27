@@ -1,5 +1,40 @@
 @layer pathogen.components {
-  /* Tabs component ownership scaffold. Runtime migration lands in 03-03. */
-  .pathogen-tabs {
+  [data-controller="pathogen--tabs"]:not(.tabs-initialized) [data-pathogen--tabs-target="panel"]:not(:first-child) {
+    display: none;
+  }
+
+  [data-controller="pathogen--tabs"] [role="tabpanel"]:not(.hidden) {
+    /* Ensure tab panels become visible when Stimulus removes the hidden class */
+    display: block !important;
+  }
+
+  [data-controller="pathogen--tabs"] [role="tab"][aria-selected="true"] {
+    border-color: var(--pathogen-color-brand-600);
+    background-color: transparent;
+    color: var(--pathogen-color-text-default);
+  }
+
+  [data-controller="pathogen--tabs"] [role="tab"][aria-selected="false"] {
+    border-color: transparent;
+    color: var(--pathogen-color-text-muted);
+  }
+
+  [data-controller="pathogen--tabs"] [role="tab"][aria-selected="false"]:hover {
+    border-color: var(--pathogen-color-text-muted);
+    color: var(--pathogen-color-text-default);
+  }
+
+  .dark [data-controller="pathogen--tabs"] [role="tab"][aria-selected="true"] {
+    border-color: var(--pathogen-color-neutral-50);
+    color: var(--pathogen-color-text-default);
+  }
+
+  .dark [data-controller="pathogen--tabs"] [role="tab"][aria-selected="false"] {
+    color: var(--pathogen-color-text-muted);
+  }
+
+  .dark [data-controller="pathogen--tabs"] [role="tab"][aria-selected="false"]:hover {
+    border-color: var(--pathogen-color-neutral-50);
+    color: var(--pathogen-color-text-default);
   }
 }

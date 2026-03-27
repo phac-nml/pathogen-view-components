@@ -65,14 +65,14 @@ module Pathogen
 
       test 'body_cell_attributes marks active body cell as focus target' do
         column = ColumnComponent.new(label: 'Name', key: :name)
-        attrs = column.body_cell_attributes(row_index: 1, column_index: 0, active: true)
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 0, state: { active: true })
 
         assert_equal 0, attrs[:tabindex]
       end
 
       test 'body_cell_attributes sets interactive marker when interactive content is present' do
         column = ColumnComponent.new(label: 'Actions')
-        attrs = column.body_cell_attributes(row_index: 1, column_index: 1, interactive: true)
+        attrs = column.body_cell_attributes(row_index: 1, column_index: 1, state: { interactive: true })
 
         assert_equal true, attrs[:data][:'pathogen--data-grid-has-interactive']
       end

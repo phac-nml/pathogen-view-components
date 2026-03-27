@@ -1,5 +1,9 @@
 @layer pathogen.components {
-  /* Form component ownership scaffold. Runtime migration lands in 03-06. */
-  .pathogen-form {
+  abbr.req {
+    vertical-align: baseline;
+    font-size: 0.875rem;
+    line-height: 1;
+    color: var(--pathogen-color-danger-500);
+    text-decoration-line: none;
   }
 }

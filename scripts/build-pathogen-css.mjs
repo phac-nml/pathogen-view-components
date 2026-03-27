@@ -1,6 +1,7 @@
 import { bundle } from "lightningcss";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { format, resolveConfig } from "prettier";
 
 const args = new Set(process.argv.slice(2));
 const checkOnly = args.has("--check");
@@ -40,8 +41,12 @@ async function main() {
     return;
   }
 
+  const rawCss = outputHeader + result.code.toString();
+  const prettierConfig = await resolveConfig(outputPath);
+  const formattedCss = await format(rawCss, { ...prettierConfig, filepath: outputPath });
+
   await mkdir(dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, outputHeader + result.code.toString());
+  await writeFile(outputPath, formattedCss);
   console.log("[build:css] Wrote", outputPath);
 }
 

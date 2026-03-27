@@ -11,6 +11,8 @@ pin 'pathogen_view_components/data_grid_controller/scroll',
     to: 'pathogen_view_components/data_grid_controller/scroll.js'
 pin 'pathogen_view_components/data_grid_controller/widget_mode',
     to: 'pathogen_view_components/data_grid_controller/widget_mode.js'
+pin 'pathogen_view_components/data_grid_controller/virtualizer',
+    to: 'pathogen_view_components/data_grid_controller/virtualizer.js'
 
 # Pin main entry point
 pin 'pathogen_view_components', to: 'pathogen_view_components.js'

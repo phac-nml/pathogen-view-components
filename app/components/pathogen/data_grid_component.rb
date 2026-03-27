@@ -26,10 +26,12 @@ module Pathogen
   #   <% end %>
   #
   # CSS dependency: pathogen/pathogen.css
+  # rubocop:disable Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
 
     renders_one :empty_state
+    renders_one :error_state
     renders_one :footer
     renders_one :live_region
     renders_one :metadata_warning
@@ -53,10 +55,23 @@ module Pathogen
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
-    attr_reader :rows
+    DEFAULT_EMPTY_STATE_MESSAGE = 'No rows found. Try adjusting filters or refreshing the data.'
+    DEFAULT_ERROR_STATE_TITLE = 'Unable to load grid content'
+    DEFAULT_ERROR_STATE_MESSAGE = 'Something went wrong while rendering this grid. Refresh or try again.'
+    DEFAULT_SCROLL_HINT_MESSAGE = 'Scroll horizontally to view more columns.'
+    DEFAULT_KEYBOARD_HELP_MESSAGE =
+      'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
+    DEFAULT_VIRTUAL_LOADING_MESSAGE = 'Loading rows…'
+    DEFAULT_VIRTUAL_LOADED_MESSAGE = 'Rows loaded.'
+    DEFAULT_VIRTUAL_ROW_HEIGHT = 40
+    DEFAULT_VIRTUAL_ROW_OVERSCAN = 10
+    DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2
+    DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
+    attr_reader :rows, :keyboard_help_id
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false, **system_arguments)
+    def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
+                   virtual: false, **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -64,18 +79,24 @@ module Pathogen
       @sticky_columns = sticky_columns
       @fill_container = fill_container
       @dense = dense
+      @virtual = virtual
       @system_arguments = system_arguments
+      @keyboard_help_id = self.class.generate_id(base_name: 'data-grid-help')
       @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
     end
+
+    def virtual? = @virtual
 
     def caption? = @caption.present?
 
     def table_attributes
+      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
       attributes = {
-        class: 'pathogen-data-grid__table',
+        class: tag_name_class,
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
+      attributes.merge!(virtual_metadata_attributes) if @virtual
 
       label_attributes = table_aria_attributes
       label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
@@ -84,7 +105,75 @@ module Pathogen
       attributes
     end
 
+    def grid_template_columns_style
+      columns.map { |col| col.width.presence || 'minmax(120px, 1fr)' }.join(' ')
+    end
+
+    def row_style
+      "grid-template-columns: #{grid_template_columns_style};"
+    end
+
+    def virtual_pinned_column_entries
+      columns.each_with_index.take(virtual_pinned_count)
+    end
+
+    def virtual_center_column_entries
+      columns.each_with_index.drop(virtual_pinned_count)
+    end
+
+    def virtual_lane_row_style(column_entries)
+      widths = column_entries.map { |column, _index| column.width.presence || 'minmax(120px, 1fr)' }
+      return nil if widths.empty?
+
+      "grid-template-columns: #{widths.join(' ')};"
+    end
+
     def default_active_row_index = @rows.present? ? 1 : nil
+
+    def default_empty_state
+      tag.div(class: 'pathogen-data-grid__empty-state', role: 'status') do
+        tag.p(default_empty_state_message, class: 'pathogen-data-grid__empty-state-text')
+      end
+    end
+
+    def default_empty_state_message
+      t('pathogen.data_grid.empty_state.default', default: DEFAULT_EMPTY_STATE_MESSAGE)
+    end
+
+    def default_error_state
+      tag.div(class: 'pathogen-data-grid__error-state-content') do
+        tag.p(default_error_state_title, class: 'pathogen-data-grid__error-state-title') +
+          tag.p(
+            default_error_state_message,
+            class: 'pathogen-data-grid__error-state-message',
+            data: { 'pathogen--data-grid-target': 'errorMessage' }
+          )
+      end
+    end
+
+    def default_error_state_title
+      t('pathogen.data_grid.error_state.title', default: DEFAULT_ERROR_STATE_TITLE)
+    end
+
+    def default_error_state_message
+      t('pathogen.data_grid.error_state.message', default: DEFAULT_ERROR_STATE_MESSAGE)
+    end
+
+    def scroll_hint_message
+      t('pathogen.data_grid.scroll.hint', default: DEFAULT_SCROLL_HINT_MESSAGE)
+    end
+
+    def keyboard_help_text
+      t('pathogen.data_grid.keyboard.help', default: DEFAULT_KEYBOARD_HELP_MESSAGE)
+    end
+
+    def virtual_loading_text
+      t('pathogen.data_grid.virtual.loading', default: DEFAULT_VIRTUAL_LOADING_MESSAGE)
+    end
+
+    def virtual_loaded_text
+      t('pathogen.data_grid.virtual.loaded', default: DEFAULT_VIRTUAL_LOADED_MESSAGE)
+    end
 
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
@@ -121,6 +210,7 @@ module Pathogen
     def before_render
       apply_fill_container_class!
       apply_dense_class!
+      apply_virtual_class!
       apply_column_defaults!
       apply_responsive_sticky_class!
       apply_data_grid_controller!
@@ -128,10 +218,18 @@ module Pathogen
 
     private
 
-    def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
+    def table_aria_attributes
+      attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
+      attributes[:describedby] = @keyboard_help_id if @rows.present?
+      attributes
+    end
 
     def apply_dense_class!
       append_component_class!('pathogen-data-grid--dense') if @dense
+    end
+
+    def apply_virtual_class!
+      append_component_class!('pathogen-data-grid--virtual') if @virtual
     end
 
     def apply_column_defaults!
@@ -169,8 +267,27 @@ module Pathogen
       @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
     end
 
+    def virtual_metadata_attributes
+      {
+        'data-pathogen-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
+        'data-pathogen-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
+        'data-pathogen-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
+        'data-pathogen-data-grid-pinned-count': virtual_pinned_count,
+        'data-pathogen-data-grid-column-widths': virtual_column_widths
+      }
+    end
+
+    def virtual_pinned_count
+      columns.take_while(&:sticky).count
+    end
+
+    def virtual_column_widths
+      columns.map { |column| column.width_px || DEFAULT_VIRTUAL_COLUMN_WIDTH }.join(',')
+    end
+
     def append_component_class!(component_class)
       @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
+  # rubocop:enable Metrics/ClassLength
 end
