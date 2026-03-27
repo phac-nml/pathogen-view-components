@@ -128,9 +128,6 @@ export default class extends Controller {
       // Only update URL if the selected tab isn't already the current tab
       const validatedIndex = this.#validateDefaultIndex(initialIndex);
       this.#selectTabByIndex(validatedIndex, shouldUpdateUrl, history.replaceState);
-
-      // Add initialization markers
-      this.element.classList.add("tabs-initialized");
     } catch (error) {
       console.error("[pathogen--tabs] Error during initialization:", error);
     }
@@ -224,9 +221,6 @@ export default class extends Controller {
     // Clear cached DOM references
     this.#tablist = null;
 
-    // Remove initialization marker
-    this.element.classList.remove("tabs-initialized");
-
     // Remove test marker
     delete this.element.dataset.controllerConnected;
   }
@@ -241,13 +235,13 @@ export default class extends Controller {
   #validateTargets() {
     if (this.tabTargets.length === 0) {
       console.error("[pathogen--tabs] At least one tab target is required");
-      this.element.innerHTML = '<div class="text-red-600">At least one tab target is required</div>';
+      this.element.innerHTML = '<div class="pathogen-tabs__error">At least one tab target is required</div>';
       return false;
     }
 
     if (this.panelTargets.length === 0) {
       console.error("[pathogen--tabs] At least one panel target is required");
-      this.element.innerHTML = '<div class="text-red-600">At least one panel target is required</div>';
+      this.element.innerHTML = '<div class="pathogen-tabs__error">At least one panel target is required</div>';
       return false;
     }
 
@@ -256,7 +250,7 @@ export default class extends Controller {
         tabs: this.tabTargets.length,
         panels: this.panelTargets.length,
       });
-      this.element.innerHTML = '<div class="text-red-600">Tab and panel counts must match</div>';
+      this.element.innerHTML = '<div class="pathogen-tabs__error">Tab and panel counts must match</div>';
       return false;
     }
 
@@ -301,6 +295,7 @@ export default class extends Controller {
 
       // Initial tabindex (will be updated by selectTabByIndex)
       tab.tabIndex = -1;
+      tab.dataset.state = "inactive";
     });
 
     this.panelTargets.forEach((panel, index) => {
@@ -318,6 +313,8 @@ export default class extends Controller {
 
       // Initial hidden state (will be updated by selectTabByIndex)
       panel.setAttribute("aria-hidden", "true");
+      panel.hidden = true;
+      panel.dataset.state = "inactive";
     });
   }
 
@@ -325,11 +322,11 @@ export default class extends Controller {
    * Selects a tab by index
    *
    * This method handles both tab selection state and panel visibility.
-   * When a panel becomes visible (hidden class removed), any Turbo Frames
+   * When a panel becomes visible (`hidden` becomes false), any Turbo Frames
    * with loading="lazy" inside will automatically fetch their content.
    *
    * Turbo Frame Integration:
-   * - Removing the 'hidden' class triggers Turbo's lazy loading mechanism
+   * - Removing the `hidden` attribute triggers Turbo's lazy loading mechanism
    * - Turbo automatically fetches frame content when it becomes visible
    * - Once loaded, Turbo caches the content (no refetch on revisit)
    * - No explicit fetch() or JavaScript handling needed
@@ -357,8 +354,9 @@ export default class extends Controller {
 
         const isSelected = i === index;
 
-        // Update ARIA attributes
+        // Update ARIA/state attributes
         tab.setAttribute("aria-selected", String(isSelected));
+        tab.dataset.state = isSelected ? "active" : "inactive";
 
         // Update roving tabindex
         tab.tabIndex = isSelected ? 0 : -1;
@@ -370,18 +368,13 @@ export default class extends Controller {
 
         const isVisible = i === index;
 
-        // Update visibility
-        // Note: Using classList.toggle with 'hidden' class (not inline styles)
-        // is critical for Turbo Frame lazy loading. When 'hidden' is removed,
-        // Turbo detects the frame is now visible and triggers automatic fetch.
-        // CSS ensures visible panels display as block via [role="tabpanel"]:not(.hidden) rule.
-        panel.classList.toggle("hidden", !isVisible);
+        // Update visibility via native hidden attribute so Turbo can detect
+        // when lazy frames become visible.
+        panel.hidden = !isVisible;
 
         // Update ARIA hidden state
         panel.setAttribute("aria-hidden", String(!isVisible));
-
-        // Turbo Frame lazy loading happens automatically when panel becomes visible
-        // No explicit intervention needed - Turbo handles it when 'hidden' class is removed
+        panel.dataset.state = isVisible ? "active" : "inactive";
       });
 
       // Update URL hash if sync is enabled

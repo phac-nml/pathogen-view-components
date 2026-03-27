@@ -9,21 +9,17 @@ module Pathogen
   #
   # This component requires the following CSS to be present in your application:
   #
-  # 1. **Tailwind 'hidden' class** (or equivalent):
-  #    .hidden { display: none; }
+  # 1. **Pathogen tabs stylesheet**: app/assets/stylesheets/pathogen/components/tabs.css
+  #    - Namespaced tabs layout, tab, panel, and loading/error styles
+  #    - Data-state and ARIA driven visual states
   #
-  # 2. **Tab panel visibility rules** (see app/assets/tailwind/application.css):
-  #    - Progressive enhancement for non-JS environments
-  #    - Visibility control for active panels
-  #    - Dynamic tab styling based on aria-selected
-  #
-  # 3. **JavaScript controller**: app/assets/javascripts/pathogen_view_components/tabs_controller.js
+  # 2. **JavaScript controller**: app/assets/javascripts/pathogen_view_components/tabs_controller.js
   #    - Handles ARIA state management
   #    - Keyboard navigation (Arrow keys, Home, End)
   #    - Optional URL hash syncing
   #    - Turbo Frame lazy loading integration
   #
-  # @see app/assets/tailwind/application.css for required CSS rules
+  # @see app/assets/stylesheets/pathogen/components/tabs.css for required CSS rules
   # @see app/assets/javascripts/pathogen_view_components/tabs_controller.js for controller implementation
   #
   # @example Basic usage
@@ -101,6 +97,7 @@ module Pathogen
   #       <%= render partial: "details" %>
   #     <% end %>
   #   <% end %>
+  # rubocop:disable Metrics/ClassLength
   class Tabs < Pathogen::Component
     # Orientation options for the tablist
     ORIENTATION_OPTIONS = %i[horizontal vertical].freeze
@@ -181,6 +178,7 @@ module Pathogen
       @id = id
       @label = label
       @default_index = default_index
+      @resolved_default_index = default_index
       @orientation = fetch_or_fallback(ORIENTATION_OPTIONS, orientation, ORIENTATION_DEFAULT)
       @sync_url = sync_url
       @system_arguments = system_arguments
@@ -196,6 +194,8 @@ module Pathogen
       validate_default_index!
       validate_unique_ids!
       validate_panel_associations!
+      resolve_initial_index!
+      apply_initial_tab_selection
       apply_initial_panel_visibility
     end
 
@@ -255,8 +255,23 @@ module Pathogen
     def apply_initial_panel_visibility
       all_panels = panels + lazy_panels
       all_panels.each_with_index do |panel, index|
-        panel.set_initial_visibility(hidden: index != @default_index)
+        panel.set_initial_visibility(hidden: index != @resolved_default_index)
       end
     end
+
+    def apply_initial_tab_selection
+      tabs.each_with_index do |tab, index|
+        tab.set_selected(selected: index == @resolved_default_index)
+      end
+    end
+
+    def resolve_initial_index!
+      selected_index = tabs.find_index(&:selected)
+      return if selected_index.nil?
+
+      @resolved_default_index = selected_index
+      @system_arguments[:data]['pathogen--tabs-default-index-value'] = selected_index
+    end
   end
+  # rubocop:enable Metrics/ClassLength
 end
