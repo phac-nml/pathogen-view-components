@@ -397,4 +397,176 @@
       z-index: var(--pathogen-data-grid-header-z);
     }
   }
+
+  .pathogen-tabs {
+    color: var(--pathogen-color-text-default);
+    font-family: var(--pathogen-font-sans);
+    display: block;
+  }
+
+  .pathogen-tabs--horizontal .pathogen-tabs__panels {
+    margin-top: 1rem;
+  }
+
+  .pathogen-tabs--vertical {
+    align-items: flex-start;
+    gap: 1.5rem;
+    display: flex;
+  }
+
+  .pathogen-tabs--vertical .pathogen-tabs__panels {
+    flex: 1;
+  }
+
+  .pathogen-tabs__list {
+    border-bottom: 1px solid var(--pathogen-color-border-default);
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.25rem;
+    display: flex;
+  }
+
+  .pathogen-tabs--vertical .pathogen-tabs__list {
+    border-right: 1px solid var(--pathogen-color-border-default);
+    border-bottom: 0;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 12.5rem;
+    padding-right: 0.75rem;
+  }
+
+  .pathogen-tabs__tab {
+    appearance: none;
+    color: var(--pathogen-color-text-muted);
+    cursor: pointer;
+    font-size: var(--pathogen-text-sm);
+    background: none;
+    border: 0;
+    border-bottom: 2px solid #0000;
+    margin-bottom: -1px;
+    padding: 0.625rem 0.875rem;
+    font-weight: 600;
+    line-height: 1.25;
+    transition:
+      color 0.14s,
+      border-color 0.14s,
+      background-color 0.14s;
+  }
+
+  .pathogen-tabs__tab:hover {
+    background: var(--pathogen-color-surface-subtle);
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-tabs__tab:focus-visible {
+    border-radius: var(--pathogen-radius-control);
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .pathogen-tabs--horizontal .pathogen-tabs__tab {
+    border-top-left-radius: var(--pathogen-radius-control);
+    border-top-right-radius: var(--pathogen-radius-control);
+  }
+
+  .pathogen-tabs--vertical .pathogen-tabs__tab {
+    border-radius: var(--pathogen-radius-control) 0 0 var(--pathogen-radius-control);
+    text-align: left;
+    border-bottom: 0;
+    border-right: 2px solid #0000;
+    margin-bottom: 0;
+    margin-right: -1px;
+  }
+
+  .pathogen-tabs__tab[aria-selected="true"],
+  .pathogen-tabs__tab[data-state="active"] {
+    border-color: var(--pathogen-color-brand-600);
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-tabs__tab-content {
+    align-items: center;
+    gap: 0.375rem;
+    display: inline-flex;
+  }
+
+  .pathogen-tabs__tab-label {
+    display: inline-block;
+  }
+
+  .pathogen-tabs__panel {
+    color: var(--pathogen-color-text-default);
+    line-height: var(--pathogen-leading-normal);
+  }
+
+  .pathogen-tabs__panel:focus-visible {
+    border-radius: var(--pathogen-radius-control);
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .pathogen-tabs__panel[hidden] {
+    display: none;
+  }
+
+  .pathogen-tabs__skeleton {
+    border: 1px solid var(--pathogen-color-border-default);
+    border-radius: var(--pathogen-radius-surface);
+    background: var(--pathogen-color-surface-subtle);
+    padding: 1rem;
+    animation: 1.6s ease-in-out infinite pathogen-tabs-skeleton-pulse;
+  }
+
+  .pathogen-tabs__skeleton-lines {
+    gap: 0.75rem;
+    display: grid;
+  }
+
+  .pathogen-tabs__skeleton-paragraph {
+    gap: 0.5rem;
+    display: grid;
+  }
+
+  .pathogen-tabs__skeleton-line {
+    border-radius: var(--pathogen-radius-control);
+    background: color-mix(in oklab, var(--pathogen-color-border-strong) 86%, transparent);
+    height: 0.625rem;
+  }
+
+  .pathogen-tabs__skeleton-line--title {
+    width: 32%;
+    height: 0.875rem;
+  }
+
+  .pathogen-tabs__skeleton-line--full {
+    width: 100%;
+  }
+
+  .pathogen-tabs__skeleton-line--long {
+    width: 92%;
+  }
+
+  .pathogen-tabs__skeleton-line--medium {
+    width: 84%;
+  }
+
+  .pathogen-tabs__error {
+    border: 1px solid color-mix(in oklab, var(--pathogen-color-danger-500) 40%, var(--pathogen-color-border-default));
+    border-radius: var(--pathogen-radius-control);
+    background: color-mix(in oklab, var(--pathogen-color-danger-500) 12%, transparent);
+    color: color-mix(in oklab, var(--pathogen-color-danger-500) 72%, var(--pathogen-color-text-default));
+    font-size: var(--pathogen-text-sm);
+    padding: 0.75rem 1rem;
+  }
+
+  @keyframes pathogen-tabs-skeleton-pulse {
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
 }

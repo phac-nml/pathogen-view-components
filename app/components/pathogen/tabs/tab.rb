@@ -13,50 +13,6 @@ module Pathogen
     #     selected: true
     #   ) %>
     class Tab < Pathogen::Component
-      # Base CSS classes for all tabs
-      BASE_CLASSES = %w[
-        cursor-pointer
-        inline-block p-4
-        font-semibold transition-colors duration-200
-        border-b-2
-      ].freeze
-
-      # CSS classes for selected tabs (horizontal orientation)
-      SELECTED_CLASSES_HORIZONTAL = %w[
-        border-primary-800 dark:border-white
-        text-slate-900 dark:text-white
-        bg-transparent
-      ].freeze
-
-      # CSS classes for selected tabs (vertical orientation)
-      SELECTED_CLASSES_VERTICAL = %w[
-        border-r-primary-800 dark:border-r-white
-        text-slate-900 dark:text-white
-        bg-transparent
-      ].freeze
-
-      # CSS classes for unselected tabs (horizontal orientation)
-      UNSELECTED_CLASSES_HORIZONTAL = %w[
-        border-transparent
-        text-slate-700 dark:text-slate-200
-        hover:text-slate-900 dark:hover:text-white
-        hover:border-slate-700 dark:hover:border-white
-      ].freeze
-
-      # CSS classes for unselected tabs (vertical orientation)
-      UNSELECTED_CLASSES_VERTICAL = %w[
-        border-r-transparent
-        text-slate-700 dark:text-slate-200
-        hover:text-slate-900 dark:hover:text-white
-        hover:border-r-slate-700 dark:hover:border-r-white
-      ].freeze
-
-      # CSS classes for horizontal orientation
-      HORIZONTAL_CLASSES = %w[rounded-t-lg].freeze
-
-      # CSS classes for vertical orientation
-      VERTICAL_CLASSES = %w[rounded-l-lg border-b-0 border-r-2].freeze
-
       attr_reader :id, :label, :selected, :orientation
 
       # Initialize a new Tab component
@@ -83,6 +39,17 @@ module Pathogen
         @system_arguments.merge(id: @id, aria: @system_arguments[:aria].compact)
       end
 
+      # Allows the parent Tabs component to align server-rendered state with
+      # the configured default index before Stimulus connects.
+      #
+      # @param selected [Boolean] whether the tab should start selected
+      def set_selected(selected:)
+        @selected = selected
+        @system_arguments[:aria][:selected] = @selected.to_s
+        @system_arguments[:tabindex] = @selected ? 0 : -1
+        @system_arguments[:data][:state] = @selected ? 'active' : 'inactive'
+      end
+
       private
 
       # Sets up HTML and ARIA attributes for the tab button
@@ -91,12 +58,11 @@ module Pathogen
         @system_arguments[:type] = 'button'
         @system_arguments[:role] = 'tab'
         @system_arguments[:aria] ||= {}
-        @system_arguments[:aria][:selected] = @selected.to_s
         @system_arguments[:aria][:controls] = nil # Will be set by JavaScript
-        @system_arguments[:tabindex] = @selected ? 0 : -1
 
         setup_data_attributes
         setup_css_classes
+        set_selected(selected: @selected)
       end
 
       # Sets up Stimulus data attributes
@@ -109,23 +75,11 @@ module Pathogen
         ].join(' ')
       end
 
-      # Sets up CSS classes based on selection state and orientation
-      # Note: We apply both selected and unselected classes with aria-selected selectors
-      # so that JavaScript can dynamically toggle the appearance by changing aria-selected
+      # Sets up Pathogen CSS contract classes.
       def setup_css_classes
-        # Select appropriate state classes based on orientation
-        state_classes = if @orientation == :vertical
-                          @selected ? SELECTED_CLASSES_VERTICAL : UNSELECTED_CLASSES_VERTICAL
-                        else
-                          @selected ? SELECTED_CLASSES_HORIZONTAL : UNSELECTED_CLASSES_HORIZONTAL
-                        end
-
-        orientation_classes = @orientation == :vertical ? VERTICAL_CLASSES : HORIZONTAL_CLASSES
-
         @system_arguments[:class] = class_names(
-          BASE_CLASSES,
-          orientation_classes,
-          state_classes,
+          'pathogen-tabs__tab',
+          "pathogen-tabs__tab--#{@orientation}",
           @system_arguments[:class]
         )
       end
