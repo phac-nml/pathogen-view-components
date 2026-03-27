@@ -32,7 +32,7 @@
 
 - [x] **ICON-01**: The Pathogen gem no longer ships `Pathogen::Icon` or its supporting components, and `rails_icons` is removed as a gemspec dependency.
 - [ ] **ICON-02**: The demo app uses `rails_icons` directly (latest version) for its own icon previews, independent of the Pathogen gem.
-- [ ] **ICON-03**: No orphaned references to `Pathogen::Icon`, `IconRenderer`, `IconValidator`, or `IconErrorHandler` remain in shipped gem code, tests, or previews.
+- [x] **ICON-03**: No orphaned references to `Pathogen::Icon`, `IconRenderer`, `IconValidator`, or `IconErrorHandler` remain in shipped gem code, tests, or previews.
 
 ### Rollout Readiness
 
