@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03.5-remove-pathogen-icon-components-inserted-01-PLAN.md
-last_updated: "2026-03-27T18:52:57.542Z"
+stopped_at: Completed 03.5-remove-pathogen-icon-components-inserted-03-PLAN.md
+last_updated: "2026-03-27T18:59:14.262Z"
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 21
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-17)
 ## Current Position
 
 Phase: 03.5 (remove-pathogen-icon-components-inserted) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: 2 of 3
 - Trend: Stable
 
 | Phase 03.5-remove-pathogen-icon-components-inserted P01 | 8min | 3 tasks | 16 files |
+| Phase 03.5-remove-pathogen-icon-components-inserted P03 | 5 min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -59,6 +60,7 @@ Plan: 2 of 3
 - Phase 3: JS-controlled visual state should use `data-*`, ARIA, and `hidden` rather than utility-class toggling.
 - [Phase 03.5-remove-pathogen-icon-components-inserted]: Commit the unexpected Gemfile.lock delta in a dedicated follow-up commit tied to Task 2 dependency removal.
 - [Phase 03.5-remove-pathogen-icon-components-inserted]: Leave pre-existing unrelated app/assets/stylesheets/pathogen_view_components.css changes untouched.
+- [Phase 03.5-remove-pathogen-icon-components-inserted]: Use helpers.icon(icon_name.to_s.tr("_", "-"), **args) for ButtonVisuals icon slots to match rails_icons lookups.
 
 ### Pending Todos
 
@@ -71,6 +73,6 @@ Pending todos exist under `.planning/todos/pending/`.
 
 ## Session Continuity
 
-Last session: 2026-03-27T18:52:57.540Z
-Stopped at: Completed 03.5-remove-pathogen-icon-components-inserted-01-PLAN.md
+Last session: 2026-03-27T18:59:14.260Z
+Stopped at: Completed 03.5-remove-pathogen-icon-components-inserted-03-PLAN.md
 Resume file: None
