@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Keyboard Navigation Baseline** - Establish the accessible keyboard and ARIA baseline for DataGrid and related interaction contracts.
 - [ ] **Phase 2: Virtual Architecture** - Migrate DataGrid virtual mode to the div-based architecture while preserving focus, sticky columns, and parity behavior.
 - [ ] **Phase 3: CSS Migration** - Remove Tailwind coupling from Pathogen and adopt component-owned CSS compiled with Lightning CSS.
-- [x] **Phase 3.5: Remove Pathogen Icon Components** (INSERTED) - Remove the Pathogen::Icon family from the gem and update the demo app to use rails_icons directly.
+- [ ] **Phase 3.5: Remove Pathogen Icon Components** (INSERTED) - Remove the Pathogen::Icon family from the gem and update the demo app to use rails_icons directly.
 - [ ] **Phase 4: Validation and Rollout Hardening** - Verify the rewritten surfaces, close regressions, and prepare the library for stable rollout.
 
 ## Phase Details
@@ -92,8 +92,8 @@ Plans:
 
 Plans:
 - [x] 03.5-01-PLAN.md — Delete icon components/previews and remove gem-level icon dependencies/references.
-- [x] 03.5-03-PLAN.md — Rewire button icon slot to helpers.icon and close orphan reference scans.
-- [x] 03.5-02-PLAN.md — Add rails_icons to demo app with lockfile version gate and verify Lookbook icon rendering.
+- [ ] 03.5-03-PLAN.md — Rewire button icon slot to helpers.icon and close orphan reference scans.
+- [ ] 03.5-02-PLAN.md — Add rails_icons to demo app with lockfile version gate and verify Lookbook icon rendering.
 
 ### Phase 4: Validation and Rollout Hardening
 **Goal:** Validate the migrated virtual architecture and CSS system, close remaining regressions, and prepare the library for stable consumer rollout.
@@ -118,5 +118,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 1. Keyboard Navigation Baseline | 3/3 | Complete | 2026-03-22 |
 | 2. Virtual Architecture | 0/4 | In progress | - |
 | 3. CSS Migration | 3/14 | In progress | - |
-| 3.5. Remove Pathogen Icon Components | 3/3 | Complete | 2026-03-27 |
+| 3.5. Remove Pathogen Icon Components | 1/3 | In progress | - |
 | 4. Validation and Rollout Hardening | 0/TBD | Not started | - |
