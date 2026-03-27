@@ -1,6 +1,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { spawn } from "node:child_process";
+import { format, resolveConfig } from "prettier";
 
 const args = new Set(process.argv.slice(2));
 const checkOnly = args.has("--check");
@@ -24,6 +25,11 @@ function runTailwindBuild() {
   });
 }
 
+async function formatOutput(css) {
+  const prettierConfig = await resolveConfig(outputPath);
+  return format(css, { ...prettierConfig, filepath: outputPath });
+}
+
 async function main() {
   let previous = null;
   if (checkOnly) {
@@ -44,8 +50,9 @@ async function main() {
   let css = await readFile(outputPath, "utf8");
   if (!css.startsWith("/* GENERATED FILE:")) {
     css = outputHeader + css;
-    await writeFile(outputPath, css);
   }
+  css = await formatOutput(css);
+  await writeFile(outputPath, css);
 
   if (checkOnly) {
     if (previous !== css) {
