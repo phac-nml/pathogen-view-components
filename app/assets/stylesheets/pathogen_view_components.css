@@ -5,111 +5,131 @@
 
 @layer pathogen.tokens {
   :root {
-    --pathogen-color-neutral-950: oklch(26.9% .036 263.7);
-    --pathogen-color-neutral-900: oklch(32.6% .048 264.3);
-    --pathogen-color-neutral-700: oklch(48.3% .05 260.3);
-    --pathogen-color-neutral-500: oklch(64% .037 259.4);
-    --pathogen-color-neutral-300: oklch(82.4% .025 259.8);
-    --pathogen-color-neutral-200: oklch(90.4% .017 256.3);
-    --pathogen-color-neutral-100: oklch(95.2% .01 248.1);
-    --pathogen-color-neutral-50: oklch(98.1% .005 248.1);
-    --pathogen-color-brand-500: oklch(72.3% .192 149.6);
-    --pathogen-color-brand-600: oklch(62.7% .17 149.2);
-    --pathogen-color-brand-700: oklch(52.7% .137 150.1);
-    --pathogen-color-success-500: oklch(62.7% .17 149.2);
-    --pathogen-color-warning-500: oklch(68.1% .142 75.8);
-    --pathogen-color-danger-500: oklch(57.7% .215 27.3);
+    --pathogen-color-neutral-950: oklch(26.9% 0.036 263.7);
+    --pathogen-color-neutral-900: oklch(32.6% 0.048 264.3);
+    --pathogen-color-neutral-700: oklch(48.3% 0.05 260.3);
+    --pathogen-color-neutral-500: oklch(64% 0.037 259.4);
+    --pathogen-color-neutral-300: oklch(82.4% 0.025 259.8);
+    --pathogen-color-neutral-200: oklch(90.4% 0.017 256.3);
+    --pathogen-color-neutral-100: oklch(95.2% 0.01 248.1);
+    --pathogen-color-neutral-50: oklch(98.1% 0.005 248.1);
+    --pathogen-color-brand-500: oklch(72.3% 0.192 149.6);
+    --pathogen-color-brand-600: oklch(62.7% 0.17 149.2);
+    --pathogen-color-brand-700: oklch(52.7% 0.137 150.1);
+    --pathogen-color-success-500: oklch(62.7% 0.17 149.2);
+    --pathogen-color-warning-500: oklch(68.1% 0.142 75.8);
+    --pathogen-color-danger-500: oklch(57.7% 0.215 27.3);
     --pathogen-color-text-default: var(--pathogen-color-neutral-900);
     --pathogen-color-text-muted: var(--pathogen-color-neutral-700);
     --pathogen-color-border-default: var(--pathogen-color-neutral-200);
     --pathogen-color-border-strong: var(--pathogen-color-neutral-300);
     --pathogen-color-surface-default: oklch(100% 0 0);
     --pathogen-color-surface-subtle: var(--pathogen-color-neutral-50);
-    --pathogen-color-surface-sticky: oklch(96.2% .012 252.2);
+    --pathogen-color-surface-sticky: oklch(96.2% 0.012 252.2);
     --pathogen-color-focus-ring: var(--pathogen-color-neutral-700);
-    --pathogen-color-link: color-mix(in oklab,
+    --pathogen-color-link: color-mix(
+      in oklab,
       var(--pathogen-color-text-default) 76%,
-      var(--pathogen-color-brand-600) 24%);
+      var(--pathogen-color-brand-600) 24%
+    );
     --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 34%, transparent);
     --pathogen-font-sans: "Inter", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-    --pathogen-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    --pathogen-text-sm: .875rem;
+    --pathogen-font-mono:
+      ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --pathogen-text-sm: 0.875rem;
     --pathogen-leading-normal: 1.45;
-    --pathogen-radius-control: .375rem;
-    --pathogen-radius-surface: .5rem;
-    --pathogen-space-cell-x: .875rem;
-    --pathogen-space-cell-y: .75rem;
-    --pathogen-shadow-border: oklch(32.6% .048 264.3 / .14);
+    --pathogen-radius-control: 0.375rem;
+    --pathogen-radius-surface: 0.5rem;
+    --pathogen-space-cell-x: 0.875rem;
+    --pathogen-space-cell-y: 0.75rem;
+    --pathogen-shadow-border: oklch(32.6% 0.048 264.3 / 0.14);
   }
 
   @media (prefers-color-scheme: dark) {
     :root:not(.light) {
-      --pathogen-color-text-default: oklch(91.9% .017 256.3);
-      --pathogen-color-text-muted: oklch(82.6% .029 258.4);
-      --pathogen-color-border-default: oklch(37.6% .048 263.7);
-      --pathogen-color-border-strong: oklch(45.4% .056 260);
-      --pathogen-color-surface-default: oklch(19.8% .037 264.2);
-      --pathogen-color-surface-subtle: oklch(25% .051 262.5);
-      --pathogen-color-surface-sticky: oklch(27.5% .058 261.5);
-      --pathogen-color-focus-ring: oklch(82.6% .029 258.4);
-      --pathogen-color-link: color-mix(in oklab,
+      --pathogen-color-text-default: oklch(91.9% 0.017 256.3);
+      --pathogen-color-text-muted: oklch(82.6% 0.029 258.4);
+      --pathogen-color-border-default: oklch(37.6% 0.048 263.7);
+      --pathogen-color-border-strong: oklch(45.4% 0.056 260);
+      --pathogen-color-surface-default: oklch(19.8% 0.037 264.2);
+      --pathogen-color-surface-subtle: oklch(25% 0.051 262.5);
+      --pathogen-color-surface-sticky: oklch(27.5% 0.058 261.5);
+      --pathogen-color-focus-ring: oklch(82.6% 0.029 258.4);
+      --pathogen-color-link: color-mix(
+        in oklab,
         var(--pathogen-color-text-default) 82%,
-        var(--pathogen-color-brand-500) 18%);
+        var(--pathogen-color-brand-500) 18%
+      );
       --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 56%, transparent);
-      --pathogen-shadow-border: oklch(82.6% .029 258.4 / .24);
+      --pathogen-shadow-border: oklch(82.6% 0.029 258.4 / 0.24);
     }
   }
 
   .dark {
-    --pathogen-color-text-default: oklch(91.9% .017 256.3);
-    --pathogen-color-text-muted: oklch(82.6% .029 258.4);
-    --pathogen-color-border-default: oklch(37.6% .048 263.7);
-    --pathogen-color-border-strong: oklch(45.4% .056 260);
-    --pathogen-color-surface-default: oklch(19.8% .037 264.2);
-    --pathogen-color-surface-subtle: oklch(25% .051 262.5);
-    --pathogen-color-surface-sticky: oklch(27.5% .058 261.5);
-    --pathogen-color-focus-ring: oklch(82.6% .029 258.4);
-    --pathogen-color-link: color-mix(in oklab,
+    --pathogen-color-text-default: oklch(91.9% 0.017 256.3);
+    --pathogen-color-text-muted: oklch(82.6% 0.029 258.4);
+    --pathogen-color-border-default: oklch(37.6% 0.048 263.7);
+    --pathogen-color-border-strong: oklch(45.4% 0.056 260);
+    --pathogen-color-surface-default: oklch(19.8% 0.037 264.2);
+    --pathogen-color-surface-subtle: oklch(25% 0.051 262.5);
+    --pathogen-color-surface-sticky: oklch(27.5% 0.058 261.5);
+    --pathogen-color-focus-ring: oklch(82.6% 0.029 258.4);
+    --pathogen-color-link: color-mix(
+      in oklab,
       var(--pathogen-color-text-default) 82%,
-      var(--pathogen-color-brand-500) 18%);
+      var(--pathogen-color-brand-500) 18%
+    );
     --pathogen-color-highlight: color-mix(in oklab, var(--pathogen-color-brand-500) 56%, transparent);
-    --pathogen-shadow-border: oklch(82.6% .029 258.4 / .24);
+    --pathogen-shadow-border: oklch(82.6% 0.029 258.4 / 0.24);
   }
 }
 
 @layer pathogen.utilities {
-  .pathogen-u-text-default, .pathogen-data-grid__text--default {
+  .pathogen-u-text-default,
+  .pathogen-data-grid__text--default {
     color: var(--pathogen-color-text-default);
   }
 
-  .pathogen-u-text-muted, .pathogen-data-grid__text--muted {
+  .pathogen-u-text-muted,
+  .pathogen-data-grid__text--muted {
     color: var(--pathogen-color-text-muted);
   }
 
-  .pathogen-u-link, .pathogen-data-grid__link {
+  .pathogen-u-link,
+  .pathogen-data-grid__link {
     color: var(--pathogen-color-link);
-    text-underline-offset: .12em;
+    text-underline-offset: 0.12em;
     font-weight: 600;
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
-    transition: color .14s, text-decoration-thickness .14s;
+    transition:
+      color 0.14s,
+      text-decoration-thickness 0.14s;
   }
 
-  .pathogen-u-link:hover, .pathogen-data-grid__link:hover {
+  .pathogen-u-link:hover,
+  .pathogen-data-grid__link:hover {
     text-decoration-thickness: 2px;
   }
 
-  .pathogen-u-link:focus-visible, .pathogen-data-grid__link:focus-visible {
+  .pathogen-u-link:focus-visible,
+  .pathogen-data-grid__link:focus-visible {
     outline: 2px solid var(--pathogen-color-focus-ring);
     outline-offset: 2px;
     border-radius: var(--pathogen-radius-control);
   }
 
-  .pathogen-u-link--subtle, .pathogen-data-grid__link--subtle, .pathogen-data-grid__link--sample, .pathogen-data-grid__link--project {
+  .pathogen-u-link--subtle,
+  .pathogen-data-grid__link--subtle,
+  .pathogen-data-grid__link--sample,
+  .pathogen-data-grid__link--project {
     color: color-mix(in oklab, var(--pathogen-color-text-default) 84%, transparent);
   }
 
-  .pathogen-u-link--subtle:hover, .pathogen-data-grid__link--subtle:hover, .pathogen-data-grid__link--sample:hover, .pathogen-data-grid__link--project:hover {
+  .pathogen-u-link--subtle:hover,
+  .pathogen-data-grid__link--subtle:hover,
+  .pathogen-data-grid__link--sample:hover,
+  .pathogen-data-grid__link--project:hover {
     color: var(--pathogen-color-link);
   }
 
@@ -117,18 +137,21 @@
     color: var(--pathogen-color-text-default);
   }
 
-  .pathogen-u-font-mono, .pathogen-data-grid__value--mono {
+  .pathogen-u-font-mono,
+  .pathogen-data-grid__value--mono {
     font-family: var(--pathogen-font-mono);
     font-weight: 600;
   }
 
-  .pathogen-u-highlight, .pathogen-data-grid__highlight {
+  .pathogen-u-highlight,
+  .pathogen-data-grid__highlight {
     background: var(--pathogen-color-highlight);
     border-radius: var(--pathogen-radius-control);
-    padding-inline: .06em;
+    padding-inline: 0.06em;
   }
 
-  .pathogen-u-highlight--strong, .pathogen-data-grid__highlight--strong {
+  .pathogen-u-highlight--strong,
+  .pathogen-data-grid__highlight--strong {
     font-weight: 600;
   }
 
@@ -158,9 +181,11 @@
       color-mix(in oklab, var(--pathogen-color-neutral-950) 8%, transparent);
     --pathogen-data-grid-row-hover-bg: var(--pathogen-color-surface-subtle);
     --pathogen-data-grid-focus-ring: var(--pathogen-color-focus-ring);
-    --pathogen-data-grid-active-cell-bg: color-mix(in oklab,
+    --pathogen-data-grid-active-cell-bg: color-mix(
+      in oklab,
       var(--pathogen-color-focus-ring) 12%,
-      var(--pathogen-data-grid-body-bg));
+      var(--pathogen-data-grid-body-bg)
+    );
     --pathogen-data-grid-cell-padding-y: 1rem;
     --pathogen-data-grid-cell-padding-x: 1rem;
     --pathogen-data-grid-font-size: var(--pathogen-text-sm);
@@ -176,9 +201,11 @@
     --pathogen-data-grid-scroll-hint-color: var(--pathogen-data-grid-text-muted-color);
     --pathogen-data-grid-keyboard-help-color: var(--pathogen-data-grid-text-muted-color);
     --pathogen-data-grid-virtual-status-color: var(--pathogen-data-grid-text-muted-color);
-    --pathogen-data-grid-error-border: color-mix(in oklab,
+    --pathogen-data-grid-error-border: color-mix(
+      in oklab,
       var(--pathogen-color-danger-500) 45%,
-      var(--pathogen-data-grid-border-color));
+      var(--pathogen-data-grid-border-color)
+    );
     --pathogen-data-grid-error-bg: color-mix(in oklab, var(--pathogen-color-danger-500) 12%, transparent);
     --pathogen-data-grid-error-title-color: var(--pathogen-data-grid-text-color);
     --pathogen-data-grid-error-message-color: var(--pathogen-data-grid-text-muted-color);
@@ -212,7 +239,7 @@
     border-radius: inherit;
     max-width: 100%;
     box-shadow: none;
-    transition: box-shadow .16s;
+    transition: box-shadow 0.16s;
     position: relative;
     overflow: auto;
   }
@@ -245,25 +272,25 @@
   }
 
   .pathogen-data-grid__scroll-hint {
-    padding: .375rem var(--pathogen-data-grid-cell-padding-x) 0;
+    padding: 0.375rem var(--pathogen-data-grid-cell-padding-x) 0;
     color: var(--pathogen-data-grid-scroll-hint-color);
     margin: 0;
-    font-size: .75rem;
+    font-size: 0.75rem;
     line-height: 1.35;
     display: none;
   }
 
   .pathogen-data-grid__keyboard-help {
-    padding: .25rem var(--pathogen-data-grid-cell-padding-x) var(--pathogen-data-grid-cell-padding-y);
+    padding: 0.25rem var(--pathogen-data-grid-cell-padding-x) var(--pathogen-data-grid-cell-padding-y);
     color: var(--pathogen-data-grid-keyboard-help-color);
     margin: 0;
-    font-size: .75rem;
+    font-size: 0.75rem;
     line-height: 1.35;
   }
 
   .pathogen-data-grid__row {
     background: var(--pathogen-data-grid-body-bg);
-    transition: background-color .15s;
+    transition: background-color 0.15s;
   }
 
   .pathogen-data-grid__row--header {
@@ -271,9 +298,9 @@
   }
 
   .pathogen-data-grid--dense {
-    --pathogen-data-grid-cell-padding-y: .5rem;
-    --pathogen-data-grid-cell-padding-x: .75rem;
-    --pathogen-data-grid-font-size: .8125rem;
+    --pathogen-data-grid-cell-padding-y: 0.5rem;
+    --pathogen-data-grid-cell-padding-x: 0.75rem;
+    --pathogen-data-grid-font-size: 0.8125rem;
   }
 
   .pathogen-data-grid--dense .pathogen-data-grid__cell {
@@ -316,7 +343,7 @@
   .pathogen-data-grid__header-label {
     color: var(--pathogen-data-grid-text-muted-color);
     text-transform: uppercase;
-    letter-spacing: .05em;
+    letter-spacing: 0.05em;
     white-space: nowrap;
     font-weight: 600;
     display: inline-block;
@@ -347,7 +374,8 @@
     text-align: right;
   }
 
-  .pathogen-data-grid__body .pathogen-data-grid__row:hover, .pathogen-data-grid__body .pathogen-data-grid__row:focus-within {
+  .pathogen-data-grid__body .pathogen-data-grid__row:hover,
+  .pathogen-data-grid__body .pathogen-data-grid__row:focus-within {
     background: var(--pathogen-data-grid-row-hover-bg);
   }
 
@@ -355,13 +383,21 @@
     background: inherit;
   }
 
-  .pathogen-data-grid__cell:focus:not([data-pathogen--data-grid-has-interactive="true"]), .pathogen-data-grid__table:focus-within .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
+  .pathogen-data-grid__cell:focus:not([data-pathogen--data-grid-has-interactive="true"]),
+  .pathogen-data-grid__table:focus-within
+    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
     box-shadow: inset 0 0 0 2px var(--pathogen-data-grid-focus-ring);
     background: var(--pathogen-data-grid-active-cell-bg);
     outline: none;
   }
 
-  .pathogen-data-grid__cell--sticky:focus, .pathogen-data-grid__table:focus-within .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
+  .pathogen-data-grid__cell--sticky:focus,
+  .pathogen-data-grid__table:focus-within
+    .pathogen-data-grid__cell--sticky[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
     z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
   }
 
@@ -405,11 +441,13 @@
 
   .pathogen-data-grid__error-state-message {
     color: var(--pathogen-data-grid-error-message-color);
-    margin: .25rem 0 0;
+    margin: 0.25rem 0 0;
     line-height: 1.4;
   }
 
-  .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__state, .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__scroll-hint, .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__keyboard-help {
+  .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__state,
+  .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__scroll-hint,
+  .pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__keyboard-help {
     display: none;
   }
 
@@ -434,18 +472,21 @@
 
   @container (width <= 48rem) {
     .pathogen-data-grid[data-pathogen-data-grid-overflowing] .pathogen-data-grid__scroll {
-      box-shadow: inset var(--pathogen-data-grid-scroll-cue-size) 0 var(--pathogen-data-grid-scroll-cue-size)
+      box-shadow:
+        inset var(--pathogen-data-grid-scroll-cue-size) 0 var(--pathogen-data-grid-scroll-cue-size)
           calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) var(--pathogen-data-grid-scroll-cue-color),
         inset calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) 0 var(--pathogen-data-grid-scroll-cue-size)
           calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) var(--pathogen-data-grid-scroll-cue-color);
     }
 
-    .pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="start"] .pathogen-data-grid__scroll {
+    .pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="start"]
+      .pathogen-data-grid__scroll {
       box-shadow: inset calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) 0 var(--pathogen-data-grid-scroll-cue-size)
         calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) var(--pathogen-data-grid-scroll-cue-color);
     }
 
-    .pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="end"] .pathogen-data-grid__scroll {
+    .pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="end"]
+      .pathogen-data-grid__scroll {
       box-shadow: inset var(--pathogen-data-grid-scroll-cue-size) 0 var(--pathogen-data-grid-scroll-cue-size)
         calc(-1 * var(--pathogen-data-grid-scroll-cue-size)) var(--pathogen-data-grid-scroll-cue-color);
     }
@@ -479,11 +520,11 @@
   }
 
   .pathogen-data-grid__virtual-status {
-    padding: .625rem var(--pathogen-data-grid-cell-padding-x);
+    padding: 0.625rem var(--pathogen-data-grid-cell-padding-x);
     color: var(--pathogen-data-grid-virtual-status-color);
     align-items: center;
-    gap: .5rem;
-    font-size: .8125rem;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
     line-height: 1.35;
     display: none;
   }
@@ -497,9 +538,9 @@
     border: 2px solid color-mix(in oklab, var(--pathogen-color-border-strong) 70%, transparent);
     border-top-color: var(--pathogen-data-grid-focus-ring);
     border-radius: 999px;
-    width: .75rem;
-    height: .75rem;
-    animation: .72s linear infinite pathogen-data-grid-spin;
+    width: 0.75rem;
+    height: 0.75rem;
+    animation: 0.72s linear infinite pathogen-data-grid-spin;
   }
 
   .pathogen-data-grid--virtual[data-virtual-ready] .pathogen-data-grid__virtual-status {
@@ -552,7 +593,8 @@
     left: auto;
   }
 
-  .pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned .pathogen-data-grid__cell, .pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned .pathogen-data-grid__header-label {
+  .pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned .pathogen-data-grid__cell,
+  .pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned .pathogen-data-grid__header-label {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -582,7 +624,10 @@
     width: 1px;
   }
 
-  .pathogen-data-grid__grid:focus-within .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not([data-pathogen--data-grid-has-interactive="true"]) {
+  .pathogen-data-grid__grid:focus-within
+    .pathogen-data-grid__cell[data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
     box-shadow: inset 0 0 0 2px var(--pathogen-data-grid-focus-ring);
     background: var(--pathogen-data-grid-active-cell-bg);
     outline: none;
@@ -597,7 +642,7 @@
   abbr.req {
     vertical-align: baseline;
     color: var(--pathogen-color-danger-500);
-    font-size: .875rem;
+    font-size: 0.875rem;
     line-height: 1;
     text-decoration-line: none;
   }
