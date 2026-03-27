@@ -22,13 +22,9 @@ module Pathogen
     end
 
     def icon_visual(args)
-      icon_name = args[:icon]
-      args.delete(:icon)
+      icon_name = args.delete(:icon)
       args[:class] = class_names(args[:class], icon_classes)
-
-      # Use the enhanced Pathogen::Icon component for better functionality
-      # (includes debug classes, error handling, accessibility defaults)
-      Pathogen::Icon.new(icon_name, **args)
+      helpers.icon(icon_name.to_s.tr('_', '-'), **args)
     end
 
     def svg_visual(args, name)
