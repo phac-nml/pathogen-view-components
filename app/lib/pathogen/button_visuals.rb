@@ -32,6 +32,7 @@ module Pathogen
         tag: :svg,
         width: '16',
         height: '16',
+        fill: 'currentColor',
         classes: "#{name}_svg fill-current",
         **args
       )
