@@ -1,8 +1,10 @@
+<%# herb:formatter ignore %>
+
 <div class="min-h-screen bg-gradient-to-br from-indigo-50 to-cyan-50 p-8 dark:from-slate-900 dark:to-indigo-950">
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="mb-4 text-4xl font-bold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:faders, color: :primary, size: :xl, class: "inline mr-3") %> Advanced Features
+      Advanced Features
     </h1>
 
     <p class="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-400">
@@ -13,7 +15,7 @@
   <!-- Default Index Selection -->
   <div class="mb-12">
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:cursor, color: :primary, class: "mr-3") %> Custom Default Tab Selection
+      Custom Default Tab Selection
     </h2>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
@@ -56,7 +58,7 @@
         <% tabs.with_panel(id: 'panel-step3', tab_id: 'tab-step3') do %>
           <div class="p-6">
             <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-              <%= pathogen_icon(:check_circle, color: :success) %> Step 3: Review (You start here!)
+              Step 3: Review (You start here!)
             </h3>
 
             <p class="text-slate-600 dark:text-slate-400">
@@ -88,7 +90,9 @@
             dark:bg-slate-900
           "
         >
-          <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Multi-step form", default_index: 2 # &lt;-- Start on third tab (zero-based) )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Step 1") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Step 2") %&gt; &lt;% tabs.with_tab(id: "tab-3", label: "Step 3") %&gt; ... &lt;% end %&gt;          </code></pre>
+          <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
+&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Multi-step form", default_index: 2 # &lt;-- Start on third tab (zero-based) )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Step 1") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Step 2") %&gt; &lt;% tabs.with_tab(id: "tab-3", label: "Step 3") %&gt; ... &lt;% end %&gt;                                                  
+</code></pre>
         </div>
       </div>
     </div>
@@ -97,7 +101,7 @@
   <!-- Edge Cases -->
   <div class="mb-12">
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:flask, color: :warning, class: "mr-3") %> Edge Cases & Limits
+      Edge Cases & Limits
     </h2>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -115,7 +119,7 @@
           "
         >
           <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:square, color: :primary) %> Single Tab
+            Single Tab
           </h3>
         </div>
 
@@ -147,7 +151,7 @@
           "
         >
           <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:grid_four, color: :primary) %> Many Tabs (8+)
+            Many Tabs (8+)
           </h3>
         </div>
 
@@ -178,7 +182,7 @@
   <!-- Lazy Loading Documentation -->
   <div>
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:lightning, color: :warning, class: "mr-3") %> Turbo Frame Lazy Loading
+      Turbo Frame Lazy Loading
     </h2>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
@@ -189,8 +193,6 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:info, color: :warning) %>
-
           <div>
             <p class="mb-2 text-slate-700 dark:text-slate-300">
               <strong>Note:</strong> Lazy loading cannot be demonstrated in this preview because it requires actual
@@ -208,7 +210,7 @@
         <!-- How It Works -->
         <div>
           <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:gear, color: :primary) %> How Lazy Loading Works
+            How Lazy Loading Works
           </h3>
 
           <p class="mb-4 text-slate-700 dark:text-slate-300">
@@ -300,7 +302,7 @@
         <!-- Implementation Example -->
         <div>
           <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:code, color: :primary) %> Implementation Example
+            Implementation Example
           </h3>
 
           <div
@@ -309,7 +311,9 @@
               dark:border-slate-700 dark:bg-slate-900
             "
           >
-            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new(id: "lazy-tabs", label: "Lazy loaded tabs")) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-overview", label: "Overview", selected: true) %&gt; &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt; &lt;% tabs.with_tab(id: "tab-reports", label: "Reports") %&gt; &lt;!-- First panel: eager loaded (no turbo_frame) --&gt; &lt;% tabs.with_panel(id: "panel-overview", tab_id: "tab-overview") do %&gt; &lt;div class="p-6"&gt; &lt;h3&gt;Overview Content&lt;/h3&gt; &lt;p&gt;This loads immediately on page load.&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;!-- Second panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-analytics", tab_id: "tab-analytics") do %&gt; &lt;%= turbo_frame_tag "analytics-content", src: analytics_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading analytics...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;!-- Third panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-reports", tab_id: "tab-reports") do %&gt; &lt;%= turbo_frame_tag "reports-content", src: reports_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading reports...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;% end %&gt;            </code></pre>
+            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
+&lt;%= render(Pathogen::Tabs.new(id: "lazy-tabs", label: "Lazy loaded tabs")) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-overview", label: "Overview", selected: true) %&gt; &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt; &lt;% tabs.with_tab(id: "tab-reports", label: "Reports") %&gt; &lt;!-- First panel: eager loaded (no turbo_frame) --&gt; &lt;% tabs.with_panel(id: "panel-overview", tab_id: "tab-overview") do %&gt; &lt;div class="p-6"&gt; &lt;h3&gt;Overview Content&lt;/h3&gt; &lt;p&gt;This loads immediately on page load.&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;!-- Second panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-analytics", tab_id: "tab-analytics") do %&gt; &lt;%= turbo_frame_tag "analytics-content", src: analytics_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading analytics...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;!-- Third panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-reports", tab_id: "tab-reports") do %&gt; &lt;%= turbo_frame_tag "reports-content", src: reports_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading reports...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;% end %&gt;                                                            
+</code></pre>
           </div>
 
           <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
@@ -323,7 +327,7 @@
         <!-- Backend Routes -->
         <div>
           <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:hard_drives, color: :primary) %> Backend Requirements
+            Backend Requirements
           </h3>
 
           <p class="mb-4 text-slate-700 dark:text-slate-300">
@@ -336,21 +340,21 @@
               dark:bg-slate-900
             "
           >
-            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200"># routes.rb resources :projects do member do get :analytics get :reports end end # projects_controller.rb def analytics @project = Project.find(params[:id]) # Heavy computation here @analytics_data = AnalyticsService.new(@project).compute render turbo_frame: "analytics-content" end # views/projects/analytics.html.erb &lt;%= turbo_frame_tag "analytics-content" do %&gt;<div class="p-6"><h3 class="text-xl font-semibold">Analytics</h3>                <!-- Render complex analytics charts/data -->&lt;%= render "analytics_charts", data: @analytics_data %&gt;              </div>&lt;% end %&gt;            </code></pre>
+            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
+# routes.rb resources :projects do member do get :analytics get :reports end end # projects_controller.rb def analytics @project = Project.find(params[:id]) # Heavy computation here @analytics_data = AnalyticsService.new(@project).compute render turbo_frame: "analytics-content" end # views/projects/analytics.html.erb &lt;%= turbo_frame_tag "analytics-content" do %&gt;<div class="p-6"><h3 class="text-xl font-semibold">Analytics</h3>                <!-- Render complex analytics charts/data -->&lt;%= render "analytics_charts", data: @analytics_data %&gt;                                                              </div>&lt;% end %&gt;                                                            
+</code></pre>
           </div>
         </div>
 
         <!-- Benefits -->
         <div>
           <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            <%= pathogen_icon(:check_circle, color: :success) %> Benefits of Lazy Loading
+            Benefits of Lazy Loading
           </h3>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
               <div class="flex items-start gap-3">
-                <%= pathogen_icon(:lightning, color: :success) %>
-
                 <div>
                   <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Faster Initial Load</h4>
 
@@ -363,8 +367,6 @@
 
             <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
               <div class="flex items-start gap-3">
-                <%= pathogen_icon(:database, color: :success) %>
-
                 <div>
                   <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Reduced Server Load</h4>
 
@@ -377,8 +379,6 @@
 
             <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
               <div class="flex items-start gap-3">
-                <%= pathogen_icon(:chart_bar, color: :success) %>
-
                 <div>
                   <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Better Performance</h4>
 
@@ -391,8 +391,6 @@
 
             <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
               <div class="flex items-start gap-3">
-                <%= pathogen_icon(:arrows_clockwise, color: :success) %>
-
                 <div>
                   <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Seamless UX</h4>
 
@@ -408,8 +406,6 @@
         <!-- Testing Reference -->
         <div class="rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-900/20">
           <div class="flex items-start gap-3">
-            <%= pathogen_icon(:flask, color: :primary) %>
-
             <div class="text-sm">
               <strong class="text-violet-900 dark:text-violet-100">Testing:</strong>
 

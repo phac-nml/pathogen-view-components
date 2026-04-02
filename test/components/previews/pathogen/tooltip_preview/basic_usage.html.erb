@@ -7,22 +7,17 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= pathogen_icon(:info, color: :primary, size: :xl, class: "inline mr-3") %>
       Pathogen Tooltip - Basic Usage
     </h1>
+
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
-      Accessible tooltips with JavaScript positioning, smooth animations, and
-      Primer-inspired design.
+      Accessible tooltips with JavaScript positioning, smooth animations, and Primer-inspired design.
     </p>
   </div>
+
   <!-- Four Placement Options -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center
-      "
-    >
-      <%= pathogen_icon(:compass, color: :primary, class: "mr-3") %>
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
       Four Placement Options
     </h2>
 
@@ -36,9 +31,10 @@
         <!-- Top Placement -->
         <div class="text-center">
           <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Top Placement (Default)</p>
+
           <%= render Pathogen::Link.new(href: "#") do |link| %>
-            <% link.with_tooltip(text: "This tooltip appears above the link", placement: :top) %>
-            Hover or focus me (top)
+            <% link.with_tooltip(text: "This tooltip appears above the link", placement: :top) %> Hover or focus me
+            (top)
           <% end %>
         </div>
 
@@ -46,23 +42,28 @@
           <!-- Left Placement -->
           <div class="text-center">
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Left Placement</p>
+
             <%= render Pathogen::Link.new(href: "#") do |link| %>
-              <% link.with_tooltip(text: "This tooltip appears to the left", placement: :left) %>
-              Hover or focus me (left)
+              <% link.with_tooltip(text: "This tooltip appears to the left", placement: :left) %> Hover or focus me
+              (left)
             <% end %>
           </div>
+
           <!-- Right Placement -->
           <div class="text-center">
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Right Placement</p>
+
             <%= render Pathogen::Link.new(href: "#") do |link| %>
-              <% link.with_tooltip(text: "This tooltip appears to the right", placement: :right) %>
-              Hover or focus me (right)
+              <% link.with_tooltip(text: "This tooltip appears to the right", placement: :right) %> Hover or focus me
+              (right)
             <% end %>
           </div>
         </div>
+
         <!-- Bottom Placement -->
         <div class="text-center">
           <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Bottom Placement</p>
+
           <%= render Pathogen::Link.new(href: "#") do |link| %>
             <% link.with_tooltip(
               text: "This tooltip appears below the link",
@@ -74,14 +75,10 @@
       </div>
     </div>
   </div>
+
   <!-- Simple Examples -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center
-      "
-    >
-      <%= pathogen_icon(:code, color: :primary, class: "mr-3") %>
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
       Simple Examples
     </h2>
 
@@ -94,13 +91,14 @@
         "
       >
         <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Default Tooltip</h3>
+
         <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded">
           <%= render Pathogen::Link.new(href: "/samples") do |link| %>
-            <% link.with_tooltip(text: "View all samples") %>
-            Samples
+            <% link.with_tooltip(text: "View all samples") %> Samples
           <% end %>
         </div>
       </div>
+
       <!-- Example 2: Bottom Placement -->
       <div
         class="
@@ -109,13 +107,14 @@
         "
       >
         <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Custom Placement</h3>
+
         <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded">
           <%= render Pathogen::Link.new(href: "/projects") do |link| %>
-            <% link.with_tooltip(text: "Manage your projects", placement: :bottom) %>
-            Projects
+            <% link.with_tooltip(text: "Manage your projects", placement: :bottom) %> Projects
           <% end %>
         </div>
       </div>
+
       <!-- Example 3: Left Placement -->
       <div
         class="
@@ -124,13 +123,14 @@
         "
       >
         <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Left Placement</h3>
+
         <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded">
           <%= render Pathogen::Link.new(href: "/settings") do |link| %>
-            <% link.with_tooltip(text: "Configure application settings", placement: :left) %>
-            Settings
+            <% link.with_tooltip(text: "Configure application settings", placement: :left) %> Settings
           <% end %>
         </div>
       </div>
+
       <!-- Example 4: Right Placement -->
       <div
         class="
@@ -139,23 +139,19 @@
         "
       >
         <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Right Placement</h3>
+
         <div class="p-4 bg-slate-50 dark:bg-slate-900 rounded">
           <%= render Pathogen::Link.new(href: "/help") do |link| %>
-            <% link.with_tooltip(text: "Get help and documentation", placement: :right) %>
-            Help
+            <% link.with_tooltip(text: "Get help and documentation", placement: :right) %> Help
           <% end %>
         </div>
       </div>
     </div>
   </div>
+
   <!-- Parameter Reference -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center
-      "
-    >
-      <%= pathogen_icon(:sliders, color: :primary, class: "mr-3") %>
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
       Component Parameters
     </h2>
 
@@ -175,42 +171,54 @@
               <th class="py-3 px-4 font-semibold text-slate-900 dark:text-slate-100">Description</th>
             </tr>
           </thead>
+
           <tbody class="text-sm">
             <tr class="border-b border-slate-100 dark:border-slate-700">
               <td class="py-3 px-4 font-mono text-blue-600 dark:text-blue-400">text</td>
               <td class="py-3 px-4 text-slate-600 dark:text-slate-400">String</td>
-              <td class="py-3 px-4"><span
+
+              <td class="py-3 px-4">
+                <span
                   class="
                     px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded
                     text-xs
                   "
-                >Required</span></td>
+                >
+                  Required
+                </span>
+              </td>
+
               <td class="py-3 px-4 text-slate-600 dark:text-slate-400">The tooltip text content</td>
             </tr>
+
             <tr class="border-b border-slate-100 dark:border-slate-700">
               <td class="py-3 px-4 font-mono text-blue-600 dark:text-blue-400">placement</td>
               <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Symbol</td>
-              <td class="py-3 px-4"><span
+
+              <td class="py-3 px-4">
+                <span
                   class="
                     px-2 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400
                     rounded text-xs
                   "
-                >Optional</span></td>
-              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">Position: :top (default), :bottom, :left, :right</td>
+                >
+                  Optional
+                </span>
+              </td>
+
+              <td class="py-3 px-4 text-slate-600 dark:text-slate-400">
+                Position: :top (default), :bottom, :left, :right
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+
   <!-- Quick Tips -->
   <div>
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center
-      "
-    >
-      <%= pathogen_icon(:lightbulb, color: :warning, class: "mr-3") %>
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
       Quick Tips
     </h2>
 
@@ -222,11 +230,12 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:info, color: :primary) %>
           <div>
             <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">Default Placement is Top</h3>
-            <p class="text-sm text-blue-800 dark:text-blue-200">If you don't specify a placement, tooltips will appear above the
-              trigger element</p>
+
+            <p class="text-sm text-blue-800 dark:text-blue-200">
+              If you don't specify a placement, tooltips will appear above the trigger element
+            </p>
           </div>
         </div>
       </div>
@@ -238,11 +247,12 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:check_circle, color: :success) %>
           <div>
             <h3 class="font-semibold text-green-900 dark:text-green-100 mb-1">Automatic Sizing</h3>
-            <p class="text-sm text-green-800 dark:text-green-200">Tooltips automatically size to fit content with a max width of
-              320px</p>
+
+            <p class="text-sm text-green-800 dark:text-green-200">
+              Tooltips automatically size to fit content with a max width of 320px
+            </p>
           </div>
         </div>
       </div>
@@ -254,10 +264,12 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:lightning, color: :primary) %>
           <div>
             <h3 class="font-semibold text-purple-900 dark:text-purple-100 mb-1">Smooth Animations</h3>
-            <p class="text-sm text-purple-800 dark:text-purple-200">200ms fade-in and scale animation for a polished feel</p>
+
+            <p class="text-sm text-purple-800 dark:text-purple-200">
+              200ms fade-in and scale animation for a polished feel
+            </p>
           </div>
         </div>
       </div>
@@ -269,11 +281,12 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:warning, color: :warning) %>
           <div>
             <h3 class="font-semibold text-amber-900 dark:text-amber-100 mb-1">Lightweight Dependencies</h3>
-            <p class="text-sm text-amber-800 dark:text-amber-200">Uses Floating UI for precise positioning instead of
-              Flowbite/Popper.js</p>
+
+            <p class="text-sm text-amber-800 dark:text-amber-200">
+              Uses Floating UI for precise positioning instead of Flowbite/Popper.js
+            </p>
           </div>
         </div>
       </div>

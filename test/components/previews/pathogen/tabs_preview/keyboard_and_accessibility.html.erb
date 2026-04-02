@@ -2,9 +2,9 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= pathogen_icon(:keyboard, color: :primary, size: :xl, class: "inline mr-3") %>
       Keyboard Navigation & Accessibility
     </h1>
+
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
       Full W3C ARIA pattern implementation with comprehensive keyboard support and screen reader accessibility.
     </p>
@@ -13,22 +13,60 @@
   <!-- Interactive Keyboard Demo -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= pathogen_icon(:hand_pointing, color: :primary, class: "mr-3") %>
       Interactive Keyboard Demo
     </h2>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
       <div class="p-6 bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
         <p class="text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-          <%= pathogen_icon(:info, color: :primary) %>
           <strong>Try it:</strong> Click a tab, then use arrow keys to navigate. Notice automatic activation!
         </p>
+
         <div class="flex flex-wrap gap-2">
-          <kbd class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm font-mono shadow-sm">←</kbd>
-          <kbd class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm font-mono shadow-sm">→</kbd>
-          <kbd class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm font-mono shadow-sm">Home</kbd>
-          <kbd class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm font-mono shadow-sm">End</kbd>
-          <kbd class="px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm font-mono shadow-sm">Tab</kbd>
+          <kbd
+            class="
+              px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm
+              font-mono shadow-sm
+            "
+          >
+            ←
+          </kbd>
+
+          <kbd
+            class="
+              px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm
+              font-mono shadow-sm
+            "
+          >
+            →
+          </kbd>
+
+          <kbd
+            class="
+              px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm
+              font-mono shadow-sm
+            "
+          >
+            Home
+          </kbd>
+
+          <kbd
+            class="
+              px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm
+              font-mono shadow-sm
+            "
+          >
+            End
+          </kbd>
+
+          <kbd
+            class="
+              px-3 py-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded text-sm
+              font-mono shadow-sm
+            "
+          >
+            Tab
+          </kbd>
         </div>
       </div>
 
@@ -42,9 +80,14 @@
         <% tabs.with_panel(id: 'kbd-panel-1', tab_id: 'kbd-tab-1') do %>
           <div class="p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Arrow Key Navigation</h3>
+
             <p class="text-slate-700 dark:text-slate-300">
-              Press the <kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm">→</kbd> key to move to the next tab.
-              The tab will activate automatically without needing to press Enter.
+              Press the
+              <kbd class="
+                px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded
+                text-sm
+              ">→</kbd>
+              key to move to the next tab. The tab will activate automatically without needing to press Enter.
             </p>
           </div>
         <% end %>
@@ -52,9 +95,11 @@
         <% tabs.with_panel(id: 'kbd-panel-2', tab_id: 'kbd-tab-2') do %>
           <div class="p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Automatic Activation</h3>
+
             <p class="text-slate-700 dark:text-slate-300">
-              Notice how this panel appeared immediately when you pressed the arrow key? This is called "automatic activation"
-              and provides a faster, more fluid experience than manual activation (which requires Enter/Space).
+              Notice how this panel appeared immediately when you pressed the arrow key? This is called "automatic
+              activation" and provides a faster, more fluid experience than manual activation (which requires
+              Enter/Space).
             </p>
           </div>
         <% end %>
@@ -62,9 +107,14 @@
         <% tabs.with_panel(id: 'kbd-panel-3', tab_id: 'kbd-tab-3') do %>
           <div class="p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Wrapping Behavior</h3>
+
             <p class="text-slate-700 dark:text-slate-300">
-              Keep pressing <kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm">→</kbd> until you reach the last tab,
-              then press it once more. The focus wraps around to the first tab!
+              Keep pressing
+              <kbd class="
+                px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded
+                text-sm
+              ">→</kbd>
+              until you reach the last tab, then press it once more. The focus wraps around to the first tab!
             </p>
           </div>
         <% end %>
@@ -72,9 +122,19 @@
         <% tabs.with_panel(id: 'kbd-panel-4', tab_id: 'kbd-tab-4') do %>
           <div class="p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Jump Navigation</h3>
+
             <p class="text-slate-700 dark:text-slate-300">
-              Try pressing <kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm">Home</kbd> to jump to the first tab,
-              or <kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm">End</kbd> to jump to the last tab instantly.
+              Try pressing
+              <kbd class="
+                px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded
+                text-sm
+              ">Home</kbd>
+              to jump to the first tab, or
+              <kbd class="
+                px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded
+                text-sm
+              ">End</kbd>
+              to jump to the last tab instantly.
             </p>
           </div>
         <% end %>
@@ -82,10 +142,16 @@
         <% tabs.with_panel(id: 'kbd-panel-5', tab_id: 'kbd-tab-5') do %>
           <div class="p-6">
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">Tab Key Behavior</h3>
+
             <p class="text-slate-700 dark:text-slate-300 mb-3">
-              Press <kbd class="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-sm">Tab</kbd> to move focus OUT of the tab list
-              and into the panel content below. This button should receive focus:
+              Press
+              <kbd class="
+                px-2 py-0.5 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded
+                text-sm
+              ">Tab</kbd>
+              to move focus OUT of the tab list and into the panel content below. This button should receive focus:
             </p>
+
             <button class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
               Focusable button in panel
             </button>
@@ -98,7 +164,6 @@
   <!-- ARIA Attributes Reference -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= pathogen_icon(:code, color: :primary, class: "mr-3") %>
       ARIA Attributes
     </h2>
 
@@ -106,18 +171,20 @@
       <!-- Tablist Attributes -->
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <%= pathogen_icon(:list, color: :primary) %>
           Tablist Attributes
         </h3>
+
         <div class="space-y-3 text-sm">
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">role="tablist"</code>
             <span class="text-slate-600 dark:text-slate-400">Identifies the container as a tab list</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-label</code>
             <span class="text-slate-600 dark:text-slate-400">Provides accessible name for screen readers</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-orientation</code>
             <span class="text-slate-600 dark:text-slate-400">Indicates horizontal or vertical layout</span>
@@ -128,22 +195,25 @@
       <!-- Tab Attributes -->
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <%= pathogen_icon(:square, color: :primary) %>
           Tab Button Attributes
         </h3>
+
         <div class="space-y-3 text-sm">
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">role="tab"</code>
             <span class="text-slate-600 dark:text-slate-400">Identifies each button as a tab</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-selected</code>
             <span class="text-slate-600 dark:text-slate-400">true for active tab, false for others</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-controls</code>
             <span class="text-slate-600 dark:text-slate-400">References the panel ID this tab controls</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">tabindex</code>
             <span class="text-slate-600 dark:text-slate-400">0 for active tab, -1 for others (roving tabindex)</span>
@@ -154,22 +224,25 @@
       <!-- Panel Attributes -->
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <%= pathogen_icon(:sidebar, color: :primary) %>
           Panel Attributes
         </h3>
+
         <div class="space-y-3 text-sm">
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">role="tabpanel"</code>
             <span class="text-slate-600 dark:text-slate-400">Identifies the content panel</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-labelledby</code>
             <span class="text-slate-600 dark:text-slate-400">References the tab ID that controls this panel</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">aria-hidden</code>
             <span class="text-slate-600 dark:text-slate-400">true when hidden, false when visible</span>
           </div>
+
           <div class="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-700 rounded">
             <code class="font-mono text-blue-600 dark:text-blue-400 flex-shrink-0">tabindex="0"</code>
             <span class="text-slate-600 dark:text-slate-400">Makes panel focusable for screen readers</span>
@@ -180,22 +253,33 @@
       <!-- Roving Tabindex Pattern -->
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-          <%= pathogen_icon(:arrows_left_right, color: :primary) %>
           Roving Tabindex Pattern
         </h3>
+
         <div class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
           <p>
             The component implements the roving tabindex pattern for optimal keyboard navigation:
           </p>
+
           <ul class="list-disc list-inside space-y-2 pl-3">
-            <li>Only the active tab has <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">tabindex="0"</code></li>
-            <li>All inactive tabs have <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">tabindex="-1"</code></li>
+            <li>
+              Only the active tab has <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">tabindex="0"</code>
+            </li>
+
+            <li>
+              All inactive tabs have <code class="bg-slate-100 dark:bg-slate-700 px-1 rounded">tabindex="-1"</code>
+            </li>
+
             <li>This ensures only one tab is in the Tab key sequence</li>
             <li>Arrow keys move focus and update tabindex dynamically</li>
           </ul>
+
           <div class="mt-4 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded">
             <strong class="text-green-900 dark:text-green-100">Why?</strong>
-            <span class="text-green-800 dark:text-green-200"> This prevents Tab key from stopping on every inactive tab, providing a better user experience.</span>
+
+            <span class="text-green-800 dark:text-green-200">
+              This prevents Tab key from stopping on every inactive tab, providing a better user experience.
+            </span>
           </div>
         </div>
       </div>
@@ -205,7 +289,6 @@
   <!-- Screen Reader Experience -->
   <div>
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= pathogen_icon(:speaker_high, color: :primary, class: "mr-3") %>
       Screen Reader Experience
     </h2>
 
@@ -215,9 +298,18 @@
 
         <div class="space-y-4">
           <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">1</div>
+            <div
+              class="
+                flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
+                text-blue-600 dark:text-blue-300 font-semibold
+              "
+            >
+              1
+            </div>
+
             <div>
               <div class="font-semibold text-slate-900 dark:text-white mb-1">Entering the Tab List</div>
+
               <div class="text-sm text-slate-600 dark:text-slate-400 italic">
                 "Content sections, tab list" <span class="text-xs">(from aria-label)</span>
               </div>
@@ -225,9 +317,18 @@
           </div>
 
           <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">2</div>
+            <div
+              class="
+                flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
+                text-blue-600 dark:text-blue-300 font-semibold
+              "
+            >
+              2
+            </div>
+
             <div>
               <div class="font-semibold text-slate-900 dark:text-white mb-1">On Each Tab</div>
+
               <div class="text-sm text-slate-600 dark:text-slate-400 italic">
                 "Overview, tab, selected, 1 of 3" <span class="text-xs">(tab label, role, state, position)</span>
               </div>
@@ -235,9 +336,18 @@
           </div>
 
           <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">3</div>
+            <div
+              class="
+                flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
+                text-blue-600 dark:text-blue-300 font-semibold
+              "
+            >
+              3
+            </div>
+
             <div>
               <div class="font-semibold text-slate-900 dark:text-white mb-1">Entering Panel Content</div>
+
               <div class="text-sm text-slate-600 dark:text-slate-400 italic">
                 "Overview panel content, tab panel" <span class="text-xs">(from aria-labelledby)</span>
               </div>
@@ -245,9 +355,18 @@
           </div>
 
           <div class="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-            <div class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-300 font-semibold">4</div>
+            <div
+              class="
+                flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center
+                text-blue-600 dark:text-blue-300 font-semibold
+              "
+            >
+              4
+            </div>
+
             <div>
               <div class="font-semibold text-slate-900 dark:text-white mb-1">Switching Tabs</div>
+
               <div class="text-sm text-slate-600 dark:text-slate-400 italic">
                 "Features, tab, selected" <span class="text-xs">(new tab announces immediately)</span>
               </div>
@@ -257,12 +376,12 @@
 
         <div class="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg">
           <div class="flex items-start gap-3">
-            <%= pathogen_icon(:info, color: :primary) %>
             <div class="text-sm">
               <strong class="text-purple-900 dark:text-purple-100">Testing Tip:</strong>
+
               <span class="text-purple-800 dark:text-purple-200">
-                Test with NVDA (Windows), JAWS (Windows), or VoiceOver (Mac) to verify the experience yourself.
-                The component follows W3C patterns to ensure consistent behavior across screen readers.
+                Test with NVDA (Windows), JAWS (Windows), or VoiceOver (Mac) to verify the experience yourself. The
+                component follows W3C patterns to ensure consistent behavior across screen readers.
               </span>
             </div>
           </div>

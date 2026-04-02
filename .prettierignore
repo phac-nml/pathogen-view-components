@@ -21,3 +21,4 @@ demo/Gemfile.lock
 pnpm-lock.yaml
 config/locales/*.yml
 app/components/**/*.yml
+app/assets/stylesheets/pathogen_view_components.css
