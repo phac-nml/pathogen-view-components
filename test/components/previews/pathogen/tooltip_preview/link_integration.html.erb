@@ -7,26 +7,18 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= pathogen_icon(:link, color: :primary, size: :xl, class: "inline mr-3") %>
-      Link Component Integration
+      <%= icon('link', color: :primary, size: :xl, class: "inline mr-3") %> Link Component Integration
     </h1>
 
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
-      Real-world examples of tooltips integrated with Pathogen::Link in various
-      contexts
+      Real-world examples of tooltips integrated with Pathogen::Link in various contexts
     </p>
   </div>
 
   <!-- Navigation Bar Example -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex
-        items-center
-      "
-    >
-      <%= pathogen_icon(:squares_four, color: :primary, class: "mr-3") %>
-      Navigation Bar with Tooltips
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('squares-four', color: :primary, class: "mr-3") %> Navigation Bar with Tooltips
     </h2>
 
     <div
@@ -44,50 +36,41 @@
         <div class="flex items-center space-x-6">
           <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
             <% link.with_tooltip(text: "View your dashboard", placement: :bottom) %>
-
-            <%= pathogen_icon(:house, color: :primary, class: "inline mr-2") %>
-            Dashboard
+            <%= icon('house', color: :primary, class: "inline mr-2") %> Dashboard
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/samples") do |link| %>
             <% link.with_tooltip(text: "Browse and manage samples", placement: :bottom) %>
-
-            <%= pathogen_icon(:flask, color: :primary, class: "inline mr-2") %>
-            Samples
+            <%= icon('flask', color: :primary, class: "inline mr-2") %> Samples
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/projects") do |link| %>
             <% link.with_tooltip(text: "View all projects", placement: :bottom) %>
-
-            <%= pathogen_icon(:folder, color: :primary, class: "inline mr-2") %>
-            Projects
+            <%= icon('folder', color: :primary, class: "inline mr-2") %> Projects
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
             <% link.with_tooltip(text: "Manage analysis workflows", placement: :bottom) %>
-
-            <%= pathogen_icon(:play, color: :primary, class: "inline mr-2") %>
-            Workflows
+            <%= icon('play', color: :primary, class: "inline mr-2") %> Workflows
           <% end %>
         </div>
 
         <div class="flex items-center space-x-4">
           <%= render Pathogen::Link.new(href: "/settings") do |link| %>
             <% link.with_tooltip(text: "Configure settings", placement: :bottom) %>
-            <%= pathogen_icon(:gear, color: :primary) %>
+            <%= icon('gear', color: :primary) %>
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/help") do |link| %>
             <% link.with_tooltip(text: "Get help and documentation", placement: :bottom) %>
-            <%= pathogen_icon(:question, color: :primary) %>
+            <%= icon('question', color: :primary) %>
           <% end %>
         </div>
       </nav>
 
       <div class="p-6">
         <p class="text-sm text-slate-600 dark:text-slate-400">
-          This navigation bar uses tooltips with bottom placement to provide
-          helpful context for each link.
+          This navigation bar uses tooltips with bottom placement to provide helpful context for each link.
         </p>
       </div>
     </div>
@@ -95,14 +78,8 @@
 
   <!-- Action List Example -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex
-        items-center
-      "
-    >
-      <%= pathogen_icon(:list, color: :primary, class: "mr-3") %> Action List
-      with Contextual Tooltips
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('list', color: :primary, class: "mr-3") %> Action List with Contextual Tooltips
     </h2>
 
     <div
@@ -112,12 +89,7 @@
       "
     >
       <div class="space-y-4">
-        <div
-          class="
-            flex items-center justify-between p-4 bg-slate-50
-            dark:bg-slate-900 rounded-lg
-          "
-        >
+        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <h3 class="font-semibold text-slate-900 dark:text-slate-100">
               Sample-001
@@ -131,27 +103,22 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/1/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= pathogen_icon(:eye, color: :primary) %>
+              <%= icon('eye', color: :primary) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= pathogen_icon(:pencil, color: :primary) %>
+              <%= icon('pencil', color: :primary) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= pathogen_icon(:download, color: :primary) %>
+              <%= icon('download', color: :primary) %>
             <% end %>
           </div>
         </div>
 
-        <div
-          class="
-            flex items-center justify-between p-4 bg-slate-50
-            dark:bg-slate-900 rounded-lg
-          "
-        >
+        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <h3 class="font-semibold text-slate-900 dark:text-slate-100">
               Sample-002
@@ -165,17 +132,17 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/2/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= pathogen_icon(:eye, color: :primary) %>
+              <%= icon('eye', color: :primary) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= pathogen_icon(:pencil, color: :primary) %>
+              <%= icon('pencil', color: :primary) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= pathogen_icon(:download, color: :primary) %>
+              <%= icon('download', color: :primary) %>
             <% end %>
           </div>
         </div>
@@ -188,7 +155,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:info, color: :primary) %>
+          <%= icon('info', color: :primary) %>
 
           <div class="text-sm">
             <p class="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -196,8 +163,8 @@
             </p>
 
             <p class="text-blue-800 dark:text-blue-200">
-              Tooltips are especially useful for icon-only action buttons,
-              providing context without cluttering the interface.
+              Tooltips are especially useful for icon-only action buttons, providing context without cluttering the
+              interface.
             </p>
           </div>
         </div>
@@ -207,14 +174,8 @@
 
   <!-- Breadcrumb Example -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex
-        items-center
-      "
-    >
-      <%= pathogen_icon(:map_trifold, color: :primary, class: "mr-3") %>
-      Breadcrumb Navigation
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('map-trifold', color: :primary, class: "mr-3") %> Breadcrumb Navigation
     </h2>
 
     <div
@@ -226,21 +187,19 @@
       <nav class="flex items-center space-x-2 text-sm">
         <%= render Pathogen::Link.new(href: "/") do |link| %>
           <% link.with_tooltip(text: "Go to home page", placement: :bottom) %>
-          <%= pathogen_icon(:house, color: :primary, class: "inline") %>
+          <%= icon('house', color: :primary, class: "inline") %>
         <% end %>
 
         <span class="text-slate-400 dark:text-slate-600">/</span>
 
         <%= render Pathogen::Link.new(href: "/projects") do |link| %>
-          <% link.with_tooltip(text: "View all projects", placement: :bottom) %>
-          Projects
+          <% link.with_tooltip(text: "View all projects", placement: :bottom) %> Projects
         <% end %>
 
         <span class="text-slate-400 dark:text-slate-600">/</span>
 
         <%= render Pathogen::Link.new(href: "/projects/irida-next") do |link| %>
-          <% link.with_tooltip(text: "View project details", placement: :bottom) %>
-          IRIDA Next
+          <% link.with_tooltip(text: "View project details", placement: :bottom) %> IRIDA Next
         <% end %>
 
         <span class="text-slate-400 dark:text-slate-600">/</span>
@@ -255,7 +214,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:info, color: :primary) %>
+          <%= icon('info', color: :primary) %>
 
           <div class="text-sm">
             <p class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
@@ -263,8 +222,8 @@
             </p>
 
             <p class="text-purple-800 dark:text-purple-200">
-              Tooltips in breadcrumbs help users understand where each link will
-              take them, improving navigation confidence.
+              Tooltips in breadcrumbs help users understand where each link will take them, improving navigation
+              confidence.
             </p>
           </div>
         </div>
@@ -274,14 +233,8 @@
 
   <!-- Sidebar Menu Example -->
   <div class="mb-12">
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex
-        items-center
-      "
-    >
-      <%= pathogen_icon(:sidebar, color: :primary, class: "mr-3") %> Collapsed
-      Sidebar with Tooltips
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('sidebar', color: :primary, class: "mr-3") %> Collapsed Sidebar with Tooltips
     </h2>
 
     <div
@@ -301,27 +254,27 @@
           <nav class="flex flex-col items-center py-4 space-y-4">
             <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
               <% link.with_tooltip(text: "Dashboard", placement: :right) %>
-              <%= pathogen_icon(:house, color: :primary, size: :lg) %>
+              <%= icon('house', color: :primary, size: :lg) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples") do |link| %>
               <% link.with_tooltip(text: "Samples", placement: :right) %>
-              <%= pathogen_icon(:flask, color: :primary, size: :lg) %>
+              <%= icon('flask', color: :primary, size: :lg) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/projects") do |link| %>
               <% link.with_tooltip(text: "Projects", placement: :right) %>
-              <%= pathogen_icon(:folder, color: :primary, size: :lg) %>
+              <%= icon('folder', color: :primary, size: :lg) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
               <% link.with_tooltip(text: "Workflows", placement: :right) %>
-              <%= pathogen_icon(:play, color: :primary, size: :lg) %>
+              <%= icon('play', color: :primary, size: :lg) %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/settings") do |link| %>
               <% link.with_tooltip(text: "Settings", placement: :right) %>
-              <%= pathogen_icon(:gear, color: :primary, size: :lg) %>
+              <%= icon('gear', color: :primary, size: :lg) %>
             <% end %>
           </nav>
         </aside>
@@ -329,9 +282,8 @@
         <!-- Main Content Area -->
         <main class="flex-1 p-6">
           <p class="text-sm text-slate-600 dark:text-slate-400">
-            In collapsed sidebars, tooltips are essential for identifying
-            icon-only navigation items. Hover or focus on each icon to see its
-            label.
+            In collapsed sidebars, tooltips are essential for identifying icon-only navigation items. Hover or focus on
+            each icon to see its label.
           </p>
         </main>
       </div>
@@ -340,14 +292,8 @@
 
   <!-- Usage Tips -->
   <div>
-    <h2
-      class="
-        text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex
-        items-center
-      "
-    >
-      <%= pathogen_icon(:lightbulb, color: :warning, class: "mr-3") %>
-      Integration Tips
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('lightbulb', color: :warning, class: "mr-3") %> Integration Tips
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -358,7 +304,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:info, color: :primary) %>
+          <%= icon('info', color: :primary) %>
 
           <div>
             <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -366,8 +312,7 @@
             </h3>
 
             <p class="text-sm text-blue-800 dark:text-blue-200">
-              Consider the layout: bottom for top navigation, top for footer
-              links, right for left sidebars.
+              Consider the layout: bottom for top navigation, top for footer links, right for left sidebars.
             </p>
           </div>
         </div>
@@ -380,7 +325,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:check_circle, color: :success) %>
+          <%= icon('check-circle', color: :success) %>
 
           <div>
             <h3 class="font-semibold text-green-900 dark:text-green-100 mb-1">
@@ -388,8 +333,7 @@
             </h3>
 
             <p class="text-sm text-green-800 dark:text-green-200">
-              Always provide tooltips for icon-only actions to ensure clarity
-              for all users.
+              Always provide tooltips for icon-only actions to ensure clarity for all users.
             </p>
           </div>
         </div>
@@ -402,7 +346,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:lightning, color: :primary) %>
+          <%= icon('lightning', color: :primary) %>
 
           <div>
             <h3 class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
@@ -410,8 +354,7 @@
             </h3>
 
             <p class="text-sm text-purple-800 dark:text-purple-200">
-              Use consistent tooltip placement within the same UI section for a
-              cohesive experience.
+              Use consistent tooltip placement within the same UI section for a cohesive experience.
             </p>
           </div>
         </div>
@@ -424,7 +367,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= pathogen_icon(:warning, color: :warning) %>
+          <%= icon('warning', color: :warning) %>
 
           <div>
             <h3 class="font-semibold text-amber-900 dark:text-amber-100 mb-1">
@@ -432,8 +375,7 @@
             </h3>
 
             <p class="text-sm text-amber-800 dark:text-amber-200">
-              Only add tooltips where they provide genuine value. Too many can
-              be overwhelming.
+              Only add tooltips where they provide genuine value. Too many can be overwhelming.
             </p>
           </div>
         </div>
