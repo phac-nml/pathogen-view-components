@@ -1,8 +1,10 @@
+<%# herb:formatter ignore %>
+
 <div class="p-8 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-900 dark:to-emerald-950 min-h-screen">
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= icon('puzzle-piece', color: :primary, size: :xl, class: "inline mr-3") %> Integration Examples
+      Integration Examples
     </h1>
 
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
@@ -13,7 +15,7 @@
   <!-- User Profile Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('user-circle-plus', color: :primary, class: "mr-3") %> User Profile with Settings
+      User Profile with Settings
     </h2>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -259,8 +261,6 @@
                   items-start gap-3
                 "
               >
-                <%= icon('check-circle', color: :success) %>
-
                 <div>
                   <div class="font-semibold text-green-900 dark:text-green-100 mb-1">Enabled</div>
 
@@ -372,8 +372,6 @@
                   items-start gap-3
                 "
               >
-                <%= icon('bell-slash', color: :warning) %>
-
                 <div>
                   <div class="font-semibold text-amber-900 dark:text-amber-100 mb-1">Not Enabled</div>
 
@@ -396,7 +394,7 @@
   <!-- Data Dashboard Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('chart-bar-horizontal', color: :primary, class: "mr-3") %> Analytics Dashboard
+      Analytics Dashboard
     </h2>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -423,7 +421,6 @@
                   <div class="text-2xl font-bold text-slate-900 dark:text-white mb-1"><%= metric[:value] %></div>
 
                   <div class="text-sm <%= metric[:trend] == :up ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' %> flex items-center gap-1">
-                    <%= icon((metric[:trend] == :up ? :trending_up : :trending_down).to_s.tr('_', '-'), size: :sm, color: metric[:trend] == :up ? :success : :danger) %>
                     <span><%= metric[:change] %></span>
                   </div>
                 </div>
@@ -437,8 +434,6 @@
               "
             >
               <div class="text-center text-slate-600 dark:text-slate-400">
-                <%= icon('chart-line-up', color: :primary, size: :xl) %>
-
                 <p class="mt-2">Traffic Chart Visualization</p>
               </div>
             </div>
@@ -497,7 +492,7 @@
   <!-- Documentation Navigation Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('file-text', color: :primary, class: "mr-3") %> Documentation Navigation
+      Documentation Navigation
     </h2>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -524,8 +519,6 @@
 
             <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mt-4">
               <div class="flex items-start gap-3">
-                <%= icon('lightbulb', color: :primary) %>
-
                 <div class="text-sm text-blue-800 dark:text-blue-200">
                   <strong>Tip:</strong> Use the vertical navigation on the left to explore different sections. The URL
                   will update so you can bookmark specific pages.
@@ -546,14 +539,16 @@
                 overflow-x-auto
               "
             >
-              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200"># Using npm
+              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
+# Using npm
 npm install @pathogen/tabs
 
 # Using yarn
 yarn add @pathogen/tabs
 
 # Using pnpm
-pnpm add @pathogen/tabs                            </code></pre>
+pnpm add @pathogen/tabs                                                                      
+</code></pre>
             </div>
           </div>
         <% end %>
@@ -598,14 +593,12 @@ pnpm add @pathogen/tabs                            </code></pre>
   <!-- Best Practices -->
   <div>
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('lightbulb', color: :warning, class: "mr-3") %> Integration Best Practices
+      Integration Best Practices
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('check-circle', color: :success, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Do: Organize by Purpose</h3>
 
@@ -619,8 +612,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('check-circle', color: :success, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Do: Use URL Sync for Navigation</h3>
 
@@ -634,8 +625,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('check-circle', color: :success, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Do: Lazy Load Heavy Content</h3>
 
@@ -649,8 +638,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('check-circle', color: :success, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Do: Add Contextual Actions</h3>
 
@@ -664,8 +651,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('x', color: :danger, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Don't: Nest Tabs Too Deeply</h3>
 
@@ -679,8 +664,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('x', color: :danger, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Don't: Use Too Many Tabs</h3>
 
@@ -694,8 +677,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('x', color: :danger, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Don't: Use for Sequential Steps</h3>
 
@@ -709,8 +690,6 @@ pnpm add @pathogen/tabs                            </code></pre>
 
       <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
         <div class="flex items-start gap-3 mb-4">
-          <%= icon('x', color: :danger, size: :lg) %>
-
           <div>
             <h3 class="text-lg font-semibold text-slate-900 dark:text-white mb-2">Don't: Hide Critical Info</h3>
 
