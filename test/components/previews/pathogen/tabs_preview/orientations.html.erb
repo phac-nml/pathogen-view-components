@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="mb-4 text-4xl font-bold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:arrows_out, color: :primary, size: :xl, class: "inline mr-3") %> Tab Orientations & Layouts
+      <%= icon('arrows-out', color: :primary, size: :xl, class: "inline mr-3") %> Tab Orientations & Layouts
     </h1>
 
     <p class="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-400">
@@ -13,13 +13,13 @@
   <!-- Horizontal Orientation (Default) -->
   <div class="mb-12">
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:arrows_left_right, color: :primary, class: "mr-3") %> Horizontal Orientation (Default)
+      <%= icon('arrows-left-right', color: :primary, class: "mr-3") %> Horizontal Orientation (Default)
     </h2>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
       <div class="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700">
         <p class="text-sm text-slate-700 dark:text-slate-300">
-          <%= pathogen_icon(:info, color: :primary, class: "inline") %> <strong>Keyboard:</strong> Use
+          <%= icon('info', color: :primary, class: "inline") %> <strong>Keyboard:</strong> Use
           <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">←</kbd> and
           <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">→</kbd> to navigate
         </p>
@@ -71,7 +71,7 @@
                 dark:bg-slate-900
               "
             >
-              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Content sections", orientation: :horizontal # Default, can be omitted )) do |tabs| %&gt; &lt;!-- tabs and panels here --&gt; &lt;% end %&gt;              </code></pre>
+              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Content sections", orientation: :horizontal # Default, can be omitted )) do |tabs| %&gt; &lt;!-- tabs and panels here --&gt; &lt;% end %&gt;                                          </code></pre>
             </div>
           </div>
         <% end %>
@@ -87,7 +87,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
                 <span class="text-sm text-green-800 dark:text-green-200">Desktop applications</span>
               </div>
 
@@ -97,7 +97,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
                 <span class="text-sm text-green-800 dark:text-green-200">Wide content areas</span>
               </div>
 
@@ -107,7 +107,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
                 <span class="text-sm text-green-800 dark:text-green-200">Short tab labels</span>
               </div>
 
@@ -117,7 +117,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
                 <span class="text-sm text-green-800 dark:text-green-200">Traditional tab interface</span>
               </div>
             </div>
@@ -130,13 +130,13 @@
   <!-- Vertical Orientation -->
   <div class="mb-12">
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:arrows_down_up, color: :primary, class: "mr-3") %> Vertical Orientation
+      <%= icon('arrows-down-up', color: :primary, class: "mr-3") %> Vertical Orientation
     </h2>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
       <div class="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700">
         <p class="text-sm text-slate-700 dark:text-slate-300">
-          <%= pathogen_icon(:info, color: :primary, class: "inline") %> <strong>Keyboard:</strong> Use
+          <%= icon('info', color: :primary, class: "inline") %> <strong>Keyboard:</strong> Use
           <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">↑</kbd> and
           <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">↓</kbd> to navigate
         </p>
@@ -225,7 +225,7 @@
                 dark:bg-slate-900
               "
             >
-              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new( id: "sidebar-tabs", label: "Sidebar navigation", orientation: :vertical )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Dashboard") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Settings") %&gt; &lt;% tabs.with_panel(id: "panel-1", tab_id: "tab-1") do %&gt; Dashboard content &lt;% end %&gt; &lt;% tabs.with_panel(id: "panel-2", tab_id: "tab-2") do %&gt; Settings content &lt;% end %&gt; &lt;% end %&gt;              </code></pre>
+              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">&lt;%= render(Pathogen::Tabs.new( id: "sidebar-tabs", label: "Sidebar navigation", orientation: :vertical )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Dashboard") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Settings") %&gt; &lt;% tabs.with_panel(id: "panel-1", tab_id: "tab-1") do %&gt; Dashboard content &lt;% end %&gt; &lt;% tabs.with_panel(id: "panel-2", tab_id: "tab-2") do %&gt; Settings content &lt;% end %&gt; &lt;% end %&gt;                                          </code></pre>
             </div>
           </div>
         <% end %>
@@ -241,7 +241,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
 
                 <div>
                   <div class="font-semibold text-green-900 dark:text-green-100">Sidebar Navigation</div>
@@ -258,7 +258,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
 
                 <div>
                   <div class="font-semibold text-green-900 dark:text-green-100">Many Tabs</div>
@@ -275,7 +275,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
 
                 <div>
                   <div class="font-semibold text-green-900 dark:text-green-100">Narrow Layouts</div>
@@ -289,7 +289,7 @@
                   dark:bg-green-900/20
                 "
               >
-                <%= pathogen_icon(:check, color: :success) %>
+                <%= icon('check', color: :success) %>
 
                 <div>
                   <div class="font-semibold text-green-900 dark:text-green-100">Long Tab Labels</div>
@@ -309,7 +309,7 @@
   <!-- Comparison Chart -->
   <div>
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      <%= pathogen_icon(:git_diff, color: :primary, class: "mr-3") %> Quick Comparison
+      <%= icon('git-diff', color: :primary, class: "mr-3") %> Quick Comparison
     </h2>
 
     <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -354,7 +354,7 @@
               <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Default Value</td>
 
               <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <%= pathogen_icon(:check, color: :success) %> Yes
+                <%= icon('check', color: :success) %> Yes
               </td>
 
               <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Must specify</td>
@@ -376,11 +376,11 @@
               <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Accessibility</td>
 
               <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <%= pathogen_icon(:check, color: :success) %> Full
+                <%= icon('check', color: :success) %> Full
               </td>
 
               <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <%= pathogen_icon(:check, color: :success) %> Full
+                <%= icon('check', color: :success) %> Full
               </td>
             </tr>
           </tbody>

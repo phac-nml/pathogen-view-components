@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <%= pathogen_heading(level: 1, class: "mb-4") do %>
-      <%= pathogen_icon(:lightbulb, color: :primary, size: :xl, class: "inline mr-3") %> Do's and Don'ts
+      <%= icon('lightbulb', color: :primary, size: :xl, class: "inline mr-3") %> Do's and Don'ts
     <% end %>
 
     <%= pathogen_text(variant: :muted, class: "text-lg max-w-3xl mx-auto") do %>
@@ -14,14 +14,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= pathogen_icon(:list_numbers, color: :primary, class: "mr-3") %> Heading Hierarchy
+        <%= icon('list-numbers', color: :primary, class: "mr-3") %> Heading Hierarchy
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:check_circle, color: :success, size: :lg) %>
+            <%= icon('check-circle', color: :success, size: :lg) %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -51,7 +51,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:x_circle, color: :danger, size: :lg) %>
+            <%= icon('x-circle', color: :danger, size: :lg) %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -81,14 +81,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= pathogen_icon(:palette, color: :primary, class: "mr-3") %> Color Variants
+        <%= icon('palette', color: :primary, class: "mr-3") %> Color Variants
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:check_circle, color: :success, size: :lg) %>
+            <%= icon('check-circle', color: :success, size: :lg) %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -110,7 +110,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:x_circle, color: :danger, size: :lg) %>
+            <%= icon('x-circle', color: :danger, size: :lg) %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -136,14 +136,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= pathogen_icon(:code, color: :primary, class: "mr-3") %> Code Component Usage
+        <%= icon('code', color: :primary, class: "mr-3") %> Code Component Usage
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:check_circle, color: :success, size: :lg) %>
+            <%= icon('check-circle', color: :success, size: :lg) %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -169,7 +169,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:x_circle, color: :danger, size: :lg) %>
+            <%= icon('x-circle', color: :danger, size: :lg) %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -191,14 +191,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= pathogen_icon(:device_mobile, color: :primary, class: "mr-3") %> Baseline Behavior
+        <%= icon('device-mobile', color: :primary, class: "mr-3") %> Responsive Behavior
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:check_circle, color: :success, size: :lg) %>
+            <%= icon('check-circle', color: :success, size: :lg) %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -216,7 +216,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
-            <%= pathogen_icon(:x_circle, color: :danger, size: :lg) %>
+            <%= icon('x-circle', color: :danger, size: :lg) %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -225,8 +225,8 @@
               Override Sizes Unnecessarily
             <% end %>
 
-            <%= pathogen_heading(level: 1) do %>
-              Oversized Heading
+            <%= pathogen_heading(level: 1, responsive: false) do %>
+              Fixed Size Heading
             <% end %>
 
             <%= pathogen_text(variant: :muted, class: "text-sm mt-3") do %>
@@ -242,13 +242,13 @@
   <div>
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= pathogen_icon(:star, color: :warning, class: "mr-3") %> Best Practices Summary
+        <%= icon('star', color: :warning, class: "mr-3") %> Best Practices Summary
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <div class="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
-            <%= pathogen_icon(:check_circle, color: :success, class: "mr-2") %> Do's
+            <%= icon('check-circle', color: :success, class: "mr-2") %> Do's
           </div>
 
           <%= pathogen_list do |list| %>
@@ -262,7 +262,7 @@
 
         <div>
           <div class="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center">
-            <%= pathogen_icon(:x_circle, color: :danger, class: "mr-2") %> Don'ts
+            <%= icon('x-circle', color: :danger, class: "mr-2") %> Don'ts
           </div>
 
           <%= pathogen_list do |list| %>
