@@ -7,18 +7,18 @@
     loading: :lazy,
     refresh: @refresh,
   ) {
-    tag.div(class: "animate-pulse", aria: { hidden: true }) {
-      tag.div(class: "flex flex-col gap-5") {
+    tag.div(class: "pathogen-tabs__skeleton", aria: { hidden: true }) {
+      tag.div(class: "pathogen-tabs__skeleton-lines") {
         safe_join([
-          tag.div(class: "h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-700"),
-          tag.div(class: "flex flex-col gap-3") {
+          tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--title"),
+          tag.div(class: "pathogen-tabs__skeleton-paragraph") {
             safe_join([
-              tag.div(class: "h-3 w-full rounded bg-slate-200 dark:bg-slate-700"),
-              tag.div(class: "h-3 w-11/12 rounded bg-slate-200 dark:bg-slate-700"),
-              tag.div(class: "h-3 w-10/12 rounded bg-slate-200 dark:bg-slate-700"),
-              tag.div(class: "h-3 w-10/12 rounded bg-slate-200 dark:bg-slate-700"),
-              tag.div(class: "h-3 w-10/12 rounded bg-slate-200 dark:bg-slate-700"),
-              tag.div(class: "h-3 w-10/12 rounded bg-slate-200 dark:bg-slate-700")
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--full"),
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--long"),
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
+              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium")
             ])
           }
         ])

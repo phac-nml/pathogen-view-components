@@ -30,15 +30,15 @@ module Pathogen
     #
     # The TabPanel component works seamlessly with Turbo Frames for lazy loading content.
     # When a panel contains a Turbo Frame with `loading: :lazy`, the frame will automatically
-    # fetch its content when the panel becomes visible (i.e., when the `hidden` class is removed).
+    # fetch its content when the panel becomes visible (i.e., when the `hidden` attribute is removed).
     #
     # === How It Works
     #
-    # 1. **Initial State**: Panel starts with the `hidden` class applied by the component.
+    # 1. **Initial State**: Panel starts with the `hidden` attribute applied by the component.
     #    Turbo Frame is present but hasn't fetched its content yet.
     #
     # 2. **Tab Selection**: When user clicks the associated tab, the Stimulus controller
-    #    removes the `hidden` class from the panel via `#selectTabByIndex()`.
+    #    removes the `hidden` attribute from the panel via `#selectTabByIndex()`.
     #
     # 3. **Automatic Fetch**: Turbo detects the frame has become visible and automatically
     #    triggers the fetch to the URL specified in the `src` attribute.
@@ -54,8 +54,8 @@ module Pathogen
     #
     # === Key Requirements
     #
-    # - Panel visibility must be controlled via the `hidden` class, NOT `display: none`
-    #   inline styles, as Turbo only respects the `hidden` attribute and CSS classes.
+    # - Panel visibility must be controlled via the native `hidden` attribute, NOT
+    #   inline styles, so Turbo can detect visibility changes reliably.
     #
     # - Turbo Frame must have `loading: :lazy` attribute to defer loading until visible.
     #
@@ -82,7 +82,7 @@ module Pathogen
     # === No JavaScript Needed
     #
     # The component's Stimulus controller (`pathogen--tabs`) handles panel visibility
-    # by toggling the `hidden` class. No additional JavaScript is needed for Turbo Frame
+    # by toggling the `hidden` attribute. No additional JavaScript is needed for Turbo Frame
     # integration - Turbo handles the lazy loading automatically when the panel becomes visible.
     class TabPanel < Pathogen::Component
       attr_reader :id, :tab_id
@@ -119,7 +119,8 @@ module Pathogen
 
         @initially_hidden = hidden
         update_aria_hidden
-        update_hidden_class
+        update_hidden_attribute
+        update_data_state
       end
 
       # Returns the LazyPanel component if this is a lazy panel
@@ -142,39 +143,15 @@ module Pathogen
         @system_arguments[:tabindex] = 0
 
         setup_data_attributes
-        setup_css_classes
+        setup_component_classes
+        update_hidden_attribute
+        update_data_state
       end
 
       # Sets up Stimulus data attributes
       def setup_data_attributes
         @system_arguments[:data] ||= {}
         @system_arguments[:data]['pathogen--tabs-target'] = 'panel'
-      end
-
-      # Sets up CSS classes including initial hidden state
-      #
-      # == CSS Dependency: Tailwind 'hidden' Class
-      #
-      # This component requires Tailwind CSS or equivalent 'hidden' class definition:
-      #   .hidden { display: none; }
-      #
-      # The component's visibility is controlled via the 'hidden' class rather than
-      # inline styles for two critical reasons:
-      #
-      # 1. **Turbo Frame Lazy Loading**: Turbo detects visibility changes via CSS classes.
-      #    When the 'hidden' class is removed, Turbo automatically triggers lazy frame fetches.
-      #
-      # 2. **CSS Architecture**: Visibility is enforced via CSS selector in application.css:
-      #    [role="tabpanel"]:not(.hidden) { display: block !important; }
-      #    This prevents conflicts and eliminates the need for inline style manipulation.
-      #
-      # @see app/assets/tailwind/application.css for panel visibility rules
-      def setup_css_classes
-        @base_class_argument = @system_arguments[:class]
-        update_hidden_class
-
-        # Add a data attribute to help JavaScript identify panels after morph
-        @system_arguments[:data] ||= {}
         @system_arguments[:data]['tab-panel-id'] = @id
       end
 
@@ -182,9 +159,16 @@ module Pathogen
         @system_arguments[:aria][:hidden] = initially_hidden? ? 'true' : 'false'
       end
 
-      def update_hidden_class
-        computed = class_names(@base_class_argument, (initially_hidden? ? 'hidden' : nil))
-        @system_arguments[:class] = computed.presence
+      def setup_component_classes
+        @system_arguments[:class] = class_names('pathogen-tabs__panel', @system_arguments[:class])
+      end
+
+      def update_hidden_attribute
+        @system_arguments[:hidden] = initially_hidden? || nil
+      end
+
+      def update_data_state
+        @system_arguments[:data][:state] = initially_hidden? ? 'inactive' : 'active'
       end
     end
   end

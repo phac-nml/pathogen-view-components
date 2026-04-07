@@ -10,7 +10,7 @@
     turbo_frame_tag "content", src: content_path, loading: :lazy do
       render partial: "shared/loading/spinner"
     rescue
-      content_tag :div, class: "p-4 text-red-600" do
+      content_tag :div, class: "pathogen-tabs__error" do
         content_tag(:p, "Failed to load content.") +
         button_to("Retry", content_path, class: "button")
       end
@@ -25,9 +25,14 @@
       hidden: @system_arguments[:aria][:hidden],
     },
     tabindex: @system_arguments[:tabindex],
-    data: { "pathogen--tabs-target": @system_arguments[:data]["pathogen--tabs-target"] },
+    data: {
+      "pathogen--tabs-target": @system_arguments[:data]["pathogen--tabs-target"],
+      "tab-panel-id": @system_arguments[:data]["tab-panel-id"],
+      state: @system_arguments[:data][:state],
+    },
     class: @system_arguments[:class],
-    **@system_arguments.except(:id, :role, :aria, :tabindex, :data, :class),
+    hidden: @system_arguments[:hidden],
+    **@system_arguments.except(:id, :role, :aria, :tabindex, :data, :class, :hidden),
   ) do %>
   <% if @lazy_panel %>
     <%= render @lazy_panel, &@block %>

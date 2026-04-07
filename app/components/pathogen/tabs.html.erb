@@ -6,7 +6,11 @@
       @system_arguments[:data]["pathogen--tabs-default-index-value"],
     "pathogen--tabs-sync-url-value" => @system_arguments[:data]["pathogen--tabs-sync-url-value"],
   },
-  class: class_names("flex" => @orientation == :vertical),
+  class: class_names(
+    "pathogen-tabs",
+    "pathogen-tabs--vertical" => @orientation == :vertical,
+    "pathogen-tabs--horizontal" => @orientation != :vertical,
+  ),
 ) do %>
   <%= tag.nav(
     id: @id,
@@ -15,35 +19,15 @@
       label: @label,
       orientation: @orientation,
     },
-    class:
-      class_names(
-        "flex",
-        @system_arguments[:class],
-        "flex-col" => @orientation == :vertical,
-        "flex-col sm:flex-row sm:flex-grow" => @orientation != :vertical,
-      ),
+    class: class_names("pathogen-tabs__list", @system_arguments[:class]),
     **@system_arguments.except(:id, :data, :class),
   ) do %>
-    <%# Tab list container %>
-    <%= tag.div(
-      class:
-        class_names(
-          "text-sm font-medium text-center text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700",
-          "flex flex-col border-r min-w-[200px]" => @orientation == :vertical,
-          "w-full flex flex-wrap -mb-px border-b" => @orientation != :vertical,
-        ),
-      role: "presentation",
-    ) do %>
-      <% tabs.each do |tab| %>
-        <%= tab %>
-      <% end %>
+    <% tabs.each do |tab| %>
+      <%= tab %>
     <% end %>
   <% end %>
 
-  <%# Panel container %>
-  <%= tag.div(
-    class: class_names("flex-1 pl-6" => @orientation == :vertical, "mt-4" => @orientation != :vertical),
-  ) do %>
+  <%= tag.div(class: "pathogen-tabs__panels") do %>
     <% panels.each do |panel| %>
       <%= panel %>
     <% end %>

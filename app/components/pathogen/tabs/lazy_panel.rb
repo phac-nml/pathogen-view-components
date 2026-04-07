@@ -45,7 +45,7 @@ module Pathogen
     #   - Renders TabPanel containing empty turbo_frame_tag with src, loading, refresh
     #   - Content is loaded lazily when panel becomes visible
     #
-    # The Stimulus controller removes the `hidden` class when tab is selected,
+    # The Stimulus controller removes the `hidden` attribute when tab is selected,
     # triggering Turbo to fetch the frame content automatically.
     class LazyPanel < Pathogen::Component
       attr_reader :frame_id, :src_path, :selected, :refresh
