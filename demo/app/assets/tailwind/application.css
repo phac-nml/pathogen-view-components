@@ -1,13 +1,4 @@
-@import "tailwindcss";
-
-/* Scan gem component templates and Ruby files for Tailwind classes */
-@source "../../../../app/components/**/*.{html.erb,rb}";
-@source "../../../../test/components/previews/**/*.{html.erb,rb}";
-
-/* Define custom primary color palette (emerald shades — override in consuming apps) */
-@theme {
-  --color-primary-500: oklch(70.4% 0.167 155.926);
-  --color-primary-600: oklch(65.2% 0.179 157.395);
-  --color-primary-700: oklch(59.6% 0.173 158.905);
-  --color-primary-800: oklch(52.2% 0.149 160.513);
-}
+/* Tailwind pipeline removed in phase 03-09.
+ * Demo now uses the Pathogen CSS build pipeline.
+ * Run: pnpm --dir .. run build:css:watch
+ */

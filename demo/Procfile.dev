@@ -1,3 +1,2 @@
 web: bin/rails server -p 3001
-css: bin/rails tailwindcss:watch[always]
-pathogen: npm run build:css:watch --prefix ..
+css: pnpm --dir .. run build:css:watch
