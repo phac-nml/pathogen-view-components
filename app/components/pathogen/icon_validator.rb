@@ -6,23 +6,24 @@ module Pathogen
   # This class encapsulates all validation logic for icon parameters including
   # color, size, and icon name validation with appropriate fallbacks and warnings.
   class IconValidator
-    # Tailwind color variants for icon text color
+    # Pathogen color class variants for icon color
     COLORS = {
-      default: 'text-slate-900 dark:text-slate-100 fill-slate-900 dark:fill-slate-100',
-      subdued: 'text-slate-600 dark:text-slate-300 fill-slate-600 dark:fill-slate-300',
-      primary: 'text-primary-600 dark:text-primary-500 fill-primary-600 dark:fill-primary-500',
-      success: 'text-green-600 dark:text-green-500 fill-green-600 dark:fill-green-500',
-      warning: 'text-yellow-600 dark:text-yellow-500 fill-yellow-600 dark:fill-yellow-500',
-      danger: 'text-red-600 dark:text-red-500 fill-red-600 dark:fill-red-500',
-      blue: 'text-blue-600 dark:text-blue-500 fill-blue-600 dark:fill-blue-500',
-      white: 'text-white fill-white'
+      default: 'pathogen-icon--color-default',
+      subdued: 'pathogen-icon--color-subdued',
+      primary: 'pathogen-icon--color-primary',
+      success: 'pathogen-icon--color-success',
+      warning: 'pathogen-icon--color-warning',
+      danger: 'pathogen-icon--color-danger',
+      blue: 'pathogen-icon--color-blue',
+      white: 'pathogen-icon--color-white'
     }.freeze
 
+    # Pathogen size class variants for icon size
     SIZES = {
-      sm: 'size-4',
-      md: 'size-6',
-      lg: 'size-8',
-      xl: 'size-10'
+      sm: 'pathogen-icon--size-sm',
+      md: 'pathogen-icon--size-md',
+      lg: 'pathogen-icon--size-lg',
+      xl: 'pathogen-icon--size-xl'
     }.freeze
 
     class << self

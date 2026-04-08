@@ -169,6 +169,108 @@
 }
 
 @layer pathogen.components {
+  .pathogen-button {
+    cursor: pointer;
+    user-select: none;
+    border-radius: var(--pathogen-radius-control);
+    font-family: var(--pathogen-font-sans);
+    font-weight: 500;
+    font-size: var(--pathogen-text-sm);
+    border: 1px solid #0000;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    transition:
+      background-color 0.15s,
+      color 0.15s,
+      border-color 0.15s,
+      opacity 0.15s;
+    display: inline-flex;
+    position: relative;
+  }
+
+  .pathogen-button:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    z-index: 10;
+  }
+
+  .pathogen-button:disabled,
+  .pathogen-button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .pathogen-button--block {
+    width: 100%;
+    display: flex;
+  }
+
+  .pathogen-button--with-visual {
+    gap: 0.5rem;
+  }
+
+  .pathogen-button--size-small {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .pathogen-button--size-medium {
+    font-size: var(--pathogen-text-sm);
+    padding: 0.5rem 0.75rem;
+  }
+
+  .pathogen-button--scheme-default {
+    color: var(--pathogen-color-text-default);
+    background: var(--pathogen-color-surface-default);
+    border-color: var(--pathogen-color-border-default);
+  }
+
+  .pathogen-button--scheme-default:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-surface-subtle);
+  }
+
+  .pathogen-button--scheme-primary {
+    color: oklch(100% 0 0);
+    background: var(--pathogen-color-brand-700);
+    border-color: var(--pathogen-color-brand-700);
+  }
+
+  .pathogen-button--scheme-primary:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-brand-600);
+    border-color: var(--pathogen-color-brand-600);
+  }
+
+  .pathogen-button--scheme-slate {
+    color: oklch(100% 0 0);
+    background: var(--pathogen-color-neutral-500);
+    border-color: var(--pathogen-color-neutral-500);
+  }
+
+  .pathogen-button--scheme-slate:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-neutral-700);
+    border-color: var(--pathogen-color-neutral-700);
+  }
+
+  .pathogen-button--scheme-danger {
+    color: var(--pathogen-color-danger-500);
+    background: var(--pathogen-color-surface-subtle);
+    border-color: color-mix(in oklab, var(--pathogen-color-danger-500) 30%, transparent);
+  }
+
+  .pathogen-button--scheme-danger:not(:disabled):not([disabled]):hover {
+    color: oklch(100% 0 0);
+    background: var(--pathogen-color-danger-500);
+    border-color: var(--pathogen-color-danger-500);
+  }
+
+  .pathogen-button__visual {
+    flex-shrink: 0;
+    align-items: center;
+    display: inline-flex;
+  }
+
   .pathogen-data-grid {
     --pathogen-data-grid-border-color: var(--pathogen-color-border-default);
     --pathogen-data-grid-row-border: var(--pathogen-color-neutral-100);
@@ -396,6 +498,96 @@
     .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
       z-index: var(--pathogen-data-grid-header-z);
     }
+  }
+
+  .pathogen-icon {
+    vertical-align: middle;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+
+  .pathogen-icon--size-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .pathogen-icon--size-md {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .pathogen-icon--size-lg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .pathogen-icon--size-xl {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .pathogen-icon--color-default {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-icon--color-subdued {
+    color: var(--pathogen-color-text-muted);
+  }
+
+  .pathogen-icon--color-primary {
+    color: var(--pathogen-color-brand-600);
+  }
+
+  .pathogen-icon--color-success {
+    color: var(--pathogen-color-success-500);
+  }
+
+  .pathogen-icon--color-warning {
+    color: var(--pathogen-color-warning-500);
+  }
+
+  .pathogen-icon--color-danger {
+    color: var(--pathogen-color-danger-500);
+  }
+
+  .pathogen-icon--color-blue {
+    color: oklch(58.8% 0.185 264.1);
+  }
+
+  .pathogen-icon--color-white {
+    color: oklch(100% 0 0);
+  }
+
+  .pathogen-icon__error {
+    font-family: var(--pathogen-font-mono);
+    color: var(--pathogen-color-danger-500);
+    border: 1px solid color-mix(in oklab, var(--pathogen-color-danger-500) 40%, transparent);
+    border-radius: var(--pathogen-radius-control);
+    background: color-mix(in oklab, var(--pathogen-color-danger-500) 6%, var(--pathogen-color-surface-default));
+    padding: 0.125rem 0.375rem;
+    font-size: 0.75rem;
+    display: inline-block;
+  }
+
+  .pathogen-link {
+    color: var(--pathogen-color-link);
+    text-underline-offset: 0.12em;
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    transition:
+      color 0.14s,
+      text-decoration-thickness 0.14s;
+  }
+
+  .pathogen-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .pathogen-link:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--pathogen-radius-control);
   }
 
   .pathogen-tabs {

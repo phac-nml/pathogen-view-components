@@ -1,5 +1,22 @@
 @layer pathogen.components {
-  /* Link component ownership scaffold. Runtime migration lands in 03-05. */
   .pathogen-link {
+    color: var(--pathogen-color-link);
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.12em;
+    transition:
+      color 140ms ease,
+      text-decoration-thickness 140ms ease;
+  }
+
+  .pathogen-link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .pathogen-link:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--pathogen-radius-control);
   }
 }

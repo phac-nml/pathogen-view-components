@@ -82,8 +82,8 @@ module Pathogen
       suggestions = suggest_similar_icons
       suggestion_text = build_suggestion_text(suggestions)
 
-      content_tag(:span, "⚠️ Icon '#{icon_name}' not found#{suggestion_text}",
-                  class: error_indicator_classes,
+      content_tag(:span, "Icon '#{icon_name}' not found#{suggestion_text}",
+                  class: 'pathogen-icon__error',
                   title: "Icon rendering error: #{error.message}")
     end
 
@@ -93,14 +93,6 @@ module Pathogen
     # @return [String] Formatted suggestion text
     def build_suggestion_text(suggestions)
       suggestions.any? ? " (Suggestions: #{suggestions.join(', ')})" : ''
-    end
-
-    # CSS classes for the error indicator
-    #
-    # @return [String] CSS class string
-    def error_indicator_classes
-      'text-red-500 text-xs font-mono border border-red-300 ' \
-        'rounded px-2 py-1 bg-red-50'
     end
 
     # Suggest similar icon names based on common patterns
