@@ -246,4 +246,70 @@
       z-index: var(--pathogen-data-grid-header-z);
     }
   }
+
+  /* -----------------------------------------------------------------------
+   * DataGrid cell content utilities (formerly in utilities.css as dual aliases)
+   * These selectors are DataGrid-specific; shared link/text styles for other
+   * contexts should use pathogen-link in link.css.
+   * --------------------------------------------------------------------- */
+
+  .pathogen-data-grid__text--default {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-data-grid__text--muted {
+    color: var(--pathogen-color-text-muted);
+  }
+
+  .pathogen-data-grid__link {
+    color: var(--pathogen-color-link);
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.12em;
+    transition:
+      color 140ms ease,
+      text-decoration-thickness 140ms ease;
+  }
+
+  .pathogen-data-grid__link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .pathogen-data-grid__link:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--pathogen-radius-control);
+  }
+
+  .pathogen-data-grid__link--subtle,
+  .pathogen-data-grid__link--sample,
+  .pathogen-data-grid__link--project {
+    color: color-mix(in oklab, var(--pathogen-color-text-default) 84%, transparent);
+  }
+
+  .pathogen-data-grid__link--subtle:hover,
+  .pathogen-data-grid__link--sample:hover,
+  .pathogen-data-grid__link--project:hover {
+    color: var(--pathogen-color-link);
+  }
+
+  .pathogen-data-grid__value {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-data-grid__value--mono {
+    font-family: var(--pathogen-font-mono);
+    font-weight: 600;
+  }
+
+  .pathogen-data-grid__highlight {
+    background: var(--pathogen-color-highlight);
+    border-radius: var(--pathogen-radius-control);
+    padding-inline: 0.06em;
+  }
+
+  .pathogen-data-grid__highlight--strong {
+    font-weight: 600;
+  }
 } /* end @layer pathogen.components */

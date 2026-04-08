@@ -85,86 +85,28 @@
 }
 
 @layer pathogen.utilities {
-  .pathogen-u-text-default,
-  .pathogen-data-grid__text--default {
-    color: var(--pathogen-color-text-default);
+  .pathogen-u-sr-only {
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    position: absolute;
+    overflow: hidden;
   }
 
-  .pathogen-u-text-muted,
-  .pathogen-data-grid__text--muted {
-    color: var(--pathogen-color-text-muted);
+  .pathogen-u-truncate {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  .pathogen-u-link,
-  .pathogen-data-grid__link {
-    color: var(--pathogen-color-link);
-    text-underline-offset: 0.12em;
-    font-weight: 600;
-    text-decoration-line: underline;
-    text-decoration-thickness: 1px;
-    transition:
-      color 0.14s,
-      text-decoration-thickness 0.14s;
-  }
-
-  .pathogen-u-link:hover,
-  .pathogen-data-grid__link:hover {
-    text-decoration-thickness: 2px;
-  }
-
-  .pathogen-u-link:focus-visible,
-  .pathogen-data-grid__link:focus-visible {
+  .pathogen-u-focus-ring:focus-visible {
     outline: 2px solid var(--pathogen-color-focus-ring);
     outline-offset: 2px;
     border-radius: var(--pathogen-radius-control);
-  }
-
-  .pathogen-u-link--subtle,
-  .pathogen-data-grid__link--subtle,
-  .pathogen-data-grid__link--sample,
-  .pathogen-data-grid__link--project {
-    color: color-mix(in oklab, var(--pathogen-color-text-default) 84%, transparent);
-  }
-
-  .pathogen-u-link--subtle:hover,
-  .pathogen-data-grid__link--subtle:hover,
-  .pathogen-data-grid__link--sample:hover,
-  .pathogen-data-grid__link--project:hover {
-    color: var(--pathogen-color-link);
-  }
-
-  .pathogen-data-grid__value {
-    color: var(--pathogen-color-text-default);
-  }
-
-  .pathogen-u-font-mono,
-  .pathogen-data-grid__value--mono {
-    font-family: var(--pathogen-font-mono);
-    font-weight: 600;
-  }
-
-  .pathogen-u-highlight,
-  .pathogen-data-grid__highlight {
-    background: var(--pathogen-color-highlight);
-    border-radius: var(--pathogen-radius-control);
-    padding-inline: 0.06em;
-  }
-
-  .pathogen-u-highlight--strong,
-  .pathogen-data-grid__highlight--strong {
-    font-weight: 600;
-  }
-
-  .pathogen-u-surface {
-    background: var(--pathogen-color-surface-default);
-  }
-
-  .pathogen-u-surface-subtle {
-    background: var(--pathogen-color-surface-subtle);
-  }
-
-  .pathogen-u-border-default {
-    border-color: var(--pathogen-color-border-default);
   }
 }
 
@@ -498,6 +440,66 @@
     .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
       z-index: var(--pathogen-data-grid-header-z);
     }
+  }
+
+  .pathogen-data-grid__text--default {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-data-grid__text--muted {
+    color: var(--pathogen-color-text-muted);
+  }
+
+  .pathogen-data-grid__link {
+    color: var(--pathogen-color-link);
+    text-underline-offset: 0.12em;
+    font-weight: 600;
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    transition:
+      color 0.14s,
+      text-decoration-thickness 0.14s;
+  }
+
+  .pathogen-data-grid__link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .pathogen-data-grid__link:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--pathogen-radius-control);
+  }
+
+  .pathogen-data-grid__link--subtle,
+  .pathogen-data-grid__link--sample,
+  .pathogen-data-grid__link--project {
+    color: color-mix(in oklab, var(--pathogen-color-text-default) 84%, transparent);
+  }
+
+  .pathogen-data-grid__link--subtle:hover,
+  .pathogen-data-grid__link--sample:hover,
+  .pathogen-data-grid__link--project:hover {
+    color: var(--pathogen-color-link);
+  }
+
+  .pathogen-data-grid__value {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-data-grid__value--mono {
+    font-family: var(--pathogen-font-mono);
+    font-weight: 600;
+  }
+
+  .pathogen-data-grid__highlight {
+    background: var(--pathogen-color-highlight);
+    border-radius: var(--pathogen-radius-control);
+    padding-inline: 0.06em;
+  }
+
+  .pathogen-data-grid__highlight--strong {
+    font-weight: 600;
   }
 
   .pathogen-form__label {
