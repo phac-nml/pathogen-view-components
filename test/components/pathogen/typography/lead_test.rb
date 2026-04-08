@@ -22,43 +22,43 @@ module Pathogen
       test 'applies larger text size' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.text-xl'
+        assert_selector 'p.pathogen-typography--size-xl'
       end
 
       test 'applies relaxed leading for better readability' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.leading-relaxed'
+        assert_selector 'p.pathogen-typography--leading-relaxed'
       end
 
       test 'applies default variant color classes' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.text-slate-900.dark\\:text-white'
+        assert_selector 'p.pathogen-typography--color-default'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Lead.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.text-slate-500.dark\\:text-slate-400'
+        assert_selector 'p.pathogen-typography--color-muted'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Lead.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p.text-slate-700.dark\\:text-slate-300'
+        assert_selector 'p.pathogen-typography--color-subdued'
       end
 
       test 'applies inverse variant color classes' do
         render_inline(Lead.new(variant: :inverse)) { 'Test' }
 
-        assert_selector 'p.text-white.dark\\:text-slate-900'
+        assert_selector 'p.pathogen-typography--color-inverse'
       end
 
       test 'merges custom classes' do
         render_inline(Lead.new(class: 'mb-6')) { 'Test' }
 
-        assert_selector 'p.mb-6.text-xl'
+        assert_selector 'p.mb-6.pathogen-typography--size-xl'
       end
 
       test 'accepts additional HTML attributes' do
