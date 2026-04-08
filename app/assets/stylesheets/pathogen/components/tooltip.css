@@ -1,5 +1,66 @@
 @layer pathogen.components {
-  /* Tooltip component ownership scaffold. Runtime migration lands in 03-04. */
   .pathogen-tooltip {
+    position: fixed;
+    z-index: 50;
+    display: inline-block;
+    max-width: 20rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--pathogen-color-neutral-950);
+    color: oklch(1 0 0);
+    font-family: var(--pathogen-font-sans);
+    font-size: var(--pathogen-text-sm);
+    font-weight: 500;
+    border-radius: var(--pathogen-radius-surface);
+    box-shadow: 0 1px 3px oklch(0 0 0 / 0.2);
+    /* closed by default */
+    opacity: 0;
+    transform: scale(0.9);
+    transition:
+      opacity 200ms ease-out,
+      transform 200ms ease-out;
+    transform-origin: var(--pathogen-tooltip-origin, center);
+  }
+
+  .pathogen-tooltip[data-state="open"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Hide when native hidden attribute is present */
+  .pathogen-tooltip[hidden] {
+    display: none;
+  }
+
+  /* Placement-specific transform origins */
+  .pathogen-tooltip--placement-top {
+    --pathogen-tooltip-origin: bottom center;
+  }
+
+  .pathogen-tooltip--placement-bottom {
+    --pathogen-tooltip-origin: top center;
+  }
+
+  .pathogen-tooltip--placement-left {
+    --pathogen-tooltip-origin: center right;
+  }
+
+  .pathogen-tooltip--placement-right {
+    --pathogen-tooltip-origin: center left;
+  }
+
+  /* Arrow element */
+  .pathogen-tooltip__arrow {
+    position: absolute;
+    width: 0.5rem;
+    height: 0.5rem;
+    background: var(--pathogen-color-neutral-950);
+    transform: rotate(45deg);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .pathogen-tooltip {
+      transition: none;
+    }
   }
 }

@@ -69,6 +69,11 @@ const tooltipRegistry = new TooltipRegistry();
  * Uses computePosition with offset/flip/shift/arrow middleware plus autoUpdate
  * for scroll/resize adaptation.
  *
+ * Visual state is driven by semantic attributes:
+ * - `data-state="open"` / `data-state="closed"` on the tooltip element
+ * - `aria-hidden="false"` / `aria-hidden="true"` on the tooltip element
+ * CSS in tooltip.css reacts to `[data-state="open"]` for show/hide animation.
+ *
  * ## Features
  * - Collision-aware positioning with configurable middleware
  * - Optional arrow element with automatic placement
@@ -91,19 +96,9 @@ const tooltipRegistry = new TooltipRegistry();
  *   <button data-pathogen--tooltip-target="trigger"
  *           aria-describedby="tip-1">Hover me</button>
  *   <div id="tip-1" role="tooltip"
- *        data-pathogen--tooltip-target="tooltip">
+ *        data-pathogen--tooltip-target="tooltip"
+ *        data-state="closed">
  *     Tooltip content
- *   </div>
- * </div>
- *
- * @example With arrow
- * <div data-controller="pathogen--tooltip">
- *   <button data-pathogen--tooltip-target="trigger"
- *           aria-describedby="tip-2">With arrow</button>
- *   <div id="tip-2" role="tooltip"
- *        data-pathogen--tooltip-target="tooltip">
- *     Content
- *     <div data-pathogen--tooltip-target="arrow"></div>
  *   </div>
  * </div>
  */
@@ -130,7 +125,6 @@ export default class extends Controller {
   #touchPrimed = false;
   #touchStarted = false;
   #escapeDismissed = false;
-  #prefersReducedMotion = false;
   #abortController = new AbortController();
   #originalParent = null;
   #tooltipElement = null;
@@ -139,8 +133,6 @@ export default class extends Controller {
 
   connect() {
     this.element.dataset.controllerConnected = "true";
-
-    this.#prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     tooltipRegistry.register(this);
   }
@@ -228,30 +220,23 @@ export default class extends Controller {
 
   /**
    * Shows the tooltip with positioning and optional animation.
+   * Sets data-state="open" and aria-hidden="false" on the tooltip element.
    */
   show() {
     if (!this.#tooltipElement || this.#escapeDismissed) return;
 
     this.#hideOtherTooltips();
 
+    this.#tooltipElement.dataset.state = "open";
     this.#tooltipElement.setAttribute("aria-hidden", "false");
-
-    if (this.#prefersReducedMotion) {
-      this.#tooltipElement.classList.remove("invisible", "opacity-0");
-      this.#tooltipElement.classList.add("visible", "opacity-100");
-    } else {
-      this.#tooltipElement.classList.remove("scale-90", "invisible");
-      this.#tooltipElement.classList.add("scale-100", "visible");
-      this.#tooltipElement.classList.remove("opacity-0");
-      this.#tooltipElement.classList.add("opacity-100");
-    }
 
     this.#startAutoUpdate();
     this.#positionTooltip();
   }
 
   /**
-   * Hides the tooltip with optional animation.
+   * Hides the tooltip.
+   * Sets data-state="closed" and aria-hidden="true" on the tooltip element.
    */
   hide() {
     if (!this.#tooltipElement) return;
@@ -260,15 +245,8 @@ export default class extends Controller {
     this.#clearHideTimeout();
     this.#touchPrimed = false;
 
+    this.#tooltipElement.dataset.state = "closed";
     this.#tooltipElement.setAttribute("aria-hidden", "true");
-
-    if (this.#prefersReducedMotion) {
-      this.#tooltipElement.classList.remove("visible", "opacity-100");
-      this.#tooltipElement.classList.add("invisible", "opacity-0");
-    } else {
-      this.#tooltipElement.classList.remove("opacity-100", "scale-100", "visible");
-      this.#tooltipElement.classList.add("opacity-0", "scale-90", "invisible");
-    }
 
     this.#stopAutoUpdate();
   }
@@ -449,11 +427,7 @@ export default class extends Controller {
   }
 
   #isVisible() {
-    return (
-      this.#tooltipElement &&
-      this.#tooltipElement.classList.contains("opacity-100") &&
-      this.#tooltipElement.classList.contains("visible")
-    );
+    return this.#tooltipElement && this.#tooltipElement.dataset.state === "open";
   }
 
   #hideOtherTooltips() {
