@@ -33,14 +33,7 @@ module Pathogen
 
         @system_arguments[:class] = class_names(
           system_arguments[:class],
-          Constants::TYPOGRAPHY_SCALE[14],            # text-sm
-          Constants::FONT_FAMILIES[:mono],            # monospace font
-          'text-slate-800 dark:text-slate-100',       # contrast in both modes
-          'bg-slate-100 dark:bg-slate-800',           # themed background
-          'border border-slate-200 dark:border-slate-700',
-          'px-2 py-0.5 rounded-md',                   # comfortable padding
-          'whitespace-nowrap align-middle',
-          'inline-flex items-center gap-1'
+          'pathogen-typography--code'
         )
       end
     end

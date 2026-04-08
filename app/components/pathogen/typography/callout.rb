@@ -5,11 +5,10 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering callout text (18px)
+    # Component for rendering callout text (18px / 1.125rem)
     #
-    # Callout text sits between body (16px) and lead (20px), perfect for emphasized
-    # paragraphs, pull quotes, or sidebar content that needs more prominence than
-    # body text but isn't quite a lead paragraph. Supports optional responsive sizing.
+    # Callout text sits between body and lead, perfect for emphasized
+    # paragraphs, pull quotes, or sidebar content. Supports optional responsive sizing.
     #
     # @example Basic callout
     #   <%= render Pathogen::Typography::Callout.new do %>
@@ -18,7 +17,7 @@ module Pathogen
     #
     # @example Responsive sizing
     #   <%= render Pathogen::Typography::Callout.new(responsive: true, variant: :muted) do %>
-    #     Scales from 16px (mobile) to 18px (desktop)
+    #     Scales from base (16px) to lg (18px) at the sm breakpoint
     #   <% end %>
     class Callout < Component
       include Shared
@@ -41,6 +40,7 @@ module Pathogen
 
         @system_arguments[:class] = class_names(
           system_arguments[:class],
+          'pathogen-typography--callout',
           size_classes,
           color_classes_for_variant(@variant),
           Constants::LINE_HEIGHTS[:body],
@@ -52,10 +52,11 @@ module Pathogen
 
       def size_classes
         if @responsive
-          responsive_sizes = Constants::TEXT_RESPONSIVE_SIZES[:callout]
-          "#{responsive_sizes[:mobile]} sm:#{responsive_sizes[:desktop]}"
+          # Responsive: mobile uses base (16px), desktop uses lg (18px)
+          responsive = Constants::TEXT_RESPONSIVE_SIZES[:callout]
+          [responsive[:mobile], 'pathogen-typography--responsive-callout']
         else
-          'text-lg' # 18px - between base (16px) and xl (20px)
+          Constants::TYPOGRAPHY_SCALE[18] # pathogen-typography--size-lg
         end
       end
     end
