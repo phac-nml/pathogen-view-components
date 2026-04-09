@@ -112,7 +112,7 @@ module Pathogen
     # placements like 'top-start', 'bottom-end', etc. via the flip middleware.
     # data-state starts as "closed"; controller transitions to "open" on show.
     def merge_data_attributes
-      (@system_arguments[:data] || {}).reverse_merge(
+      (@system_arguments[:data] || {}).merge(
         'pathogen--tooltip-target': 'tooltip',
         state: 'closed',
         placement: @placement.to_s
