@@ -177,7 +177,7 @@ module Pathogen
 
       helpers.safe_join(
         [
-          helpers.link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-u-link'),
+          helpers.link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-data-grid__link'),
           helpers.render(Pathogen::Button.new(type: :button, size: :small)) do
             'Inspect'
           end
