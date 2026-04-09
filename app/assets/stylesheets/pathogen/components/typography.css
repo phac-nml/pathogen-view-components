@@ -207,6 +207,11 @@
    * --------------------------------------------------------------------- */
 
   @media (min-width: 640px) {
+    .pathogen-typography--size-xs-sm\:sm,
+    .sm\:pathogen-typography--size-sm {
+      font-size: var(--pathogen-text-sm);
+    }
+
     .pathogen-typography--size-xs-sm\:base,
     .sm\:pathogen-typography--size-base {
       font-size: 1rem;
