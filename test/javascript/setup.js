@@ -2,9 +2,9 @@ import { afterEach } from "vitest";
 
 import "@testing-library/jest-dom/vitest";
 
-// jsdom does not implement window.matchMedia; provide a minimal stub so
-// Stimulus controllers that call matchMedia (e.g. tooltip_controller) do not
-// trigger a jsdom HTMLBaseElement.href inspection bug during teardown.
+// jsdom does not implement window.matchMedia; provide a minimal stub so that
+// libraries or controllers that reference matchMedia do not trigger a jsdom
+// HTMLBaseElement.href inspection bug during teardown.
 if (!window.matchMedia) {
   Object.defineProperty(window, "matchMedia", {
     writable: true,
