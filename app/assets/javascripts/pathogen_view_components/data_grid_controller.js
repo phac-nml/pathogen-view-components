@@ -824,10 +824,21 @@ export default class extends Controller {
     const allCenterCells = this.#centerLaneCells(centerLane);
     if (allCenterCells.length === 0) return;
 
-    const visibleCells = allCenterCells.filter((cell) => {
+    const visibleCells = [];
+    allCenterCells.forEach((cell) => {
       const columnIndex = columnIndexOf(cell);
-      if (columnIndex === null) return false;
-      return columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex;
+      if (columnIndex === null) return;
+
+      // Keep each sliced cell anchored to its original center-lane track so
+      // horizontal scroll math and rendered content stay aligned.
+      const centerTrack = columnIndex - this.#virtualPinnedCount + 1;
+      if (centerTrack > 0) {
+        cell.style.gridColumn = `${centerTrack}`;
+      }
+
+      if (columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex) {
+        visibleCells.push(cell);
+      }
     });
 
     centerLane.replaceChildren(...visibleCells);
