@@ -55,8 +55,7 @@ module Pathogen
           # Responsive: mobile uses base (16px), desktop uses lg (18px)
           responsive = Constants::TEXT_RESPONSIVE_SIZES[:callout]
           desktop = Constants::TYPOGRAPHY_SCALE[18] # pathogen-typography--size-lg
-          responsive_desktop = desktop.sub('--size-', '--size-sm:')
-          [responsive[:mobile], responsive_desktop]
+          "#{responsive[:mobile]} sm:#{desktop}"
         else
           Constants::TYPOGRAPHY_SCALE[18] # pathogen-typography--size-lg
         end
