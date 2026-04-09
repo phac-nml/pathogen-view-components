@@ -255,4 +255,27 @@ describe("data_grid_controller horizontal virtualization", () => {
       rafSpy.mockRestore();
     }
   });
+
+  it("preserves absolute center track placement while slicing center columns", async () => {
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    try {
+      const { scrollContainer, headerCenterLane, bodyCenterLane } = await mountGrid();
+
+      scrollContainer.scrollLeft = 160;
+      scrollContainer.dispatchEvent(new Event("scroll"));
+      await flush();
+
+      const headerColumns = Array.from(headerCenterLane.querySelectorAll('[data-pathogen--data-grid-target="cell"]'));
+      const bodyColumns = Array.from(bodyCenterLane.querySelectorAll('[data-pathogen--data-grid-target="cell"]'));
+
+      expect(headerColumns.map((cell) => cell.style.gridColumn)).toEqual(["2", "3"]);
+      expect(bodyColumns.map((cell) => cell.style.gridColumn)).toEqual(["2", "3"]);
+    } finally {
+      rafSpy.mockRestore();
+    }
+  });
 });
