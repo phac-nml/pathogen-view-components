@@ -207,47 +207,58 @@
    * --------------------------------------------------------------------- */
 
   @media (min-width: 640px) {
-    .pathogen-typography--size-xs-sm\:base {
+    .pathogen-typography--size-xs-sm\:base,
+    .sm\:pathogen-typography--size-base {
       font-size: 1rem;
     }
 
-    .pathogen-typography--size-sm-sm\:base {
+    .pathogen-typography--size-sm-sm\:base,
+    .sm\:pathogen-typography--size-base {
       font-size: 1rem;
     }
 
-    .pathogen-typography--size-sm-sm\:lg {
+    .pathogen-typography--size-sm-sm\:lg,
+    .sm\:pathogen-typography--size-lg {
       font-size: 1.125rem;
     }
 
-    .pathogen-typography--size-base-sm\:lg {
+    .pathogen-typography--size-base-sm\:lg,
+    .sm\:pathogen-typography--size-lg {
       font-size: 1.125rem;
     }
 
-    .pathogen-typography--size-base-sm\:xl {
+    .pathogen-typography--size-base-sm\:xl,
+    .sm\:pathogen-typography--size-xl {
       font-size: 1.25rem;
     }
 
-    .pathogen-typography--size-lg-sm\:xl {
+    .pathogen-typography--size-lg-sm\:xl,
+    .sm\:pathogen-typography--size-xl {
       font-size: 1.25rem;
     }
 
-    .pathogen-typography--size-lg-sm\:2xl {
+    .pathogen-typography--size-lg-sm\:2xl,
+    .sm\:pathogen-typography--size-2xl {
       font-size: 1.5625rem;
     }
 
-    .pathogen-typography--size-xl-sm\:2xl {
+    .pathogen-typography--size-xl-sm\:2xl,
+    .sm\:pathogen-typography--size-2xl {
       font-size: 1.5625rem;
     }
 
-    .pathogen-typography--size-xl-sm\:3xl {
+    .pathogen-typography--size-xl-sm\:3xl,
+    .sm\:pathogen-typography--size-3xl {
       font-size: 1.9375rem;
     }
 
-    .pathogen-typography--size-2xl-sm\:4xl {
+    .pathogen-typography--size-2xl-sm\:4xl,
+    .sm\:pathogen-typography--size-4xl {
       font-size: 2.4375rem;
     }
 
-    .pathogen-typography--size-3xl-sm\:5xl {
+    .pathogen-typography--size-3xl-sm\:5xl,
+    .sm\:pathogen-typography--size-5xl {
       font-size: 3.0625rem;
     }
   }
