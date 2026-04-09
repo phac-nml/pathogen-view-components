@@ -87,8 +87,9 @@ for pattern in "${PATTERNS[@]}"; do
     GREP_FLAGS="-rl"
   fi
 
+  # Uses -P (Perl regex) — requires GNU grep; not available on BSD/macOS by default.
   # shellcheck disable=SC2086
-  RESULT=$(grep $GREP_FLAGS -E "$pattern" \
+  RESULT=$(grep $GREP_FLAGS -P "$pattern" \
     "${GREP_EXCLUDES[@]}" \
     "${GREP_EXCLUDE_DIRS[@]}" \
     "${TARGETS[@]}" 2>/dev/null || true)
