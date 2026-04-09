@@ -7,7 +7,8 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= icon('link', class: "inline mr-3") %> Link Component Integration
+      <%= icon('link', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Link Component
+      Integration
     </h1>
 
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
@@ -18,7 +19,8 @@
   <!-- Navigation Bar Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('squares-four', class: "mr-3") %> Navigation Bar with Tooltips
+      <%= icon('squares-four', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Navigation Bar
+      with Tooltips
     </h2>
 
     <div
@@ -36,34 +38,36 @@
         <div class="flex items-center space-x-6">
           <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
             <% link.with_tooltip(text: "View your dashboard", placement: :bottom) %>
-            <%= icon('house', class: "inline mr-2") %> Dashboard
+            <%= icon('house', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+            Dashboard
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/samples") do |link| %>
             <% link.with_tooltip(text: "Browse and manage samples", placement: :bottom) %>
-            <%= icon('flask', class: "inline mr-2") %> Samples
+            <%= icon('flask', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %> Samples
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/projects") do |link| %>
             <% link.with_tooltip(text: "View all projects", placement: :bottom) %>
-            <%= icon('folder', class: "inline mr-2") %> Projects
+            <%= icon('folder', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+            Projects
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
             <% link.with_tooltip(text: "Manage analysis workflows", placement: :bottom) %>
-            <%= icon('play', class: "inline mr-2") %> Workflows
+            <%= icon('play', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %> Workflows
           <% end %>
         </div>
 
         <div class="flex items-center space-x-4">
           <%= render Pathogen::Link.new(href: "/settings") do |link| %>
             <% link.with_tooltip(text: "Configure settings", placement: :bottom) %>
-            <%= icon('gear') %>
+            <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/help") do |link| %>
             <% link.with_tooltip(text: "Get help and documentation", placement: :bottom) %>
-            <%= icon('question') %>
+            <%= icon('question', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           <% end %>
         </div>
       </nav>
@@ -79,7 +83,8 @@
   <!-- Action List Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('list', class: "mr-3") %> Action List with Contextual Tooltips
+      <%= icon('list', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Action List with
+      Contextual Tooltips
     </h2>
 
     <div
@@ -103,17 +108,17 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/1/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= icon('eye') %>
+              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= icon('pencil') %>
+              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= icon('download') %>
+              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </div>
         </div>
@@ -132,17 +137,17 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/2/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= icon('eye') %>
+              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= icon('pencil') %>
+              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= icon('download') %>
+              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </div>
         </div>
@@ -155,7 +160,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('info') %>
+          <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div class="text-sm">
             <p class="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -175,7 +180,8 @@
   <!-- Breadcrumb Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('map-trifold', class: "mr-3") %> Breadcrumb Navigation
+      <%= icon('map-trifold', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Breadcrumb
+      Navigation
     </h2>
 
     <div
@@ -187,7 +193,7 @@
       <nav class="flex items-center space-x-2 text-sm">
         <%= render Pathogen::Link.new(href: "/") do |link| %>
           <% link.with_tooltip(text: "Go to home page", placement: :bottom) %>
-          <%= icon('house', class: "inline") %>
+          <%= icon('house', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline") %>
         <% end %>
 
         <span class="text-slate-400 dark:text-slate-600">/</span>
@@ -214,7 +220,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('info') %>
+          <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div class="text-sm">
             <p class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
@@ -234,7 +240,8 @@
   <!-- Sidebar Menu Example -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('sidebar', class: "mr-3") %> Collapsed Sidebar with Tooltips
+      <%= icon('sidebar', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Collapsed Sidebar
+      with Tooltips
     </h2>
 
     <div
@@ -254,27 +261,27 @@
           <nav class="flex flex-col items-center py-4 space-y-4">
             <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
               <% link.with_tooltip(text: "Dashboard", placement: :right) %>
-              <%= icon('house') %>
+              <%= icon('house', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples") do |link| %>
               <% link.with_tooltip(text: "Samples", placement: :right) %>
-              <%= icon('flask') %>
+              <%= icon('flask', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/projects") do |link| %>
               <% link.with_tooltip(text: "Projects", placement: :right) %>
-              <%= icon('folder') %>
+              <%= icon('folder', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
               <% link.with_tooltip(text: "Workflows", placement: :right) %>
-              <%= icon('play') %>
+              <%= icon('play', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/settings") do |link| %>
               <% link.with_tooltip(text: "Settings", placement: :right) %>
-              <%= icon('gear') %>
+              <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </nav>
         </aside>
@@ -293,7 +300,8 @@
   <!-- Usage Tips -->
   <div>
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('lightbulb', class: "mr-3") %> Integration Tips
+      <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 mr-3") %> Integration
+      Tips
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,7 +312,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('info') %>
+          <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div>
             <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -325,7 +333,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('check-circle') %>
+          <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
 
           <div>
             <h3 class="font-semibold text-green-900 dark:text-green-100 mb-1">
@@ -346,7 +354,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('lightning') %>
+          <%= icon('lightning', class: "w-5 h-5 flex-shrink-0 text-amber-500 dark:text-amber-400") %>
 
           <div>
             <h3 class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
@@ -367,7 +375,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('warning') %>
+          <%= icon('warning', class: "w-5 h-5 flex-shrink-0 text-amber-500 dark:text-amber-400") %>
 
           <div>
             <h3 class="font-semibold text-amber-900 dark:text-amber-100 mb-1">

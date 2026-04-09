@@ -1,3 +1,4 @@
+<%# herb-lint-disable erb-no-trailing-whitespace %>
 <div
   class="
     p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900
@@ -7,7 +8,8 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-      <%= icon('lightbulb', class: "inline mr-3") %> Advanced Features &amp; Edge Cases
+      <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Advanced
+      Features &amp; Edge Cases
     </h1>
 
     <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
@@ -18,7 +20,8 @@
   <!-- Long Text Handling -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('file-text', class: "mr-3") %> Long Text &amp; Max-Width Constraint
+      <%= icon('file-text', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Long Text &amp;
+      Max-Width Constraint
     </h2>
 
     <div
@@ -80,7 +83,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('info') %>
+          <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div class="text-sm">
             <p class="font-semibold text-blue-900 dark:text-blue-100 mb-1">
@@ -100,7 +103,8 @@
   <!-- Animation Demonstration -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('play', class: "mr-3") %> Smooth Fade-In/Scale Animation
+      <%= icon('play', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Smooth Fade-In/Scale
+      Animation
     </h2>
 
     <div
@@ -126,7 +130,8 @@
                 text: "Fade in and scale from bottom",
                 placement: :top,
               ) %>
-              <%= icon('arrow-up', class: "inline mr-2") %> Hover to see animation
+              <%= icon('arrow-up', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+              Hover to see animation
             <% end %>
           </div>
 
@@ -147,7 +152,8 @@
                 text: "Fade in and scale from top",
                 placement: :bottom,
               ) %>
-              <%= icon('arrow-down', class: "inline mr-2") %> Hover to see animation
+              <%= icon('arrow-down', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+              Hover to see animation
             <% end %>
           </div>
 
@@ -168,7 +174,8 @@
                 text: "Fade in and scale from right",
                 placement: :left,
               ) %>
-              <%= icon('arrow-left', class: "inline mr-2") %> Hover to see animation
+              <%= icon('arrow-left', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+              Hover to see animation
             <% end %>
           </div>
 
@@ -187,9 +194,9 @@
             <%= render Pathogen::Link.new(href: "#") do |link| %>
               <% link.with_tooltip(
                 text: "Fade in and scale from left",
-                placement: :right,
-              ) %>
-              <%= icon('arrow-right', class: "inline mr-2") %> Hover to see animation
+              ) -%>
+              <%= icon('arrow-right', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
+              Hover to see animation
             <% end %>
           </div>
 
@@ -206,7 +213,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('check-circle') %>
+          <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
 
           <div class="text-sm">
             <p class="font-semibold text-green-900 dark:text-green-100 mb-1">
@@ -226,7 +233,8 @@
   <!-- Edge Case: Viewport Boundaries -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('arrows-out', class: "mr-3") %> Viewport Boundary Handling
+      <%= icon('arrows-out', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Viewport
+      Boundary Handling
     </h2>
 
     <div
@@ -247,7 +255,7 @@
         "
       >
         <div class="flex items-start gap-3">
-          <%= icon('info') %>
+          <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div class="text-sm">
             <p class="font-semibold text-purple-900 dark:text-purple-100 mb-2">
@@ -287,7 +295,8 @@
   <!-- Multiple Tooltips -->
   <div class="mb-12">
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('grid-four', class: "mr-3") %> Multiple Tooltips in Close Proximity
+      <%= icon('grid-four', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Multiple Tooltips
+      in Close Proximity
     </h2>
 
     <div
@@ -340,7 +349,8 @@
   <!-- Technical Details -->
   <div>
     <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
-      <%= icon('gear', class: "mr-3") %> Technical Implementation
+      <%= icon('gear', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Technical
+      Implementation
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
