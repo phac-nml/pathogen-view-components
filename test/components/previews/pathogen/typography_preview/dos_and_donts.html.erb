@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <%= pathogen_heading(level: 1, class: "mb-4") do %>
-      Do's and Don'ts
+      <%= icon('lightbulb', class: "inline mr-3") %> Do's and Don'ts
     <% end %>
 
     <%= pathogen_text(variant: :muted, class: "text-lg max-w-3xl mx-auto") do %>
@@ -14,13 +14,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        Heading Hierarchy
+        <%= icon('list-numbers', class: "mr-3") %> Heading Hierarchy
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('check-circle') %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -50,6 +51,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('x-circle') %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -79,13 +81,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        Color Variants
+        <%= icon('palette', class: "mr-3") %> Color Variants
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('check-circle') %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -107,6 +110,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('x-circle') %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -132,13 +136,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        Code Component Usage
+        <%= icon('code', class: "mr-3") %> Code Component Usage
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('check-circle') %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -164,6 +169,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('x-circle') %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -185,13 +191,14 @@
   <div class="mb-12">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        Responsive Behavior
+        <%= icon('device-mobile', class: "mr-3") %> Responsive Behavior
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Do -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('check-circle') %>
             <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
           </div>
 
@@ -209,6 +216,7 @@
         <!-- Don't -->
         <div>
           <div class="flex items-center gap-3 mb-4">
+            <%= icon('x-circle') %>
             <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
           </div>
 
@@ -234,13 +242,13 @@
   <div>
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
       <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        Best Practices Summary
+        <%= icon('star', class: "mr-3") %> Best Practices Summary
       <% end %>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <div class="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
-            Do's
+            <%= icon('check-circle', class: "mr-2") %> Do's
           </div>
 
           <%= pathogen_list do |list| %>
@@ -254,7 +262,7 @@
 
         <div>
           <div class="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center">
-            Don'ts
+            <%= icon('x-circle', class: "mr-2") %> Don'ts
           </div>
 
           <%= pathogen_list do |list| %>
