@@ -27,7 +27,6 @@ module Pathogen
       @id = @system_arguments[:id]
 
       @system_arguments[:classes] = class_names(
-        system_arguments[:class],
         'pathogen-button',
         scheme_class(fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME)),
         SIZE_MAPPINGS[fetch_or_fallback(SIZE_OPTIONS, size, DEFAULT_SIZE)],
