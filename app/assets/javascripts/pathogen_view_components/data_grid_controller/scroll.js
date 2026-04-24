@@ -88,4 +88,31 @@ export function ensureCellFullyVisible(cell, scrollContainer, gridTarget, option
   } else if (cellRect.right > maxVisibleRight) {
     scrollContainer.scrollLeft += cellRect.right - maxVisibleRight;
   }
+
+  // After adjusting the scroll container, ensure the cell is also visible
+  // within the browser viewport. This handles grids that are not inside a
+  // fixed-height container (the page itself scrolls instead of the container).
+  ensureCellInViewport(cell);
+}
+
+/**
+ * Scrolls the browser viewport so the cell is on-screen.
+ * Uses getBoundingClientRect (which reflects any prior container scroll
+ * adjustment) and window.scrollBy to avoid disturbing the container's
+ * scroll position.
+ * @param {HTMLElement} cell
+ */
+export function ensureCellInViewport(cell) {
+  const rect = cell.getBoundingClientRect();
+  let scrollY = 0;
+
+  if (rect.top < 0) {
+    scrollY = rect.top;
+  } else if (rect.bottom > window.innerHeight) {
+    scrollY = rect.bottom - window.innerHeight;
+  }
+
+  if (scrollY !== 0) {
+    window.scrollBy({ left: 0, top: scrollY, behavior: "instant" });
+  }
 }
