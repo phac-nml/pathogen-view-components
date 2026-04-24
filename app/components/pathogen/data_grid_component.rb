@@ -124,10 +124,20 @@ module Pathogen
     end
 
     def virtual_lane_row_style(column_entries)
-      widths = column_entries.map { |column, _index| column.width.presence || 'minmax(120px, 1fr)' }
+      widths = column_entries.map { |column, _index| virtual_column_track_size(column) }
       return nil if widths.empty?
 
       "grid-template-columns: #{widths.join(' ')};"
+    end
+
+    def virtual_column_track_size(column)
+      width = column.width.presence
+      return 'minmax(120px, 120fr)' unless width
+
+      px = column.width_px
+      return "minmax(#{width}, #{px.to_i}fr)" if px
+
+      width
     end
 
     def default_active_row_index = @rows.present? ? 1 : nil
