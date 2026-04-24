@@ -3531,9 +3531,12 @@
   position: sticky;
   left: 0;
   z-index: calc(var(--pvc-data-grid-sticky-z) + 1);
-  border-right: 1px solid var(--pvc-data-grid-border-color);
   background: var(--pvc-data-grid-body-bg);
-  box-shadow: 1px 0 0 var(--pvc-data-grid-border-color);
+}
+[data-pathogen-grid].pathogen-data-grid--virtual
+  .pathogen-data-grid__lane--pinned
+  [data-pathogen--data-grid-target~="cell"]:last-child {
+  border-right: 1px solid var(--pvc-data-grid-border-color);
 }
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane--center {
   flex: 1;
