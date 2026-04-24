@@ -1,10 +1,10 @@
 # Devenv
-.devenv*
+.devenv/
 devenv.local.nix
 devenv.local.yaml
 
 # direnv
-.direnv
+.direnv/
 
 # Node dependencies
 node_modules/
