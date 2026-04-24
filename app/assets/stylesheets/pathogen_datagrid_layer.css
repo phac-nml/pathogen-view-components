@@ -278,6 +278,12 @@
   align-items: stretch;
 }
 
+[data-pathogen-grid].pathogen-data-grid--virtual [data-pathogen--data-grid-target~="cell"] {
+  width: auto;
+  min-width: 0;
+  justify-self: stretch;
+}
+
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane--pinned {
   position: sticky;
   left: 0;
@@ -288,6 +294,7 @@
 }
 
 [data-pathogen-grid].pathogen-data-grid--virtual .pathogen-data-grid__lane--center {
+  flex: 1;
   min-width: max-content;
   background: var(--pvc-data-grid-body-bg);
 }
