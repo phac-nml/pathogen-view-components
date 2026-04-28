@@ -1,0 +1,129 @@
+<div style="padding: 24px; min-height: 100vh; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;">
+  <div style="margin-bottom: 24px; text-align: center;">
+    <h1 style="margin: 0 0 8px; font-size: 28px; font-weight: 700;">
+      <%= pathogen_icon(:cursor_click, color: :primary, size: :xl, class: "inline mr-3") %> Tooltip Click-through After
+      Hide
+    </h1>
+
+    <p style="margin: 0 auto; max-width: 720px; color: #444;">
+      This preview is a manual visual regression check for a bug where a tooltip becomes hidden but still blocks clicks
+      on elements underneath it.
+    </p>
+  </div>
+
+  <div style="max-width: 720px; margin: 0 auto;">
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #fff;">
+      <h2 style="margin: 0 0 8px; font-size: 18px;">
+        Steps
+      </h2>
+
+      <ol style="margin: 0; padding-left: 20px; color: #333;">
+        <li>Hover the “Tooltip trigger” button to show the tooltip.</li>
+        <li>Move your mouse away to hide the tooltip.</li>
+
+        <li>
+          Immediately click the “Underlying action” button. The click counter should increment every time after the
+          tooltip closes.
+        </li>
+      </ol>
+    </div>
+
+    <div style="border: 1px solid #ddd; border-radius: 12px; padding: 20px; background: #fff;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px;">
+        <div>
+          <p style="margin: 0; font-size: 12px; color: #555;">Underlying action clicks</p>
+          <p id="pv-tooltip-clicks" style="margin: 4px 0 0; font-size: 28px; font-weight: 700;">0</p>
+        </div>
+
+        <button
+          type="button"
+          id="pv-tooltip-reset"
+          style="padding: 8px 12px; border-radius: 8px; border: 1px solid #bbb; background: #fff;"
+        >
+          Reset
+        </button>
+      </div>
+
+      <div>
+        <div style="padding: 24px; border-radius: 12px; border: 1px solid #e2e2e2; background: #f7f7f7;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 12px;">
+            <div
+              data-controller="pathogen--tooltip"
+              style="display: flex; flex-direction: column; align-items: center;"
+            >
+              <button
+                type="button"
+                style="padding: 8px 12px; border-radius: 8px; border: 1px solid #1d4ed8; background: #2563eb; color: #fff;"
+                aria-describedby="pv-tooltip-1"
+                data-pathogen--tooltip-target="trigger"
+              >
+                Tooltip trigger
+              </button>
+
+              <%= render Pathogen::Tooltip.new(
+                id: "pv-tooltip-1",
+                text: "I should not block clicks after I hide.",
+                placement: :bottom,
+              ) %>
+            </div>
+
+            <button
+              type="button"
+              id="pv-underlying-action"
+              style="padding: 10px 14px; border-radius: 8px; border: 1px solid #047857; background: #059669; color: #fff; margin-top: -6px;"
+            >
+              Underlying action
+            </button>
+
+            <p style="margin: 0; font-size: 12px; color: #555; text-align: center; max-width: 520px;">
+              Tooltip placement is <code>bottom</code>. While open, it should overlap the button above; after it hides,
+              the button must be clickable immediately.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="margin-top: 16px; padding: 12px; border: 1px solid #f0c36d; border-radius: 10px; background: #fff7e6;"
+      >
+        <div style="display: flex; align-items: flex-start; gap: 10px;">
+          <%= pathogen_icon(:warning, color: :warning) %>
+
+          <div style="font-size: 13px; color: #5a3b00;">
+            <p style="margin: 0 0 6px; font-weight: 600;">What “broken” looks like</p>
+
+            <p style="margin: 0; color: #5a3b00;">
+              If the tooltip is visually hidden but still sitting on top of the page (e.g. due to not being truly hidden
+              or still catching pointer events), clicks on “Underlying action” won’t increment the counter even though
+              the tooltip looks gone.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= request.content_security_policy_nonce %>">
+  (function () {
+    const clicksEl = document.getElementById("pv-tooltip-clicks");
+    const actionBtn = document.getElementById("pv-underlying-action");
+    const resetBtn = document.getElementById("pv-tooltip-reset");
+    if (!clicksEl || !actionBtn || !resetBtn) return;
+
+    let clicks = 0;
+    const render = () => {
+      clicksEl.textContent = String(clicks);
+    };
+
+    actionBtn.addEventListener("click", () => {
+      clicks += 1;
+      render();
+    });
+
+    resetBtn.addEventListener("click", () => {
+      clicks = 0;
+      render();
+    });
+  })();
+</script>
