@@ -17,7 +17,7 @@ module Pathogen
     def self.visual_types(name:)
       {
         icon: ->(**args) { icon_visual(args) },
-        svg: ->(**args) { svg_visual(args, name) }
+        svg: ->(**args, &block) { svg_visual(args, name, &block) }
       }
     end
 
@@ -27,24 +27,27 @@ module Pathogen
       helpers.icon(icon_name.to_s.tr('_', '-'), **args)
     end
 
-    def svg_visual(args, name)
-      Pathogen::BaseComponent.new(
+    def svg_visual(args, name, &block)
+      component = Pathogen::BaseComponent.new(
         tag: :svg,
         width: '16',
         height: '16',
         fill: 'currentColor',
-        classes: "#{name}_svg fill-current",
+        classes: class_names("#{name}_svg", 'fill-current', icon_classes),
         **args
       )
+      component.with_content(&block) if block
+      component
     end
 
     private
 
     def icon_classes
-      [
-        ICON_SIZE_MAPPINGS[fetch_or_fallback(Pathogen::ButtonSizes::SIZE_OPTIONS, @size,
-                                             Pathogen::ButtonSizes::DEFAULT_SIZE)]
-      ].compact
+      size_class = ICON_SIZE_MAPPINGS[
+        fetch_or_fallback(Pathogen::ButtonSizes::SIZE_OPTIONS, @size, Pathogen::ButtonSizes::DEFAULT_SIZE)
+      ]
+
+      class_names('pathogen-icon', size_class)
     end
   end
 end

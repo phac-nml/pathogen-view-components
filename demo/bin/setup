@@ -17,10 +17,15 @@ FileUtils.chdir APP_ROOT do
 
   puts "\n== Syncing icon assets =="
   phosphor_path = File.join(APP_ROOT, "app/assets/svg/icons/phosphor")
-  if !Dir.exist?(phosphor_path) || Dir.empty?(phosphor_path)
+  phosphor_svgs = Dir.glob(File.join(phosphor_path, "**/*.svg"))
+
+  if phosphor_svgs.empty?
+    # `rails_icons:sync` can leave variant folders in place even if no SVGs were synced (e.g. interrupted run).
+    # Treat "no SVGs" as "not synced" to keep previews functional.
+    FileUtils.rm_rf(phosphor_path) if Dir.exist?(phosphor_path)
     system!("bin/rails generate rails_icons:sync --library=phosphor")
   else
-    puts "Phosphor icons already present, skipping sync."
+    puts "Phosphor icons already present (#{phosphor_svgs.length} SVGs), skipping sync."
   end
 
   puts "\n== Removing old logs and tempfiles =="
