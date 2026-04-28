@@ -4,7 +4,8 @@ module Pathogen
   # Pathogen::Button — Tailwind-styled button (see also Pathogen::BaseButton).
   class Button < Pathogen::Component
     include Pathogen::ButtonSizes
-    include Pathogen::ButtonVisuals
+    renders_one :leading_visual
+    renders_one :trailing_visual
 
     SCHEME_OPTIONS = %i[primary default danger].freeze
     DEFAULT_SCHEME = :default
