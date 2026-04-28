@@ -32,16 +32,34 @@ async function main() {
     },
   });
 
+  const expected = outputHeader + result.code.toString();
+
   if (checkOnly) {
     if (!result.code || result.code.length === 0) {
       throw new Error("[build:css:check] Lightning CSS returned empty output.");
     }
-    console.log("[build:css:check] Tooling invocation succeeded.");
+    let existing;
+    try {
+      existing = await readFile(outputPath, "utf8");
+    } catch (error) {
+      if (error && error.code === "ENOENT") {
+        console.error("[build:css:check] Output file missing:", outputPath);
+        console.error("[build:css:check] Run `pnpm run build:css` to generate it.");
+        process.exit(1);
+      }
+      throw error;
+    }
+    if (existing !== expected) {
+      console.error("[build:css:check] Output file is stale.");
+      console.error("[build:css:check] Run `pnpm run build:css` and commit the result.");
+      process.exit(1);
+    }
+    console.log("[build:css:check] Output file is up to date.");
     return;
   }
 
   await mkdir(dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, outputHeader + result.code.toString());
+  await writeFile(outputPath, expected);
   console.log("[build:css] Wrote", outputPath);
 }
 

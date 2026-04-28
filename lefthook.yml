@@ -17,6 +17,8 @@ pre-commit:
         - "**/*.yml"
         - "*.yaml"
         - "**/*.yaml"
+      exclude:
+        - "app/assets/stylesheets/pathogen_view_components.css"
       run: pnpm exec prettier --write {staged_files}
       stage_fixed: true
     - name: eslint
