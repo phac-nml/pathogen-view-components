@@ -122,6 +122,7 @@ export default class extends Controller {
   #cleanupAutoUpdate = null;
   #touchDismissTimeout = null;
   #hideTimeout = null;
+  #hideAfterTransitionTimeout = null;
   #touchPrimed = false;
   #touchStarted = false;
   #escapeDismissed = false;
@@ -226,6 +227,8 @@ export default class extends Controller {
     if (!this.#tooltipElement || this.#escapeDismissed) return;
 
     this.#hideOtherTooltips();
+    this.#clearHideAfterTransitionTimeout();
+    this.#tooltipElement.removeAttribute("hidden");
 
     this.#tooltipElement.dataset.state = "open";
     this.#tooltipElement.setAttribute("aria-hidden", "false");
@@ -243,12 +246,14 @@ export default class extends Controller {
 
     this.#clearTouchTimeout();
     this.#clearHideTimeout();
+    this.#clearHideAfterTransitionTimeout();
     this.#touchPrimed = false;
 
     this.#tooltipElement.dataset.state = "closed";
     this.#tooltipElement.setAttribute("aria-hidden", "true");
 
     this.#stopAutoUpdate();
+    this.#scheduleHideAfterTransition();
   }
 
   /**
@@ -399,6 +404,28 @@ export default class extends Controller {
     if (this.#touchDismissTimeout) {
       clearTimeout(this.#touchDismissTimeout);
       this.#touchDismissTimeout = null;
+    }
+  }
+
+  #scheduleHideAfterTransition() {
+    if (!this.#tooltipElement) return;
+
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    const transitionMs = prefersReducedMotion ? 0 : 200;
+
+    this.#hideAfterTransitionTimeout = setTimeout(() => {
+      // Only hide if we are still closed (avoid race when reopened quickly)
+      if (this.#tooltipElement?.dataset.state === "closed") {
+        this.#tooltipElement.setAttribute("hidden", "");
+      }
+      this.#hideAfterTransitionTimeout = null;
+    }, transitionMs);
+  }
+
+  #clearHideAfterTransitionTimeout() {
+    if (this.#hideAfterTransitionTimeout) {
+      clearTimeout(this.#hideAfterTransitionTimeout);
+      this.#hideAfterTransitionTimeout = null;
     }
   }
 
