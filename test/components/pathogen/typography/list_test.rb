@@ -42,7 +42,7 @@ module Pathogen
         render_inline(List.new) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-base.leading-normal.list-disc.pl-6.space-y-2'
+        assert_selector 'ul.pathogen-typography--size-base.pathogen-typography--leading-body.list-disc.pl-6.space-y-2'
 
         render_inline(List.new(ordered: true)) do |list|
           list.with_item { 'Test' }
@@ -54,22 +54,22 @@ module Pathogen
         render_inline(List.new) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-slate-900.dark\\:text-white'
+        assert_selector 'ul.pathogen-typography--color-default'
 
         render_inline(List.new(variant: :muted)) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-slate-500.dark\\:text-slate-400'
+        assert_selector 'ul.pathogen-typography--color-muted'
 
         render_inline(List.new(variant: :subdued)) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-slate-700.dark\\:text-slate-300'
+        assert_selector 'ul.pathogen-typography--color-subdued'
 
         render_inline(List.new(variant: :inverse)) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-white.dark\\:text-slate-900'
+        assert_selector 'ul.pathogen-typography--color-inverse'
       end
 
       test 'merges custom classes' do

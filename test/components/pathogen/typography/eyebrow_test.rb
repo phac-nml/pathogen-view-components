@@ -24,7 +24,7 @@ module Pathogen
       test 'applies extra small text size' do
         render_inline(Eyebrow.new) { 'Test' }
 
-        assert_selector 'p.text-xs'
+        assert_selector 'p.pathogen-typography--size-xs'
       end
 
       test 'applies uppercase transformation' do
@@ -36,7 +36,7 @@ module Pathogen
       test 'applies wider letter spacing' do
         render_inline(Eyebrow.new) { 'Test' }
 
-        assert_selector 'p.tracking-wider'
+        assert_selector 'p.pathogen-typography--tracking-wider'
       end
 
       test 'applies font semibold weight' do
@@ -48,37 +48,37 @@ module Pathogen
       test 'applies body leading and font semibold' do
         render_inline(Eyebrow.new) { 'Test' }
 
-        assert_selector 'p.leading-normal.font-semibold'
+        assert_selector 'p.pathogen-typography--leading-body.font-semibold'
       end
 
       test 'applies default variant color classes' do
         render_inline(Eyebrow.new) { 'Test' }
 
-        assert_selector 'p.text-slate-900.dark\\:text-white'
+        assert_selector 'p.pathogen-typography--color-default'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Eyebrow.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.text-slate-500.dark\\:text-slate-400'
+        assert_selector 'p.pathogen-typography--color-muted'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Eyebrow.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p.text-slate-700.dark\\:text-slate-300'
+        assert_selector 'p.pathogen-typography--color-subdued'
       end
 
       test 'applies inverse variant color classes' do
         render_inline(Eyebrow.new(variant: :inverse)) { 'Test' }
 
-        assert_selector 'p.text-white.dark\\:text-slate-900'
+        assert_selector 'p.pathogen-typography--color-inverse'
       end
 
       test 'merges custom classes' do
         render_inline(Eyebrow.new(class: 'mb-2')) { 'Test' }
 
-        assert_selector 'p.mb-2.text-xs.uppercase'
+        assert_selector 'p.mb-2.pathogen-typography--size-xs.uppercase'
       end
 
       test 'accepts additional HTML attributes' do

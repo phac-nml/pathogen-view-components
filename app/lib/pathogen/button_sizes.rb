@@ -6,10 +6,10 @@ module Pathogen
     # Default size for buttons
     DEFAULT_SIZE = :medium
 
-    # A hash of predefined button size mappings
+    # A hash of predefined button size class mappings (Pathogen-owned)
     SIZE_MAPPINGS = {
-      small: 'px-3 py-2 text-xs',
-      medium: 'px-3 py-2 text-sm'
+      small: 'pathogen-button--size-small',
+      medium: 'pathogen-button--size-medium'
     }.freeze
     SIZE_OPTIONS = SIZE_MAPPINGS.keys
   end

@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <%= stylesheet_link_tag "tailwind" %>
     <%= stylesheet_link_tag "pathogen_view_components" %>
     <%= javascript_importmap_tags %>
   </head>
-  <body class="p-4">
+
+  <body style="padding: 1rem;">
     <%= yield %>
   </body>
 </html>

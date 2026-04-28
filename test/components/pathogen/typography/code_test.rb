@@ -12,52 +12,16 @@ module Pathogen
         assert_selector 'code', text: 'variable_name'
       end
 
-      test 'applies monospace font' do
+      test 'applies pathogen code class' do
         render_inline(Code.new) { 'Test' }
 
-        assert_selector 'code.font-mono'
-      end
-
-      test 'applies small text size' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.text-sm'
-      end
-
-      test 'applies background color' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.bg-slate-100.dark\\:bg-slate-800'
-      end
-
-      test 'applies text color' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.text-slate-800.dark\\:text-slate-100'
-      end
-
-      test 'applies padding' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.px-2.py-0\\.5'
-      end
-
-      test 'applies rounded corners' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.rounded-md'
-      end
-
-      test 'applies border' do
-        render_inline(Code.new) { 'Test' }
-
-        assert_selector 'code.border.border-slate-200.dark\\:border-slate-700'
+        assert_selector 'code.pathogen-typography--code'
       end
 
       test 'merges custom classes' do
         render_inline(Code.new(class: 'custom-code')) { 'Test' }
 
-        assert_selector 'code.custom-code.font-mono'
+        assert_selector 'code.custom-code.pathogen-typography--code'
       end
 
       test 'accepts additional HTML attributes' do
@@ -72,11 +36,13 @@ module Pathogen
         assert_selector 'code', text: '<script>alert("test")</script>'
       end
 
-      test 'renders inline within text' do
-        render_inline(Code.new) { 'code_snippet' }
+      test 'does not emit Tailwind utility classes' do
+        render_inline(Code.new) { 'test' }
 
-        # Code uses inline-flex for better alignment
-        assert_selector 'code.inline-flex'
+        tailwind_patterns = %w[font-mono text-sm bg-slate-100 text-slate-800 px-2 rounded-md inline-flex]
+        tailwind_patterns.each do |cls|
+          assert_no_selector "code[class*='#{cls}']"
+        end
       end
     end
   end

@@ -22,43 +22,43 @@ module Pathogen
       test 'applies base text size' do
         render_inline(Text.new) { 'Test' }
 
-        assert_selector 'p.text-base'
+        assert_selector 'p.pathogen-typography--size-base'
       end
 
       test 'applies normal leading' do
         render_inline(Text.new) { 'Test' }
 
-        assert_selector 'p.leading-normal'
+        assert_selector 'p.pathogen-typography--leading-body'
       end
 
       test 'applies default variant color classes' do
         render_inline(Text.new) { 'Test' }
 
-        assert_selector 'p.text-slate-900.dark\\:text-white'
+        assert_selector 'p.pathogen-typography--color-default'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Text.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.text-slate-500.dark\\:text-slate-400'
+        assert_selector 'p.pathogen-typography--color-muted'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Text.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p.text-slate-700.dark\\:text-slate-300'
+        assert_selector 'p.pathogen-typography--color-subdued'
       end
 
       test 'applies inverse variant color classes' do
         render_inline(Text.new(variant: :inverse)) { 'Test' }
 
-        assert_selector 'p.text-white.dark\\:text-slate-900'
+        assert_selector 'p.pathogen-typography--color-inverse'
       end
 
       test 'merges custom classes' do
         render_inline(Text.new(class: 'custom-text mb-4')) { 'Test' }
 
-        assert_selector 'p.custom-text.mb-4.text-base'
+        assert_selector 'p.custom-text.mb-4.pathogen-typography--size-base'
       end
 
       test 'accepts additional HTML attributes' do
@@ -76,13 +76,13 @@ module Pathogen
       test 'supports span tag for inline text' do
         render_inline(Text.new(tag: :span)) { 'Inline text' }
 
-        assert_selector 'span.text-base', text: 'Inline text'
+        assert_selector 'span.pathogen-typography--size-base', text: 'Inline text'
       end
 
       test 'supports article tag for semantic markup' do
         render_inline(Text.new(tag: :article)) { 'Article content' }
 
-        assert_selector 'article.text-base', text: 'Article content'
+        assert_selector 'article.pathogen-typography--size-base', text: 'Article content'
       end
     end
   end

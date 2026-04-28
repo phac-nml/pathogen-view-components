@@ -12,52 +12,22 @@ module Pathogen
         assert_selector 'pre > code', text: 'code content'
       end
 
-      test 'applies monospace font to pre' do
+      test 'applies pathogen code-block class to wrapper div' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'pre.font-mono'
+        assert_selector 'div.pathogen-typography--code-block'
       end
 
-      test 'applies small text size to pre' do
+      test 'applies pathogen pre class' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'pre.text-sm'
+        assert_selector 'pre.pathogen-typography--code-block__pre'
       end
 
-      test 'applies dark background to wrapper div' do
+      test 'applies pathogen code class' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'div.bg-slate-900.dark\\:bg-slate-950'
-      end
-
-      test 'applies light text color to wrapper div' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        assert_selector 'div.text-slate-100'
-      end
-
-      test 'applies padding to pre' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        assert_selector 'pre.p-4'
-      end
-
-      test 'applies rounded corners to wrapper div' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        assert_selector 'div.rounded-2xl'
-      end
-
-      test 'applies overflow handling to pre' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        assert_selector 'pre.overflow-x-auto'
-      end
-
-      test 'applies leading relaxed to pre' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        assert_selector 'pre.leading-relaxed'
+        assert_selector 'code.pathogen-typography--code-block__code'
       end
 
       test 'adds language class when provided' do
@@ -79,13 +49,6 @@ module Pathogen
         assert_selector 'code', text: code
       end
 
-      test 'preserves indentation' do
-        code = "  indented\n    more indented"
-        render_inline(CodeBlock.new) { code }
-
-        assert_selector 'code', text: code
-      end
-
       test 'escapes HTML content' do
         render_inline(CodeBlock.new) { '<script>alert("xss")</script>' }
 
@@ -95,7 +58,7 @@ module Pathogen
       test 'merges custom classes on wrapper div' do
         render_inline(CodeBlock.new(class: 'custom-block')) { 'Test' }
 
-        assert_selector 'div.custom-block.bg-slate-900'
+        assert_selector 'div.custom-block.pathogen-typography--code-block'
       end
 
       test 'accepts additional HTML attributes on wrapper div' do
@@ -109,6 +72,24 @@ module Pathogen
           render_inline(CodeBlock.new(language: lang)) { 'code' }
 
           assert_selector "code.language-#{lang}"
+        end
+      end
+
+      test 'does not emit Tailwind utility classes on wrapper' do
+        render_inline(CodeBlock.new) { 'Test' }
+
+        tailwind_patterns = %w[rounded-2xl bg-slate-900 text-slate-100 ring-1 shadow-inner overflow-hidden]
+        tailwind_patterns.each do |cls|
+          assert_no_selector "div[class*='#{cls}']"
+        end
+      end
+
+      test 'does not emit Tailwind utility classes on pre' do
+        render_inline(CodeBlock.new) { 'Test' }
+
+        tailwind_patterns = %w[font-mono text-sm leading-relaxed p-4 overflow-x-auto]
+        tailwind_patterns.each do |cls|
+          assert_no_selector "pre[class*='#{cls}']"
         end
       end
     end

@@ -1,5 +1,111 @@
 @layer pathogen.components {
-  /* Button component ownership scaffold. Runtime migration lands in 03-05. */
   .pathogen-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    border-radius: var(--pathogen-radius-control);
+    font-family: var(--pathogen-font-sans);
+    font-weight: 500;
+    font-size: var(--pathogen-text-sm);
+    text-decoration: none;
+    transition:
+      background-color 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease,
+      opacity 150ms ease;
+    border: 1px solid transparent;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .pathogen-button:focus-visible {
+    outline: 2px solid var(--pathogen-color-focus-ring);
+    outline-offset: 2px;
+    z-index: 10;
+  }
+
+  .pathogen-button:disabled,
+  .pathogen-button[disabled] {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  /* Block modifier */
+  .pathogen-button--block {
+    display: flex;
+    width: 100%;
+  }
+
+  /* With-visual modifier: add gap for icon+label layout */
+  .pathogen-button--with-visual {
+    gap: 0.5rem;
+  }
+
+  /* Size variants */
+  .pathogen-button--size-small {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.625rem;
+  }
+
+  .pathogen-button--size-medium {
+    font-size: var(--pathogen-text-sm);
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Scheme: default */
+  .pathogen-button--scheme-default {
+    color: var(--pathogen-color-text-default);
+    background: var(--pathogen-color-surface-default);
+    border-color: var(--pathogen-color-border-default);
+  }
+
+  .pathogen-button--scheme-default:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-surface-subtle);
+  }
+
+  /* Scheme: primary */
+  .pathogen-button--scheme-primary {
+    color: oklch(1 0 0);
+    background: var(--pathogen-color-brand-700);
+    border-color: var(--pathogen-color-brand-700);
+  }
+
+  .pathogen-button--scheme-primary:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-brand-600);
+    border-color: var(--pathogen-color-brand-600);
+  }
+
+  /* Scheme: slate */
+  .pathogen-button--scheme-slate {
+    color: oklch(1 0 0);
+    background: var(--pathogen-color-neutral-500);
+    border-color: var(--pathogen-color-neutral-500);
+  }
+
+  .pathogen-button--scheme-slate:not(:disabled):not([disabled]):hover {
+    background: var(--pathogen-color-neutral-700);
+    border-color: var(--pathogen-color-neutral-700);
+  }
+
+  /* Scheme: danger */
+  .pathogen-button--scheme-danger {
+    color: var(--pathogen-color-danger-500);
+    background: var(--pathogen-color-surface-subtle);
+    border-color: color-mix(in oklab, var(--pathogen-color-danger-500) 30%, transparent);
+  }
+
+  .pathogen-button--scheme-danger:not(:disabled):not([disabled]):hover {
+    color: oklch(1 0 0);
+    background: var(--pathogen-color-danger-500);
+    border-color: var(--pathogen-color-danger-500);
+  }
+
+  /* Visual spacer elements inside buttons */
+  .pathogen-button__visual {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 }

@@ -3,22 +3,17 @@
 module Pathogen
   # Pathogen::Tooltip renders an accessible tooltip using JavaScript-based positioning.
   #
-  # This component implements a custom tooltip solution with Primer-inspired design,
-  # removing the previous Flowbite dependency. It uses JavaScript positioning via a
-  # Stimulus controller for precise placement with viewport boundary detection.
+  # This component implements a custom tooltip solution with Primer-inspired design.
+  # It uses JavaScript positioning via a Stimulus controller for precise placement
+  # with viewport boundary detection.
   #
   # ## Features
   #
-  # - **JavaScript-Based Positioning**: Calculates optimal position using `getBoundingClientRect()`
-  #   with sophisticated viewport boundary detection
-  # - **Viewport Boundary Detection**: Automatically detects viewport edges and flips
-  #   placement (top ↔ bottom, left ↔ right) to keep tooltips visible
-  # - **Position Clamping**: Clamps tooltip position to viewport bounds with 8px padding
-  #   to prevent overflow
+  # - **JavaScript-Based Positioning**: Calculates optimal position using Floating UI
+  #   with viewport boundary detection and automatic placement flipping
   # - **Multiple Placements**: Supports `:top`, `:bottom`, `:left`, and `:right` positioning
-  # - **Smooth Animations**: Fade-in and scale transition (200ms ease-out timing)
+  # - **Smooth Animations**: Fade-in and scale transition driven by `data-state` attribute
   # - **Accessibility**: Maintains `role="tooltip"`, `aria-describedby`, and `aria-hidden` state
-  # - **Content-Adaptive Sizing**: Auto-sizes to content with max-width constraint
   # - **Keyboard Accessible**: Shows on both hover and focus for keyboard navigation
   #
   # ## Usage
@@ -37,18 +32,6 @@ module Pathogen
   #     Projects
   #   <% end %>
   #
-  # @example Tooltip with left placement
-  #   <%= render Pathogen::Link.new(href: "/settings") do |link| %>
-  #     <%= link.with_tooltip(text: "Configure settings", placement: :left) %>
-  #     Settings
-  #   <% end %>
-  #
-  # @example Tooltip with right placement
-  #   <%= render Pathogen::Link.new(href: "/help") do |link| %>
-  #     <%= link.with_tooltip(text: "Get help and documentation", placement: :right) %>
-  #     Help
-  #   <% end %>
-  #
   # @example Direct component usage (advanced)
   #   <div data-controller="pathogen--tooltip">
   #     <button
@@ -61,46 +44,13 @@ module Pathogen
   #       id: "tooltip-123",
   #       placement: :bottom
   #     ) %>
-  #     <!-- Renders: <span id="tooltip-123" role="tooltip" aria-hidden="true" ...> -->
   #   </div>
   #
   # @note When using directly, you MUST:
   #   - Wrap trigger and tooltip in a container with `data-controller="pathogen--tooltip"`
   #   - Add `aria-describedby="<tooltip-id>"` to the trigger element (W3C ARIA APG requirement)
   #   - Add `data-pathogen--tooltip-target="trigger"` to the trigger element
-  #   - Add `data-pathogen--tooltip-target="tooltip"` to the tooltip element (automatic)
   #   The Stimulus controller will validate these requirements at runtime and log errors if missing.
-  #
-  # ## Browser Compatibility
-  #
-  # This component uses JavaScript-based positioning for broad browser compatibility:
-  # - Works in all modern browsers (Chrome, Firefox, Safari, Edge)
-  # - No reliance on cutting-edge CSS features
-  # - Requires ES6+ JavaScript support (universally available in modern browsers)
-  #
-  # The JavaScript approach provides sophisticated features like viewport boundary
-  # detection and automatic placement flipping that aren't available in CSS-only solutions.
-  #
-  # ## Design Philosophy
-  #
-  # Inspired by GitHub's Primer design system, this tooltip features:
-  # - Dark background with white text for high contrast
-  # - Arrow/pointer indicator for visual connection to trigger element
-  # - Subtle shadow for depth
-  # - Content-adaptive width with max-w-xs (320px) constraint
-  # - Smooth fade-in/scale animation for polished feel
-  #
-  # ## Technical Implementation
-  #
-  # The tooltip works in conjunction with a Stimulus controller
-  # (`pathogen--tooltip_controller.js`) that:
-  # - Listens for `mouseenter`/`mouseleave` events for hover trigger
-  # - Listens for `focusin`/`focusout` events for keyboard accessibility
-  # - Toggles visibility classes and `aria-hidden` attribute for smooth animation
-  # - Calculates optimal position using `getBoundingClientRect()`
-  # - Detects viewport boundaries and flips placement when needed (top ↔ bottom, left ↔ right)
-  # - Clamps position to viewport bounds to prevent overflow
-  # - Applies positioning via inline `top` and `left` styles on the tooltip element
   #
   # @param text [String] The tooltip text content
   # @param id [String] Unique identifier for the tooltip element (required for aria-describedby)
@@ -110,12 +60,6 @@ module Pathogen
   #   (e.g., `class`, `data`, `aria`). These are merged with required defaults.
   class Tooltip < Pathogen::Component
     VALID_PLACEMENTS = %i[top bottom left right].freeze
-
-    TOOLTIP_BASE_CLASSES = 'fixed z-50 bg-slate-900 dark:bg-slate-700 text-white px-3 py-2 text-sm ' \
-                           'font-medium rounded-lg shadow-sm max-w-xs inline-block opacity-0 scale-90 ' \
-                           'invisible transition-all duration-200 ease-out'
-
-    ARROW_CLASSES = 'absolute w-2 h-2 bg-slate-900 dark:bg-slate-700 rotate-45'
 
     attr_reader :text, :placement, :id
 
@@ -129,24 +73,13 @@ module Pathogen
       setup_system_arguments
     end
 
-    # Returns the CSS transform-origin class based on placement
-    # @return [String] Tailwind CSS class for transform origin
-    def origin_class
-      {
-        top: 'origin-bottom',
-        bottom: 'origin-top',
-        left: 'origin-right',
-        right: 'origin-left'
-      }[@placement]
-    end
-
     # Renders the tooltip using BaseComponent to handle all HTML attributes
     # @return [Pathogen::BaseComponent] The rendered tooltip component
     def call
       render(Pathogen::BaseComponent.new(**@system_arguments)) do
         safe_join([
                     @text,
-                    tag.span(class: ARROW_CLASSES, data: { 'pathogen--tooltip-target': 'arrow' })
+                    tag.span(class: 'pathogen-tooltip__arrow', data: { 'pathogen--tooltip-target': 'arrow' })
                   ])
       end
     end
@@ -177,9 +110,11 @@ module Pathogen
     # Merges data attributes with required defaults.
     # The placement value is passed to Floating UI which also supports extended
     # placements like 'top-start', 'bottom-end', etc. via the flip middleware.
+    # data-state starts as "closed"; controller transitions to "open" on show.
     def merge_data_attributes
-      (@system_arguments[:data] || {}).reverse_merge(
+      (@system_arguments[:data] || {}).merge(
         'pathogen--tooltip-target': 'tooltip',
+        state: 'closed',
         placement: @placement.to_s
       )
     end
@@ -187,8 +122,8 @@ module Pathogen
     # Builds and merges CSS classes with custom classes
     def merge_class_names
       class_names(
-        TOOLTIP_BASE_CLASSES,
-        origin_class,
+        'pathogen-tooltip',
+        "pathogen-tooltip--placement-#{@placement}",
         @system_arguments[:class]
       )
     end

@@ -22,7 +22,7 @@ module Pathogen
           section.with_heading { 'Title' }
         end
 
-        assert_selector 'section.space-y-4'
+        assert_selector 'section.pathogen-typography--space-section-default'
       end
 
       test 'renders with compact spacing' do
@@ -30,7 +30,7 @@ module Pathogen
           section.with_heading { 'Title' }
         end
 
-        assert_selector 'section.space-y-2'
+        assert_selector 'section.pathogen-typography--space-section-compact'
       end
 
       test 'renders with spacious spacing' do
@@ -38,7 +38,7 @@ module Pathogen
           section.with_heading { 'Title' }
         end
 
-        assert_selector 'section.space-y-6'
+        assert_selector 'section.pathogen-typography--space-section-spacious'
       end
 
       test 'adds region role for h2 sections' do
@@ -88,7 +88,7 @@ module Pathogen
           section.with_heading(variant: :muted) { 'Muted Title' }
         end
 
-        assert_selector 'h3.text-slate-500', text: 'Muted Title'
+        assert_selector 'h3.pathogen-typography--color-muted', text: 'Muted Title'
       end
 
       test 'renders without heading' do

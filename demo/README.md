@@ -6,6 +6,7 @@ A self-contained Rails app that runs [Lookbook](https://lookbook.build) so you c
 
 - Ruby 3.3+
 - Bundler
+- pnpm (for the CSS build pipeline)
 
 ## Getting started
 
@@ -15,14 +16,18 @@ bundle install
 bin/dev
 ```
 
-This starts Rails on port 3001 and the Tailwind CSS watcher via Foreman. The watcher runs with `tailwindcss:watch[always]` so it stays alive in non-TTY environments as well. Open `http://localhost:3001` — it redirects to `/lookbook` automatically.
+This starts Rails on port 3001 and the Pathogen CSS watcher via Foreman. Open `http://localhost:3001` — it redirects to `/lookbook` automatically.
 
 ## How it works
 
 - **Previews** are in `../test/components/previews/pathogen/` (shared with the gem's test suite).
-- **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads Tailwind and Pathogen styles.
+- **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads the compiled `pathogen_view_components.css` stylesheet.
+- **Styles** are built from `app/assets/stylesheets/pathogen/` using Lightning CSS. Run `pnpm --dir .. run build:css` for a one-shot build or `pnpm --dir .. run build:css:watch` for watch mode.
 - **Port 3001** is hardcoded in `Procfile.dev` to avoid conflicts with other local Rails apps.
-- **Tailwind watcher** uses `tailwindcss:watch[always]` so `bin/dev` keeps rebuilding CSS even if Foreman starts it without an attached TTY.
+
+## CSS development
+
+The `Procfile.dev` watcher runs `pnpm --dir .. run build:css:watch` which compiles `app/assets/stylesheets/pathogen/index.css` and writes the output to `app/assets/stylesheets/pathogen_view_components.css`.
 
 ## Adding previews
 

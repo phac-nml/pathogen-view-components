@@ -1,5 +1,74 @@
 @layer pathogen.components {
-  /* Icon component ownership scaffold. Runtime migration lands in 03-05. */
+  /* Base icon: renders as block for sizing via width/height */
   .pathogen-icon {
+    display: inline-block;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  /* Size variants */
+  .pathogen-icon--size-sm {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .pathogen-icon--size-md {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .pathogen-icon--size-lg {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .pathogen-icon--size-xl {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* Color variants — applied to the SVG container so stroke/fill inherit */
+  .pathogen-icon--color-default {
+    color: var(--pathogen-color-text-default);
+  }
+
+  .pathogen-icon--color-subdued {
+    color: var(--pathogen-color-text-muted);
+  }
+
+  .pathogen-icon--color-primary {
+    color: var(--pathogen-color-brand-600);
+  }
+
+  .pathogen-icon--color-success {
+    color: var(--pathogen-color-success-500);
+  }
+
+  .pathogen-icon--color-warning {
+    color: var(--pathogen-color-warning-500);
+  }
+
+  .pathogen-icon--color-danger {
+    color: var(--pathogen-color-danger-500);
+  }
+
+  .pathogen-icon--color-blue {
+    color: oklch(0.588 0.185 264.1);
+  }
+
+  .pathogen-icon--color-white {
+    color: oklch(1 0 0);
+  }
+
+  /* Development-mode error indicator */
+  .pathogen-icon__error {
+    display: inline-block;
+    font-family: var(--pathogen-font-mono);
+    font-size: 0.75rem;
+    color: var(--pathogen-color-danger-500);
+    border: 1px solid color-mix(in oklab, var(--pathogen-color-danger-500) 40%, transparent);
+    border-radius: var(--pathogen-radius-control);
+    padding: 0.125rem 0.375rem;
+    background: color-mix(in oklab, var(--pathogen-color-danger-500) 6%, var(--pathogen-color-surface-default));
   }
 }

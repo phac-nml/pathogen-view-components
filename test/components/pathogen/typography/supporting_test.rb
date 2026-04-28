@@ -22,43 +22,43 @@ module Pathogen
       test 'applies small text size' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p.text-sm'
+        assert_selector 'p.pathogen-typography--size-sm'
       end
 
       test 'applies normal leading' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p.leading-normal'
+        assert_selector 'p.pathogen-typography--leading-body'
       end
 
       test 'applies default variant color classes' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p.text-slate-900.dark\\:text-white'
+        assert_selector 'p.pathogen-typography--color-default'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Supporting.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.text-slate-500.dark\\:text-slate-400'
+        assert_selector 'p.pathogen-typography--color-muted'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Supporting.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p.text-slate-700.dark\\:text-slate-300'
+        assert_selector 'p.pathogen-typography--color-subdued'
       end
 
       test 'applies inverse variant color classes' do
         render_inline(Supporting.new(variant: :inverse)) { 'Test' }
 
-        assert_selector 'p.text-white.dark\\:text-slate-900'
+        assert_selector 'p.pathogen-typography--color-inverse'
       end
 
       test 'merges custom classes' do
         render_inline(Supporting.new(class: 'mt-1')) { 'Test' }
 
-        assert_selector 'p.mt-1.text-sm'
+        assert_selector 'p.mt-1.pathogen-typography--size-sm'
       end
 
       test 'accepts additional HTML attributes' do
@@ -76,13 +76,13 @@ module Pathogen
       test 'supports label tag for form labels' do
         render_inline(Supporting.new(tag: :label, for: 'email')) { 'Email address' }
 
-        assert_selector 'label[for="email"].text-sm', text: 'Email address'
+        assert_selector 'label[for="email"].pathogen-typography--size-sm', text: 'Email address'
       end
 
       test 'supports div tag for captions' do
         render_inline(Supporting.new(tag: :div)) { 'Image caption' }
 
-        assert_selector 'div.text-sm', text: 'Image caption'
+        assert_selector 'div.pathogen-typography--size-sm', text: 'Image caption'
       end
     end
   end

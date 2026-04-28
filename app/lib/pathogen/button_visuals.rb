@@ -3,10 +3,10 @@
 module Pathogen
   # Provides visual components (icons) and helpers for button styling in Pathogen
   module ButtonVisuals
-    # A hash of predefined icon size mappings
+    # Pathogen icon size class mappings for button-embedded icons
     ICON_SIZE_MAPPINGS = {
-      small: 'w-3 h-3',
-      medium: 'w-4 h-4'
+      small: 'pathogen-icon--size-sm',
+      medium: 'pathogen-icon--size-md'
     }.freeze
 
     def self.included(base)

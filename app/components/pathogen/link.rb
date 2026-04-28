@@ -15,8 +15,7 @@ module Pathogen
       @link_system_arguments[:tag] = :a
       @link_system_arguments[:href] = href
       @link_system_arguments[:class] =
-        class_names(system_arguments[:class],
-                    'text-grey-900 dark:text-grey-100 font-semibold underline hover:decoration-2')
+        class_names(system_arguments[:class], 'pathogen-link')
     end
 
     # The tooltip that appears on mouse hover or keyboard focus over the link. (optional)

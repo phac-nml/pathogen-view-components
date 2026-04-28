@@ -27,7 +27,6 @@ JavaScript dependencies (importmap or package manager):
 - `@hotwired/turbo-rails` **^8.0.0** (peer dependency)
 - `uuid` **^13.0.0**
 - `@floating-ui/dom` **^1.7.5**
-- `flowbite` **^3.1.2** (temporary dependency for tooltips)
 
 ## Installation
 
@@ -91,14 +90,22 @@ Sticky columns:
 #### Tooltip
 
 ```erb
-<%= render Pathogen::TooltipComponent.new(text: "More details") do %>
-  <%= render Pathogen::ButtonComponent.new(text: "Hover me") %>
+<%= render Pathogen::Link.new(href: "/samples") do |link| %>
+  <%= link.with_tooltip(text: "View all samples") %>
+  Samples
 <% end %>
 ```
 
 ### Styles
 
-The engine ships `pathogen_view_components.css`, built on layered CSS tokens. In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
+The engine ships `pathogen_view_components.css`, built on layered CSS tokens using Lightning CSS. In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
+
+To rebuild the stylesheet during development:
+
+```bash
+pnpm run build:css         # one-shot build
+pnpm run build:css:watch   # watch mode
+```
 
 ### Internationalization
 
@@ -126,7 +133,7 @@ registerPathogenControllers(application);
 ### Available Controllers
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
-- `pathogen--tooltip`: Lightweight tooltip behavior (Flowbite-backed)
+- `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
