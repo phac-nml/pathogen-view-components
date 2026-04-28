@@ -811,6 +811,7 @@
     font-size: var(--pathogen-text-sm);
     border-radius: var(--pathogen-radius-surface);
     opacity: 0;
+    pointer-events: none;
     transform-origin: var(--pathogen-tooltip-origin, center);
     padding: .5rem .75rem;
     font-weight: 500;
@@ -823,6 +824,7 @@
 
   .pathogen-tooltip[data-state="open"] {
     opacity: 1;
+    pointer-events: auto;
     transform: scale(1);
   }
 

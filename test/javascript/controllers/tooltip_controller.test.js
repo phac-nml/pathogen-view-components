@@ -93,6 +93,39 @@ describe("tooltip_controller", () => {
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
 
+  it("sets hidden after fade-out so closed tooltips don't block interactions", async () => {
+    const { container, tooltip } = appendTooltip();
+    await waitForController();
+
+    vi.useFakeTimers();
+    try {
+      const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+      controller.show();
+      controller.hide();
+
+      // hidden is applied after the CSS transition completes (200ms)
+      expect(tooltip.hasAttribute("hidden")).toBe(false);
+      vi.advanceTimersByTime(200);
+      expect(tooltip.hasAttribute("hidden")).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("removes hidden before showing (re-open after hide)", async () => {
+    const { container, tooltip } = appendTooltip();
+    await waitForController();
+
+    tooltip.setAttribute("hidden", "");
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+    controller.show();
+
+    expect(tooltip.hasAttribute("hidden")).toBe(false);
+    expect(tooltip.dataset.state).toBe("open");
+    expect(tooltip.getAttribute("aria-hidden")).toBe("false");
+  });
+
   it("hides tooltip on Escape key press", async () => {
     const { container, tooltip } = appendTooltip();
     await waitForController();

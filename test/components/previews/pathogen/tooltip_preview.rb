@@ -20,6 +20,11 @@ module Pathogen
     # Shows integration with Pathogen::Link component in various real-world contexts
     def link_integration; end
 
+    # @label Visual Test: Click-through after hide
+    # Repro for "tooltip hides but still blocks clicks" issues.
+    # After the tooltip closes, the button underneath should be clickable immediately.
+    def click_through_after_hide; end
+
     # @label Advanced Features & Edge Cases
     # Demonstrates long text handling, max-width constraint, animations, and edge cases
     def advanced_features; end
