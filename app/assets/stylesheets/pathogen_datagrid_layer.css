@@ -1,0 +1,132 @@
+/* Data grid: layout/focus/sticky edge cases (tokens + structural selectors). */
+
+[data-pathogen-grid] {
+  isolation: isolate;
+  container-type: inline-size;
+  --pathogen-data-grid-border-color: var(--pathogen-color-border-default);
+  --pathogen-data-grid-row-border: var(--pathogen-color-neutral-100);
+  --pathogen-data-grid-text-color: var(--pathogen-color-text-default);
+  --pathogen-data-grid-text-muted-color: var(--pathogen-color-text-muted);
+  --pathogen-data-grid-header-bg: var(--pathogen-color-surface-default);
+  --pathogen-data-grid-body-bg: var(--pathogen-color-surface-default);
+  --pathogen-data-grid-row-hover-bg: var(--pathogen-color-surface-subtle);
+  --pathogen-data-grid-focus-ring: oklch(0.63 0.16 255);
+  --pathogen-data-grid-cell-padding-y: 1rem;
+  --pathogen-data-grid-cell-padding-x: 1rem;
+  --pathogen-data-grid-font-size: var(--pathogen-text-sm);
+  --pathogen-data-grid-line-height: var(--pathogen-leading-normal);
+  --pathogen-data-grid-sticky-z: 2;
+  --pathogen-data-grid-header-z: 3;
+}
+
+[data-pathogen-grid][data-pathogen-grid-dense] {
+  --pathogen-data-grid-cell-padding-y: 0.5rem;
+  --pathogen-data-grid-cell-padding-x: 0.75rem;
+  --pathogen-data-grid-font-size: 0.8125rem;
+}
+
+[data-pathogen-grid][data-pathogen-grid-fill] {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex: 0 1 auto;
+  flex-direction: column;
+}
+
+[data-pathogen-grid][data-pathogen-grid-fill] > [data-pathogen--data-grid-target~="scrollContainer"] {
+  min-height: 0;
+  flex: 0 1 auto;
+}
+
+[data-pathogen--data-grid-target~="scrollContainer"] {
+  max-width: 100%;
+  overflow: auto;
+  border-radius: inherit;
+}
+
+[data-pathogen-grid] tbody tr[role="row"] {
+  background: var(--pathogen-data-grid-body-bg);
+  transition: background-color 150ms ease;
+}
+
+[data-pathogen-grid] tbody tr[role="row"]:hover,
+[data-pathogen-grid] tbody tr[role="row"]:focus-within {
+  background: var(--pathogen-data-grid-row-hover-bg);
+}
+
+[data-pathogen-grid][data-pathogen-grid-dense] [data-pathogen--data-grid-target~="cell"] {
+  border-right: 1px solid var(--pathogen-data-grid-border-color);
+}
+
+[data-pathogen-grid][data-pathogen-grid-dense]
+  tr[role="row"]
+  > [data-pathogen--data-grid-target~="cell"]:last-child {
+  border-right: 0;
+}
+
+[data-pathogen-grid] tbody tr:last-child [data-pathogen--data-grid-target~="cell"] {
+  border-bottom: 0;
+}
+
+[data-pathogen--data-grid-target~="cell"][data-sticky-cell]
+  + [data-pathogen--data-grid-target~="cell"]:not([data-sticky-cell]) {
+  border-left: 1px solid var(--pathogen-data-grid-border-color);
+}
+
+[data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+  background: inherit;
+}
+
+[data-pathogen--data-grid-target~="cell"]:focus,
+[data-pathogen--data-grid-target="grid"]:focus-within
+  [data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-active="true"]:not(
+    [data-pathogen--data-grid-has-interactive="true"]
+  ) {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
+}
+
+[data-pathogen--data-grid-target~="cell"][data-sticky-cell]:focus,
+[data-pathogen--data-grid-target="grid"]:focus-within
+  [data-pathogen--data-grid-target~="cell"][data-sticky-cell][data-pathogen--data-grid-active="true"]:not(
+    [data-pathogen--data-grid-has-interactive="true"]
+  ) {
+  z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
+}
+
+[data-pathogen--data-grid-target~="cell"] :is(a, button, input, select, textarea):focus-visible {
+  outline: 1px solid var(--pathogen-data-grid-focus-ring);
+  outline-offset: 0;
+  border-radius: var(--pathogen-radius-control);
+}
+
+@container (max-width: 64rem) {
+  [data-pathogen-grid][data-pathogen-grid-multi-sticky]
+    tbody
+    [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+    position: static;
+    left: auto;
+    z-index: auto;
+    box-shadow: none;
+  }
+
+  [data-pathogen-grid][data-pathogen-grid-multi-sticky]
+    [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
+    left: auto;
+    z-index: var(--pathogen-data-grid-header-z);
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+    position: static;
+    left: auto;
+    z-index: auto;
+    box-shadow: none;
+  }
+
+  [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
+    z-index: var(--pathogen-data-grid-header-z);
+  }
+}
