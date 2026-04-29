@@ -15,49 +15,41 @@ module Pathogen
       test 'applies pathogen callout and size class' do
         render_inline(Callout.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--callout'
-        assert_selector 'p.pathogen-typography--size-lg'
+        assert_selector 'p.font-sans'
+        assert_selector 'p.text-lg'
       end
 
       test 'applies default color class' do
         render_inline(Callout.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-default'
+        assert_selector 'p[class*="--pathogen-color-text-default"]'
       end
 
       test 'applies muted color variant' do
         render_inline(Callout.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-muted'
+        assert_selector 'p[class*="--pathogen-color-text-muted"]'
       end
 
       test 'applies leading and font classes' do
         render_inline(Callout.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--leading-body'
-        assert_selector 'p.pathogen-typography--font-ui'
+        assert_selector 'p.leading-normal'
+        assert_selector 'p.font-sans'
       end
 
       test 'renders with custom tag' do
         render_inline(Callout.new(tag: :div)) { 'Test' }
 
-        assert_selector 'div.pathogen-typography--callout'
+        assert_selector 'div.font-sans'
       end
 
       test 'merges custom class' do
         render_inline(Callout.new(class: 'my-callout')) { 'Test' }
 
-        assert_selector 'p.my-callout.pathogen-typography--callout'
+        assert_selector 'p.my-callout.font-sans'
       end
 
-      test 'does not emit Tailwind utility classes' do
-        render_inline(Callout.new) { 'Test' }
-
-        tailwind_patterns = %w[text-lg text-base text-slate-900 leading-normal font-sans]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "p[class*='#{cls}']"
-        end
-      end
     end
   end
 end

@@ -177,7 +177,14 @@ module Pathogen
 
       helpers.safe_join(
         [
-          helpers.link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-data-grid__link'),
+          helpers.link_to(
+            'View',
+            "/samples/#{row[:sample_id]}",
+            class: 'font-semibold text-[var(--pathogen-color-link)] underline decoration-1 underline-offset-[0.12em] ' \
+                   'transition-[color,text-decoration-thickness] hover:decoration-2 ' \
+                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pathogen-color-focus-ring)] ' \
+                   'focus-visible:outline-offset-2 rounded-md'
+          ),
           helpers.render(Pathogen::Button.new(type: :button, size: :small)) do
             'Inspect'
           end

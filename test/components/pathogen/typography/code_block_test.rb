@@ -4,7 +4,6 @@ require 'test_helper'
 
 module Pathogen
   module Typography
-    # Test suite for CodeBlock component
     class CodeBlockTest < ViewComponent::TestCase
       test 'renders pre and code tags' do
         render_inline(CodeBlock.new) { 'code content' }
@@ -12,22 +11,23 @@ module Pathogen
         assert_selector 'pre > code', text: 'code content'
       end
 
-      test 'applies pathogen code-block class to wrapper div' do
+      test 'applies code block wrapper classes' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'div.pathogen-typography--code-block'
+        assert_selector 'div.overflow-hidden.rounded-lg'
+        assert_selector "div[class*='--pathogen-color-neutral-950']"
       end
 
-      test 'applies pathogen pre class' do
+      test 'applies pre typography classes' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'pre.pathogen-typography--code-block__pre'
+        assert_selector 'pre.overflow-x-auto.font-mono.text-sm'
       end
 
-      test 'applies pathogen code class' do
+      test 'applies code element classes' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'code.pathogen-typography--code-block__code'
+        assert_selector 'code.block.min-w-full.font-mono'
       end
 
       test 'adds language class when provided' do
@@ -58,7 +58,7 @@ module Pathogen
       test 'merges custom classes on wrapper div' do
         render_inline(CodeBlock.new(class: 'custom-block')) { 'Test' }
 
-        assert_selector 'div.custom-block.pathogen-typography--code-block'
+        assert_selector 'div.custom-block.overflow-hidden'
       end
 
       test 'accepts additional HTML attributes on wrapper div' do
@@ -72,24 +72,6 @@ module Pathogen
           render_inline(CodeBlock.new(language: lang)) { 'code' }
 
           assert_selector "code.language-#{lang}"
-        end
-      end
-
-      test 'does not emit Tailwind utility classes on wrapper' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        tailwind_patterns = %w[rounded-2xl bg-slate-900 text-slate-100 ring-1 shadow-inner overflow-hidden]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "div[class*='#{cls}']"
-        end
-      end
-
-      test 'does not emit Tailwind utility classes on pre' do
-        render_inline(CodeBlock.new) { 'Test' }
-
-        tailwind_patterns = %w[font-mono text-sm leading-relaxed p-4 overflow-x-auto]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "pre[class*='#{cls}']"
         end
       end
     end

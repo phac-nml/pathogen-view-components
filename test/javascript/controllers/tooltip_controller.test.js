@@ -35,7 +35,9 @@ const appendTooltip = (placement = "top") => {
   tooltip.dataset.state = "closed";
   tooltip.setAttribute("data-placement", placement);
   tooltip.setAttribute("aria-hidden", "true");
-  tooltip.className = "pathogen-tooltip pathogen-tooltip--placement-" + placement;
+  tooltip.setAttribute("data-pathogen-tooltip-root", "");
+  tooltip.className =
+    "fixed z-50 opacity-0 scale-90 transition-[opacity,transform] data-[state=open]:opacity-100 data-[state=open]:scale-100";
   tooltip.textContent = "Tooltip content";
 
   container.appendChild(trigger);
@@ -140,17 +142,4 @@ describe("tooltip_controller", () => {
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
 
-  it("does not use Tailwind visibility classes on show or hide", async () => {
-    const { container, tooltip } = appendTooltip();
-    await waitForController();
-
-    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
-    controller.show();
-    controller.hide();
-
-    const tailwindClasses = ["invisible", "visible", "opacity-0", "opacity-100", "scale-90", "scale-100"];
-    tailwindClasses.forEach((cls) => {
-      expect(tooltip.classList.contains(cls)).toBe(false);
-    });
-  });
 });

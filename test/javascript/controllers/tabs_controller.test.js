@@ -127,8 +127,10 @@ describe("tabs_controller", () => {
 
     await waitForTabsUpdate();
 
-    const error = document.querySelector(".pathogen-tabs__error");
-    expect(error).not.toBeNull();
+    const error = Array.from(document.querySelectorAll("div")).find((el) =>
+      el.textContent?.includes("Tab and panel counts must match"),
+    );
+    expect(error).not.toBeUndefined();
     expect(error.textContent).toContain("Tab and panel counts must match");
   });
 });

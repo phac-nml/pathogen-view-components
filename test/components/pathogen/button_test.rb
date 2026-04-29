@@ -3,55 +3,57 @@
 require 'test_helper'
 
 module Pathogen
-  # Test suite for Pathogen::Button component
   class ButtonTest < ViewComponent::TestCase
-    test 'renders with base Pathogen button class' do
+    test 'renders button with Tailwind base layout' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector 'button.pathogen-button'
-      assert_text 'Click me'
+      assert_selector 'button.inline-flex.items-center.rounded-md', text: 'Click me'
     end
 
-    test 'renders with default scheme class' do
+    test 'default scheme uses surface and border tokens' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector 'button.pathogen-button--scheme-default'
+      assert_selector "button[class*='--pathogen-color-border-default']"
+      assert_selector "button[class*='--pathogen-color-surface-default']"
     end
 
-    test 'renders with primary scheme class' do
+    test 'primary scheme uses brand background' do
       render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
 
-      assert_selector 'button.pathogen-button--scheme-primary'
+      assert_selector "button[class*='--pathogen-color-brand-700']"
+      assert_selector "button[class*='text-white']"
     end
 
-    test 'renders with slate scheme class' do
+    test 'slate scheme uses neutral background' do
       render_inline(Pathogen::Button.new(scheme: :slate)) { 'Cancel' }
 
-      assert_selector 'button.pathogen-button--scheme-slate'
+      assert_selector "button[class*='--pathogen-color-neutral-500']"
+      assert_selector "button[class*='text-white']"
     end
 
-    test 'renders with danger scheme class' do
+    test 'danger scheme uses danger text by default' do
       render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
 
-      assert_selector 'button.pathogen-button--scheme-danger'
+      assert_selector "button[class*='--pathogen-color-danger-500']"
     end
 
-    test 'renders with medium size class by default' do
+    test 'medium size padding by default' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector 'button.pathogen-button--size-medium'
+      assert_selector 'button.px-3.py-2.text-sm'
     end
 
-    test 'renders with small size class' do
+    test 'small size uses compact padding' do
       render_inline(Pathogen::Button.new(size: :small)) { 'Small' }
 
-      assert_selector 'button.pathogen-button--size-small'
+      assert_selector "button[class*='px-2.5']"
+      assert_selector 'button.text-xs'
     end
 
-    test 'renders with block class when block: true' do
+    test 'block layout is full width flex' do
       render_inline(Pathogen::Button.new(block: true)) { 'Block button' }
 
-      assert_selector 'button.pathogen-button--block'
+      assert_selector 'button.flex.w-full'
     end
 
     test 'renders disabled button' do
@@ -60,13 +62,11 @@ module Pathogen
       assert_selector 'button[disabled]'
     end
 
-    test 'does not emit Tailwind utility classes' do
+    test 'emits expected Tailwind utility classes for primary small' do
       render_inline(Pathogen::Button.new(scheme: :primary, size: :small)) { 'Submit' }
 
-      tailwind_patterns = %w[bg-primary bg-slate text-white px-3 py-2 rounded-lg font-medium]
-      tailwind_patterns.each do |cls|
-        assert_no_selector "button[class*='#{cls}']"
-      end
+      assert_selector "button[class*='text-white']"
+      assert_selector 'button.text-xs'
     end
   end
 end

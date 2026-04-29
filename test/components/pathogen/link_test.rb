@@ -3,28 +3,24 @@
 require 'test_helper'
 
 module Pathogen
-  # Test suite for Pathogen::Link component
   class LinkTest < ViewComponent::TestCase
-    test 'renders with Pathogen link class' do
+    test 'renders with Pathogen link styling' do
       render_inline(Pathogen::Link.new(href: '/samples')) { 'Samples' }
 
-      assert_selector 'a.pathogen-link[href="/samples"]'
+      assert_selector 'a.font-semibold.underline[href="/samples"]'
       assert_text 'Samples'
     end
 
-    test 'does not emit Tailwind utility classes' do
+    test 'emits token-based text color utility' do
       render_inline(Pathogen::Link.new(href: '/samples')) { 'Samples' }
 
-      tailwind_patterns = %w[text-grey-900 font-semibold underline hover:decoration-2]
-      tailwind_patterns.each do |cls|
-        assert_no_selector "a[class*='#{cls}']"
-      end
+      assert_selector "a[class*='--pathogen-color-link']"
     end
 
-    test 'merges custom class with Pathogen link class' do
+    test 'merges custom class with link classes' do
       render_inline(Pathogen::Link.new(href: '/samples', class: 'my-custom')) { 'Samples' }
 
-      assert_selector 'a.pathogen-link.my-custom'
+      assert_selector 'a.my-custom.font-semibold'
     end
 
     test 'raises error when href is blank' do
