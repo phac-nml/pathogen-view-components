@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    pathogen_view_components (0.0.1)
+    pathogen_view_components (1.0.0)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
       nokogiri

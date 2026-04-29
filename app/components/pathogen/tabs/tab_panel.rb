@@ -160,7 +160,13 @@ module Pathogen
       end
 
       def setup_component_classes
-        @system_arguments[:class] = class_names('pathogen-tabs__panel', @system_arguments[:class])
+        @system_arguments[:class] = class_names(
+          'text-[var(--pathogen-color-text-default)] leading-[var(--pathogen-leading-normal)] ' \
+          'focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 ' \
+          'focus-visible:outline-[var(--pathogen-color-focus-ring)] focus-visible:outline-offset-2 ' \
+          '[&:is([hidden])]:hidden',
+          @system_arguments[:class]
+        )
       end
 
       def update_hidden_attribute

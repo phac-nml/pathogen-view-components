@@ -2,26 +2,42 @@
 
 module Pathogen
   module DataGrid
-    # Column definition for DataGridComponent
-    #
-    # == Public API
-    #
-    # @param label [String] Column header label.
-    # @param key [Symbol, String, nil] Hash key lookup when no block is provided.
-    # @param width [Numeric, String, nil] Column width (numeric values become "px").
-    # @param align [Symbol, String, nil] Alignment class suffix (e.g. :left, :center, :right).
-    # @param sticky [Boolean, nil] Explicitly enable/disable sticky behavior.
-    # @param sticky_left [Numeric, String, nil] Left offset
-    #   (numeric values become "px"; strings allow CSS units);
-    #   can enable sticky without width.
-    # @param header_content [String, Proc, nil] Custom header content to replace the label.
-    # @param system_arguments [Hash] Additional HTML attributes for the cell.
-    # @yieldparam row [Hash, Array, Object] Row data for the current cell.
-    # @yieldparam index [Integer] Column index.
-    #
-    # @note Sticky columns require either `width:` or `sticky_left:` to be applied.
-    #   If both are missing, the grid disables sticky for that column.
     class ColumnComponent < Pathogen::Component
+      CELL_BASE = %w[
+        box-border min-h-10 whitespace-nowrap align-middle font-normal
+        border-b bg-inherit bg-clip-padding transition-colors
+        text-[length:var(--pathogen-data-grid-font-size)]
+        leading-[var(--pathogen-data-grid-line-height)]
+        text-[var(--pathogen-data-grid-text-color)]
+        border-[var(--pathogen-data-grid-row-border)]
+        py-[var(--pathogen-data-grid-cell-padding-y)]
+        px-[var(--pathogen-data-grid-cell-padding-x)]
+        w-[var(--pathogen-data-grid-col-width,auto)]
+        min-w-[var(--pathogen-data-grid-col-width,auto)]
+      ].freeze
+
+      HEADER_ROW = %w[
+        sticky top-0 border-b border-[var(--pathogen-data-grid-border-color)]
+        bg-[var(--pathogen-data-grid-header-bg)] text-left align-bottom
+      ].freeze
+
+      STICKY_TD = %w[
+        sticky z-[2] bg-inherit shadow-[1px_0_0_var(--pathogen-data-grid-border-color)]
+        left-[var(--pathogen-data-grid-sticky-left,0px)]
+      ].freeze
+
+      STICKY_TH = %w[
+        bg-inherit shadow-[1px_0_0_var(--pathogen-data-grid-border-color)]
+        left-[var(--pathogen-data-grid-sticky-left,0px)]
+        z-[calc(var(--pathogen-data-grid-header-z)+1)]
+      ].freeze
+
+      ALIGN = {
+        'center' => 'text-center',
+        'right' => 'text-right',
+        'left' => nil
+      }.freeze
+
       attr_accessor :sticky, :sticky_left
       attr_reader :label, :key, :width, :align
 
@@ -99,13 +115,16 @@ module Pathogen
       end
 
       def cell_classes(header:)
-        [
-          'pathogen-data-grid__cell',
-          @system_arguments[:class],
-          "pathogen-data-grid__cell--#{header ? 'header' : 'body'}",
-          (@sticky ? 'pathogen-data-grid__cell--sticky' : nil),
-          (@align ? "pathogen-data-grid__cell--align-#{@align}" : nil)
-        ]
+        parts = [*CELL_BASE, @system_arguments[:class]]
+        if header
+          parts.concat(HEADER_ROW)
+          parts << 'z-[3]' unless @sticky
+          parts.concat(STICKY_TH) if @sticky
+        elsif @sticky
+          parts.concat(STICKY_TD)
+        end
+        parts << ALIGN[@align.to_s] if @align && ALIGN[@align.to_s]
+        class_names(*parts.compact)
       end
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
@@ -114,12 +133,14 @@ module Pathogen
                            data_attributes.delete('pathogen--data-grid-target')
         merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
 
-        data_attributes.merge(
+        out = data_attributes.merge(
           'pathogen--data-grid-target': merged_targets,
           'pathogen--data-grid-row-index': row_index,
           'pathogen--data-grid-column-index': column_index,
           'pathogen--data-grid-has-interactive': interactive
         )
+        out[:sticky_cell] = true if @sticky
+        out
       end
 
       def cell_role(header:) = header ? 'columnheader' : 'gridcell'

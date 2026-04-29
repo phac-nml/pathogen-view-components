@@ -1,17 +1,44 @@
 # frozen_string_literal: true
 
 module Pathogen
-  # This file defines the Pathogen::Button component, which is a customizable button
-  # with various schemes, sizes, and styling options. It's part of the Pathogen
-  # component library and provides a flexible way to create buttons with consistent
-  # styling across the application.
-  #
+  # Pathogen::Button — Tailwind-styled button (see also Pathogen::BaseButton).
   class Button < Pathogen::Component
     include Pathogen::ButtonSizes
     include Pathogen::ButtonVisuals
 
     SCHEME_OPTIONS = %i[primary default slate danger].freeze
     DEFAULT_SCHEME = :default
+
+    BASE_CLASSES = %w[
+      relative inline-flex items-center justify-center cursor-pointer select-none
+      rounded-md font-sans font-medium no-underline border border-transparent
+      transition-[color,background-color,border-color,opacity]
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pathogen-color-focus-ring)]
+      focus-visible:outline-offset-2 focus-visible:z-10
+      disabled:opacity-70 disabled:cursor-not-allowed
+    ].join(' ').freeze
+
+    SCHEME_CLASSES = {
+      default: %w[
+        text-[var(--pathogen-color-text-default)] bg-[var(--pathogen-color-surface-default)]
+        border-[var(--pathogen-color-border-default)]
+        enabled:hover:bg-[var(--pathogen-color-surface-subtle)]
+      ].join(' ').freeze,
+      primary: %w[
+        text-white bg-[var(--pathogen-color-brand-700)] border-[var(--pathogen-color-brand-700)]
+        enabled:hover:bg-[var(--pathogen-color-brand-600)] enabled:hover:border-[var(--pathogen-color-brand-600)]
+      ].join(' ').freeze,
+      slate: %w[
+        text-white bg-[var(--pathogen-color-neutral-500)] border-[var(--pathogen-color-neutral-500)]
+        enabled:hover:bg-[var(--pathogen-color-neutral-700)] enabled:hover:border-[var(--pathogen-color-neutral-700)]
+      ].join(' ').freeze,
+      danger: %w[
+        text-[var(--pathogen-color-danger-500)] bg-[var(--pathogen-color-surface-subtle)]
+        border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_30%,transparent)]
+        enabled:hover:text-white enabled:hover:bg-[var(--pathogen-color-danger-500)]
+        enabled:hover:border-[var(--pathogen-color-danger-500)]
+      ].join(' ').freeze
+    }.freeze
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, size: DEFAULT_SIZE, block: false,
@@ -27,13 +54,12 @@ module Pathogen
       @id = @system_arguments[:id]
 
       @system_arguments[:classes] = class_names(
-        'pathogen-button',
-        scheme_class(fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME)),
+        BASE_CLASSES,
+        SCHEME_CLASSES[fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME)],
         SIZE_MAPPINGS[fetch_or_fallback(SIZE_OPTIONS, size, DEFAULT_SIZE)],
-        'pathogen-button--block' => block
+        'flex w-full' => block
       )
     end
-
     # rubocop:enable Metrics/ParameterLists
 
     def before_render
@@ -41,22 +67,12 @@ module Pathogen
 
       @system_arguments[:classes] = class_names(
         @system_arguments[:classes],
-        'pathogen-button--with-visual'
+        'gap-2'
       )
     end
 
     private
 
-    # Returns the Pathogen scheme class for the given scheme symbol.
-    def scheme_class(scheme)
-      "pathogen-button--scheme-#{scheme}"
-    end
-
-    # Trims the content by removing leading and trailing whitespace.
-    # If the content is blank, returns nil.
-    # If the content is marked as HTML safe, ensures the trimmed content remains HTML safe.
-    #
-    # @return [String, nil] The trimmed content, or nil if the content is blank.
     def trimmed_content
       return if content.blank?
 
@@ -64,7 +80,6 @@ module Pathogen
 
       return trimmed_content unless content.html_safe?
 
-      # strip unsets `html_safe`, so we have to set it back again to guarantee that HTML blocks won't break
       trimmed_content.html_safe # rubocop:disable Rails/OutputSafety
     end
   end

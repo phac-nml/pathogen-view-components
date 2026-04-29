@@ -2,26 +2,25 @@
 
 module Pathogen
   class Tabs
-    # Tab Component
-    # Individual tab control within a Tabs component.
-    # Implements W3C ARIA tab pattern with keyboard navigation support.
-    #
-    # @example Basic tab
-    #   <%= render Pathogen::Tabs::Tab.new(
-    #     id: "tab-1",
-    #     label: "Overview",
-    #     selected: true
-    #   ) %>
     class Tab < Pathogen::Component
       attr_reader :id, :label, :selected, :orientation
 
-      # Initialize a new Tab component
-      # @param id [String] Unique identifier for the tab (required)
-      # @param label [String] Text label for the tab (required)
-      # @param selected [Boolean] Whether the tab is initially selected (default: false)
-      # @param orientation [Symbol] Tab orientation (:horizontal or :vertical, default: :horizontal)
-      # @param system_arguments [Hash] Additional HTML attributes
-      # @raise [ArgumentError] if id or label is missing
+      TAB_BUTTON_BASE = %w[
+        appearance-none cursor-pointer border-0 bg-transparent text-sm font-semibold
+        text-[var(--pathogen-color-text-muted)]
+        transition-[color,border-color,background-color] duration-150 ease-out
+        hover:bg-[var(--pathogen-color-surface-subtle)] hover:text-[var(--pathogen-color-text-default)]
+        focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
+        focus-visible:outline-[var(--pathogen-color-focus-ring)] focus-visible:outline-offset-2
+        aria-selected:border-[var(--pathogen-color-brand-600)] aria-selected:text-[var(--pathogen-color-text-default)]
+        data-[state=active]:border-[var(--pathogen-color-brand-600)] data-[state=active]:text-[var(--pathogen-color-text-default)]
+      ].freeze
+
+      TAB_HORIZONTAL = %w[-mb-px rounded-t-md border-b-2 border-transparent px-3.5 py-2.5].freeze
+      TAB_VERTICAL = %w[
+        mb-0 -mr-px rounded-md rounded-r-none border-r-2 border-b-0 border-transparent py-2.5 pl-3.5 pr-3 text-left
+      ].freeze
+
       def initialize(id:, label:, selected: false, orientation: :horizontal, **system_arguments)
         raise ArgumentError, 'id is required' if id.blank?
         raise ArgumentError, 'label is required' if label.blank?
@@ -39,10 +38,6 @@ module Pathogen
         @system_arguments.merge(id: @id, aria: @system_arguments[:aria].compact)
       end
 
-      # Allows the parent Tabs component to align server-rendered state with
-      # the configured default index before Stimulus connects.
-      #
-      # @param selected [Boolean] whether the tab should start selected
       def set_selected(selected:)
         @selected = selected
         @system_arguments[:aria][:selected] = @selected.to_s
@@ -52,20 +47,18 @@ module Pathogen
 
       private
 
-      # Sets up HTML and ARIA attributes for the tab button
       def setup_tab_attributes
         @system_arguments[:id] = @id
         @system_arguments[:type] = 'button'
         @system_arguments[:role] = 'tab'
         @system_arguments[:aria] ||= {}
-        @system_arguments[:aria][:controls] = nil # Will be set by JavaScript
+        @system_arguments[:aria][:controls] = nil
 
         setup_data_attributes
         setup_css_classes
         set_selected(selected: @selected)
       end
 
-      # Sets up Stimulus data attributes
       def setup_data_attributes
         @system_arguments[:data] ||= {}
         @system_arguments[:data]['pathogen--tabs-target'] = 'tab'
@@ -75,11 +68,10 @@ module Pathogen
         ].join(' ')
       end
 
-      # Sets up Pathogen CSS contract classes.
       def setup_css_classes
         @system_arguments[:class] = class_names(
-          'pathogen-tabs__tab',
-          "pathogen-tabs__tab--#{@orientation}",
+          TAB_BUTTON_BASE,
+          @orientation == :vertical ? TAB_VERTICAL : TAB_HORIZONTAL,
           @system_arguments[:class]
         )
       end

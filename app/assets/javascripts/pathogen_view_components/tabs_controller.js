@@ -1,6 +1,9 @@
 import { Controller } from "@hotwired/stimulus";
 import { v4 as uuidv4 } from "uuid";
 
+const TABS_ERROR_CLASS =
+  "rounded-md border border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_40%,var(--pathogen-color-border-default))] bg-[color-mix(in_oklab,var(--pathogen-color-danger-500)_12%,transparent)] px-4 py-3 text-sm text-[color-mix(in_oklab,var(--pathogen-color-danger-500)_72%,var(--pathogen-color-text-default))]";
+
 /**
  * Tabs Controller
  *
@@ -235,13 +238,13 @@ export default class extends Controller {
   #validateTargets() {
     if (this.tabTargets.length === 0) {
       console.error("[pathogen--tabs] At least one tab target is required");
-      this.element.innerHTML = '<div class="pathogen-tabs__error">At least one tab target is required</div>';
+      this.element.innerHTML = `<div class="${TABS_ERROR_CLASS}">At least one tab target is required</div>`;
       return false;
     }
 
     if (this.panelTargets.length === 0) {
       console.error("[pathogen--tabs] At least one panel target is required");
-      this.element.innerHTML = '<div class="pathogen-tabs__error">At least one panel target is required</div>';
+      this.element.innerHTML = `<div class="${TABS_ERROR_CLASS}">At least one panel target is required</div>`;
       return false;
     }
 
@@ -250,7 +253,7 @@ export default class extends Controller {
         tabs: this.tabTargets.length,
         panels: this.panelTargets.length,
       });
-      this.element.innerHTML = '<div class="pathogen-tabs__error">Tab and panel counts must match</div>';
+      this.element.innerHTML = `<div class="${TABS_ERROR_CLASS}">Tab and panel counts must match</div>`;
       return false;
     }
 

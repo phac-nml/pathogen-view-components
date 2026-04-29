@@ -82,9 +82,14 @@ module Pathogen
       suggestions = suggest_similar_icons
       suggestion_text = build_suggestion_text(suggestions)
 
-      content_tag(:span, "Icon '#{icon_name}' not found#{suggestion_text}",
-                  class: 'pathogen-icon__error',
-                  title: "Icon rendering error: #{error.message}")
+      content_tag(
+        :span,
+        "Icon '#{icon_name}' not found#{suggestion_text}",
+        class: 'inline-block rounded-md border border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_40%,transparent)] ' \
+              'bg-[color-mix(in_oklab,var(--pathogen-color-danger-500)_6%,var(--pathogen-color-surface-default))] ' \
+              'px-1.5 py-0.5 font-mono text-xs text-[var(--pathogen-color-danger-500)]',
+        title: "Icon rendering error: #{error.message}"
+      )
     end
 
     # Build suggestion text for development error indicator

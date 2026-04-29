@@ -7,18 +7,18 @@
     loading: :lazy,
     refresh: @refresh,
   ) {
-    tag.div(class: "pathogen-tabs__skeleton", aria: { hidden: true }) {
-      tag.div(class: "pathogen-tabs__skeleton-lines") {
+    tag.div(class: "animate-pulse rounded-lg border border-[var(--pathogen-color-border-default)] bg-[var(--pathogen-color-surface-subtle)] p-4", aria: { hidden: true }) {
+      tag.div(class: "grid gap-3") {
         safe_join([
-          tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--title"),
-          tag.div(class: "pathogen-tabs__skeleton-paragraph") {
+          tag.div(class: "h-3.5 w-[32%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+          tag.div(class: "grid gap-2") {
             safe_join([
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--full"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--long"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium")
+              tag.div(class: "h-2.5 w-full rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+              tag.div(class: "h-2.5 w-[92%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-[color-mix(in_oklab,var(--pathogen-color-border-strong)_86%,transparent)]")
             ])
           }
         ])

@@ -5,8 +5,8 @@ module Pathogen
   module ButtonVisuals
     # Pathogen icon size class mappings for button-embedded icons
     ICON_SIZE_MAPPINGS = {
-      small: 'pathogen-icon--size-sm',
-      medium: 'pathogen-icon--size-md'
+      small: 'size-4',
+      medium: 'size-6'
     }.freeze
 
     def self.included(base)
