@@ -13,28 +13,28 @@ module Pathogen
     test 'default scheme uses surface and border tokens' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector "button[class*='--pathogen-color-border-default']"
-      assert_selector "button[class*='--pathogen-color-surface-default']"
+      assert_selector "button[class*='border-neutral-200']"
+      assert_selector "button[class*='bg-white']"
     end
 
     test 'primary scheme uses brand background' do
       render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
 
-      assert_selector "button[class*='--pathogen-color-brand-700']"
+      assert_selector "button[class*='bg-primary-700']"
       assert_selector "button[class*='text-white']"
     end
 
     test 'slate scheme uses neutral background' do
       render_inline(Pathogen::Button.new(scheme: :slate)) { 'Cancel' }
 
-      assert_selector "button[class*='--pathogen-color-neutral-500']"
+      assert_selector "button[class*='bg-neutral-500']"
       assert_selector "button[class*='text-white']"
     end
 
     test 'danger scheme uses danger text by default' do
       render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
 
-      assert_selector "button[class*='--pathogen-color-danger-500']"
+      assert_selector "button[class*='text-red-600']"
     end
 
     test 'medium size padding by default' do

@@ -5,9 +5,9 @@ require 'test_helper'
 module Pathogen
   class IconTest < ViewComponent::TestCase
     test 'icon validator returns Tailwind color class for valid color' do
-      assert_equal 'text-[var(--pathogen-color-text-default)]', Pathogen::IconValidator::COLORS[:default]
-      assert_equal 'text-[var(--pathogen-color-brand-600)]', Pathogen::IconValidator::COLORS[:primary]
-      assert_equal 'text-[var(--pathogen-color-danger-500)]', Pathogen::IconValidator::COLORS[:danger]
+      assert_equal 'text-neutral-900 dark:text-neutral-100', Pathogen::IconValidator::COLORS[:default]
+      assert_equal 'text-primary-600 dark:text-primary-400', Pathogen::IconValidator::COLORS[:primary]
+      assert_equal 'text-red-600 dark:text-red-400', Pathogen::IconValidator::COLORS[:danger]
     end
 
     test 'icon validator returns Tailwind size class for valid size' do
@@ -45,7 +45,7 @@ module Pathogen
 
     test 'icon renderer includes color class in pathogen classes' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:primary, :md, nil)
-      assert_match(/--pathogen-color-brand-600/, classes)
+      assert_match(/primary-600/, classes)
     end
 
     test 'icon renderer includes size class in pathogen classes' do
@@ -55,7 +55,7 @@ module Pathogen
 
     test 'icon renderer uses token-based color utilities' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:default, :md, nil)
-      assert_match(/text-\[var\(--pathogen-color-text-default\)\]/, classes)
+      assert_match(/text-neutral-900/, classes)
     end
 
     test 'icon renderer uses Tailwind size utilities' do

@@ -9,7 +9,7 @@ module Pathogen
 
       WRAPPER_CLASSES = %w[
         overflow-hidden rounded-lg
-        bg-[var(--pathogen-color-neutral-950)] text-[var(--pathogen-color-neutral-100)]
+        bg-neutral-950 text-neutral-100
         shadow-[inset_0_1px_3px_oklch(0_0_0/0.3),0_0_0_1px_oklch(0_0_0/0.1)]
       ].join(' ').freeze
 

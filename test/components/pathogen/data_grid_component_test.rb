@@ -26,7 +26,7 @@ module Pathogen
       assert_no_selector '[data-pathogen-grid-multi-sticky]'
       assert_selector 'th[role="columnheader"][tabindex="-1"]', count: 2
       assert_selector 'th span.uppercase.tracking-wider', count: 2
-      assert_selector 'th[data-sticky-cell][style*="--pathogen-data-grid-sticky-left: 0px"]'
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: 0px"]'
       assert_selector 'td[role="gridcell"]', text: 'Sample one'
       assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
@@ -147,7 +147,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th[data-sticky-cell][style*="--pathogen-data-grid-sticky-left: 24px"]'
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: 24px"]'
     end
 
     test 'accepts sticky left offset values with CSS units' do
@@ -161,7 +161,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th[data-sticky-cell][style*="--pathogen-data-grid-sticky-left: calc(10ch + 8px)"]'
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: calc(10ch + 8px)"]'
     end
 
     test 'normalizes numeric widths to px units' do
@@ -175,8 +175,8 @@ module Pathogen
         grid.with_column('Name', key: :name, width: '180px')
       end
 
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 96px"]'
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 180px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 96px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 180px"]'
     end
 
     test 'renders custom header content when provided' do

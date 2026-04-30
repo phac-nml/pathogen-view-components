@@ -35,10 +35,10 @@ module Pathogen
 
       test 'applies variant color classes' do
         render_inline(Heading.new(level: 2)) { 'Test' }
-        assert_selector 'h2[class*="--pathogen-color-text-default"]'
+        assert_selector 'h2[class*="text-neutral-900"]'
 
         render_inline(Heading.new(level: 2, variant: :muted)) { 'Test' }
-        assert_selector 'h2[class*="--pathogen-color-text-muted"]'
+        assert_selector 'h2[class*="text-neutral-600"]'
 
         render_inline(Heading.new(level: 2, variant: :subdued)) { 'Test' }
         assert_selector 'h2[class*="color-mix"]'

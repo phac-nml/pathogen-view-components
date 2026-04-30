@@ -10,7 +10,7 @@
     turbo_frame_tag "content", src: content_path, loading: :lazy do
       render partial: "shared/loading/spinner"
     rescue
-      content_tag :div, class: "rounded-md border border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_40%,var(--pathogen-color-border-default))] bg-[color-mix(in_oklab,var(--pathogen-color-danger-500)_12%,transparent)] px-4 py-3 text-sm text-[color-mix(in_oklab,var(--pathogen-color-danger-500)_72%,var(--pathogen-color-text-default))]" do
+      content_tag :div, class: "rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100" do
         content_tag(:p, "Failed to load content.") +
         button_to("Retry", content_path, class: "button")
       end

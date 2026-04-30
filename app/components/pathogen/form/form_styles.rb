@@ -6,25 +6,27 @@
 # (checkboxes, radio buttons, etc.), ensuring consistent styling.
 module Pathogen
   module Form
+    # Shared styling helpers for form controls
     module FormStyles
       LABEL_CLASSES = %w[
-        block font-sans text-sm font-medium text-[var(--pathogen-color-text-default)] cursor-pointer
+        block font-sans text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer
         disabled:opacity-50 disabled:cursor-not-allowed
       ].join(' ').freeze
 
       HELP_TEXT_CLASSES = %w[
-        block font-sans text-sm leading-[var(--pathogen-leading-normal)] text-[var(--pathogen-color-text-muted)] mt-1
+        block font-sans text-sm leading-[1.45] text-neutral-600 dark:text-neutral-400 mt-1
       ].join(' ').freeze
 
       CONTROL_BASE = %w[
-        size-5 shrink-0 mt-0.5 cursor-pointer border-2 border-[var(--pathogen-color-border-strong)]
-        bg-[var(--pathogen-color-surface-default)] transition-[border-color,background-color]
-        accent-[var(--pathogen-color-brand-600)] checked:border-[var(--pathogen-color-brand-600)]
-        enabled:hover:border-[var(--pathogen-color-brand-600)]
-        focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pathogen-color-focus-ring)]
+        size-5 shrink-0 mt-0.5 cursor-pointer border-2 border-neutral-300 dark:border-neutral-600
+        bg-white dark:bg-neutral-950 transition-[border-color,background-color]
+        accent-primary-600 checked:border-primary-600
+        enabled:hover:border-primary-600
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
+        dark:focus-visible:outline-neutral-300
         focus-visible:outline-offset-2
-        disabled:opacity-50 disabled:cursor-not-allowed disabled:border-[var(--pathogen-color-border-default)]
-        disabled:bg-[var(--pathogen-color-surface-subtle)]
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-200 dark:disabled:border-neutral-700
+        disabled:bg-neutral-50 dark:disabled:bg-neutral-900
       ].join(' ').freeze
 
       # @return [String] Space-separated Tailwind classes

@@ -54,12 +54,12 @@ module Pathogen
         render_inline(List.new) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul[class*="--pathogen-color-text-default"]'
+        assert_selector 'ul[class*="text-neutral-900"]'
 
         render_inline(List.new(variant: :muted)) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul[class*="--pathogen-color-text-muted"]'
+        assert_selector 'ul[class*="text-neutral-600"]'
 
         render_inline(List.new(variant: :subdued)) do |list|
           list.with_item { 'Test' }

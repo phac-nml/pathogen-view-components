@@ -22,13 +22,13 @@ module Pathogen
       test 'applies default color class' do
         render_inline(Callout.new) { 'Test' }
 
-        assert_selector 'p[class*="--pathogen-color-text-default"]'
+        assert_selector 'p[class*="text-neutral-900"]'
       end
 
       test 'applies muted color variant' do
         render_inline(Callout.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="--pathogen-color-text-muted"]'
+        assert_selector 'p[class*="text-neutral-600"]'
       end
 
       test 'applies leading and font classes' do

@@ -2,7 +2,7 @@ import { Controller } from "@hotwired/stimulus";
 import { v4 as uuidv4 } from "uuid";
 
 const TABS_ERROR_CLASS =
-  "rounded-md border border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_40%,var(--pathogen-color-border-default))] bg-[color-mix(in_oklab,var(--pathogen-color-danger-500)_12%,transparent)] px-4 py-3 text-sm text-[color-mix(in_oklab,var(--pathogen-color-danger-500)_72%,var(--pathogen-color-text-default))]";
+  "rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100";
 
 /**
  * Tabs Controller

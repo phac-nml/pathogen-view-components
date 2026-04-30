@@ -13,30 +13,32 @@ module Pathogen
       relative inline-flex items-center justify-center cursor-pointer select-none
       rounded-md font-sans font-medium no-underline border border-transparent
       transition-[color,background-color,border-color,opacity]
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pathogen-color-focus-ring)]
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
+      dark:focus-visible:outline-neutral-300
       focus-visible:outline-offset-2 focus-visible:z-10
       disabled:opacity-70 disabled:cursor-not-allowed
     ].join(' ').freeze
 
     SCHEME_CLASSES = {
       default: %w[
-        text-[var(--pathogen-color-text-default)] bg-[var(--pathogen-color-surface-default)]
-        border-[var(--pathogen-color-border-default)]
-        enabled:hover:bg-[var(--pathogen-color-surface-subtle)]
+        text-neutral-900 bg-neutral-100 border-neutral-400
+        dark:text-neutral-100 dark:bg-neutral-950 dark:border-neutral-500
+        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-500
+        dark:enabled:hover:bg-neutral-900 dark:enabled:hover:border-neutral-400
       ].join(' ').freeze,
       primary: %w[
-        text-white bg-[var(--pathogen-color-brand-700)] border-[var(--pathogen-color-brand-700)]
-        enabled:hover:bg-[var(--pathogen-color-brand-600)] enabled:hover:border-[var(--pathogen-color-brand-600)]
+        text-white bg-primary-700 border-primary-700
+        enabled:hover:bg-primary-600 enabled:hover:border-primary-600
       ].join(' ').freeze,
       slate: %w[
-        text-white bg-[var(--pathogen-color-neutral-500)] border-[var(--pathogen-color-neutral-500)]
-        enabled:hover:bg-[var(--pathogen-color-neutral-700)] enabled:hover:border-[var(--pathogen-color-neutral-700)]
+        text-white bg-neutral-500 border-neutral-500
+        enabled:hover:bg-neutral-700 enabled:hover:border-neutral-700
       ].join(' ').freeze,
       danger: %w[
-        text-[var(--pathogen-color-danger-500)] bg-[var(--pathogen-color-surface-subtle)]
-        border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_30%,transparent)]
-        enabled:hover:text-white enabled:hover:bg-[var(--pathogen-color-danger-500)]
-        enabled:hover:border-[var(--pathogen-color-danger-500)]
+        text-red-600 bg-red-50 border-red-300
+        dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/40
+        enabled:hover:text-white enabled:hover:bg-red-600
+        enabled:hover:border-red-600 dark:enabled:hover:bg-red-600
       ].join(' ').freeze
     }.freeze
 

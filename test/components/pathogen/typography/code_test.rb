@@ -38,7 +38,7 @@ module Pathogen
       test 'emits token-based background utility' do
         render_inline(Code.new) { 'test' }
 
-        assert_selector "code[class*='--pathogen-color-surface-subtle']"
+        assert_selector "code[class*='bg-neutral-50']"
       end
     end
   end

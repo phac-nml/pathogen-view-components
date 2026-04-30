@@ -61,9 +61,9 @@ module Pathogen
       }.freeze
 
       COLOR_VARIANTS = {
-        default: 'text-[var(--pathogen-color-text-default)]',
-        muted: 'text-[var(--pathogen-color-text-muted)]',
-        subdued: 'text-[color-mix(in_oklab,var(--pathogen-color-text-default)_75%,transparent)]',
+        default: 'text-neutral-900 dark:text-neutral-100',
+        muted: 'text-neutral-600 dark:text-neutral-400',
+        subdued: 'text-neutral-600/80 dark:text-neutral-400/80',
         inverse: 'text-white'
       }.freeze
 

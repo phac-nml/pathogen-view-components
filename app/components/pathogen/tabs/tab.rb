@@ -7,13 +7,13 @@ module Pathogen
 
       TAB_BUTTON_BASE = %w[
         appearance-none cursor-pointer border-0 bg-transparent text-sm font-semibold
-        text-[var(--pathogen-color-text-muted)]
+        text-neutral-600 dark:text-neutral-400
         transition-[color,border-color,background-color] duration-150 ease-out
-        hover:bg-[var(--pathogen-color-surface-subtle)] hover:text-[var(--pathogen-color-text-default)]
+        hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-100
         focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
-        focus-visible:outline-[var(--pathogen-color-focus-ring)] focus-visible:outline-offset-2
-        aria-selected:border-[var(--pathogen-color-brand-600)] aria-selected:text-[var(--pathogen-color-text-default)]
-        data-[state=active]:border-[var(--pathogen-color-brand-600)] data-[state=active]:text-[var(--pathogen-color-text-default)]
+        focus-visible:outline-neutral-600 dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2
+        aria-selected:border-primary-600 aria-selected:text-neutral-900 dark:aria-selected:text-neutral-100
+        data-[state=active]:border-primary-600 data-[state=active]:text-neutral-900 dark:data-[state=active]:text-neutral-100
       ].freeze
 
       TAB_HORIZONTAL = %w[-mb-px rounded-t-md border-b-2 border-transparent px-3.5 py-2.5].freeze

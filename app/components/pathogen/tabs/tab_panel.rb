@@ -161,9 +161,9 @@ module Pathogen
 
       def setup_component_classes
         @system_arguments[:class] = class_names(
-          'text-[var(--pathogen-color-text-default)] leading-[var(--pathogen-leading-normal)] ' \
+          'text-neutral-900 dark:text-neutral-100 leading-[1.45] ' \
           'focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 ' \
-          'focus-visible:outline-[var(--pathogen-color-focus-ring)] focus-visible:outline-offset-2 ' \
+          'focus-visible:outline-neutral-600 dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2 ' \
           '[&:is([hidden])]:hidden',
           @system_arguments[:class]
         )

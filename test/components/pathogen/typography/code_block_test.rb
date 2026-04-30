@@ -15,7 +15,7 @@ module Pathogen
         render_inline(CodeBlock.new) { 'Test' }
 
         assert_selector 'div.overflow-hidden.rounded-lg'
-        assert_selector "div[class*='--pathogen-color-neutral-950']"
+        assert_selector "div[class*='bg-neutral-950']"
       end
 
       test 'applies pre typography classes' do

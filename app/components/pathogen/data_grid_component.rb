@@ -7,9 +7,9 @@ module Pathogen
 
     GRID_ROOT_CLASSES = %w[
       @[container-type:inline-size] isolate max-w-full rounded-lg border
-      border-[var(--pathogen-color-border-default)]
-      bg-[var(--pathogen-color-surface-default)]
-      text-[var(--pathogen-color-text-default)] font-sans
+      border-neutral-200 dark:border-neutral-700
+      bg-white dark:bg-neutral-950
+      text-neutral-900 dark:text-neutral-100 font-sans
     ].join(' ').freeze
 
     renders_one :empty_state
@@ -42,9 +42,9 @@ module Pathogen
 
     def table_attributes
       attributes = {
-        class: 'w-full border-collapse border-separate border-spacing-0 bg-[var(--pathogen-data-grid-body-bg)] ' \
-               'text-[var(--pathogen-data-grid-text-color)] text-[length:var(--pathogen-data-grid-font-size)] ' \
-               'leading-[var(--pathogen-data-grid-line-height)] whitespace-nowrap',
+        class: 'w-full border-collapse border-separate border-spacing-0 bg-[var(--pvc-data-grid-body-bg)] ' \
+               'text-[var(--pvc-data-grid-text-color)] text-[length:var(--pvc-data-grid-font-size)] ' \
+               'leading-[var(--pvc-data-grid-line-height)] whitespace-nowrap',
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }

@@ -13,7 +13,7 @@ module Pathogen
 
         assert_selector 'input[type="radio"]'
         assert_selector 'input.size-5.rounded-full'
-        assert_selector "input[class*='--pathogen-color-border-strong']"
+        assert_selector "input[class*='border-neutral-300']"
       end
 
       test 'renders with label and label styling' do

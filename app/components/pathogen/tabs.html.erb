@@ -7,7 +7,7 @@
     "pathogen--tabs-sync-url-value" => @system_arguments[:data]["pathogen--tabs-sync-url-value"],
   },
   class: class_names(
-    "font-sans text-[var(--pathogen-color-text-default)]",
+    "font-sans text-neutral-900 dark:text-neutral-100",
     @orientation == :vertical ? "flex items-start gap-6" : "block",
   ),
 ) do %>
@@ -19,7 +19,7 @@
       orientation: @orientation,
     },
     class: class_names(
-      "flex flex-wrap items-end gap-1 border-[var(--pathogen-color-border-default)]",
+      "flex flex-wrap items-end gap-1 border-neutral-200 dark:border-neutral-700",
       @orientation == :vertical ? "min-w-[12.5rem] flex-col items-stretch border-r border-b-0 pr-3" : "border-b",
       @system_arguments[:class],
     ),

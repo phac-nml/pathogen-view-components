@@ -85,9 +85,8 @@ module Pathogen
       content_tag(
         :span,
         "Icon '#{icon_name}' not found#{suggestion_text}",
-        class: 'inline-block rounded-md border border-[color-mix(in_oklab,var(--pathogen-color-danger-500)_40%,transparent)] ' \
-              'bg-[color-mix(in_oklab,var(--pathogen-color-danger-500)_6%,var(--pathogen-color-surface-default))] ' \
-              'px-1.5 py-0.5 font-mono text-xs text-[var(--pathogen-color-danger-500)]',
+        class: 'inline-block rounded-md border border-red-200 bg-red-50 ' \
+              'px-1.5 py-0.5 font-mono text-xs text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400',
         title: "Icon rendering error: #{error.message}"
       )
     end

@@ -4,12 +4,12 @@ module Pathogen
   # IconValidator handles parameter validation and normalization for Pathogen::Icon.
   class IconValidator
     COLORS = {
-      default: 'text-[var(--pathogen-color-text-default)]',
-      subdued: 'text-[var(--pathogen-color-text-muted)]',
-      primary: 'text-[var(--pathogen-color-brand-600)]',
-      success: 'text-[var(--pathogen-color-success-500)]',
-      warning: 'text-[var(--pathogen-color-warning-500)]',
-      danger: 'text-[var(--pathogen-color-danger-500)]',
+      default: 'text-neutral-900 dark:text-neutral-100',
+      subdued: 'text-neutral-600 dark:text-neutral-400',
+      primary: 'text-primary-600 dark:text-primary-400',
+      success: 'text-emerald-600 dark:text-emerald-400',
+      warning: 'text-amber-600 dark:text-amber-400',
+      danger: 'text-red-600 dark:text-red-400',
       blue: 'text-[oklch(0.588_0.185_264.1)]',
       white: 'text-white'
     }.freeze
