@@ -31,14 +31,7 @@ module Pathogen
 
       private
 
-      def size_classes
-        if @responsive
-          r = Constants::TEXT_RESPONSIVE_SIZES[:callout]
-          "#{r[:mobile]} sm:#{r[:desktop]}"
-        else
-          Constants::TYPOGRAPHY_SCALE[18]
-        end
-      end
+      def size_classes = Constants::TYPOGRAPHY_SCALE[18]
     end
   end
 end

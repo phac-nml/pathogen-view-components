@@ -19,7 +19,6 @@ module Pathogen
 
       assert_equal 1, preset[:heading_level]
       assert_equal :default, preset[:heading_variant]
-      assert_equal true, preset[:heading_responsive]
       assert_equal :muted, preset[:eyebrow_variant]
       assert_equal :default, preset[:spacing]
     end
@@ -29,7 +28,6 @@ module Pathogen
 
       assert_equal 3, preset[:heading_level]
       assert_equal :default, preset[:heading_variant]
-      assert_equal false, preset[:heading_responsive]
       assert_equal :compact, preset[:spacing]
     end
 
@@ -37,7 +35,6 @@ module Pathogen
       preset = Pathogen::Typography::Constants::PRESETS[:section]
 
       assert_equal 2, preset[:heading_level]
-      assert_equal true, preset[:heading_responsive]
       assert_equal :default, preset[:spacing]
     end
 
@@ -45,7 +42,6 @@ module Pathogen
       preset = Pathogen::Typography::Constants::PRESETS[:dialog]
 
       assert_equal 2, preset[:heading_level]
-      assert_equal false, preset[:heading_responsive]
       assert_equal :compact, preset[:spacing]
     end
 
@@ -53,7 +49,6 @@ module Pathogen
       preset = Pathogen::Typography::Constants::PRESETS[:form_section]
 
       assert_equal 3, preset[:heading_level]
-      assert_equal false, preset[:heading_responsive]
       assert_equal :compact, preset[:spacing]
     end
   end

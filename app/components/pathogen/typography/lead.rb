@@ -9,7 +9,6 @@ module Pathogen
     #
     # Larger introductory paragraphs used at the start of sections to draw attention
     # and provide context. Has a comfortable line-height for optimal readability.
-    # Supports optional responsive sizing.
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.
@@ -23,11 +22,6 @@ module Pathogen
     #   <%= render Pathogen::Typography::Lead.new do %>
     #     <%= t('.introduction') %>
     #   <% end %>
-    #
-    # @example Responsive sizing
-    #   <%= render Pathogen::Typography::Lead.new(responsive: true) do %>
-    #     Scales from 18px (mobile) to 20px (desktop)
-    #   <% end %>
     class Lead < Component
       include Shared
 
@@ -39,7 +33,7 @@ module Pathogen
       #
       # @param tag [Symbol] HTML tag to use (default: :p)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Enable responsive sizing (default: false)
+      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param system_arguments [Hash] Additional HTML attributes
       def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, responsive: false, **system_arguments)
         @tag = tag
@@ -59,12 +53,7 @@ module Pathogen
       private
 
       def size_classes
-        if @responsive
-          responsive_sizes = Constants::TEXT_RESPONSIVE_SIZES[:lead]
-          "#{responsive_sizes[:mobile]} sm:#{responsive_sizes[:desktop]}"
-        else
-          Constants::TYPOGRAPHY_SCALE[20]
-        end
+        Constants::TYPOGRAPHY_SCALE[20]
       end
     end
   end

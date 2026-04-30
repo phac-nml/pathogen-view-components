@@ -53,13 +53,6 @@ module Pathogen
         6 => { mobile: 'text-sm', desktop: 'text-lg' }
       }.freeze
 
-      TEXT_RESPONSIVE_SIZES = {
-        text: { mobile: 'text-sm', desktop: 'text-base' },
-        supporting: { mobile: 'text-xs', desktop: 'text-sm' },
-        lead: { mobile: 'text-lg', desktop: 'text-xl' },
-        callout: { mobile: 'text-base', desktop: 'text-lg' }
-      }.freeze
-
       COLOR_VARIANTS = {
         default: 'text-neutral-900 dark:text-neutral-100',
         muted: 'text-neutral-600 dark:text-neutral-400',
@@ -71,7 +64,6 @@ module Pathogen
         article: {
           heading_level: 1,
           heading_variant: :default,
-          heading_responsive: true,
           eyebrow_variant: :muted,
           metadata_variant: :muted,
           spacing: :default
@@ -79,7 +71,6 @@ module Pathogen
         card: {
           heading_level: 3,
           heading_variant: :default,
-          heading_responsive: false,
           eyebrow_variant: :muted,
           metadata_variant: :muted,
           spacing: :compact
@@ -87,20 +78,17 @@ module Pathogen
         section: {
           heading_level: 2,
           heading_variant: :default,
-          heading_responsive: true,
           metadata_variant: :muted,
           spacing: :default
         },
         dialog: {
           heading_level: 2,
           heading_variant: :default,
-          heading_responsive: false,
           spacing: :compact
         },
         form_section: {
           heading_level: 3,
           heading_variant: :default,
-          heading_responsive: false,
           metadata_variant: :muted,
           spacing: :compact
         }

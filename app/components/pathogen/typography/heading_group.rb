@@ -10,11 +10,11 @@ module Pathogen
     # card titles, and section headings with supporting information.
     #
     # Presets are available in Constants::PRESETS for common UI patterns:
-    # - :article - Large headings with eyebrow and metadata (H1, responsive, default spacing)
-    # - :card - Compact card headers (H3, non-responsive, compact spacing)
-    # - :section - Section headers (H2, responsive, default spacing)
-    # - :dialog - Dialog/modal headers (H2, non-responsive, compact spacing)
-    # - :form_section - Form section headers (H3, non-responsive, compact spacing)
+    # - :article - Large headings with eyebrow and metadata (H1, default spacing)
+    # - :card - Compact card headers (H3, compact spacing)
+    # - :section - Section headers (H2, default spacing)
+    # - :dialog - Dialog/modal headers (H2, compact spacing)
+    # - :form_section - Form section headers (H3, compact spacing)
     #
     # @example Article header
     #   <%= render Pathogen::Typography::HeadingGroup.new(level: 1) do |group| %>
@@ -37,7 +37,7 @@ module Pathogen
     #   <% end %>
     #
     # @example Dialog header (minimal, compact)
-    #   <%= render Pathogen::Typography::HeadingGroup.new(level: 2, spacing: :compact, responsive: false) do |group| %>
+    #   <%= render Pathogen::Typography::HeadingGroup.new(level: 2, spacing: :compact) do |group| %>
     #     <%= group.with_heading { "Confirm Action" } %>
     #   <% end %>
     class HeadingGroup < Component
@@ -59,7 +59,7 @@ module Pathogen
       #
       # @param level [Integer] Heading level (1-6)
       # @param heading_variant [Symbol] Color variant for heading
-      # @param responsive [Boolean] Enable responsive sizing for heading
+      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param spacing [Symbol] Spacing style (:default, :compact, :spacious)
       # @param system_arguments [Hash] Additional HTML attributes for wrapper
       def initialize(level: 1, heading_variant: :default, responsive: true, spacing: :default, **system_arguments)

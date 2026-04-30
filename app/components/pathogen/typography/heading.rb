@@ -5,10 +5,9 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering semantic headings (h1-h6) with responsive sizing
+    # Component for rendering semantic headings (h1-h6)
     #
-    # Headings automatically scale between mobile and desktop sizes, use semantic HTML,
-    # and support color variants for different contexts.
+    # Headings use semantic HTML and support color variants for different contexts.
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.
@@ -27,11 +26,6 @@ module Pathogen
     #   <%= render Pathogen::Typography::Heading.new(level: 2, variant: :muted) do %>
     #     Section Heading
     #   <% end %>
-    #
-    # @example Disable responsive sizing
-    #   <%= render Pathogen::Typography::Heading.new(level: 3, responsive: false) do %>
-    #     Fixed Size Heading
-    #   <% end %>
     class Heading < Component
       include Shared
 
@@ -43,7 +37,7 @@ module Pathogen
       #
       # @param level [Integer] Heading level (1-6)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Enable responsive sizing (default: true)
+      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param system_arguments [Hash] Additional HTML attributes
       def initialize(level:, variant: Shared::DEFAULT_VARIANT, responsive: true, **system_arguments)
         @level = normalize_level(level)
@@ -77,13 +71,7 @@ module Pathogen
       end
 
       def size_classes
-        if @responsive
-          mobile_class = Constants::RESPONSIVE_SIZES[@level][:mobile]
-          desktop_class = Constants::RESPONSIVE_SIZES[@level][:desktop]
-          "#{mobile_class} sm:#{desktop_class}"
-        else
-          Constants::RESPONSIVE_SIZES[@level][:mobile]
-        end
+        Constants::RESPONSIVE_SIZES[@level][:mobile]
       end
 
       def font_weight_class

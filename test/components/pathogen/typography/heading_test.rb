@@ -20,14 +20,15 @@ module Pathogen
         end
       end
 
-      test 'applies responsive sizing classes by default' do
+      test 'applies baseline sizing classes by default' do
         render_inline(Heading.new(level: 1)) { 'Test' }
 
-        assert_selector 'h1.text-3xl.sm\\:text-5xl'
+        assert_selector 'h1.text-3xl'
+        assert_no_selector 'h1.sm\\:text-5xl'
       end
 
-      test 'applies fixed sizing when responsive is false' do
-        render_inline(Heading.new(level: 1, responsive: false)) { 'Test' }
+      test 'keeps baseline sizing when responsive is true' do
+        render_inline(Heading.new(level: 1, responsive: true)) { 'Test' }
 
         assert_selector 'h1.text-3xl'
         assert_no_selector 'h1.sm\\:text-5xl'
@@ -79,12 +80,14 @@ module Pathogen
         assert_selector 'h2', text: 'Test'
       end
 
-      test 'applies responsive sizing correctly' do
+      test 'applies baseline sizing correctly' do
         render_inline(Heading.new(level: 1)) { 'Test' }
-        assert_selector 'h1.text-3xl.sm\\:text-5xl'
+        assert_selector 'h1.text-3xl'
+        assert_no_selector 'h1.sm\\:text-5xl'
 
         render_inline(Heading.new(level: 2)) { 'Test' }
-        assert_selector 'h2.text-2xl.sm\\:text-4xl'
+        assert_selector 'h2.text-2xl'
+        assert_no_selector 'h2.sm\\:text-4xl'
 
         render_inline(Heading.new(level: 3, responsive: false)) { 'Test' }
         assert_selector 'h3.text-xl'
