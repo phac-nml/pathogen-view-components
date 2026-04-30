@@ -1032,9 +1032,6 @@
   .border-neutral-300 {
     border-color: var(--color-neutral-300);
   }
-  .border-neutral-400 {
-    border-color: var(--color-neutral-400);
-  }
   .border-neutral-500 {
     border-color: var(--color-neutral-500);
   }
@@ -1124,9 +1121,6 @@
   }
   .bg-neutral-50 {
     background-color: var(--color-neutral-50);
-  }
-  .bg-neutral-100 {
-    background-color: var(--color-neutral-100);
   }
   .bg-neutral-300\/70 {
     background-color: color-mix(in srgb, oklch(86.9% 0.022 252.894) 70%, transparent);
@@ -1962,11 +1956,11 @@
       outline-color: var(--color-neutral-600);
     }
   }
-  .enabled\:hover\:border-neutral-500 {
+  .enabled\:hover\:border-neutral-300 {
     &:enabled {
       &:hover {
         @media (hover: hover) {
-          border-color: var(--color-neutral-500);
+          border-color: var(--color-neutral-300);
         }
       }
     }
@@ -2189,11 +2183,6 @@
   .dark\:border-indigo-800 {
     &:where(.dark, .dark *) {
       border-color: var(--color-indigo-800);
-    }
-  }
-  .dark\:border-neutral-500 {
-    &:where(.dark, .dark *) {
-      border-color: var(--color-neutral-500);
     }
   }
   .dark\:border-neutral-600 {
@@ -2939,12 +2928,12 @@
       }
     }
   }
-  .dark\:enabled\:hover\:border-neutral-400 {
+  .dark\:enabled\:hover\:border-neutral-600 {
     &:where(.dark, .dark *) {
       &:enabled {
         &:hover {
           @media (hover: hover) {
-            border-color: var(--color-neutral-400);
+            border-color: var(--color-neutral-600);
           }
         }
       }

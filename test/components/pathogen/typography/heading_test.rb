@@ -41,7 +41,7 @@ module Pathogen
         assert_selector 'h2[class*="text-neutral-600"]'
 
         render_inline(Heading.new(level: 2, variant: :subdued)) { 'Test' }
-        assert_selector 'h2[class*="color-mix"]'
+        assert_selector 'h2[class*="text-neutral-600/80"]'
 
         render_inline(Heading.new(level: 2, variant: :inverse)) { 'Test' }
         assert_selector 'h2.text-white'

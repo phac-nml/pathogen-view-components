@@ -21,10 +21,10 @@ module Pathogen
 
     SCHEME_CLASSES = {
       default: %w[
-        text-neutral-900 bg-neutral-100 border-neutral-400
-        dark:text-neutral-100 dark:bg-neutral-950 dark:border-neutral-500
-        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-500
-        dark:enabled:hover:bg-neutral-900 dark:enabled:hover:border-neutral-400
+        text-neutral-900 bg-white border-neutral-200
+        dark:text-neutral-100 dark:bg-neutral-950 dark:border-neutral-700
+        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-300
+        dark:enabled:hover:bg-neutral-900 dark:enabled:hover:border-neutral-600
       ].join(' ').freeze,
       primary: %w[
         text-white bg-primary-700 border-primary-700

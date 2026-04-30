@@ -64,7 +64,7 @@ module Pathogen
         render_inline(List.new(variant: :subdued)) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul[class*="color-mix"]'
+        assert_selector 'ul[class*="text-neutral-600/80"]'
 
         render_inline(List.new(variant: :inverse)) do |list|
           list.with_item { 'Test' }
