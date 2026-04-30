@@ -24,13 +24,6 @@ module Pathogen
       assert_selector "button[class*='text-white']"
     end
 
-    test 'slate scheme uses neutral background' do
-      render_inline(Pathogen::Button.new(scheme: :slate)) { 'Cancel' }
-
-      assert_selector "button[class*='bg-neutral-500']"
-      assert_selector "button[class*='text-white']"
-    end
-
     test 'danger scheme uses danger text by default' do
       render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
 

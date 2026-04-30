@@ -993,8 +993,8 @@
     border-left-style: var(--tw-border-style);
     border-left-width: 4px;
   }
-  .\!border-slate-300 {
-    border-color: var(--color-slate-300) !important;
+  .\!border-neutral-300 {
+    border-color: var(--color-neutral-300) !important;
   }
   .border-\[var\(--pvc-data-grid-border-color\)\] {
     border-color: var(--pvc-data-grid-border-color);
@@ -1031,9 +1031,6 @@
   }
   .border-neutral-300 {
     border-color: var(--color-neutral-300);
-  }
-  .border-neutral-500 {
-    border-color: var(--color-neutral-500);
   }
   .border-primary-700 {
     border-color: var(--color-primary-700);
@@ -1817,10 +1814,10 @@
       border-color: var(--color-primary-600);
     }
   }
-  .hover\:border-slate-400 {
+  .hover\:border-neutral-400 {
     &:hover {
       @media (hover: hover) {
-        border-color: var(--color-slate-400);
+        border-color: var(--color-neutral-400);
       }
     }
   }
@@ -1835,6 +1832,13 @@
     &:hover {
       @media (hover: hover) {
         background-color: var(--color-neutral-50);
+      }
+    }
+  }
+  .hover\:bg-neutral-200 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-neutral-200);
       }
     }
   }
@@ -1965,15 +1969,6 @@
       }
     }
   }
-  .enabled\:hover\:border-neutral-700 {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          border-color: var(--color-neutral-700);
-        }
-      }
-    }
-  }
   .enabled\:hover\:border-primary-600 {
     &:enabled {
       &:hover {
@@ -1997,15 +1992,6 @@
       &:hover {
         @media (hover: hover) {
           background-color: var(--color-neutral-50);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-neutral-700 {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--color-neutral-700);
         }
       }
     }
@@ -2330,6 +2316,11 @@
       @supports (color: color-mix(in lab, red, red)) {
         background-color: color-mix(in oklab, var(--color-neutral-600) 70%, transparent);
       }
+    }
+  }
+  .dark\:bg-neutral-700 {
+    &:where(.dark, .dark *) {
+      background-color: var(--color-neutral-700);
     }
   }
   .dark\:bg-neutral-900 {
@@ -2858,11 +2849,20 @@
       --tw-ring-color: var(--color-slate-700);
     }
   }
-  .dark\:hover\:border-slate-500 {
+  .dark\:hover\:border-neutral-500 {
     &:where(.dark, .dark *) {
       &:hover {
         @media (hover: hover) {
-          border-color: var(--color-slate-500);
+          border-color: var(--color-neutral-500);
+        }
+      }
+    }
+  }
+  .dark\:hover\:bg-neutral-600 {
+    &:where(.dark, .dark *) {
+      &:hover {
+        @media (hover: hover) {
+          background-color: var(--color-neutral-600);
         }
       }
     }

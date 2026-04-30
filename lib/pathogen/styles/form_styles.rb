@@ -11,20 +11,20 @@ module Pathogen
       CHECKBOX_CLASSES = [
         'size-6', # 24px - better accessibility
         'bg-white',
-        '!border-slate-300',
+        '!border-neutral-300',
         'rounded-sm', # Consistent with style guide for form elements
         'cursor-pointer',
         'transition-all',
         'duration-150',
         'ease-in-out',
-        'hover:bg-slate-200',
-        'hover:border-slate-400',
+        'hover:bg-neutral-200',
+        'hover:border-neutral-400',
         'disabled:opacity-50',
         'disabled:cursor-not-allowed',
-        'dark:bg-slate-700',
-        'dark:border-slate-600',
-        'dark:hover:bg-slate-600',
-        'dark:hover:border-slate-500'
+        'dark:bg-neutral-700',
+        'dark:border-neutral-600',
+        'dark:hover:bg-neutral-600',
+        'dark:hover:border-neutral-500'
       ].freeze
 
       # Classes to add when checkbox is in a table context

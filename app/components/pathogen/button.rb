@@ -6,7 +6,7 @@ module Pathogen
     include Pathogen::ButtonSizes
     include Pathogen::ButtonVisuals
 
-    SCHEME_OPTIONS = %i[primary default slate danger].freeze
+    SCHEME_OPTIONS = %i[primary default danger].freeze
     DEFAULT_SCHEME = :default
 
     BASE_CLASSES = %w[
@@ -29,10 +29,6 @@ module Pathogen
       primary: %w[
         text-white bg-primary-700 border-primary-700
         enabled:hover:bg-primary-600 enabled:hover:border-primary-600
-      ].join(' ').freeze,
-      slate: %w[
-        text-white bg-neutral-500 border-neutral-500
-        enabled:hover:bg-neutral-700 enabled:hover:border-neutral-700
       ].join(' ').freeze,
       danger: %w[
         text-red-600 bg-red-50 border-red-300
