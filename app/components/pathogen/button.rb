@@ -23,20 +23,16 @@ module Pathogen
       default: %w[
         text-neutral-900 bg-neutral-100 border-neutral-200
         dark:text-neutral-100 dark:bg-neutral-950 dark:border-neutral-700
-        hover:bg-neutral-50 hover:border-neutral-300
-        dark:hover:bg-neutral-900 dark:hover:border-neutral-600
         enabled:hover:bg-neutral-50 enabled:hover:border-neutral-300
         dark:enabled:hover:bg-neutral-900 dark:enabled:hover:border-neutral-600
       ].join(' ').freeze,
       primary: %w[
         text-white bg-primary-700 border-primary-700
-        hover:bg-primary-600 hover:border-primary-600
         enabled:hover:bg-primary-600 enabled:hover:border-primary-600
       ].join(' ').freeze,
       danger: %w[
         text-red-600 bg-red-50 border-red-300
         dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/40
-        hover:text-white hover:bg-red-600 hover:border-red-600 dark:hover:bg-red-600
         enabled:hover:text-white enabled:hover:bg-red-600
         enabled:hover:border-red-600 dark:enabled:hover:bg-red-600
       ].join(' ').freeze
