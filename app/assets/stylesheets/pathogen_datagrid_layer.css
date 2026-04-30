@@ -1,28 +1,38 @@
-/* Data grid: layout/focus/sticky edge cases (tokens + structural selectors). */
+/* Data grid: layout/focus/sticky (--pvc-* are internal layout tokens, not app theme hooks). */
 
 [data-pathogen-grid] {
   isolation: isolate;
   container-type: inline-size;
-  --pathogen-data-grid-border-color: var(--pathogen-color-border-default);
-  --pathogen-data-grid-row-border: var(--pathogen-color-neutral-100);
-  --pathogen-data-grid-text-color: var(--pathogen-color-text-default);
-  --pathogen-data-grid-text-muted-color: var(--pathogen-color-text-muted);
-  --pathogen-data-grid-header-bg: var(--pathogen-color-surface-default);
-  --pathogen-data-grid-body-bg: var(--pathogen-color-surface-default);
-  --pathogen-data-grid-row-hover-bg: var(--pathogen-color-surface-subtle);
-  --pathogen-data-grid-focus-ring: oklch(0.63 0.16 255);
-  --pathogen-data-grid-cell-padding-y: 1rem;
-  --pathogen-data-grid-cell-padding-x: 1rem;
-  --pathogen-data-grid-font-size: var(--pathogen-text-sm);
-  --pathogen-data-grid-line-height: var(--pathogen-leading-normal);
-  --pathogen-data-grid-sticky-z: 2;
-  --pathogen-data-grid-header-z: 3;
+  --pvc-data-grid-border-color: var(--color-neutral-200);
+  --pvc-data-grid-row-border: var(--color-neutral-100);
+  --pvc-data-grid-text-color: var(--color-neutral-900);
+  --pvc-data-grid-text-muted-color: var(--color-neutral-600);
+  --pvc-data-grid-header-bg: var(--color-white);
+  --pvc-data-grid-body-bg: var(--color-white);
+  --pvc-data-grid-row-hover-bg: var(--color-neutral-50);
+  --pvc-data-grid-focus-ring: var(--color-primary-500);
+  --pvc-data-grid-cell-padding-y: 1rem;
+  --pvc-data-grid-cell-padding-x: 1rem;
+  --pvc-data-grid-font-size: 0.875rem;
+  --pvc-data-grid-line-height: 1.45;
+  --pvc-data-grid-sticky-z: 2;
+  --pvc-data-grid-header-z: 3;
+}
+
+.dark [data-pathogen-grid] {
+  --pvc-data-grid-border-color: var(--color-neutral-700);
+  --pvc-data-grid-row-border: var(--color-neutral-800);
+  --pvc-data-grid-text-color: var(--color-neutral-100);
+  --pvc-data-grid-text-muted-color: var(--color-neutral-400);
+  --pvc-data-grid-header-bg: var(--color-neutral-950);
+  --pvc-data-grid-body-bg: var(--color-neutral-950);
+  --pvc-data-grid-row-hover-bg: var(--color-neutral-900);
 }
 
 [data-pathogen-grid][data-pathogen-grid-dense] {
-  --pathogen-data-grid-cell-padding-y: 0.5rem;
-  --pathogen-data-grid-cell-padding-x: 0.75rem;
-  --pathogen-data-grid-font-size: 0.8125rem;
+  --pvc-data-grid-cell-padding-y: 0.5rem;
+  --pvc-data-grid-cell-padding-x: 0.75rem;
+  --pvc-data-grid-font-size: 0.8125rem;
 }
 
 [data-pathogen-grid][data-pathogen-grid-fill] {
@@ -45,22 +55,20 @@
 }
 
 [data-pathogen-grid] tbody tr[role="row"] {
-  background: var(--pathogen-data-grid-body-bg);
+  background: var(--pvc-data-grid-body-bg);
   transition: background-color 150ms ease;
 }
 
 [data-pathogen-grid] tbody tr[role="row"]:hover,
 [data-pathogen-grid] tbody tr[role="row"]:focus-within {
-  background: var(--pathogen-data-grid-row-hover-bg);
+  background: var(--pvc-data-grid-row-hover-bg);
 }
 
 [data-pathogen-grid][data-pathogen-grid-dense] [data-pathogen--data-grid-target~="cell"] {
-  border-right: 1px solid var(--pathogen-data-grid-border-color);
+  border-right: 1px solid var(--pvc-data-grid-border-color);
 }
 
-[data-pathogen-grid][data-pathogen-grid-dense]
-  tr[role="row"]
-  > [data-pathogen--data-grid-target~="cell"]:last-child {
+[data-pathogen-grid][data-pathogen-grid-dense] tr[role="row"] > [data-pathogen--data-grid-target~="cell"]:last-child {
   border-right: 0;
 }
 
@@ -70,7 +78,7 @@
 
 [data-pathogen--data-grid-target~="cell"][data-sticky-cell]
   + [data-pathogen--data-grid-target~="cell"]:not([data-sticky-cell]) {
-  border-left: 1px solid var(--pathogen-data-grid-border-color);
+  border-left: 1px solid var(--pvc-data-grid-border-color);
 }
 
 [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
@@ -83,7 +91,7 @@
     [data-pathogen--data-grid-has-interactive="true"]
   ) {
   outline: none;
-  box-shadow: inset 0 0 0 1px var(--pathogen-data-grid-focus-ring);
+  box-shadow: inset 0 0 0 1px var(--pvc-data-grid-focus-ring);
 }
 
 [data-pathogen--data-grid-target~="cell"][data-sticky-cell]:focus,
@@ -91,13 +99,13 @@
   [data-pathogen--data-grid-target~="cell"][data-sticky-cell][data-pathogen--data-grid-active="true"]:not(
     [data-pathogen--data-grid-has-interactive="true"]
   ) {
-  z-index: calc(var(--pathogen-data-grid-sticky-z) + 1);
+  z-index: calc(var(--pvc-data-grid-sticky-z) + 1);
 }
 
 [data-pathogen--data-grid-target~="cell"] :is(a, button, input, select, textarea):focus-visible {
-  outline: 1px solid var(--pathogen-data-grid-focus-ring);
+  outline: 1px solid var(--pvc-data-grid-focus-ring);
   outline-offset: 0;
-  border-radius: var(--pathogen-radius-control);
+  border-radius: 0.375rem;
 }
 
 @container (max-width: 64rem) {
@@ -113,7 +121,7 @@
   [data-pathogen-grid][data-pathogen-grid-multi-sticky]
     [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
     left: auto;
-    z-index: var(--pathogen-data-grid-header-z);
+    z-index: var(--pvc-data-grid-header-z);
     box-shadow: none;
   }
 }
@@ -127,6 +135,6 @@
   }
 
   [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
-    z-index: var(--pathogen-data-grid-header-z);
+    z-index: var(--pvc-data-grid-header-z);
   }
 }
