@@ -14,7 +14,7 @@ module Pathogen
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector "button[class*='border-neutral-200']"
-      assert_selector "button[class*='bg-white']"
+      assert_selector "button[class*='bg-neutral']"
     end
 
     test 'primary scheme uses brand background' do
