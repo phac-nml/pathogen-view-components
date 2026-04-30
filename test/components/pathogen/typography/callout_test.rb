@@ -49,7 +49,6 @@ module Pathogen
 
         assert_selector 'p.my-callout.font-sans'
       end
-
     end
   end
 end

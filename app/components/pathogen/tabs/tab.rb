@@ -2,6 +2,7 @@
 
 module Pathogen
   class Tabs
+    # Pathogen::Tabs::Tab — Tab component for Pathogen Tabs
     class Tab < Pathogen::Component
       attr_reader :id, :label, :selected, :orientation
 
@@ -13,7 +14,9 @@ module Pathogen
         focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
         focus-visible:outline-neutral-600 dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2
         aria-selected:border-primary-600 aria-selected:text-neutral-900 dark:aria-selected:text-neutral-100
-        data-[state=active]:border-primary-600 data-[state=active]:text-neutral-900 dark:data-[state=active]:text-neutral-100
+        data-[state=active]:border-primary-600
+        data-[state=active]:text-neutral-900
+        dark:data-[state=active]:text-neutral-100
       ].freeze
 
       TAB_HORIZONTAL = %w[-mb-px rounded-t-md border-b-2 border-transparent px-3.5 py-2.5].freeze

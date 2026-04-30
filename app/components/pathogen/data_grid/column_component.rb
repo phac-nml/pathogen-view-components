@@ -2,42 +2,43 @@
 
 module Pathogen
   module DataGrid
+    COLUMN_CELL_BASE = %w[
+      box-border min-h-10 whitespace-nowrap align-middle font-normal
+      border-b bg-inherit bg-clip-padding transition-colors
+      text-[length:var(--pvc-data-grid-font-size)]
+      leading-[var(--pvc-data-grid-line-height)]
+      text-[var(--pvc-data-grid-text-color)]
+      border-[var(--pvc-data-grid-row-border)]
+      py-[var(--pvc-data-grid-cell-padding-y)]
+      px-[var(--pvc-data-grid-cell-padding-x)]
+      w-[var(--pvc-data-grid-col-width,auto)]
+      min-w-[var(--pvc-data-grid-col-width,auto)]
+    ].freeze
+
+    COLUMN_HEADER_ROW = %w[
+      sticky top-0 border-b border-[var(--pvc-data-grid-border-color)]
+      bg-[var(--pvc-data-grid-header-bg)] text-left align-bottom
+    ].freeze
+
+    COLUMN_STICKY_TD = %w[
+      sticky z-[2] bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      left-[var(--pvc-data-grid-sticky-left,0px)]
+    ].freeze
+
+    COLUMN_STICKY_TH = %w[
+      bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      left-[var(--pvc-data-grid-sticky-left,0px)]
+      z-[calc(var(--pvc-data-grid-header-z)+1)]
+    ].freeze
+
+    COLUMN_ALIGN = {
+      'center' => 'text-center',
+      'right' => 'text-right',
+      'left' => nil
+    }.freeze
+
+    # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
-      CELL_BASE = %w[
-        box-border min-h-10 whitespace-nowrap align-middle font-normal
-        border-b bg-inherit bg-clip-padding transition-colors
-        text-[length:var(--pvc-data-grid-font-size)]
-        leading-[var(--pvc-data-grid-line-height)]
-        text-[var(--pvc-data-grid-text-color)]
-        border-[var(--pvc-data-grid-row-border)]
-        py-[var(--pvc-data-grid-cell-padding-y)]
-        px-[var(--pvc-data-grid-cell-padding-x)]
-        w-[var(--pvc-data-grid-col-width,auto)]
-        min-w-[var(--pvc-data-grid-col-width,auto)]
-      ].freeze
-
-      HEADER_ROW = %w[
-        sticky top-0 border-b border-[var(--pvc-data-grid-border-color)]
-        bg-[var(--pvc-data-grid-header-bg)] text-left align-bottom
-      ].freeze
-
-      STICKY_TD = %w[
-        sticky z-[2] bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
-        left-[var(--pvc-data-grid-sticky-left,0px)]
-      ].freeze
-
-      STICKY_TH = %w[
-        bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
-        left-[var(--pvc-data-grid-sticky-left,0px)]
-        z-[calc(var(--pvc-data-grid-header-z)+1)]
-      ].freeze
-
-      ALIGN = {
-        'center' => 'text-center',
-        'right' => 'text-right',
-        'left' => nil
-      }.freeze
-
       attr_accessor :sticky, :sticky_left
       attr_reader :label, :key, :width, :align
 
@@ -73,11 +74,7 @@ module Pathogen
         )
       end
 
-      def render_value(row, index)
-        return @block.call(row, index) if @block
-
-        value_for(row, index)
-      end
+      def render_value(row, index) = @block ? @block.call(row, index) : value_for(row, index)
 
       def render_header
         return @header_content.call if @header_content.respond_to?(:call)
@@ -115,15 +112,15 @@ module Pathogen
       end
 
       def cell_classes(header:)
-        parts = [*CELL_BASE, @system_arguments[:class]]
+        parts = [*COLUMN_CELL_BASE, @system_arguments[:class]]
         if header
-          parts.concat(HEADER_ROW)
+          parts.concat(COLUMN_HEADER_ROW)
           parts << 'z-[3]' unless @sticky
-          parts.concat(STICKY_TH) if @sticky
+          parts.concat(COLUMN_STICKY_TH) if @sticky
         elsif @sticky
-          parts.concat(STICKY_TD)
+          parts.concat(COLUMN_STICKY_TD)
         end
-        parts << ALIGN[@align.to_s] if @align && ALIGN[@align.to_s]
+        parts << COLUMN_ALIGN[@align.to_s] if @align && COLUMN_ALIGN[@align.to_s]
         class_names(*parts.compact)
       end
 

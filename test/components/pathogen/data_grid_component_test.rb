@@ -59,7 +59,10 @@ module Pathogen
       end
 
       assert_selector '[data-pathogen-grid][data-pathogen-grid-fill]'
-      assert_selector '[data-pathogen-grid][data-pathogen-grid-fill] > [data-pathogen--data-grid-target~="scrollContainer"]'
+      assert_selector(
+        '[data-pathogen-grid][data-pathogen-grid-fill] > ' \
+        '[data-pathogen--data-grid-target~="scrollContainer"]'
+      )
     end
 
     test 'uses default aria-label when no caption is provided' do
@@ -234,31 +237,34 @@ module Pathogen
     end
 
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
-      render_inline(Pathogen::DataGridComponent.new(
-                      sticky_columns: 0,
-                      rows: [
-                        { id: 'S-040', name: 'Sample forty' }
-                      ]
-                    )) do |grid|
-        grid.with_column('ID', key: :id)
-        grid.with_live_region do
-          ActionController::Base.helpers.content_tag(:div, 'Live region', class: 'test-live-region')
-        end
-        grid.with_metadata_warning do
-          ActionController::Base.helpers.content_tag(:div, 'Warning', class: 'test-metadata-warning')
-        end
-        grid.with_footer do
-          ActionController::Base.helpers.content_tag(:div, 'Footer', class: 'test-footer')
-        end
-      end
+      render_grid_with_outside_slots
 
       assert_selector '[data-pathogen-grid] > .test-live-region'
       assert_selector '[data-pathogen-grid] > .test-metadata-warning'
       assert_selector '[data-pathogen-grid] > [data-pathogen--data-grid-target~="scrollContainer"] + .test-footer'
-      assert_selector '[data-pathogen-grid] > .test-live-region + .test-metadata-warning + [data-pathogen--data-grid-target~="scrollContainer"]'
+      assert_selector(
+        '[data-pathogen-grid] > .test-live-region + .test-metadata-warning + ' \
+        '[data-pathogen--data-grid-target~="scrollContainer"]'
+      )
       assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-live-region'
       assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-metadata-warning'
       assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-footer'
+    end
+
+    private
+
+    def render_grid_with_outside_slots
+      helpers = ActionController::Base.helpers
+
+      render_inline(Pathogen::DataGridComponent.new(
+                      sticky_columns: 0,
+                      rows: [{ id: 'S-040', name: 'Sample forty' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+        grid.with_live_region { helpers.content_tag(:div, 'Live region', class: 'test-live-region') }
+        grid.with_metadata_warning { helpers.content_tag(:div, 'Warning', class: 'test-metadata-warning') }
+        grid.with_footer { helpers.content_tag(:div, 'Footer', class: 'test-footer') }
+      end
     end
   end
 end

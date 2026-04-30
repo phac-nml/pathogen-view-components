@@ -4,6 +4,7 @@ require_relative 'constants'
 
 module Pathogen
   module Typography
+    # Pathogen::Typography::Code — Code component for Pathogen Typography
     class Code < Component
       DEFAULT_TAG = :code
 

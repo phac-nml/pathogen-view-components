@@ -1535,9 +1535,6 @@
   .whitespace-pre-wrap {
     white-space: pre-wrap;
   }
-  .text-\[oklch\(0\.588_0\.185_264\.1\)\] {
-    color: oklch(0.588 0.185 264.1);
-  }
   .text-\[var\(--pvc-data-grid-text-color\)\] {
     color: var(--pvc-data-grid-text-color);
   }

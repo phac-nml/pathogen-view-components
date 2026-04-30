@@ -15,7 +15,7 @@ module Pathogen
       data-[state=open]:opacity-100 data-[state=open]:scale-100 data-[state=open]:pointer-events-auto
     ].join(' ').freeze
 
-    ARROW_CLASSES = 'absolute size-2 rotate-45 bg-neutral-950'.freeze
+    ARROW_CLASSES = 'absolute size-2 rotate-45 bg-neutral-950'
 
     attr_reader :text, :placement, :id
 

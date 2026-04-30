@@ -10,7 +10,7 @@ module Pathogen
       success: 'text-emerald-600 dark:text-emerald-400',
       warning: 'text-amber-600 dark:text-amber-400',
       danger: 'text-red-600 dark:text-red-400',
-      blue: 'text-[oklch(0.588_0.185_264.1)]',
+      blue: 'text-blue-600 dark:text-blue-400',
       white: 'text-white'
     }.freeze
 
@@ -40,13 +40,7 @@ module Pathogen
 
         normalized = name.is_a?(String) ? name : name.to_s.tr('_', '-')
 
-        validate_icon_name_format(normalized)
         normalized.downcase
-      end
-
-      private
-
-      def validate_icon_name_format(normalized)
       end
     end
   end

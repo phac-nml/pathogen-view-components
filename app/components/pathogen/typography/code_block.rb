@@ -4,6 +4,7 @@ require_relative 'constants'
 
 module Pathogen
   module Typography
+    # Pathogen::Typography::CodeBlock — Code block component for Pathogen Typography
     class CodeBlock < Component
       attr_reader :language
 
@@ -17,7 +18,7 @@ module Pathogen
         overflow-x-auto whitespace-pre-wrap bg-transparent p-4 font-mono text-sm leading-relaxed text-inherit
       ].join(' ').freeze
 
-      CODE_CLASSES = 'block min-w-full bg-transparent font-mono text-inherit -tracking-tight'.freeze
+      CODE_CLASSES = 'block min-w-full bg-transparent font-mono text-inherit -tracking-tight'
 
       def initialize(language: nil, **system_arguments)
         @language = language
