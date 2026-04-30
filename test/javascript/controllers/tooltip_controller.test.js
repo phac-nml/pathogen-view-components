@@ -141,5 +141,4 @@ describe("tooltip_controller", () => {
     expect(tooltip.dataset.state).toBe("closed");
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
-
 });

@@ -11,15 +11,11 @@ const outputHeader = `/* GENERATED FILE: built from app/assets/stylesheets/patho
 
 function runTailwindBuild() {
   return new Promise((resolveBuild, rejectBuild) => {
-    const child = spawn(
-      "pnpm",
-      ["exec", "tailwindcss", "-i", inputPath, "-o", outputPath],
-      {
-        cwd: root,
-        stdio: "inherit",
-        env: { ...process.env },
-      },
-    );
+    const child = spawn("pnpm", ["exec", "tailwindcss", "-i", inputPath, "-o", outputPath], {
+      cwd: root,
+      stdio: "inherit",
+      env: { ...process.env },
+    });
     child.on("error", rejectBuild);
     child.on("exit", (code) => {
       if (code === 0) resolveBuild();
