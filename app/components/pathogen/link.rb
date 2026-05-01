@@ -8,6 +8,16 @@ module Pathogen
       rel: 'noopener noreferrer'
     }.freeze
 
+    LINK_CLASSES = %w[
+      font-semibold text-neutral-900 underline decoration-1 underline-offset-[0.12em]
+      transition-[color,text-decoration-thickness] hover:text-primary-600 hover:decoration-2
+      dark:text-neutral-100 dark:hover:text-primary-400
+      rounded-md
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
+      dark:focus-visible:outline-neutral-300
+      focus-visible:outline-offset-2
+    ].join(' ').freeze
+
     # @param href [String] The link url (required)
     # @param system_arguments [Hash] additional HTML attributes to be included in the link root element
     def initialize(href: nil, **system_arguments)
@@ -15,7 +25,7 @@ module Pathogen
       @link_system_arguments[:tag] = :a
       @link_system_arguments[:href] = href
       @link_system_arguments[:class] =
-        class_names(system_arguments[:class], 'pathogen-link')
+        class_names(LINK_CLASSES, system_arguments[:class])
     end
 
     # The tooltip that appears on mouse hover or keyboard focus over the link. (optional)
@@ -36,8 +46,6 @@ module Pathogen
     }
 
     def before_render
-      # Ensure tooltip slot is instantiated before rendering so that it can
-      # modify @link_system_arguments with aria-describedby and data attributes
       tooltip if tooltip?
 
       raise ArgumentError, 'href is required' if @link_system_arguments[:href].blank?

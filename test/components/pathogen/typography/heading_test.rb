@@ -20,46 +20,47 @@ module Pathogen
         end
       end
 
-      test 'applies responsive sizing classes by default' do
+      test 'applies baseline sizing classes by default' do
         render_inline(Heading.new(level: 1)) { 'Test' }
 
-        assert_selector 'h1.pathogen-typography--size-3xl.sm\\:pathogen-typography--size-5xl'
+        assert_selector 'h1.text-3xl'
+        assert_no_selector 'h1.sm\\:text-5xl'
       end
 
-      test 'applies fixed sizing when responsive is false' do
-        render_inline(Heading.new(level: 1, responsive: false)) { 'Test' }
+      test 'keeps baseline sizing when responsive is true' do
+        render_inline(Heading.new(level: 1, responsive: true)) { 'Test' }
 
-        assert_selector 'h1.pathogen-typography--size-3xl'
-        assert_no_selector 'h1.sm\\:pathogen-typography--size-5xl'
+        assert_selector 'h1.text-3xl'
+        assert_no_selector 'h1.sm\\:text-5xl'
       end
 
       test 'applies variant color classes' do
         render_inline(Heading.new(level: 2)) { 'Test' }
-        assert_selector 'h2.pathogen-typography--color-default'
+        assert_selector 'h2[class*="text-neutral-900"]'
 
         render_inline(Heading.new(level: 2, variant: :muted)) { 'Test' }
-        assert_selector 'h2.pathogen-typography--color-muted'
+        assert_selector 'h2[class*="text-neutral-600"]'
 
         render_inline(Heading.new(level: 2, variant: :subdued)) { 'Test' }
-        assert_selector 'h2.pathogen-typography--color-subdued'
+        assert_selector 'h2[class*="text-neutral-600/80"]'
 
         render_inline(Heading.new(level: 2, variant: :inverse)) { 'Test' }
-        assert_selector 'h2.pathogen-typography--color-inverse'
+        assert_selector 'h2.text-white'
       end
 
       test 'applies typography classes' do
         render_inline(Heading.new(level: 1)) { 'Test' }
-        assert_selector 'h1.pathogen-typography--font-ui'
-        assert_selector 'h1.pathogen-typography--leading-heading.pathogen-typography--tracking-tight'
+        assert_selector 'h1.font-sans'
+        assert_selector 'h1.leading-tight.-tracking-tight'
 
         render_inline(Heading.new(level: 3)) { 'Test' }
-        assert_selector 'h3.pathogen-typography--tracking-normal'
+        assert_selector 'h3.tracking-normal'
       end
 
       test 'merges custom classes with component classes' do
         render_inline(Heading.new(level: 1, class: 'custom-class mb-4')) { 'Test' }
 
-        assert_selector 'h1.custom-class.mb-4.pathogen-typography--size-3xl'
+        assert_selector 'h1.custom-class.mb-4.text-3xl'
       end
 
       test 'accepts additional HTML attributes' do
@@ -79,16 +80,18 @@ module Pathogen
         assert_selector 'h2', text: 'Test'
       end
 
-      test 'applies responsive sizing correctly' do
+      test 'applies baseline sizing correctly' do
         render_inline(Heading.new(level: 1)) { 'Test' }
-        assert_selector 'h1.pathogen-typography--size-3xl.sm\\:pathogen-typography--size-5xl'
+        assert_selector 'h1.text-3xl'
+        assert_no_selector 'h1.sm\\:text-5xl'
 
         render_inline(Heading.new(level: 2)) { 'Test' }
-        assert_selector 'h2.pathogen-typography--size-2xl.sm\\:pathogen-typography--size-4xl'
+        assert_selector 'h2.text-2xl'
+        assert_no_selector 'h2.sm\\:text-4xl'
 
         render_inline(Heading.new(level: 3, responsive: false)) { 'Test' }
-        assert_selector 'h3.pathogen-typography--size-xl'
-        assert_no_selector 'h3.sm\\:pathogen-typography--size-3xl'
+        assert_selector 'h3.text-xl'
+        assert_no_selector 'h3.sm\\:text-3xl'
       end
     end
   end

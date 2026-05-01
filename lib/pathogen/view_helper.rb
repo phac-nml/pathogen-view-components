@@ -56,7 +56,6 @@ module Pathogen
       render(Pathogen::Typography::HeadingGroup.new(
                level: config[:heading_level],
                heading_variant: config[:heading_variant],
-               responsive: config[:heading_responsive],
                spacing: config[:spacing]
              ), &)
     end

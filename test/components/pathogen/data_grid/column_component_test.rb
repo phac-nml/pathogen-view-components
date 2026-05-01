@@ -25,8 +25,8 @@ module Pathogen
         column = ColumnComponent.new(label: 'Name', key: :name)
         attrs = column.header_cell_attributes(column_index: 0)
 
-        assert_includes attrs[:class], 'pathogen-data-grid__cell'
-        assert_includes attrs[:class], 'pathogen-data-grid__cell--header'
+        assert_includes attrs[:class], 'sticky'
+        assert_includes attrs[:class], 'top-0'
         assert_equal 'columnheader', attrs[:role]
         assert_equal(-1, attrs[:tabindex])
       end
@@ -35,8 +35,8 @@ module Pathogen
         column = ColumnComponent.new(label: 'Name', key: :name)
         attrs = column.body_cell_attributes(row_index: 1, column_index: 0)
 
-        assert_includes attrs[:class], 'pathogen-data-grid__cell'
-        assert_includes attrs[:class], 'pathogen-data-grid__cell--body'
+        assert_includes attrs[:class], 'min-h-10'
+        assert_includes attrs[:class], 'box-border'
         assert_equal 'gridcell', attrs[:role]
         assert_equal(-1, attrs[:tabindex])
       end
@@ -45,22 +45,22 @@ module Pathogen
         column = ColumnComponent.new(label: 'ID', key: :id, sticky: true, sticky_left: 0)
         attrs = column.header_cell_attributes(column_index: 0)
 
-        assert_includes attrs[:class], 'pathogen-data-grid__cell--sticky'
-        assert_includes attrs[:style], '--pathogen-data-grid-sticky-left: 0px;'
+        assert_equal true, attrs[:data][:sticky_cell]
+        assert_includes attrs[:style], '--pvc-data-grid-sticky-left: 0px;'
       end
 
       test 'attributes include alignment class when align specified' do
         column = ColumnComponent.new(label: 'Amount', key: :amount, align: :right)
         attrs = column.body_cell_attributes(row_index: 1, column_index: 0)
 
-        assert_includes attrs[:class], 'pathogen-data-grid__cell--align-right'
+        assert_includes attrs[:class], 'text-right'
       end
 
       test 'attributes include width style when width specified' do
         column = ColumnComponent.new(label: 'ID', key: :id, width: '150px')
         attrs = column.header_cell_attributes(column_index: 0)
 
-        assert_includes attrs[:style], '--pathogen-data-grid-col-width: 150px;'
+        assert_includes attrs[:style], '--pvc-data-grid-col-width: 150px;'
       end
 
       test 'body_cell_attributes marks active body cell as focus target' do

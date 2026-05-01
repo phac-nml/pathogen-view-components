@@ -4,31 +4,30 @@ require 'test_helper'
 
 module Pathogen
   module Form
-    # Test suite for Pathogen::Form::RadioButton component
     class RadioButtonTest < ViewComponent::TestCase
-      test 'renders radio input with Pathogen control classes' do
+      test 'renders radio input with control styling' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
                         value: 'dark'
                       ))
 
         assert_selector 'input[type="radio"]'
-        assert_selector 'input.pathogen-form__control'
-        assert_selector 'input.pathogen-form__control--radio'
+        assert_selector 'input.size-5.rounded-full'
+        assert_selector "input[class*='border-neutral-300']"
       end
 
-      test 'renders with label and Pathogen label class' do
+      test 'renders with label and label styling' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
                         value: 'dark',
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'label.pathogen-form__label'
+        assert_selector 'label.block.text-sm.font-medium'
         assert_text 'Dark Theme'
       end
 
-      test 'renders with help text and Pathogen help-text class' do
+      test 'renders with help text' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
                         value: 'dark',
@@ -36,7 +35,7 @@ module Pathogen
                         help_text: 'A dark color scheme'
                       ))
 
-        assert_selector 'span.pathogen-form__help-text'
+        assert_selector 'span.block.text-sm.mt-1'
         assert_text 'A dark color scheme'
       end
 
@@ -47,8 +46,8 @@ module Pathogen
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'div.pathogen-form__radio-container'
-        assert_selector 'div.pathogen-form__radio-input-container'
+        assert_selector 'div.flex.flex-col'
+        assert_selector 'div.flex.items-center.gap-3'
       end
 
       test 'input and label are associated via for attribute' do
@@ -73,30 +72,25 @@ module Pathogen
         assert_selector 'input[type="radio"][disabled]'
       end
 
-      test 'does not emit Tailwind utility classes on radio input' do
+      test 'emits Tailwind utilities on radio input' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
                         value: 'dark',
                         label: 'Dark Theme'
                       ))
 
-        tailwind_patterns = %w[rounded-full flex items-center gap-3 h-5 w-5 border-2 text-primary-600]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "input[class*='#{cls}']"
-        end
+        assert_selector 'input.rounded-full'
+        assert_selector 'input.size-5'
       end
 
-      test 'does not emit Tailwind utility classes on label' do
+      test 'emits Tailwind utilities on label' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
                         value: 'dark',
                         label: 'Dark Theme'
                       ))
 
-        tailwind_patterns = %w[text-sm font-medium text-slate-900 cursor-pointer]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "label[class*='#{cls}']"
-        end
+        assert_selector 'label.text-sm.font-medium'
       end
     end
   end

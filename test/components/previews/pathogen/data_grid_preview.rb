@@ -3,6 +3,12 @@
 module Pathogen
   # @label Data Grid
   class DataGridPreview < ViewComponent::Preview
+    LINK_CLASSES = 'font-semibold text-neutral-900 underline decoration-1 underline-offset-[0.12em] ' \
+                   'transition-[color,text-decoration-thickness] hover:text-primary-600 hover:decoration-2 ' \
+                   'dark:text-neutral-100 dark:hover:text-primary-400 ' \
+                   'focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600 ' \
+                   'dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2 rounded-md'
+
     # @label Basic
     def basic
       render Pathogen::DataGridComponent.new(
@@ -177,7 +183,11 @@ module Pathogen
 
       helpers.safe_join(
         [
-          helpers.link_to('View', "/samples/#{row[:sample_id]}", class: 'pathogen-data-grid__link'),
+          helpers.link_to(
+            'View',
+            "/samples/#{row[:sample_id]}",
+            class: LINK_CLASSES
+          ),
           helpers.render(Pathogen::Button.new(type: :button, size: :small)) do
             'Inspect'
           end

@@ -3,19 +3,18 @@
 require 'test_helper'
 
 module Pathogen
-  # Test suite for Pathogen::Icon component and IconValidator
   class IconTest < ViewComponent::TestCase
-    test 'icon validator returns Pathogen color class for valid color' do
-      assert_equal 'pathogen-icon--color-default', Pathogen::IconValidator::COLORS[:default]
-      assert_equal 'pathogen-icon--color-primary', Pathogen::IconValidator::COLORS[:primary]
-      assert_equal 'pathogen-icon--color-danger', Pathogen::IconValidator::COLORS[:danger]
+    test 'icon validator returns Tailwind color class for valid color' do
+      assert_equal 'text-neutral-900 dark:text-neutral-100', Pathogen::IconValidator::COLORS[:default]
+      assert_equal 'text-primary-600 dark:text-primary-400', Pathogen::IconValidator::COLORS[:primary]
+      assert_equal 'text-red-600 dark:text-red-400', Pathogen::IconValidator::COLORS[:danger]
     end
 
-    test 'icon validator returns Pathogen size class for valid size' do
-      assert_equal 'pathogen-icon--size-sm', Pathogen::IconValidator::SIZES[:sm]
-      assert_equal 'pathogen-icon--size-md', Pathogen::IconValidator::SIZES[:md]
-      assert_equal 'pathogen-icon--size-lg', Pathogen::IconValidator::SIZES[:lg]
-      assert_equal 'pathogen-icon--size-xl', Pathogen::IconValidator::SIZES[:xl]
+    test 'icon validator returns Tailwind size class for valid size' do
+      assert_equal 'size-4', Pathogen::IconValidator::SIZES[:sm]
+      assert_equal 'size-6', Pathogen::IconValidator::SIZES[:md]
+      assert_equal 'size-8', Pathogen::IconValidator::SIZES[:lg]
+      assert_equal 'size-10', Pathogen::IconValidator::SIZES[:xl]
     end
 
     test 'icon validator falls back to :default for unknown color' do
@@ -38,29 +37,30 @@ module Pathogen
       assert_raises(ArgumentError) { Pathogen::IconValidator.normalize_icon_name(nil) }
     end
 
-    test 'icon renderer includes pathogen-icon base class in pathogen classes' do
+    test 'icon renderer includes layout base classes' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:default, :md, nil)
-      assert_match(/\bpathogen-icon\b/, classes)
+      assert_match(/\binline-block\b/, classes)
+      assert_match(/\bshrink-0\b/, classes)
     end
 
     test 'icon renderer includes color class in pathogen classes' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:primary, :md, nil)
-      assert_match(/pathogen-icon--color-primary/, classes)
+      assert_match(/primary-600/, classes)
     end
 
     test 'icon renderer includes size class in pathogen classes' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:default, :lg, nil)
-      assert_match(/pathogen-icon--size-lg/, classes)
+      assert_match(/\bsize-8\b/, classes)
     end
 
-    test 'icon renderer does not include Tailwind color classes' do
+    test 'icon renderer uses token-based color utilities' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:default, :md, nil)
-      assert_no_match(/text-slate-900|fill-slate-900|text-primary-600/, classes)
+      assert_match(/text-neutral-900/, classes)
     end
 
-    test 'icon renderer does not include Tailwind size classes' do
+    test 'icon renderer uses Tailwind size utilities' do
       classes = Pathogen::IconRenderer.build_pathogen_classes(:default, :md, nil)
-      assert_no_match(/\bsize-4\b|\bsize-6\b|\bsize-8\b|\bsize-10\b/, classes)
+      assert_match(/\bsize-6\b/, classes)
     end
   end
 end

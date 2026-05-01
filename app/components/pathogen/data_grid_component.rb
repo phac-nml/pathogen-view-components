@@ -2,53 +2,21 @@
 
 module Pathogen
   # DataGrid component for rendering accessible tabular data with sticky columns.
-  #
-  # == Public API
-  #
-  # @param rows [Array<Hash, Array, Object>] The data rows to render.
-  # @param caption [String, nil] Optional visual caption rendered above the table.
-  #   When present, the table uses `aria-labelledby` to associate the caption.
-  # @param sticky_columns [Integer] Number of leading columns to treat as sticky
-  #   by default. Individual columns can override with `sticky: true/false`.
-  # @param fill_container [Boolean] When true, enables flex/min-height behavior
-  #   so the grid can fill and scroll within a constrained parent container.
-  # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
-  #
-  # @example Basic usage
-  #   <%= render Pathogen::DataGridComponent.new(rows: @rows, caption: "Samples") do |grid| %>
-  #     <% grid.with_column("ID", key: :id, width: 120) %>
-  #     <% grid.with_column("Name", key: :name, width: 240) %>
-  #   <% end %>
-  #
-  # @example Custom cell rendering
-  #   <%= render Pathogen::DataGridComponent.new(rows: @rows) do |grid| %>
-  #     <% grid.with_column("Name") { |row| tag.strong(row[:name]) } %>
-  #   <% end %>
-  #
-  # CSS dependency: pathogen/pathogen.css
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
+
+    GRID_ROOT_CLASSES = %w[
+      @[container-type:inline-size] isolate max-w-full rounded-lg border
+      border-neutral-200 dark:border-neutral-700
+      bg-white dark:bg-neutral-950
+      text-neutral-900 dark:text-neutral-100 font-sans
+    ].join(' ').freeze
 
     renders_one :empty_state
     renders_one :footer
     renders_one :live_region
     renders_one :metadata_warning
 
-    # Renders an individual column definition for the grid.
-    #
-    # @param label [String] Column header label.
-    # @param key [Symbol, String, nil] Hash key lookup when no block is provided.
-    # @param width [Numeric, String, nil] Column width (numeric values become "px").
-    # @param align [Symbol, String, nil] Alignment class suffix (e.g. :left, :center, :right).
-    # @param sticky [Boolean, nil] Explicitly enable/disable sticky behavior for this column.
-    # @param sticky_left [Numeric, String, nil] Left offset
-    #   (numeric values become "px"; strings allow CSS units);
-    #   can enable sticky without width.
-    # @param header_content [String, Proc, nil] Custom header content to replace the label.
-    # @param system_arguments [Hash] Additional HTML attributes for the cell.
-    # @yieldparam row [Hash, Array, Object] Row data for the current cell.
-    # @yieldparam index [Integer] Column index.
-    # @return [Pathogen::DataGrid::ColumnComponent]
     renders_many :columns, lambda { |label, **system_arguments, &block|
       Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
     }
@@ -65,20 +33,24 @@ module Pathogen
       @fill_container = fill_container
       @dense = dense
       @system_arguments = system_arguments
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
+      @system_arguments[:data] ||= {}
+      @system_arguments[:data][:pathogen_grid] = true
+      @system_arguments[:class] = class_names(@system_arguments[:class], GRID_ROOT_CLASSES)
     end
 
     def caption? = @caption.present?
 
     def table_attributes
       attributes = {
-        class: 'pathogen-data-grid__table',
+        class: 'w-full border-collapse border-separate border-spacing-0 bg-[var(--pvc-data-grid-body-bg)] ' \
+               'text-[var(--pvc-data-grid-text-color)] text-[length:var(--pvc-data-grid-font-size)] ' \
+               'leading-[var(--pvc-data-grid-line-height)] whitespace-nowrap',
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
 
       label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
+      label_attributes[:rowcount] = @rows.size + 1
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
@@ -89,15 +61,8 @@ module Pathogen
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
 
-      # Declarative opt-in: consumer signals the cell contains interactive elements.
-      # The cell itself owns tabindex="0" as the roving tabindex entry point; the
-      # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
       return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
 
-      # Only invoke Nokogiri when the value is already html_safe (i.e. produced by a
-      # view helper or content_tag) AND plausibly contains an interactive tag.
-      # Plain strings are never html_safe, so they take the fast path here, which also
-      # prevents treating raw user input as HTML (XSS guard).
       unless html_safe_with_interactive?(rendered_value)
         return { content: rendered_value, focus_on_cell: active, interactive: false }
       end
@@ -107,8 +72,6 @@ module Pathogen
 
       return { content: rendered_value, focus_on_cell: active, interactive: false } if interactive_nodes.empty?
 
-      # All interactive elements start at tabindex="-1"; the controller enters widget
-      # mode on Enter/F2 and transfers tabindex="0" to the first interactive element.
       interactive_nodes.each { |node| node['tabindex'] = '-1' }
 
       {
@@ -119,10 +82,8 @@ module Pathogen
     end
 
     def before_render
-      apply_fill_container_class!
-      apply_dense_class!
       apply_column_defaults!
-      apply_responsive_sticky_class!
+      set_grid_data_flags!
       apply_data_grid_controller!
     end
 
@@ -130,8 +91,10 @@ module Pathogen
 
     def table_aria_attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
 
-    def apply_dense_class!
-      append_component_class!('pathogen-data-grid--dense') if @dense
+    def set_grid_data_flags!
+      @system_arguments[:data][:pathogen_grid_dense] = true if @dense
+      @system_arguments[:data][:pathogen_grid_fill] = true if @fill_container
+      @system_arguments[:data][:pathogen_grid_multi_sticky] = true if columns.many?(&:sticky)
     end
 
     def apply_column_defaults!
@@ -153,24 +116,12 @@ module Pathogen
       end
     end
 
-    def apply_fill_container_class!
-      append_component_class!('pathogen-data-grid--fill') if @fill_container
-    end
-
     def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
-
-    def apply_responsive_sticky_class!
-      append_component_class!('pathogen-data-grid--multi-sticky') if columns.many?(&:sticky)
-    end
 
     def apply_data_grid_controller!
       @system_arguments[:data] ||= {}
       existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
       @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
-    end
-
-    def append_component_class!(component_class)
-      @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
     end
   end
 end

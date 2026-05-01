@@ -1,5 +1,14 @@
 #!/usr/bin/env sh
 
+# Run from the demo app root so Foreman loads demo/Procfile.dev and relative paths
+# (e.g. pnpm --dir ..) resolve to the gem repository next to this app.
+case "$0" in
+  /*) _dev_script="$0" ;;
+  *) _dev_script="$(pwd)/$0" ;;
+esac
+_dev_bin="$(dirname "$_dev_script")"
+cd "$(dirname "$_dev_bin")" || exit 1
+
 if ! gem list foreman -i --silent; then
   echo "Installing foreman..."
   gem install foreman

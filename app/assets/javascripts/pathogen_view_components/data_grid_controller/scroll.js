@@ -2,7 +2,7 @@
 // accounting for sticky column overlap.
 
 const STICKY_OVERLAY_SELECTOR =
-  '.pathogen-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky';
+  '[data-sticky-cell][data-pathogen--data-grid-row-index="1"], [data-sticky-cell][role="columnheader"]';
 
 /**
  * Returns the pixel width occupied by sticky columns at the left edge of the container.
@@ -44,7 +44,7 @@ export function ensureCellFullyVisible(cell, scrollContainer, gridTarget) {
   const cellRect = cell.getBoundingClientRect();
 
   const overlap = stickyOverlayWidth(containerRect, gridTarget);
-  const isStickyCell = cell.classList.contains("pathogen-data-grid__cell--sticky");
+  const isStickyCell = cell.hasAttribute("data-sticky-cell");
   const minVisibleLeft = containerRect.left + (isStickyCell ? 0 : overlap);
   const maxVisibleRight = containerRect.right;
 

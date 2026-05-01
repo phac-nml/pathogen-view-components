@@ -1,0 +1,75 @@
+/* Pathogen ViewComponents — Tailwind v4 entry (build: pnpm run build:css → pathogen_view_components.css) */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@import "tailwindcss";
+
+@source "../../components/**/*.rb";
+@source "../../components/**/*.erb";
+@source "../../assets/javascripts/**/*.js";
+@source "../../../lib/**/*.rb";
+/* Anchor utilities so full @theme primary scale and `text-primary` emit for host overrides. */
+@source inline("text-primary bg-primary-950");
+
+/*
+ * Theme contract (host apps may override after @import):
+ * - --color-primary-* defaults to Tailwind blue; --color-primary aliases primary-600.
+ * - --color-neutral-* defaults to Tailwind slate (use neutral-* utilities in components).
+ */
+@theme {
+  --font-sans: "Inter", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --color-primary-50: var(--color-blue-50);
+  --color-primary-100: var(--color-blue-100);
+  --color-primary-200: var(--color-blue-200);
+  --color-primary-300: var(--color-blue-300);
+  --color-primary-400: var(--color-blue-400);
+  --color-primary-500: var(--color-blue-500);
+  --color-primary-600: var(--color-blue-600);
+  --color-primary-700: var(--color-blue-700);
+  --color-primary-800: var(--color-blue-800);
+  --color-primary-900: var(--color-blue-900);
+  --color-primary-950: var(--color-blue-950);
+  --color-primary: var(--color-primary-600);
+
+  --color-neutral-50: var(--color-slate-50);
+  --color-neutral-100: var(--color-slate-100);
+  --color-neutral-200: var(--color-slate-200);
+  --color-neutral-300: var(--color-slate-300);
+  --color-neutral-400: var(--color-slate-400);
+  --color-neutral-500: var(--color-slate-500);
+  --color-neutral-600: var(--color-slate-600);
+  --color-neutral-700: var(--color-slate-700);
+  --color-neutral-800: var(--color-slate-800);
+  --color-neutral-900: var(--color-slate-900);
+  --color-neutral-950: var(--color-slate-950);
+}
+
+@layer base {
+  :root {
+    font-family: var(--font-sans);
+  }
+}
+
+/* Tooltip transform origins (placement set on element as data-placement) */
+[data-pathogen-tooltip-root][data-placement="top"] {
+  --pvc-tooltip-origin: bottom center;
+}
+[data-pathogen-tooltip-root][data-placement="bottom"] {
+  --pvc-tooltip-origin: top center;
+}
+[data-pathogen-tooltip-root][data-placement="left"] {
+  --pvc-tooltip-origin: center right;
+}
+[data-pathogen-tooltip-root][data-placement="right"] {
+  --pvc-tooltip-origin: center left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pathogen-tooltip-root] {
+    transition: none !important;
+  }
+}
+
+@import "./pathogen_datagrid_layer.css";

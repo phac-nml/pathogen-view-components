@@ -4,7 +4,6 @@ require 'test_helper'
 
 module Pathogen
   module Typography
-    # Test suite for Code component
     class CodeTest < ViewComponent::TestCase
       test 'renders code tag' do
         render_inline(Code.new) { 'variable_name' }
@@ -12,16 +11,16 @@ module Pathogen
         assert_selector 'code', text: 'variable_name'
       end
 
-      test 'applies pathogen code class' do
+      test 'applies inline code Tailwind classes' do
         render_inline(Code.new) { 'Test' }
 
-        assert_selector 'code.pathogen-typography--code'
+        assert_selector 'code.inline-flex.items-center.font-mono.text-sm'
       end
 
       test 'merges custom classes' do
         render_inline(Code.new(class: 'custom-code')) { 'Test' }
 
-        assert_selector 'code.custom-code.pathogen-typography--code'
+        assert_selector 'code.custom-code.inline-flex'
       end
 
       test 'accepts additional HTML attributes' do
@@ -36,13 +35,10 @@ module Pathogen
         assert_selector 'code', text: '<script>alert("test")</script>'
       end
 
-      test 'does not emit Tailwind utility classes' do
+      test 'emits token-based background utility' do
         render_inline(Code.new) { 'test' }
 
-        tailwind_patterns = %w[font-mono text-sm bg-slate-100 text-slate-800 px-2 rounded-md inline-flex]
-        tailwind_patterns.each do |cls|
-          assert_no_selector "code[class*='#{cls}']"
-        end
+        assert_selector "code[class*='bg-neutral-50']"
       end
     end
   end

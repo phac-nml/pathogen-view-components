@@ -5,7 +5,7 @@
       <%= pathogen_heading_group(level: 1) do |group| %>
         <%= group.with_eyebrow { "Typography Components" } %>
         <%= group.with_heading { "Body Text" } %>
-        <%= group.with_metadata { "Text, Lead, and Callout components with responsive sizing" } %>
+        <%= group.with_metadata { "Text, Lead, and Callout components with baseline sizing" } %>
       <% end %>
     </div>
 
@@ -27,26 +27,6 @@
         <%= pathogen_heading(level: 3, class: "mb-4") { "Lead (20px)" } %>
         <%= pathogen_lead { "Larger introductory paragraphs that draw attention and provide context." } %>
         <%= pathogen_code(class: "mt-4") { "pathogen_lead" } %>
-      </div>
-    </div>
-
-    <!-- Responsive Sizing -->
-    <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-      <%= pathogen_heading(level: 2, class: "mb-6") { "Responsive Sizing" } %>
-      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Enable responsive sizing to scale text from mobile to desktop" } %>
-
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <%= pathogen_heading(level: 4, class: "mb-3") { "Fixed Size (Default)" } %>
-          <%= pathogen_text { "This text stays at 16px on all screen sizes. Consistent across devices." } %>
-          <%= pathogen_code(class: "mt-3") { "responsive: false" } %>
-        </div>
-
-        <div>
-          <%= pathogen_heading(level: 4, class: "mb-3") { "Responsive" } %>
-          <%= pathogen_text(responsive: true) { "This text scales from 14px (mobile) to 16px (desktop). Better mobile readability." } %>
-          <%= pathogen_code(class: "mt-3") { "responsive: true" } %>
-        </div>
       </div>
     </div>
 
@@ -83,7 +63,7 @@
   Introductory paragraph
 <%% end %>
 
-<%%= pathogen_text(responsive: true) do %>
+<%%= pathogen_text do %>
   Body paragraph
 <%% end %>
 

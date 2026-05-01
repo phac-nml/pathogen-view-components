@@ -5,23 +5,16 @@ module Pathogen
     include Pathogen::ViewHelper
 
     def default
-      pathogen_link(href: '#') do
-        'This is a link'
-      end
+      render_with_template
     end
 
     def external_link
-      pathogen_link(href: 'http://google.com') do
-        'This is an external link'
-      end
+      render_with_template
     end
 
     # @label With Tooltip
     def tooltip
-      pathogen_link(href: '#') do |component|
-        component.with_tooltip(text: 'Tooltip text')
-        'This is a link with tooltip'
-      end
+      render_with_template
     end
   end
 end

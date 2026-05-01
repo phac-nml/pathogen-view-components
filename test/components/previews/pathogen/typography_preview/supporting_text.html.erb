@@ -5,7 +5,7 @@
       <%= pathogen_heading_group(level: 1) do |group| %>
         <%= group.with_eyebrow { "Typography Components" } %>
         <%= group.with_heading { "Supporting Text" } %>
-        <%= group.with_metadata { "Captions, labels, eyebrow text, and metadata with responsive sizing" } %>
+        <%= group.with_metadata { "Captions, labels, eyebrow text, and metadata with baseline sizing" } %>
       <% end %>
     </div>
 
@@ -22,26 +22,6 @@
         <%= pathogen_eyebrow { "Category Label" } %>
         <%= pathogen_supporting(variant: :muted, class: "mt-4") { "Small uppercase text above headings" } %>
         <%= pathogen_code(class: "mt-2") { "pathogen_eyebrow" } %>
-      </div>
-    </div>
-
-    <!-- Responsive Sizing -->
-    <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-      <%= pathogen_heading(level: 2, class: "mb-6") { "Responsive Supporting Text" } %>
-      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Scale from 12px (mobile) to 14px (desktop)" } %>
-
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <%= pathogen_heading(level: 4, class: "mb-3") { "Fixed (Default)" } %>
-          <%= pathogen_supporting { "This supporting text stays at 14px on all screen sizes." } %>
-          <%= pathogen_code(class: "mt-3") { "responsive: false" } %>
-        </div>
-
-        <div>
-          <%= pathogen_heading(level: 4, class: "mb-3") { "Responsive" } %>
-          <%= pathogen_supporting(responsive: true) { "This supporting text scales from 12px to 14px for better mobile readability." } %>
-          <%= pathogen_code(class: "mt-3") { "responsive: true" } %>
-        </div>
       </div>
     </div>
 
@@ -123,7 +103,7 @@
   Article Title
 <%% end %>
 
-<%%= pathogen_supporting(variant: :muted, responsive: true) do %>
+<%%= pathogen_supporting(variant: :muted) do %>
   Published Jan 15, 2024
 <%% end %>
       <% end %>

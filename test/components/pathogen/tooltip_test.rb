@@ -3,8 +3,6 @@
 require 'test_helper'
 
 module Pathogen
-  # Test suite for Pathogen::Tooltip component
-  # Validates placement parameter, ID generation, ARIA attributes, and rendering
   class TooltipTest < ViewComponent::TestCase
     test 'renders with required parameters' do
       render_inline(Pathogen::Tooltip.new(
@@ -24,7 +22,7 @@ module Pathogen
                     ))
 
       assert_selector 'div[data-placement="top"]'
-      assert_selector 'div.pathogen-tooltip--placement-top'
+      assert_selector 'div[data-pathogen-tooltip-root]'
     end
 
     %i[bottom left right].each do |placement|
@@ -36,7 +34,7 @@ module Pathogen
                       ))
 
         assert_selector "div[data-placement=\"#{placement}\"]"
-        assert_selector "div.pathogen-tooltip--placement-#{placement}"
+        assert_selector 'div[data-pathogen-tooltip-root]'
       end
     end
 
@@ -51,14 +49,13 @@ module Pathogen
       assert_equal 'placement must be one of: :top, :bottom, :left, :right', error.message
     end
 
-    test 'renders with Pathogen tooltip classes' do
+    test 'renders with Tailwind tooltip layout classes' do
       render_inline(Pathogen::Tooltip.new(
                       text: 'Sample tooltip',
                       id: 'tooltip-123'
                     ))
 
-      assert_selector 'div.pathogen-tooltip'
-      assert_selector 'div.pathogen-tooltip--placement-top'
+      assert_selector 'div.fixed.z-50'
     end
 
     test 'starts with closed state' do
@@ -85,7 +82,7 @@ module Pathogen
                       id: 'tooltip-123'
                     ))
 
-      assert_selector 'span.pathogen-tooltip__arrow[data-pathogen--tooltip-target="arrow"]'
+      assert_selector 'span.absolute.size-2[data-pathogen--tooltip-target="arrow"]'
     end
 
     test 'forwards custom attributes via system_arguments' do
@@ -105,9 +102,7 @@ module Pathogen
       assert_selector 'div[aria-label="Additional info"]'
       assert_selector 'div[aria-live="polite"]'
 
-      # Required defaults are preserved (role="tooltip" is non-overridable per W3C APG)
       assert_selector 'div[role="tooltip"]'
-      assert_selector 'div.pathogen-tooltip'
       assert_selector 'div[data-pathogen--tooltip-target="tooltip"]'
       assert_selector 'div[data-placement="top"]'
     end

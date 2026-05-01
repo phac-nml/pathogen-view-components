@@ -7,9 +7,8 @@
     "pathogen--tabs-sync-url-value" => @system_arguments[:data]["pathogen--tabs-sync-url-value"],
   },
   class: class_names(
-    "pathogen-tabs",
-    "pathogen-tabs--vertical" => @orientation == :vertical,
-    "pathogen-tabs--horizontal" => @orientation != :vertical,
+    "font-sans text-neutral-900 dark:text-neutral-100",
+    @orientation == :vertical ? "flex items-start gap-6" : "block",
   ),
 ) do %>
   <%= tag.nav(
@@ -19,7 +18,11 @@
       label: @label,
       orientation: @orientation,
     },
-    class: class_names("pathogen-tabs__list", @system_arguments[:class]),
+    class: class_names(
+      "flex flex-wrap items-end gap-1 border-neutral-200 dark:border-neutral-700",
+      @orientation == :vertical ? "min-w-[12.5rem] flex-col items-stretch border-r border-b-0 pr-3" : "border-b",
+      @system_arguments[:class],
+    ),
     **@system_arguments.except(:id, :data, :class),
   ) do %>
     <% tabs.each do |tab| %>
@@ -27,7 +30,7 @@
     <% end %>
   <% end %>
 
-  <%= tag.div(class: "pathogen-tabs__panels") do %>
+  <%= tag.div(class: @orientation == :vertical ? "min-w-0 flex-1" : "mt-4") do %>
     <% panels.each do |panel| %>
       <%= panel %>
     <% end %>

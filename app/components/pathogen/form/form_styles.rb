@@ -2,32 +2,46 @@
 
 # Shared styling helpers for form controls
 #
-# Provides Pathogen class helpers used across form elements
-# (checkboxes, radio buttons, etc.), ensuring consistent styling
-# without Tailwind utility coupling.
+# Provides Tailwind class helpers used across form elements
+# (checkboxes, radio buttons, etc.), ensuring consistent styling.
 module Pathogen
   module Form
-    # Pathogen CSS class helpers for form components.
+    # Shared styling helpers for form controls
     module FormStyles
-      # Label classes used across form controls
-      #
-      # @return [String] Space-separated Pathogen CSS classes
+      LABEL_CLASSES = %w[
+        block font-sans text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer
+        disabled:opacity-50 disabled:cursor-not-allowed
+      ].join(' ').freeze
+
+      HELP_TEXT_CLASSES = %w[
+        block font-sans text-sm leading-[1.45] text-neutral-600 dark:text-neutral-400 mt-1
+      ].join(' ').freeze
+
+      CONTROL_BASE = %w[
+        size-5 shrink-0 mt-0.5 cursor-pointer border-2 border-neutral-300 dark:border-neutral-600
+        bg-white dark:bg-neutral-950 transition-[border-color,background-color]
+        accent-primary-600 checked:border-primary-600
+        enabled:hover:border-primary-600
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
+        dark:focus-visible:outline-neutral-300
+        focus-visible:outline-offset-2
+        disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-200 dark:disabled:border-neutral-700
+        disabled:bg-neutral-50 dark:disabled:bg-neutral-900
+      ].join(' ').freeze
+
+      # @return [String] Space-separated Tailwind classes
       def label_classes
-        'pathogen-form__label'
+        LABEL_CLASSES
       end
 
-      # Help text classes used beneath form controls
-      #
-      # @return [String] Space-separated Pathogen CSS classes
+      # @return [String] Space-separated Tailwind classes
       def help_text_classes
-        'pathogen-form__help-text'
+        HELP_TEXT_CLASSES
       end
 
-      # Base classes for interactive form inputs (checkbox, radio, etc.)
-      #
-      # @return [Array<String>] Pathogen classes common to all controls
+      # @return [Array<String>] classes common to all controls
       def control_base_classes
-        ['pathogen-form__control']
+        [CONTROL_BASE]
       end
     end
   end

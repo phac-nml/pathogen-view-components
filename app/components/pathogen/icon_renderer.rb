@@ -74,7 +74,7 @@ module Pathogen
     # @return [String] Combined CSS classes
     def self.build_pathogen_classes(color, size, variant)
       combine_classes(
-        'pathogen-icon',
+        'inline-block shrink-0 align-middle',
         IconValidator::COLORS[color],
         IconValidator::SIZES[size],
         filled_variant_class(variant)

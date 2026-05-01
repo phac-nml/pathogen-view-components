@@ -5,7 +5,7 @@ require 'test_helper'
 module Pathogen
   class TabsTest < ViewComponent::TestCase
     # rubocop:disable Metrics/BlockLength
-    test 'renders Pathogen tabs class contract and ARIA wiring' do
+    test 'renders tabs layout and ARIA wiring' do
       render_inline(Pathogen::Tabs.new(id: 'docs-tabs', label: 'Documentation tabs')) do |tabs|
         tabs.with_tab(id: 'tab-overview', label: 'Overview')
         tabs.with_tab(id: 'tab-api', label: 'API')
@@ -14,23 +14,23 @@ module Pathogen
         tabs.with_panel(id: 'panel-api', tab_id: 'tab-api') { 'API content' }
       end
 
-      assert_selector 'div.pathogen-tabs.pathogen-tabs--horizontal'
-      assert_selector 'nav#docs-tabs.pathogen-tabs__list[role="tablist"][aria-label="Documentation tabs"]'
+      assert_selector 'div#docs-tabs-container.block.font-sans'
+      assert_selector 'nav#docs-tabs.flex.flex-wrap[role="tablist"][aria-label="Documentation tabs"]'
       assert_selector(
-        'button#tab-overview.pathogen-tabs__tab[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'
+        'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'
       )
       assert_selector(
-        'button#tab-api.pathogen-tabs__tab[role="tab"][aria-selected="false"][data-state="inactive"][tabindex="-1"]'
+        'button#tab-api[role="tab"][aria-selected="false"][data-state="inactive"][tabindex="-1"]'
       )
 
       assert_selector(
-        'div#panel-overview.pathogen-tabs__panel[role="tabpanel"]' \
+        'div#panel-overview[role="tabpanel"]' \
         '[aria-labelledby="tab-overview"][aria-hidden="false"]' \
         '[data-state="active"][tabindex="0"]'
       )
       assert_no_selector 'div#panel-overview[hidden]'
       assert_selector(
-        'div#panel-api.pathogen-tabs__panel[role="tabpanel"]' \
+        'div#panel-api[role="tabpanel"]' \
         '[aria-labelledby="tab-api"][aria-hidden="true"]' \
         '[data-state="inactive"][hidden][tabindex="0"]',
         visible: :all
@@ -48,7 +48,7 @@ module Pathogen
         tabs.with_panel(id: 'panel-security', tab_id: 'tab-security') { 'Security settings' }
       end
 
-      assert_selector 'div.pathogen-tabs.pathogen-tabs--vertical'
+      assert_selector 'div#settings-tabs-container.flex.items-start.gap-6'
       assert_selector 'button#tab-general[aria-selected="false"][data-state="inactive"][tabindex="-1"]'
       assert_selector 'button#tab-security[aria-selected="true"][data-state="active"][tabindex="0"]'
 
@@ -73,7 +73,7 @@ module Pathogen
       assert_no_selector 'div#panel-beta[hidden]'
     end
 
-    test 'keeps lazy panel wiring intact with Pathogen loading shell' do
+    test 'keeps lazy panel wiring intact with loading shell' do
       render_inline(Pathogen::Tabs.new(id: 'lazy-tabs', label: 'Lazy tabs')) do |tabs|
         tabs.with_tab(id: 'tab-current', label: 'Current')
         tabs.with_tab(id: 'tab-history', label: 'History')
@@ -88,10 +88,10 @@ module Pathogen
         ) { 'History content' }
       end
 
-      assert_selector 'div#panel-history.pathogen-tabs__panel[aria-hidden="true"][data-state="inactive"][hidden]',
+      assert_selector 'div#panel-history[role="tabpanel"][aria-hidden="true"][data-state="inactive"][hidden]',
                       visible: :all
       assert_selector 'turbo-frame#history-frame[src="/history"][loading="lazy"]', visible: :all
-      assert_selector '.pathogen-tabs__skeleton', visible: :all
+      assert_selector '.animate-pulse.rounded-lg.border', visible: :all
     end
   end
 end

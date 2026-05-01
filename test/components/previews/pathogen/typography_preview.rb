@@ -13,7 +13,7 @@ module Pathogen
     def overview; end
 
     # @label Headings
-    # Semantic headings (h1-h6) with responsive sizing and color variants
+    # Semantic headings (h1-h6) with baseline sizing and color variants
     def headings; end
 
     # @label Body Text

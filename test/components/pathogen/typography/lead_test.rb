@@ -22,43 +22,43 @@ module Pathogen
       test 'applies larger text size' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--size-xl'
+        assert_selector 'p.text-xl'
       end
 
       test 'applies relaxed leading for better readability' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--leading-relaxed'
+        assert_selector 'p.leading-relaxed'
       end
 
       test 'applies default variant color classes' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-default'
+        assert_selector 'p[class*="text-neutral-900"]'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Lead.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-muted'
+        assert_selector 'p[class*="text-neutral-600"]'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Lead.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-subdued'
+        assert_selector 'p[class*="text-neutral-600/80"]'
       end
 
       test 'applies inverse variant color classes' do
         render_inline(Lead.new(variant: :inverse)) { 'Test' }
 
-        assert_selector 'p.pathogen-typography--color-inverse'
+        assert_selector 'p.text-white'
       end
 
       test 'merges custom classes' do
         render_inline(Lead.new(class: 'mb-6')) { 'Test' }
 
-        assert_selector 'p.mb-6.pathogen-typography--size-xl'
+        assert_selector 'p.mb-6.text-xl'
       end
 
       test 'accepts additional HTML attributes' do

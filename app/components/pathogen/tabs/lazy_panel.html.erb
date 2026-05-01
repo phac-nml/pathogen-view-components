@@ -7,18 +7,18 @@
     loading: :lazy,
     refresh: @refresh,
   ) {
-    tag.div(class: "pathogen-tabs__skeleton", aria: { hidden: true }) {
-      tag.div(class: "pathogen-tabs__skeleton-lines") {
+    tag.div(class: "animate-pulse rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900", aria: { hidden: true }) {
+      tag.div(class: "grid gap-3") {
         safe_join([
-          tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--title"),
-          tag.div(class: "pathogen-tabs__skeleton-paragraph") {
+          tag.div(class: "h-3.5 w-[32%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+          tag.div(class: "grid gap-2") {
             safe_join([
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--full"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--long"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium"),
-              tag.div(class: "pathogen-tabs__skeleton-line pathogen-tabs__skeleton-line--medium")
+              tag.div(class: "h-2.5 w-full rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+              tag.div(class: "h-2.5 w-[92%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70")
             ])
           }
         ])

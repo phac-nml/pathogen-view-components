@@ -9,7 +9,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
 - **Stimulus-ready**: Built-in controllers for tabs and tooltips.
-- **Tokenized styling**: CSS variables and layers so host apps can override safely.
+- **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
 ## Requirements
@@ -98,13 +98,16 @@ Sticky columns:
 
 ### Styles
 
-The engine ships `pathogen_view_components.css`, built on layered CSS tokens using Lightning CSS. In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
+The engine ships a single precompiled `pathogen_view_components.css`, produced in this repository with **Tailwind CSS v4** from `app/assets/stylesheets/pathogen.tailwind.css` (sources scanned across components, ERB, and Stimulus). In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
+
+**Breaking change (v1):** components no longer emit BEM-style `pathogen-*` class hooks for styling. Prefer roles, ARIA, and `data-*` targets (for example `data-pathogen-grid`, Stimulus `data-pathogen--*`) for tests and host-app hooks.
 
 To rebuild the stylesheet during development:
 
 ```bash
 pnpm run build:css         # one-shot build
 pnpm run build:css:watch   # watch mode
+pnpm run build:css:check   # CI: fail if artifact is out of date
 ```
 
 ### Internationalization

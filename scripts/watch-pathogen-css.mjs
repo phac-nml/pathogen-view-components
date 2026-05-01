@@ -5,8 +5,13 @@ import { resolve } from "node:path";
 const args = new Set(process.argv.slice(2));
 const once = args.has("--once");
 const root = process.cwd();
-const buildScript = resolve(root, "scripts/build-pathogen-css.mjs");
-const watchRoot = resolve(root, "app/assets/stylesheets/pathogen");
+const buildScript = resolve(root, "scripts/build-pathogen-tailwind.mjs");
+const watchGlobs = [
+  resolve(root, "app/assets/stylesheets/pathogen.tailwind.css"),
+  resolve(root, "app/assets/stylesheets/pathogen_datagrid_layer.css"),
+  resolve(root, "app/components"),
+  resolve(root, "app/assets/javascripts"),
+];
 
 function runBuild() {
   return new Promise((resolveBuild, rejectBuild) => {
@@ -14,14 +19,10 @@ function runBuild() {
       cwd: root,
       stdio: "inherit",
     });
-
     child.on("error", rejectBuild);
     child.on("exit", (code) => {
-      if (code === 0) {
-        resolveBuild();
-      } else {
-        rejectBuild(new Error(`build exited with code ${code}`));
-      }
+      if (code === 0) resolveBuild();
+      else rejectBuild(new Error(`build exited with code ${code}`));
     });
   });
 }
@@ -40,10 +41,8 @@ async function main() {
       queued = true;
       return;
     }
-
     running = true;
     console.log(`[build:css:watch] ${reason}`);
-
     try {
       await runBuild();
     } catch (error) {
@@ -57,18 +56,13 @@ async function main() {
     }
   };
 
-  const watcher = chokidar.watch(watchRoot, {
-    ignoreInitial: true,
-  });
-
+  const watcher = chokidar.watch(watchGlobs, { ignoreInitial: true });
   const onFsEvent = (event, filePath) => {
-    if (!filePath.endsWith(".css")) return;
     void triggerBuild(`File ${event}: ${filePath}`);
   };
-
-  watcher.on("add", (filePath) => onFsEvent("added", filePath));
-  watcher.on("change", (filePath) => onFsEvent("changed", filePath));
-  watcher.on("unlink", (filePath) => onFsEvent("removed", filePath));
+  watcher.on("add", (p) => onFsEvent("added", p));
+  watcher.on("change", (p) => onFsEvent("changed", p));
+  watcher.on("unlink", (p) => onFsEvent("removed", p));
 
   await triggerBuild("Initial build");
 

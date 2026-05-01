@@ -18,21 +18,21 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      assert_selector '.pathogen-data-grid__table[aria-labelledby]'
-      assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
-      assert_selector '.pathogen-data-grid__table[role="grid"]'
-      assert_selector '.pathogen-data-grid__row[role="row"]', count: 3
-      assert_selector '.pathogen-data-grid__caption', text: 'Sample grid'
-      assert_no_selector '.pathogen-data-grid--multi-sticky'
-      assert_selector 'th.pathogen-data-grid__cell--header[role="columnheader"][tabindex="-1"]'
-      assert_selector 'th.pathogen-data-grid__cell--header > span.pathogen-data-grid__header-label', count: 2
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 0px"]'
-      assert_selector 'td.pathogen-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
+      assert_selector 'table[aria-labelledby][role="grid"]'
+      assert_selector '[data-pathogen-grid][data-controller~="pathogen--data-grid"]'
+      assert_selector 'tbody tr[role="row"]', count: 2
+      assert_selector 'thead tr[role="row"]', count: 1
+      assert_selector '[data-pathogen-grid-caption]', text: 'Sample grid'
+      assert_no_selector '[data-pathogen-grid-multi-sticky]'
+      assert_selector 'th[role="columnheader"][tabindex="-1"]', count: 2
+      assert_selector 'th span.uppercase.tracking-wider', count: 2
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: 0px"]'
+      assert_selector 'td[role="gridcell"]', text: 'Sample one'
       assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
     end
 
-    test 'adds multi sticky class when more than one sticky column is active' do
+    test 'adds multi sticky data attribute when more than one sticky column is active' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 2,
                       rows: [
@@ -44,10 +44,10 @@ module Pathogen
         grid.with_column('Status', key: :status)
       end
 
-      assert_selector '.pathogen-data-grid.pathogen-data-grid--multi-sticky'
+      assert_selector '[data-pathogen-grid][data-pathogen-grid-multi-sticky]'
     end
 
-    test 'adds fill class when fill_container is enabled' do
+    test 'adds fill data attribute when fill_container is enabled' do
       render_inline(Pathogen::DataGridComponent.new(
                       fill_container: true,
                       rows: [
@@ -58,8 +58,11 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector '.pathogen-data-grid.pathogen-data-grid--fill'
-      assert_selector '.pathogen-data-grid--fill > .pathogen-data-grid__scroll'
+      assert_selector '[data-pathogen-grid][data-pathogen-grid-fill]'
+      assert_selector(
+        '[data-pathogen-grid][data-pathogen-grid-fill] > ' \
+        '[data-pathogen--data-grid-target~="scrollContainer"]'
+      )
     end
 
     test 'uses default aria-label when no caption is provided' do
@@ -73,9 +76,9 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      assert_no_selector '.pathogen-data-grid__caption'
-      assert_no_selector '.pathogen-data-grid__table[aria-labelledby]'
-      assert_selector '.pathogen-data-grid__table[aria-label="Data grid"]'
+      assert_no_selector '[data-pathogen-grid-caption]'
+      assert_no_selector 'table[aria-labelledby]'
+      assert_selector 'table[aria-label="Data grid"]'
     end
 
     test 'does not apply sticky when width is missing' do
@@ -90,7 +93,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_no_selector 'th.pathogen-data-grid__cell--sticky'
+      assert_no_selector 'th[data-sticky-cell]'
     end
 
     test 'renders custom cell blocks and defaults to key lookup' do
@@ -104,7 +107,7 @@ module Pathogen
         grid.with_column('Name') { |row| ActionController::Base.helpers.content_tag(:strong, row[:name]) }
       end
 
-      assert_selector 'td.pathogen-data-grid__cell--body', text: 'S-003'
+      assert_selector 'td[role="gridcell"]', text: 'S-003'
       assert_selector 'strong', text: 'Sample three'
     end
 
@@ -127,9 +130,6 @@ module Pathogen
         end
       end
 
-      # The cell (not its interactive descendants) owns tabindex="0" as the roving
-      # tabindex entry point. The controller transfers focus to interactive descendants
-      # on Enter/F2 (widget mode), per WAI-ARIA grid pattern.
       assert_selector(
         'tbody tr:first-child td:first-child[tabindex="0"][data-pathogen--data-grid-has-interactive="true"]'
       )
@@ -150,7 +150,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 24px"]'
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: 24px"]'
     end
 
     test 'accepts sticky left offset values with CSS units' do
@@ -164,7 +164,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: calc(10ch + 8px)"]'
+      assert_selector 'th[data-sticky-cell][style*="--pvc-data-grid-sticky-left: calc(10ch + 8px)"]'
     end
 
     test 'normalizes numeric widths to px units' do
@@ -178,8 +178,8 @@ module Pathogen
         grid.with_column('Name', key: :name, width: '180px')
       end
 
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 96px"]'
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 180px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 96px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 180px"]'
     end
 
     test 'renders custom header content when provided' do
@@ -195,8 +195,8 @@ module Pathogen
 
       assert_selector 'th', text: 'Custom ID'
       assert_selector 'th', text: 'Name'
-      assert_no_selector 'th span.pathogen-data-grid__header-label', text: 'Custom ID'
-      assert_selector 'th span.pathogen-data-grid__header-label', text: 'Name'
+      assert_no_selector 'th span.uppercase', text: 'Custom ID'
+      assert_selector 'th span.uppercase', text: 'Name'
     end
 
     test 'renders empty state when rows are blank' do
@@ -208,8 +208,8 @@ module Pathogen
         grid.with_empty_state { 'No rows' }
       end
 
-      assert_selector '.pathogen-data-grid__scroll', text: 'No rows'
-      assert_no_selector '.pathogen-data-grid__table'
+      assert_selector '[data-pathogen--data-grid-target~="scrollContainer"]', text: 'No rows'
+      assert_no_selector 'table[role="grid"]'
     end
 
     test 'initial header cells are not tabbable' do
@@ -237,31 +237,34 @@ module Pathogen
     end
 
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
+      render_grid_with_outside_slots
+
+      assert_selector '[data-pathogen-grid] > .test-live-region'
+      assert_selector '[data-pathogen-grid] > .test-metadata-warning'
+      assert_selector '[data-pathogen-grid] > [data-pathogen--data-grid-target~="scrollContainer"] + .test-footer'
+      assert_selector(
+        '[data-pathogen-grid] > .test-live-region + .test-metadata-warning + ' \
+        '[data-pathogen--data-grid-target~="scrollContainer"]'
+      )
+      assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-live-region'
+      assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-metadata-warning'
+      assert_no_selector '[data-pathogen--data-grid-target~="scrollContainer"] .test-footer'
+    end
+
+    private
+
+    def render_grid_with_outside_slots
+      helpers = ActionController::Base.helpers
+
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
-                      rows: [
-                        { id: 'S-040', name: 'Sample forty' }
-                      ]
+                      rows: [{ id: 'S-040', name: 'Sample forty' }]
                     )) do |grid|
         grid.with_column('ID', key: :id)
-        grid.with_live_region do
-          ActionController::Base.helpers.content_tag(:div, 'Live region', class: 'test-live-region')
-        end
-        grid.with_metadata_warning do
-          ActionController::Base.helpers.content_tag(:div, 'Warning', class: 'test-metadata-warning')
-        end
-        grid.with_footer do
-          ActionController::Base.helpers.content_tag(:div, 'Footer', class: 'test-footer')
-        end
+        grid.with_live_region { helpers.content_tag(:div, 'Live region', class: 'test-live-region') }
+        grid.with_metadata_warning { helpers.content_tag(:div, 'Warning', class: 'test-metadata-warning') }
+        grid.with_footer { helpers.content_tag(:div, 'Footer', class: 'test-footer') }
       end
-
-      assert_selector '.pathogen-data-grid > .test-live-region'
-      assert_selector '.pathogen-data-grid > .test-metadata-warning'
-      assert_selector '.pathogen-data-grid > .pathogen-data-grid__scroll + .test-footer'
-      assert_selector '.pathogen-data-grid > .test-live-region + .test-metadata-warning + .pathogen-data-grid__scroll'
-      assert_no_selector '.pathogen-data-grid__scroll .test-live-region'
-      assert_no_selector '.pathogen-data-grid__scroll .test-metadata-warning'
-      assert_no_selector '.pathogen-data-grid__scroll .test-footer'
     end
   end
 end
