@@ -4,7 +4,7 @@
 
   <%= tag.div(
     @grid.virtual_loading_text,
-    class: 'pathogen-data-grid__virtual-status',
+    class: virtual_status_classes,
     data: {
       'pathogen--data-grid-target': 'virtualStatus',
       loading_text: @grid.virtual_loading_text,
@@ -15,13 +15,13 @@
   ) %>
 
   <%= tag.div(
-    class: 'pathogen-data-grid__row pathogen-data-grid__row--header',
+    class: header_row_classes,
     role: 'row',
     aria: { rowindex: 1 },
     style: @grid.row_style
   ) do %>
     <%= tag.div(
-      class: 'pathogen-data-grid__lane pathogen-data-grid__lane--pinned',
+      class: header_pinned_lane_classes,
       'data-pathogen-data-grid-lane': 'pinned',
       role: 'presentation',
       style: @grid.virtual_lane_row_style(pinned_columns)
@@ -32,7 +32,7 @@
     <% end %>
 
     <%= tag.div(
-      class: 'pathogen-data-grid__lane pathogen-data-grid__lane--center',
+      class: header_center_lane_classes,
       'data-pathogen-data-grid-lane': 'center',
       role: 'presentation',
       style: @grid.virtual_lane_row_style(center_columns)
@@ -49,17 +49,18 @@
     <% end %>
   <% end %>
 
-  <%= tag.div(class: 'pathogen-data-grid__viewport', data: { 'pathogen--data-grid-target': 'viewport' }) do %>
-    <%= tag.div(class: 'pathogen-data-grid__spacer') %>
+  <%= tag.div(class: viewport_classes, data: { 'pathogen--data-grid-target': 'viewport' }) do %>
+    <%= tag.div(class: spacer_classes) %>
+
     <% @grid.rows.each_with_index do |row, row_index| %>
       <%= tag.div(
-        class: 'pathogen-data-grid__row',
+        class: body_row_classes,
         role: 'row',
         aria: { rowindex: aria_row_index(row_index) },
         style: @grid.row_style
       ) do %>
         <%= tag.div(
-          class: 'pathogen-data-grid__lane pathogen-data-grid__lane--pinned',
+          class: body_pinned_lane_classes,
           'data-pathogen-data-grid-lane': 'pinned',
           role: 'presentation',
           style: @grid.virtual_lane_row_style(pinned_columns)
@@ -77,7 +78,7 @@
         <% end %>
 
         <%= tag.div(
-          class: 'pathogen-data-grid__lane pathogen-data-grid__lane--center',
+          class: body_center_lane_classes,
           'data-pathogen-data-grid-lane': 'center',
           role: 'presentation',
           style: @grid.virtual_lane_row_style(center_columns)
