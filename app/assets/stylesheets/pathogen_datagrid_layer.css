@@ -98,6 +98,23 @@
   white-space: nowrap;
 }
 
+[data-pathogen--data-grid-target~="cell"][role="columnheader"],
+.pathogen-data-grid .pathogen-data-grid__cell--header {
+  position: sticky;
+  top: 0;
+  z-index: var(--pvc-data-grid-header-z);
+  border-bottom: 1px solid var(--pvc-data-grid-border-color);
+  background: var(--pvc-data-grid-header-bg);
+  text-align: left;
+  vertical-align: bottom;
+}
+
+[data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"],
+.pathogen-data-grid .pathogen-data-grid__cell--header.pathogen-data-grid__cell--sticky {
+  z-index: calc(var(--pvc-data-grid-header-z) + 1);
+  background: var(--pvc-data-grid-header-bg);
+}
+
 .pathogen-data-grid .pathogen-data-grid__scroll-hint {
   display: none;
   margin: 0;
