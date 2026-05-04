@@ -30,6 +30,86 @@ module Pathogen
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
 
+    ROOT_CLASSES = %w[
+      max-w-full rounded-lg isolate [container-type:inline-size]
+      border border-[var(--pvc-data-grid-border-color)]
+      bg-[var(--pvc-data-grid-body-bg)]
+      text-[var(--pvc-data-grid-text-color)]
+    ].freeze
+
+    FILL_CLASSES = %w[
+      relative flex min-h-0 flex-[0_1_auto] flex-col
+    ].freeze
+
+    CAPTION_CLASSES = %w[
+      py-[var(--pvc-data-grid-cell-padding-y)]
+      px-[var(--pvc-data-grid-cell-padding-x)]
+      text-[var(--pvc-data-grid-text-color)]
+      font-semibold text-left
+    ].freeze
+
+    SCROLL_CONTAINER_CLASSES = %w[
+      relative max-w-full overflow-auto rounded-[inherit]
+      shadow-none transition-shadow duration-[160ms]
+    ].freeze
+
+    FILL_SCROLL_CLASSES = %w[
+      min-h-0 flex-[0_1_auto]
+    ].freeze
+
+    TABLE_CLASSES = %w[
+      w-full border-separate border-spacing-0
+      bg-[var(--pvc-data-grid-body-bg)]
+      text-[var(--pvc-data-grid-text-color)]
+      text-[length:var(--pvc-data-grid-font-size)]
+      leading-[var(--pvc-data-grid-line-height)]
+      whitespace-nowrap
+    ].freeze
+
+    GRID_CLASSES = %w[
+      w-full min-w-max
+      bg-[var(--pvc-data-grid-body-bg)]
+      text-[var(--pvc-data-grid-text-color)]
+      text-[length:var(--pvc-data-grid-font-size)]
+      leading-[var(--pvc-data-grid-line-height)]
+      whitespace-nowrap
+    ].freeze
+
+    SCROLL_HINT_CLASSES = %w[
+      hidden m-0 pt-1.5 px-[var(--pvc-data-grid-cell-padding-x)]
+      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+    ].freeze
+
+    KEYBOARD_HELP_CLASSES = %w[
+      m-0 pt-1 px-[var(--pvc-data-grid-cell-padding-x)] pb-[var(--pvc-data-grid-cell-padding-y)]
+      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+    ].freeze
+
+    EMPTY_STATE_CLASSES = %w[
+      py-[var(--pvc-data-grid-cell-padding-y)] px-[var(--pvc-data-grid-cell-padding-x)]
+      text-[var(--pvc-data-grid-text-muted-color)]
+    ].freeze
+
+    EMPTY_STATE_TEXT_CLASSES = %w[
+      m-0
+    ].freeze
+
+    ERROR_STATE_CLASSES = %w[
+      my-[var(--pvc-data-grid-cell-padding-y)] mx-[var(--pvc-data-grid-cell-padding-x)]
+      border rounded-md
+      border-[color-mix(in_oklab,var(--color-red-500)_45%,var(--pvc-data-grid-border-color))]
+      bg-[color-mix(in_oklab,var(--color-red-500)_12%,transparent)]
+      py-3 px-4
+    ].freeze
+
+    ERROR_TITLE_CLASSES = %w[
+      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold leading-[1.35]
+    ].freeze
+
+    ERROR_MESSAGE_CLASSES = %w[
+      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)] leading-[1.4]
+    ].freeze
+
     renders_one :empty_state
     renders_one :error_state
     renders_one :footer
@@ -84,7 +164,7 @@ module Pathogen
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:pathogen_grid] = true
       @keyboard_help_id = self.class.generate_id(base_name: 'data-grid-help')
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid')
+      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid', *ROOT_CLASSES)
     end
 
     def virtual? = @virtual
@@ -93,8 +173,9 @@ module Pathogen
 
     def table_attributes
       tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
+      utility_classes = @virtual ? GRID_CLASSES : TABLE_CLASSES
       attributes = {
-        class: tag_name_class,
+        class: class_names(tag_name_class, *utility_classes),
         role: 'grid',
         data: { 'pathogen--data-grid-target': 'grid' }
       }
@@ -143,8 +224,11 @@ module Pathogen
     def default_active_row_index = @rows.present? ? 1 : nil
 
     def default_empty_state
-      tag.div(class: 'pathogen-data-grid__empty-state', role: 'status') do
-        tag.p(default_empty_state_message, class: 'pathogen-data-grid__empty-state-text')
+      tag.div(class: class_names('pathogen-data-grid__empty-state', *EMPTY_STATE_CLASSES), role: 'status') do
+        tag.p(
+          default_empty_state_message,
+          class: class_names('pathogen-data-grid__empty-state-text', *EMPTY_STATE_TEXT_CLASSES)
+        )
       end
     end
 
@@ -154,13 +238,38 @@ module Pathogen
 
     def default_error_state
       tag.div(class: 'pathogen-data-grid__error-state-content') do
-        tag.p(default_error_state_title, class: 'pathogen-data-grid__error-state-title') +
+        tag.p(
+          default_error_state_title,
+          class: class_names('pathogen-data-grid__error-state-title', *ERROR_TITLE_CLASSES)
+        ) +
           tag.p(
             default_error_state_message,
-            class: 'pathogen-data-grid__error-state-message',
+            class: class_names('pathogen-data-grid__error-state-message', *ERROR_MESSAGE_CLASSES),
             data: { 'pathogen--data-grid-target': 'errorMessage' }
           )
       end
+    end
+
+    def caption_classes
+      class_names('pathogen-data-grid__caption', *CAPTION_CLASSES)
+    end
+
+    def scroll_container_classes
+      classes = ['pathogen-data-grid__scroll', *SCROLL_CONTAINER_CLASSES]
+      classes.concat(FILL_SCROLL_CLASSES) if @fill_container
+      class_names(*classes)
+    end
+
+    def error_state_classes
+      class_names('pathogen-data-grid__error-state', *ERROR_STATE_CLASSES)
+    end
+
+    def scroll_hint_classes
+      class_names('pathogen-data-grid__scroll-hint', *SCROLL_HINT_CLASSES)
+    end
+
+    def keyboard_help_classes
+      class_names('pathogen-data-grid__keyboard-help', *KEYBOARD_HELP_CLASSES)
     end
 
     def default_error_state_title
@@ -264,7 +373,9 @@ module Pathogen
     end
 
     def apply_fill_container_class!
-      append_component_class!('pathogen-data-grid--fill') if @fill_container
+      return unless @fill_container
+
+      append_component_class!('pathogen-data-grid--fill', *FILL_CLASSES)
     end
 
     def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
@@ -297,8 +408,8 @@ module Pathogen
       columns.map { |column| column.width_px || DEFAULT_VIRTUAL_COLUMN_WIDTH }.join(',')
     end
 
-    def append_component_class!(component_class)
-      @system_arguments[:class] = class_names(@system_arguments[:class], component_class)
+    def append_component_class!(*component_classes)
+      @system_arguments[:class] = class_names(@system_arguments[:class], *component_classes)
     end
   end
   # rubocop:enable Metrics/ClassLength
