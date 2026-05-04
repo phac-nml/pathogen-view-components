@@ -19,7 +19,6 @@ For developing this repository:
 - Ruby **3.3+**
 - Rails **8.1+**
 - `view_component` **>= 4.0, < 5.0**
-- `rails_icons` **>= 1.4.0**
 
 JavaScript dependencies (importmap or package manager):
 
