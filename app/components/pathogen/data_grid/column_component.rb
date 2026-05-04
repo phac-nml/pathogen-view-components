@@ -37,6 +37,7 @@ module Pathogen
       'left' => nil
     }.freeze
 
+    # rubocop:disable Metrics/ClassLength
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
       attr_accessor :sticky, :sticky_left
@@ -119,33 +120,38 @@ module Pathogen
           aria: { colindex: aria_column_index },
           style: cell_styles,
           tabindex: cell_tabindex(header:, active:)
+        }
+        attributes['data-pathogen-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
+        attributes
+      end
+      # rubocop:enable Metrics/ParameterLists
 
-            out = data_attributes.merge(
-
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def cell_classes(header:)
-        parts = [*COLUMN_CELL_BASE, @system_arguments[:class]]
+        parts = [*COLUMN_CELL_BASE, 'pathogen-data-grid__cell', @system_arguments[:class]]
         if header
           parts.concat(COLUMN_HEADER_ROW)
+          parts << 'pathogen-data-grid__cell--header'
           parts << 'z-[3]' unless @sticky
           parts.concat(COLUMN_STICKY_TH) if @sticky
-        elsif @sticky
-          parts.concat(COLUMN_STICKY_TD)
+        else
+          parts << 'pathogen-data-grid__cell--body'
+          parts.concat(COLUMN_STICKY_TD) if @sticky
         end
+        parts << 'pathogen-data-grid__cell--sticky' if @sticky
+        parts << "pathogen-data-grid__cell--align-#{@align}" if @align && %w[left center right].include?(@align.to_s)
         parts << COLUMN_ALIGN[@align.to_s] if @align && COLUMN_ALIGN[@align.to_s]
         class_names(*parts.compact)
       end
+      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}
         existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
                            data_attributes.delete('pathogen--data-grid-target')
         merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
-<<<<<<< HEAD
 
         out = data_attributes.merge(
-=======
-        data_attributes.merge(
->>>>>>> 353a5edc (feat(02-01): split virtual grid into pinned and center lanes)
           'pathogen--data-grid-target': merged_targets,
           'pathogen--data-grid-row-index': row_index,
           'pathogen--data-grid-column-index': column_index,
@@ -159,8 +165,14 @@ module Pathogen
 
       def cell_styles
         styles = []
-        styles << "--pvc-data-grid-col-width: #{@width};" if @width
-        styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};" if @sticky
+        if @width
+          styles << "--pvc-data-grid-col-width: #{@width};"
+          styles << "--pathogen-data-grid-col-width: #{@width};"
+        end
+        if @sticky
+          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
+          styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};"
+        end
         styles.join(' ')
       end
 
@@ -181,5 +193,6 @@ module Pathogen
         row[@key.to_s] if @key && row.is_a?(Hash)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end
