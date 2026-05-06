@@ -164,7 +164,7 @@ module Pathogen
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:pathogen_grid] = true
       @keyboard_help_id = self.class.generate_id(base_name: 'data-grid-help')
-      @system_arguments[:class] = class_names(@system_arguments[:class], 'pathogen-data-grid', *ROOT_CLASSES)
+      @system_arguments[:class] = class_names(@system_arguments[:class], 'pvc-data-grid', *ROOT_CLASSES)
     end
 
     def virtual? = @virtual
@@ -172,7 +172,7 @@ module Pathogen
     def caption? = @caption.present?
 
     def table_attributes
-      tag_name_class = @virtual ? 'pathogen-data-grid__grid' : 'pathogen-data-grid__table'
+      tag_name_class = @virtual ? 'pvc-data-grid__grid' : 'pvc-data-grid__table'
       utility_classes = @virtual ? GRID_CLASSES : TABLE_CLASSES
       attributes = {
         class: class_names(tag_name_class, *utility_classes),
@@ -224,10 +224,10 @@ module Pathogen
     def default_active_row_index = @rows.present? ? 1 : nil
 
     def default_empty_state
-      tag.div(class: class_names('pathogen-data-grid__empty-state', *EMPTY_STATE_CLASSES), role: 'status') do
+      tag.div(class: class_names('pvc-data-grid__empty-state', *EMPTY_STATE_CLASSES), role: 'status') do
         tag.p(
           default_empty_state_message,
-          class: class_names('pathogen-data-grid__empty-state-text', *EMPTY_STATE_TEXT_CLASSES)
+          class: class_names('pvc-data-grid__empty-state-text', *EMPTY_STATE_TEXT_CLASSES)
         )
       end
     end
@@ -237,39 +237,39 @@ module Pathogen
     end
 
     def default_error_state
-      tag.div(class: 'pathogen-data-grid__error-state-content') do
+      tag.div(class: 'pvc-data-grid__error-state-content') do
         tag.p(
           default_error_state_title,
-          class: class_names('pathogen-data-grid__error-state-title', *ERROR_TITLE_CLASSES)
+          class: class_names('pvc-data-grid__error-state-title', *ERROR_TITLE_CLASSES)
         ) +
           tag.p(
             default_error_state_message,
-            class: class_names('pathogen-data-grid__error-state-message', *ERROR_MESSAGE_CLASSES),
+            class: class_names('pvc-data-grid__error-state-message', *ERROR_MESSAGE_CLASSES),
             data: { 'pathogen--data-grid-target': 'errorMessage' }
           )
       end
     end
 
     def caption_classes
-      class_names('pathogen-data-grid__caption', *CAPTION_CLASSES)
+      class_names('pvc-data-grid__caption', *CAPTION_CLASSES)
     end
 
     def scroll_container_classes
-      classes = ['pathogen-data-grid__scroll', *SCROLL_CONTAINER_CLASSES]
+      classes = ['pvc-data-grid__scroll', *SCROLL_CONTAINER_CLASSES]
       classes.concat(FILL_SCROLL_CLASSES) if @fill_container
       class_names(*classes)
     end
 
     def error_state_classes
-      class_names('pathogen-data-grid__error-state', *ERROR_STATE_CLASSES)
+      class_names('pvc-data-grid__error-state', *ERROR_STATE_CLASSES)
     end
 
     def scroll_hint_classes
-      class_names('pathogen-data-grid__scroll-hint', *SCROLL_HINT_CLASSES)
+      class_names('pvc-data-grid__scroll-hint', *SCROLL_HINT_CLASSES)
     end
 
     def keyboard_help_classes
-      class_names('pathogen-data-grid__keyboard-help', *KEYBOARD_HELP_CLASSES)
+      class_names('pvc-data-grid__keyboard-help', *KEYBOARD_HELP_CLASSES)
     end
 
     def default_error_state_title
@@ -346,11 +346,11 @@ module Pathogen
     end
 
     def apply_dense_class!
-      append_component_class!('pathogen-data-grid--dense') if @dense
+      append_component_class!('pvc-data-grid--dense') if @dense
     end
 
     def apply_virtual_class!
-      append_component_class!('pathogen-data-grid--virtual') if @virtual
+      append_component_class!('pvc-data-grid--virtual') if @virtual
     end
 
     def apply_column_defaults!
@@ -375,13 +375,13 @@ module Pathogen
     def apply_fill_container_class!
       return unless @fill_container
 
-      append_component_class!('pathogen-data-grid--fill', *FILL_CLASSES)
+      append_component_class!('pvc-data-grid--fill', *FILL_CLASSES)
     end
 
     def sticky_column?(column, index) = column.sticky.nil? ? index < @sticky_columns : column.sticky
 
     def apply_responsive_sticky_class!
-      append_component_class!('pathogen-data-grid--multi-sticky') if columns.many?(&:sticky)
+      append_component_class!('pvc-data-grid--multi-sticky') if columns.many?(&:sticky)
     end
 
     def apply_data_grid_controller!
@@ -392,11 +392,11 @@ module Pathogen
 
     def virtual_metadata_attributes
       {
-        'data-pathogen-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
-        'data-pathogen-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
-        'data-pathogen-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
-        'data-pathogen-data-grid-pinned-count': virtual_pinned_count,
-        'data-pathogen-data-grid-column-widths': virtual_column_widths
+        'data-pvc-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
+        'data-pvc-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
+        'data-pvc-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
+        'data-pvc-data-grid-pinned-count': virtual_pinned_count,
+        'data-pvc-data-grid-column-widths': virtual_column_widths
       }
     end
 

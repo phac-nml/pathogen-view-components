@@ -65,7 +65,7 @@ module Pathogen
 
         tag.span(
           column.render_header,
-          class: class_names('pathogen-data-grid__header-label', *HEADER_LABEL_CLASSES)
+          class: class_names('pvc-data-grid__header-label', *HEADER_LABEL_CLASSES)
         )
       end
       # rubocop:enable Metrics/ParameterLists

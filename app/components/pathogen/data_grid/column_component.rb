@@ -4,7 +4,7 @@ module Pathogen
   module DataGrid
     COLUMN_CELL_BASE = %w[
       box-border min-h-10 whitespace-nowrap align-middle font-normal
-      border-b bg-inherit bg-clip-padding transition-colors
+      border-b bg-clip-padding transition-colors
       text-[length:var(--pvc-data-grid-font-size)]
       leading-[var(--pvc-data-grid-line-height)]
       text-[var(--pvc-data-grid-text-color)]
@@ -21,12 +21,12 @@ module Pathogen
     ].freeze
 
     COLUMN_STICKY_TD = %w[
-      sticky z-[2] bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      sticky z-[2] shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
       left-[var(--pvc-data-grid-sticky-left,0px)]
     ].freeze
 
     COLUMN_STICKY_TH = %w[
-      bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      sticky shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
       left-[var(--pvc-data-grid-sticky-left,0px)]
       z-[calc(var(--pvc-data-grid-header-z)+1)]
     ].freeze
@@ -121,25 +121,25 @@ module Pathogen
           style: cell_styles,
           tabindex: cell_tabindex(header:, active:)
         }
-        attributes['data-pathogen-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
+        attributes['data-pvc-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
         attributes
       end
       # rubocop:enable Metrics/ParameterLists
 
       # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def cell_classes(header:)
-        parts = [*COLUMN_CELL_BASE, 'pathogen-data-grid__cell', @system_arguments[:class]]
+        parts = [*COLUMN_CELL_BASE, 'pvc-data-grid__cell', @system_arguments[:class]]
         if header
           parts.concat(COLUMN_HEADER_ROW)
-          parts << 'pathogen-data-grid__cell--header'
+          parts << 'pvc-data-grid__cell--header'
           parts << 'z-[3]' unless @sticky
           parts.concat(COLUMN_STICKY_TH) if @sticky
         else
-          parts << 'pathogen-data-grid__cell--body'
+          parts << 'pvc-data-grid__cell--body'
           parts.concat(COLUMN_STICKY_TD) if @sticky
         end
-        parts << 'pathogen-data-grid__cell--sticky' if @sticky
-        parts << "pathogen-data-grid__cell--align-#{@align}" if @align && %w[left center right].include?(@align.to_s)
+        parts << 'pvc-data-grid__cell--sticky' if @sticky
+        parts << "pvc-data-grid__cell--align-#{@align}" if @align && %w[left center right].include?(@align.to_s)
         parts << COLUMN_ALIGN[@align.to_s] if @align && COLUMN_ALIGN[@align.to_s]
         class_names(*parts.compact)
       end
@@ -167,11 +167,11 @@ module Pathogen
         styles = []
         if @width
           styles << "--pvc-data-grid-col-width: #{@width};"
-          styles << "--pathogen-data-grid-col-width: #{@width};"
+          styles << "--pvc-data-grid-col-width: #{@width};"
         end
         if @sticky
           styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
-          styles << "--pathogen-data-grid-sticky-left: #{sticky_left_value};"
+          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
         end
         styles.join(' ')
       end
