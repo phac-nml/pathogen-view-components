@@ -19,20 +19,20 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      assert_selector '.pathogen-data-grid__table[aria-labelledby]'
-      assert_selector '.pathogen-data-grid__table[aria-describedby]'
-      assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
-      assert_selector '.pathogen-data-grid__table[role="grid"]'
-      assert_selector '.pathogen-data-grid__row[role="row"]', count: 3
-      assert_selector '.pathogen-data-grid__caption', text: 'Sample grid'
-      assert_no_selector '.pathogen-data-grid--multi-sticky'
-      assert_selector 'th.pathogen-data-grid__cell--header[role="columnheader"][tabindex="-1"]'
-      assert_selector 'th.pathogen-data-grid__cell--header > span.pathogen-data-grid__header-label', count: 2
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 0px"]'
-      assert_selector 'td.pathogen-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
+      assert_selector '.pvc-data-grid__table[aria-labelledby]'
+      assert_selector '.pvc-data-grid__table[aria-describedby]'
+      assert_selector '.pvc-data-grid[data-controller~="pathogen--data-grid"]'
+      assert_selector '.pvc-data-grid__table[role="grid"]'
+      assert_selector '.pvc-data-grid__row[role="row"]', count: 3
+      assert_selector '.pvc-data-grid__caption', text: 'Sample grid'
+      assert_no_selector '.pvc-data-grid--multi-sticky'
+      assert_selector 'th.pvc-data-grid__cell--header[role="columnheader"][tabindex="-1"]'
+      assert_selector 'th.pvc-data-grid__cell--header > span.pvc-data-grid__header-label', count: 2
+      assert_selector 'th.pvc-data-grid__cell--sticky[style*="--pvc-data-grid-sticky-left: 0px"]'
+      assert_selector 'td.pvc-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
       assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
-      assert_selector '.pathogen-data-grid__keyboard-help',
+      assert_selector '.pvc-data-grid__keyboard-help',
                       text: 'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
     end
     # rubocop:enable Metrics/BlockLength
@@ -49,7 +49,7 @@ module Pathogen
         grid.with_column('Status', key: :status)
       end
 
-      assert_selector '.pathogen-data-grid.pathogen-data-grid--multi-sticky'
+      assert_selector '.pvc-data-grid.pvc-data-grid--multi-sticky'
     end
 
     test 'adds fill class when fill_container is enabled' do
@@ -63,8 +63,8 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector '.pathogen-data-grid.pathogen-data-grid--fill'
-      assert_selector '.pathogen-data-grid--fill > .pathogen-data-grid__scroll'
+      assert_selector '.pvc-data-grid.pvc-data-grid--fill'
+      assert_selector '.pvc-data-grid--fill > .pvc-data-grid__scroll'
     end
 
     test 'uses default aria-label when no caption is provided' do
@@ -78,10 +78,10 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      assert_no_selector '.pathogen-data-grid__caption'
-      assert_no_selector '.pathogen-data-grid__table[aria-labelledby]'
-      assert_selector '.pathogen-data-grid__table[aria-label="Data grid"]'
-      assert_selector '.pathogen-data-grid__table[aria-describedby]'
+      assert_no_selector '.pvc-data-grid__caption'
+      assert_no_selector '.pvc-data-grid__table[aria-labelledby]'
+      assert_selector '.pvc-data-grid__table[aria-label="Data grid"]'
+      assert_selector '.pvc-data-grid__table[aria-describedby]'
     end
 
     test 'does not apply sticky when width is missing' do
@@ -96,7 +96,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_no_selector 'th.pathogen-data-grid__cell--sticky'
+      assert_no_selector 'th.pvc-data-grid__cell--sticky'
     end
 
     test 'renders custom cell blocks and defaults to key lookup' do
@@ -110,7 +110,7 @@ module Pathogen
         grid.with_column('Name') { |row| ActionController::Base.helpers.content_tag(:strong, row[:name]) }
       end
 
-      assert_selector 'td.pathogen-data-grid__cell--body', text: 'S-003'
+      assert_selector 'td.pvc-data-grid__cell--body', text: 'S-003'
       assert_selector 'strong', text: 'Sample three'
     end
 
@@ -156,7 +156,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: 24px"]'
+      assert_selector 'th.pvc-data-grid__cell--sticky[style*="--pvc-data-grid-sticky-left: 24px"]'
     end
 
     test 'accepts sticky left offset values with CSS units' do
@@ -170,7 +170,7 @@ module Pathogen
         grid.with_column('Name', key: :name)
       end
 
-      assert_selector 'th.pathogen-data-grid__cell--sticky[style*="--pathogen-data-grid-sticky-left: calc(10ch + 8px)"]'
+      assert_selector 'th.pvc-data-grid__cell--sticky[style*="--pvc-data-grid-sticky-left: calc(10ch + 8px)"]'
     end
 
     test 'normalizes numeric widths to px units' do
@@ -184,8 +184,8 @@ module Pathogen
         grid.with_column('Name', key: :name, width: '180px')
       end
 
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 96px"]'
-      assert_selector 'th[style*="--pathogen-data-grid-col-width: 180px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 96px"]'
+      assert_selector 'th[style*="--pvc-data-grid-col-width: 180px"]'
     end
 
     test 'renders custom header content when provided' do
@@ -201,8 +201,8 @@ module Pathogen
 
       assert_selector 'th', text: 'Custom ID'
       assert_selector 'th', text: 'Name'
-      assert_no_selector 'th span.pathogen-data-grid__header-label', text: 'Custom ID'
-      assert_selector 'th span.pathogen-data-grid__header-label', text: 'Name'
+      assert_no_selector 'th span.pvc-data-grid__header-label', text: 'Custom ID'
+      assert_selector 'th span.pvc-data-grid__header-label', text: 'Name'
     end
 
     test 'renders empty state when rows are blank' do
@@ -214,8 +214,8 @@ module Pathogen
         grid.with_empty_state { 'No rows' }
       end
 
-      assert_selector '.pathogen-data-grid__scroll', text: 'No rows'
-      assert_no_selector '.pathogen-data-grid__table'
+      assert_selector '.pvc-data-grid__scroll', text: 'No rows'
+      assert_no_selector '.pvc-data-grid__table'
     end
 
     test 'renders default empty state when rows are blank and no empty_state slot is provided' do
@@ -226,9 +226,9 @@ module Pathogen
         grid.with_column('ID', key: :id)
       end
 
-      assert_selector '.pathogen-data-grid__empty-state-text',
+      assert_selector '.pvc-data-grid__empty-state-text',
                       text: 'No rows found. Try adjusting filters or refreshing the data.'
-      assert_no_selector '.pathogen-data-grid__table'
+      assert_no_selector '.pvc-data-grid__table'
     end
 
     test 'renders default error state container for non-empty rows' do
@@ -242,12 +242,12 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      assert_selector '.pathogen-data-grid__error-state[role="alert"][hidden]', visible: :all
-      assert_selector '.pathogen-data-grid__error-state-title', text: 'Unable to load grid content', visible: :all
-      assert_selector '.pathogen-data-grid__error-state-message',
+      assert_selector '.pvc-data-grid__error-state[role="alert"][hidden]', visible: :all
+      assert_selector '.pvc-data-grid__error-state-title', text: 'Unable to load grid content', visible: :all
+      assert_selector '.pvc-data-grid__error-state-message',
                       text: 'Something went wrong while rendering this grid. Refresh or try again.',
                       visible: :all
-      assert_selector '.pathogen-data-grid__state .pathogen-data-grid__table'
+      assert_selector '.pvc-data-grid__state .pvc-data-grid__table'
     end
 
     test 'renders custom error state slot content' do
@@ -263,7 +263,7 @@ module Pathogen
         end
       end
 
-      assert_selector '.pathogen-data-grid__error-state .custom-error-state',
+      assert_selector '.pvc-data-grid__error-state .custom-error-state',
                       text: 'Custom runtime failure',
                       visible: :all
     end
@@ -280,7 +280,7 @@ module Pathogen
           grid.with_column('Name', key: :name, width: 200)
         end
 
-        assert_selector '.pathogen-data-grid__keyboard-help',
+        assert_selector '.pvc-data-grid__keyboard-help',
                         text: 'Clavier : les flèches déplacent les cellules; ' \
                               'Entrée ou F2 active les contrôles; Échap revient à la grille.'
       end
@@ -293,7 +293,7 @@ module Pathogen
           grid.with_column('ID', key: :id)
         end
 
-        assert_selector '.pathogen-data-grid__empty-state-text',
+        assert_selector '.pvc-data-grid__empty-state-text',
                         text: 'Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser les données.'
       end
     end
@@ -309,10 +309,10 @@ module Pathogen
           grid.with_column('ID', key: :id, width: 120)
         end
 
-        assert_selector '.pathogen-data-grid__error-state-title',
+        assert_selector '.pvc-data-grid__error-state-title',
                         text: 'Impossible de charger le contenu de la grille',
                         visible: :all
-        assert_selector '.pathogen-data-grid__error-state-message',
+        assert_selector '.pvc-data-grid__error-state-message',
                         text: 'Un problème est survenu pendant l’affichage de cette grille. ' \
                               'Actualisez la page ou réessayez.',
                         visible: :all
@@ -363,18 +363,18 @@ module Pathogen
         end
       end
 
-      assert_selector '.pathogen-data-grid > .test-live-region'
-      assert_selector '.pathogen-data-grid > .test-metadata-warning'
-      assert_selector '.pathogen-data-grid > .pathogen-data-grid__scroll + .pathogen-data-grid__scroll-hint[hidden]',
+      assert_selector '.pvc-data-grid > .test-live-region'
+      assert_selector '.pvc-data-grid > .test-metadata-warning'
+      assert_selector '.pvc-data-grid > .pvc-data-grid__scroll + .pvc-data-grid__scroll-hint[hidden]',
                       visible: :all
       assert_selector(
-        '.pathogen-data-grid > .pathogen-data-grid__scroll + .pathogen-data-grid__scroll-hint + ' \
-        '.pathogen-data-grid__keyboard-help + .test-footer'
+        '.pvc-data-grid > .pvc-data-grid__scroll + .pvc-data-grid__scroll-hint + ' \
+        '.pvc-data-grid__keyboard-help + .test-footer'
       )
-      assert_selector '.pathogen-data-grid > .test-live-region + .test-metadata-warning + .pathogen-data-grid__scroll'
-      assert_no_selector '.pathogen-data-grid__scroll .test-live-region'
-      assert_no_selector '.pathogen-data-grid__scroll .test-metadata-warning'
-      assert_no_selector '.pathogen-data-grid__scroll .test-footer'
+      assert_selector '.pvc-data-grid > .test-live-region + .test-metadata-warning + .pvc-data-grid__scroll'
+      assert_no_selector '.pvc-data-grid__scroll .test-live-region'
+      assert_no_selector '.pvc-data-grid__scroll .test-metadata-warning'
+      assert_no_selector '.pvc-data-grid__scroll .test-footer'
     end
     # rubocop:enable Metrics/BlockLength
 
@@ -402,16 +402,16 @@ module Pathogen
       assert_no_selector 'td'
 
       # Div-based grid with ARIA roles
-      assert_selector '.pathogen-data-grid--virtual'
+      assert_selector '.pvc-data-grid--virtual'
       assert_selector 'div[role="grid"]'
       assert_selector 'div[role="grid"][aria-describedby]'
       assert_selector 'div[role="row"]', count: 3 # 1 header + 2 body rows
       assert_selector 'div[role="columnheader"]', count: 2
       assert_selector 'div[role="gridcell"]', count: 4 # 2 rows × 2 columns
-      assert_selector '.pathogen-data-grid__virtual-status', text: 'Loading rows…'
+      assert_selector '.pvc-data-grid__virtual-status', text: 'Loading rows…'
 
       # Caption
-      assert_selector '.pathogen-data-grid__caption', text: 'Virtual grid'
+      assert_selector '.pvc-data-grid__caption', text: 'Virtual grid'
     end
 
     # rubocop:disable Metrics/BlockLength
@@ -463,9 +463,9 @@ module Pathogen
           grid.with_column('ID', key: :id, width: 120)
         end
 
-        assert_selector '.pathogen-data-grid__virtual-status',
+        assert_selector '.pvc-data-grid__virtual-status',
                         text: 'Chargement des lignes…'
-        assert_selector '.pathogen-data-grid__virtual-status[data-loaded-text="Lignes chargées."]'
+        assert_selector '.pvc-data-grid__virtual-status[data-loaded-text="Lignes chargées."]'
       end
     end
 
@@ -532,7 +532,7 @@ module Pathogen
         grid.with_column('ID', key: :id, width: 120)
       end
 
-      assert_selector '.pathogen-data-grid[data-controller~="pathogen--data-grid"]'
+      assert_selector '.pvc-data-grid[data-controller~="pathogen--data-grid"]'
       assert_selector 'div[data-pathogen--data-grid-target="grid"]'
       assert_selector 'div[data-pathogen--data-grid-target="scrollContainer"]'
     end
@@ -549,11 +549,11 @@ module Pathogen
 
       assert_selector(
         'div[role="grid"]' \
-        '[data-pathogen-data-grid-row-height]' \
-        '[data-pathogen-data-grid-row-overscan]' \
-        '[data-pathogen-data-grid-column-overscan]' \
-        '[data-pathogen-data-grid-pinned-count]' \
-        '[data-pathogen-data-grid-column-widths]'
+        '[data-pvc-data-grid-row-height]' \
+        '[data-pvc-data-grid-row-overscan]' \
+        '[data-pvc-data-grid-column-overscan]' \
+        '[data-pvc-data-grid-pinned-count]' \
+        '[data-pvc-data-grid-column-widths]'
       )
     end
 
@@ -591,19 +591,19 @@ module Pathogen
         grid.with_column('Status', key: :status, width: 160)
       end
 
-      assert_selector '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"]'
-      assert_selector '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"]'
+      assert_selector '.pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"]'
+      assert_selector '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"]'
       assert_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
-        'div[role="columnheader"][data-pathogen-data-grid-virtual-col-index="1"]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
+        'div[role="columnheader"][data-pvc-data-grid-virtual-col-index="1"]'
       )
       assert_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
-        'div[role="gridcell"][data-pathogen-data-grid-virtual-col-index="2"]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
+        'div[role="gridcell"][data-pvc-data-grid-virtual-col-index="2"]'
       )
       assert_no_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"] ' \
-        '[data-pathogen-data-grid-virtual-col-index]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"] ' \
+        '[data-pvc-data-grid-virtual-col-index]'
       )
     end
 
@@ -660,8 +660,8 @@ module Pathogen
       end
 
       # Body region has a viewport container and spacer for virtual scrolling
-      assert_selector '.pathogen-data-grid__viewport'
-      assert_selector '.pathogen-data-grid__spacer'
+      assert_selector '.pvc-data-grid__viewport'
+      assert_selector '.pvc-data-grid__spacer'
     end
 
     test 'virtual mode renders empty state when rows are blank' do
@@ -673,7 +673,7 @@ module Pathogen
         grid.with_empty_state { 'No rows' }
       end
 
-      assert_selector '.pathogen-data-grid__scroll', text: 'No rows'
+      assert_selector '.pvc-data-grid__scroll', text: 'No rows'
       assert_no_selector 'div[role="grid"]'
     end
 
@@ -686,7 +686,7 @@ module Pathogen
         grid.with_column('ID', key: :id, width: 120)
       end
 
-      assert_selector '.pathogen-data-grid.pathogen-data-grid--fill.pathogen-data-grid--virtual'
+      assert_selector '.pvc-data-grid.pvc-data-grid--fill.pvc-data-grid--virtual'
     end
 
     test 'virtual mode with empty rows and no empty_state slot renders default empty state' do
@@ -697,10 +697,10 @@ module Pathogen
         grid.with_column('ID', key: :id)
       end
 
-      assert_selector '.pathogen-data-grid__empty-state-text',
+      assert_selector '.pvc-data-grid__empty-state-text',
                       text: 'No rows found. Try adjusting filters or refreshing the data.'
       assert_no_selector 'div[role="grid"]'
-      assert_no_selector '.pathogen-data-grid__viewport'
+      assert_no_selector '.pvc-data-grid__viewport'
     end
 
     test 'virtual mode uses grid-template-columns style from column widths' do

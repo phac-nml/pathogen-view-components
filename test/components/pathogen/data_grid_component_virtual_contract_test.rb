@@ -26,16 +26,16 @@ module Pathogen
 
       assert_selector 'div[role="grid"][aria-rowcount="3"][aria-colcount="3"]'
       assert_selector(
-        '.pathogen-data-grid__row--header .pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"]'
+        '.pvc-data-grid__row--header .pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"]'
       )
       assert_selector(
-        '.pathogen-data-grid__row--header .pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"]'
+        '.pvc-data-grid__row--header .pvc-data-grid__lane[data-pvc-data-grid-lane="center"]'
       )
       assert_selector(
-        'div[role="row"][aria-rowindex="2"] .pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"]'
+        'div[role="row"][aria-rowindex="2"] .pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"]'
       )
       assert_selector(
-        'div[role="row"][aria-rowindex="2"] .pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"]'
+        'div[role="row"][aria-rowindex="2"] .pvc-data-grid__lane[data-pvc-data-grid-lane="center"]'
       )
     end
 
@@ -51,16 +51,16 @@ module Pathogen
       assert_selector 'div[role="row"][aria-rowindex="2"] div[role="gridcell"][aria-colindex="3"]', text: 'Ready'
 
       assert_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
-        '[data-pathogen-data-grid-virtual-col-index="1"]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
+        '[data-pvc-data-grid-virtual-col-index="1"]'
       )
       assert_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
-        '[data-pathogen-data-grid-virtual-col-index="2"]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
+        '[data-pvc-data-grid-virtual-col-index="2"]'
       )
       assert_no_selector(
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"] ' \
-        '[data-pathogen-data-grid-virtual-col-index]'
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"] ' \
+        '[data-pvc-data-grid-virtual-col-index]'
       )
     end
 
@@ -69,17 +69,17 @@ module Pathogen
 
       assert_selector(
         'div[role="row"][aria-rowindex="2"] ' \
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="pinned"] ' \
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="pinned"] ' \
         'div[role="gridcell"][data-pathogen--data-grid-column-index="0"]'
       )
       assert_selector(
         'div[role="row"][aria-rowindex="2"] ' \
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
         'div[role="gridcell"][data-pathogen--data-grid-column-index="1"]'
       )
       assert_selector(
         'div[role="row"][aria-rowindex="2"] ' \
-        '.pathogen-data-grid__lane[data-pathogen-data-grid-lane="center"] ' \
+        '.pvc-data-grid__lane[data-pvc-data-grid-lane="center"] ' \
         'div[role="gridcell"][data-pathogen--data-grid-column-index="2"]'
       )
     end
