@@ -22,7 +22,7 @@
   ) do %>
     <%= tag.div(
       class: header_pinned_lane_classes,
-      'data-pathogen-data-grid-lane': 'pinned',
+      'data-pvc-data-grid-lane': 'pinned',
       role: 'presentation',
       style: @grid.virtual_lane_row_style(pinned_columns)
     ) do %>
@@ -33,7 +33,7 @@
 
     <%= tag.div(
       class: header_center_lane_classes,
-      'data-pathogen-data-grid-lane': 'center',
+      'data-pvc-data-grid-lane': 'center',
       role: 'presentation',
       style: @grid.virtual_lane_row_style(center_columns)
     ) do %>
@@ -61,7 +61,7 @@
       ) do %>
         <%= tag.div(
           class: body_pinned_lane_classes,
-          'data-pathogen-data-grid-lane': 'pinned',
+          'data-pvc-data-grid-lane': 'pinned',
           role: 'presentation',
           style: @grid.virtual_lane_row_style(pinned_columns)
         ) do %>
@@ -79,7 +79,7 @@
 
         <%= tag.div(
           class: body_center_lane_classes,
-          'data-pathogen-data-grid-lane': 'center',
+          'data-pvc-data-grid-lane': 'center',
           role: 'presentation',
           style: @grid.virtual_lane_row_style(center_columns)
         ) do %>

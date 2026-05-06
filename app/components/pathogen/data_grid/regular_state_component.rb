@@ -11,7 +11,7 @@ module Pathogen
       ].freeze
 
       def row_classes
-        class_names('pathogen-data-grid__row', *ROW_CLASSES)
+        class_names('pvc-data-grid__row', *ROW_CLASSES)
       end
     end
   end

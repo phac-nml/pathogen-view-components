@@ -22,7 +22,7 @@
       ) do %>
         <%= error_state? ? error_state : default_error_state %>
       <% end %>
-      <%= tag.div(class: 'pathogen-data-grid__state') do %>
+      <%= tag.div(class: 'pvc-data-grid__state') do %>
         <% if virtual? %>
           <%= render Pathogen::DataGrid::VirtualStateComponent.new(grid: self) %>
         <% else %>

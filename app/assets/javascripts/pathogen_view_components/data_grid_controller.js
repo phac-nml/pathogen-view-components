@@ -503,7 +503,7 @@ export default class extends Controller {
     }
 
     const viewport = this.viewportTarget;
-    const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
+    const spacer = viewport.querySelector(".pvc-data-grid__spacer");
 
     // Collect all body rows (skip the spacer)
     const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
@@ -580,7 +580,7 @@ export default class extends Controller {
 
     this.#rowHeight = measureRowHeight(this.viewportTarget) || this.#rowHeight;
 
-    const spacer = this.viewportTarget.querySelector(".pathogen-data-grid__spacer");
+    const spacer = this.viewportTarget.querySelector(".pvc-data-grid__spacer");
     if (spacer) {
       spacer.style.height = `${this.#allRowElements.length * this.#rowHeight}px`;
     }
@@ -621,7 +621,7 @@ export default class extends Controller {
     this.#visibleColumnEndIndex = columnRange ? columnRange.endIndex : -1;
 
     const viewport = this.viewportTarget;
-    const spacer = viewport.querySelector(".pathogen-data-grid__spacer");
+    const spacer = viewport.querySelector(".pvc-data-grid__spacer");
 
     // Preserve logical focus coordinates across virtual re-renders.
     // If widget mode was active, restore focus to the owning cell so Enter/F2 is
@@ -733,7 +733,7 @@ export default class extends Controller {
   #readVirtualColumnContract() {
     if (!this.hasGridTarget) return;
 
-    const widthsValue = this.gridTarget.dataset.pathogenDataGridColumnWidths || "";
+    const widthsValue = this.gridTarget.dataset.pvcDataGridColumnWidths || "";
     let widths = widthsValue
       .split(",")
       .map((value) => Number(value.trim()))
@@ -752,11 +752,11 @@ export default class extends Controller {
     this.#virtualColumnWidths = widths;
 
     const totalColumns = this.#virtualColumnWidths.length;
-    const pinnedCountValue = Number.parseInt(this.gridTarget.dataset.pathogenDataGridPinnedCount || "0", 10);
+    const pinnedCountValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridPinnedCount || "0", 10);
     this.#virtualPinnedCount =
       Number.isFinite(pinnedCountValue) && totalColumns > 0 ? Math.max(0, Math.min(totalColumns, pinnedCountValue)) : 0;
 
-    const overscanValue = Number.parseInt(this.gridTarget.dataset.pathogenDataGridColumnOverscan || "", 10);
+    const overscanValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridColumnOverscan || "", 10);
     this.#virtualColumnOverscan =
       Number.isFinite(overscanValue) && overscanValue >= 0 ? overscanValue : DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
 
@@ -801,7 +801,7 @@ export default class extends Controller {
 
   #virtualHeaderRow() {
     if (!this.hasGridTarget) return null;
-    return this.gridTarget.querySelector('.pathogen-data-grid__row--header[role="row"]');
+    return this.gridTarget.querySelector('.pvc-data-grid__row--header[role="row"]');
   }
 
   #centerLaneCells(centerLane) {
@@ -818,7 +818,7 @@ export default class extends Controller {
   #applyCenterColumnWindow(row, columnRange) {
     if (!row || !columnRange) return;
 
-    const centerLane = row.querySelector('[data-pathogen-data-grid-lane="center"]');
+    const centerLane = row.querySelector('[data-pvc-data-grid-lane="center"]');
     if (!centerLane) return;
 
     const allCenterCells = this.#centerLaneCells(centerLane);
@@ -851,17 +851,17 @@ export default class extends Controller {
     const horizontalOverflow = scrollContainer.scrollWidth - scrollContainer.clientWidth > 1;
 
     if (!horizontalOverflow) {
-      delete this.element.dataset.pathogenDataGridOverflowing;
-      delete this.element.dataset.pathogenDataGridScrollPosition;
+      delete this.element.dataset.pvcDataGridOverflowing;
+      delete this.element.dataset.pvcDataGridScrollPosition;
       if (this.hasScrollHintTarget) this.scrollHintTarget.hidden = true;
       return;
     }
 
-    this.element.dataset.pathogenDataGridOverflowing = "true";
+    this.element.dataset.pvcDataGridOverflowing = "true";
 
     const atStart = scrollContainer.scrollLeft <= 1;
     const atEnd = scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 1;
-    this.element.dataset.pathogenDataGridScrollPosition = atStart ? "start" : atEnd ? "end" : "middle";
+    this.element.dataset.pvcDataGridScrollPosition = atStart ? "start" : atEnd ? "end" : "middle";
 
     if (this.hasScrollHintTarget) this.scrollHintTarget.hidden = !atStart;
   }
@@ -902,14 +902,14 @@ export default class extends Controller {
       this.gridTarget.setAttribute("aria-busy", "false");
     }
 
-    this.element.dataset.pathogenDataGridState = "error";
+    this.element.dataset.pvcDataGridState = "error";
     this.errorStateTarget.hidden = false;
   }
 
   #hideErrorState() {
     if (!this.hasErrorStateTarget) return;
 
-    delete this.element.dataset.pathogenDataGridState;
+    delete this.element.dataset.pvcDataGridState;
     this.errorStateTarget.hidden = true;
 
     const defaultMessage = this.#errorStateMessage(null);

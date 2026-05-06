@@ -48,26 +48,26 @@ module Pathogen
       ].freeze
 
       def virtual_status_classes
-        class_names('pathogen-data-grid__virtual-status', *VIRTUAL_STATUS_CLASSES)
+        class_names('pvc-data-grid__virtual-status', *VIRTUAL_STATUS_CLASSES)
       end
 
       def header_row_classes
         class_names(
-          'pathogen-data-grid__row',
-          'pathogen-data-grid__row--header',
+          'pvc-data-grid__row',
+          'pvc-data-grid__row--header',
           *VIRTUAL_ROW_CLASSES,
           *VIRTUAL_HEADER_ROW_CLASSES
         )
       end
 
       def body_row_classes
-        class_names('pathogen-data-grid__row', *VIRTUAL_ROW_CLASSES)
+        class_names('pvc-data-grid__row', *VIRTUAL_ROW_CLASSES)
       end
 
       def header_pinned_lane_classes
         class_names(
-          'pathogen-data-grid__lane',
-          'pathogen-data-grid__lane--pinned',
+          'pvc-data-grid__lane',
+          'pvc-data-grid__lane--pinned',
           *VIRTUAL_LANE_CLASSES,
           *VIRTUAL_LANE_PINNED_CLASSES,
           *VIRTUAL_HEADER_LANE_PINNED_CLASSES
@@ -76,8 +76,8 @@ module Pathogen
 
       def header_center_lane_classes
         class_names(
-          'pathogen-data-grid__lane',
-          'pathogen-data-grid__lane--center',
+          'pvc-data-grid__lane',
+          'pvc-data-grid__lane--center',
           *VIRTUAL_LANE_CLASSES,
           *VIRTUAL_LANE_CENTER_CLASSES,
           *VIRTUAL_HEADER_LANE_CENTER_CLASSES
@@ -86,8 +86,8 @@ module Pathogen
 
       def body_pinned_lane_classes
         class_names(
-          'pathogen-data-grid__lane',
-          'pathogen-data-grid__lane--pinned',
+          'pvc-data-grid__lane',
+          'pvc-data-grid__lane--pinned',
           *VIRTUAL_LANE_CLASSES,
           *VIRTUAL_LANE_PINNED_CLASSES
         )
@@ -95,19 +95,19 @@ module Pathogen
 
       def body_center_lane_classes
         class_names(
-          'pathogen-data-grid__lane',
-          'pathogen-data-grid__lane--center',
+          'pvc-data-grid__lane',
+          'pvc-data-grid__lane--center',
           *VIRTUAL_LANE_CLASSES,
           *VIRTUAL_LANE_CENTER_CLASSES
         )
       end
 
       def viewport_classes
-        class_names('pathogen-data-grid__viewport', *VIEWPORT_CLASSES)
+        class_names('pvc-data-grid__viewport', *VIEWPORT_CLASSES)
       end
 
       def spacer_classes
-        class_names('pathogen-data-grid__spacer', *SPACER_CLASSES)
+        class_names('pvc-data-grid__spacer', *SPACER_CLASSES)
       end
     end
   end
