@@ -1,6 +1,6 @@
 /* Data grid: layout/focus/sticky (--pvc-* are internal layout tokens, not app theme hooks). */
 
-.pathogen-data-grid {
+.pvc-data-grid {
   --pvc-data-grid-border-color: var(--color-neutral-200);
   --pvc-data-grid-row-border: var(--color-neutral-100);
   --pvc-data-grid-text-color: var(--color-neutral-900);
@@ -24,7 +24,7 @@
   --pvc-data-grid-scroll-cue-color: color-mix(in oklab, var(--color-neutral-950) 20%, transparent);
 }
 
-.dark .pathogen-data-grid {
+.dark .pvc-data-grid {
   --pvc-data-grid-border-color: var(--color-neutral-700);
   --pvc-data-grid-row-border: var(--color-neutral-800);
   --pvc-data-grid-text-color: var(--color-neutral-100);
@@ -34,36 +34,36 @@
   --pvc-data-grid-row-hover-bg: var(--color-neutral-900);
 }
 
-.pathogen-data-grid[data-pathogen-grid-dense] {
+.pvc-data-grid[data-pvc-grid-dense] {
   --pvc-data-grid-cell-padding-y: 0.5rem;
   --pvc-data-grid-cell-padding-x: 0.75rem;
   --pvc-data-grid-font-size: 0.8125rem;
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__state {
+.pvc-data-grid[data-pvc-data-grid-state="error"] .pvc-data-grid__state {
   display: none;
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__scroll-hint,
-.pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__keyboard-help {
+.pvc-data-grid[data-pvc-data-grid-state="error"] .pvc-data-grid__scroll-hint,
+.pvc-data-grid[data-pvc-data-grid-state="error"] .pvc-data-grid__keyboard-help {
   display: none;
 }
 
-.pathogen-data-grid.pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__virtual-status {
+.pvc-data-grid.pvc-data-grid--virtual:not([data-virtual-ready]) .pvc-data-grid__virtual-status {
   display: inline-flex;
 }
 
-.pathogen-data-grid.pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__virtual-status::before {
+.pvc-data-grid.pvc-data-grid--virtual:not([data-virtual-ready]) .pvc-data-grid__virtual-status::before {
   content: "";
   width: 0.75rem;
   height: 0.75rem;
   border: 2px solid color-mix(in oklab, var(--color-neutral-800) 70%, transparent);
   border-top-color: var(--pvc-data-grid-focus-ring);
   border-radius: 999px;
-  animation: pathogen-data-grid-spin 720ms linear infinite;
+  animation: pvc-data-grid-spin 720ms linear infinite;
 }
 
-.pathogen-data-grid.pathogen-data-grid--virtual .pathogen-data-grid__viewport .pathogen-data-grid__row {
+.pvc-data-grid.pvc-data-grid--virtual .pvc-data-grid__viewport .pvc-data-grid__row {
   position: absolute;
   left: 0;
   width: max-content;
@@ -71,11 +71,11 @@
   align-items: center;
 }
 
-.pathogen-data-grid.pathogen-data-grid--virtual:not([data-virtual-ready]) .pathogen-data-grid__viewport {
+.pvc-data-grid.pvc-data-grid--virtual:not([data-virtual-ready]) .pvc-data-grid__viewport {
   visibility: hidden;
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-overflowing] [data-pathogen--data-grid-target~="scrollContainer"] {
+.pvc-data-grid[data-pvc-data-grid-overflowing] [data-pathogen--data-grid-target~="scrollContainer"] {
   box-shadow:
     inset var(--pvc-data-grid-scroll-cue-size) 0 var(--pvc-data-grid-scroll-cue-size)
       calc(-1 * var(--pvc-data-grid-scroll-cue-size)) var(--pvc-data-grid-scroll-cue-color),
@@ -83,35 +83,35 @@
       calc(-1 * var(--pvc-data-grid-scroll-cue-size)) var(--pvc-data-grid-scroll-cue-color);
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="start"]
+.pvc-data-grid[data-pvc-data-grid-overflowing][data-pvc-data-grid-scroll-position="start"]
   [data-pathogen--data-grid-target~="scrollContainer"] {
   box-shadow: inset calc(-1 * var(--pvc-data-grid-scroll-cue-size)) 0 var(--pvc-data-grid-scroll-cue-size)
     calc(-1 * var(--pvc-data-grid-scroll-cue-size)) var(--pvc-data-grid-scroll-cue-color);
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-overflowing][data-pathogen-data-grid-scroll-position="end"]
+.pvc-data-grid[data-pvc-data-grid-overflowing][data-pvc-data-grid-scroll-position="end"]
   [data-pathogen--data-grid-target~="scrollContainer"] {
   box-shadow: inset var(--pvc-data-grid-scroll-cue-size) 0 var(--pvc-data-grid-scroll-cue-size)
     calc(-1 * var(--pvc-data-grid-scroll-cue-size)) var(--pvc-data-grid-scroll-cue-color);
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-overflowing] .pathogen-data-grid__scroll-hint:not([hidden]) {
+.pvc-data-grid[data-pvc-data-grid-overflowing] .pvc-data-grid__scroll-hint:not([hidden]) {
   display: block;
 }
 
-.pathogen-data-grid[data-pathogen-data-grid-state="error"] .pathogen-data-grid__scroll-hint:not([hidden]) {
+.pvc-data-grid[data-pvc-data-grid-state="error"] .pvc-data-grid__scroll-hint:not([hidden]) {
   display: none;
 }
 
-.pathogen-data-grid[data-pathogen-grid-dense] [data-pathogen--data-grid-target~="cell"] {
+.pvc-data-grid[data-pvc-grid-dense] [data-pathogen--data-grid-target~="cell"] {
   border-right: 1px solid var(--pvc-data-grid-border-color);
 }
 
-.pathogen-data-grid[data-pathogen-grid-dense] tr[role="row"] > [data-pathogen--data-grid-target~="cell"]:last-child {
+.pvc-data-grid[data-pvc-grid-dense] tr[role="row"] > [data-pathogen--data-grid-target~="cell"]:last-child {
   border-right: 0;
 }
 
-.pathogen-data-grid tbody tr:last-child [data-pathogen--data-grid-target~="cell"] {
+.pvc-data-grid tbody tr:last-child [data-pathogen--data-grid-target~="cell"] {
   border-bottom: 0;
 }
 
@@ -120,8 +120,47 @@
   border-left: 1px solid var(--pvc-data-grid-border-color);
 }
 
-[data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
-  background: inherit;
+/* All cells get explicit opaque backgrounds to prevent content bleed-through on sticky columns */
+[data-pathogen--data-grid-target~="cell"]:not([role="columnheader"]) {
+  background-color: var(--pvc-data-grid-body-bg);
+}
+
+[data-pathogen--data-grid-target~="cell"][role="columnheader"] {
+  background-color: var(--pvc-data-grid-header-bg);
+}
+
+/* Row hover: cells inherit the row hover background */
+.pvc-data-grid__row:hover [data-pathogen--data-grid-target~="cell"]:not([role="columnheader"]),
+.pvc-data-grid__row:focus-within [data-pathogen--data-grid-target~="cell"]:not([role="columnheader"]) {
+  background-color: var(--pvc-data-grid-row-hover-bg);
+}
+
+/* Virtual mode: right border on the pinned lane to separate from center lane */
+.pvc-data-grid__lane--pinned {
+  position: sticky;
+  left: 0;
+  z-index: calc(var(--pvc-data-grid-header-z) + 3);
+  isolation: isolate;
+}
+
+.pvc-data-grid__row--header .pvc-data-grid__lane--pinned {
+  z-index: calc(var(--pvc-data-grid-header-z) + 4);
+}
+
+.pvc-data-grid__lane--center {
+  position: relative;
+  z-index: 0;
+}
+
+.pvc-data-grid__lane--pinned::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--pvc-data-grid-border-color);
+  pointer-events: none;
 }
 
 [data-pathogen--data-grid-target~="cell"]:focus,
@@ -149,16 +188,14 @@
 }
 
 @container (max-width: 64rem) {
-  .pathogen-data-grid[data-pathogen-grid-multi-sticky]
-    tbody
-    [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+  .pvc-data-grid[data-pvc-grid-multi-sticky] tbody [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
     position: static;
     left: auto;
     z-index: auto;
     box-shadow: none;
   }
 
-  .pathogen-data-grid[data-pathogen-grid-multi-sticky]
+  .pvc-data-grid[data-pvc-grid-multi-sticky]
     [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
     left: auto;
     z-index: var(--pvc-data-grid-header-z);
@@ -179,7 +216,7 @@
   }
 }
 
-@keyframes pathogen-data-grid-spin {
+@keyframes pvc-data-grid-spin {
   to {
     transform: rotate(360deg);
   }
