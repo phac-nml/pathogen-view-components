@@ -1,6 +1,6 @@
-<div class="pathogen-data-grid-preview-parity" style="display: grid; gap: 1rem;">
-  <section class="pathogen-data-grid-preview-parity__variant">
-    <h3 class="pathogen-data-grid-preview-parity__title">Fallback table path</h3>
+<div class="pvc-data-grid-preview-parity" style="display: grid; gap: 1rem;">
+  <section class="pvc-data-grid-preview-parity__variant">
+    <h3 class="pvc-data-grid-preview-parity__title">Fallback table path</h3>
     <%= render(Pathogen::DataGridComponent.new(
       caption: "Fallback table path comparison",
       sticky_columns: 1,
@@ -14,8 +14,8 @@
       grid.with_column('Status', key: :status, width: 160)
     end %>
   </section>
-  <section class="pathogen-data-grid-preview-parity__variant">
-    <h3 class="pathogen-data-grid-preview-parity__title">Virtual lane path</h3>
+  <section class="pvc-data-grid-preview-parity__variant">
+    <h3 class="pvc-data-grid-preview-parity__title">Virtual lane path</h3>
     <%= render(Pathogen::DataGridComponent.new(
       caption: "Virtual lane path comparison",
       sticky_columns: 1,
