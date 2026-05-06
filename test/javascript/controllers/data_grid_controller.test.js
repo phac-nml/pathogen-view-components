@@ -96,7 +96,7 @@ describe("data_grid_controller", () => {
       }),
     );
 
-    expect(gridRoot.dataset.pathogenDataGridState).toBe("error");
+    expect(gridRoot.dataset.pvcDataGridState).toBe("error");
     expect(errorState.hidden).toBe(false);
     expect(errorMessage.textContent).toContain("Grid render failed. Please retry.");
   });
@@ -116,7 +116,7 @@ describe("data_grid_controller", () => {
     gridRoot.dispatchEvent(new CustomEvent("pathogen:data-grid:clear-error", { bubbles: true }));
 
     expect(errorState.hidden).toBe(true);
-    expect(gridRoot.dataset.pathogenDataGridState).toBeUndefined();
+    expect(gridRoot.dataset.pvcDataGridState).toBeUndefined();
   });
 
   it("shows horizontal overflow affordance and hint at the starting edge", () => {
@@ -130,8 +130,8 @@ describe("data_grid_controller", () => {
 
     scrollContainer.dispatchEvent(new Event("scroll"));
 
-    expect(gridRoot.dataset.pathogenDataGridOverflowing).toBe("true");
-    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("start");
+    expect(gridRoot.dataset.pvcDataGridOverflowing).toBe("true");
+    expect(gridRoot.dataset.pvcDataGridScrollPosition).toBe("start");
     expect(scrollHint.hidden).toBe(false);
   });
 
@@ -145,13 +145,13 @@ describe("data_grid_controller", () => {
     Object.defineProperty(scrollContainer, "scrollLeft", { configurable: true, writable: true, value: 80 });
     scrollContainer.dispatchEvent(new Event("scroll"));
 
-    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("middle");
+    expect(gridRoot.dataset.pvcDataGridScrollPosition).toBe("middle");
     expect(scrollHint.hidden).toBe(true);
 
     scrollContainer.scrollLeft = 220;
     scrollContainer.dispatchEvent(new Event("scroll"));
 
-    expect(gridRoot.dataset.pathogenDataGridScrollPosition).toBe("end");
+    expect(gridRoot.dataset.pvcDataGridScrollPosition).toBe("end");
   });
 
   it("keeps focus on the cell during grid navigation until widget mode is entered", () => {
@@ -540,7 +540,7 @@ describe("data_grid_controller", () => {
               <tr role="row">
                 <th
                   role="columnheader"
-                  class="pathogen-data-grid__cell pathogen-data-grid__cell--header"
+                  class="pvc-data-grid__cell pvc-data-grid__cell--header"
                   tabindex="-1"
                   data-pathogen--data-grid-target="cell"
                   data-pathogen--data-grid-row-index="0"
@@ -1495,13 +1495,13 @@ describe("data_grid_controller (virtual mode)", () => {
     });
 
     return `
-      <div data-controller="pathogen--data-grid" class="pathogen-data-grid">
+      <div data-controller="pathogen--data-grid" class="pvc-data-grid">
         <div data-pathogen--data-grid-target="scrollContainer"
-             class="pathogen-data-grid__scroll"
+             class="pvc-data-grid__scroll"
              style="height: ${viewportHeight}px; overflow: auto;">
           <div role="grid" data-pathogen--data-grid-target="grid"
                aria-rowcount="${rowCount + 1}" aria-colcount="2">
-            <div class="pathogen-data-grid__virtual-status"
+            <div class="pvc-data-grid__virtual-status"
                  data-pathogen--data-grid-target="virtualStatus"
                  data-loading-text="Loading rows…"
                  data-loaded-text="Rows loaded."
@@ -1509,12 +1509,12 @@ describe("data_grid_controller (virtual mode)", () => {
                  aria-live="polite">
               Loading rows…
             </div>
-            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+            <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header"
                  aria-rowindex="1" style="grid-template-columns: 120px 200px;">
               ${headerCells}
             </div>
-            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
-              <div class="pathogen-data-grid__spacer"></div>
+            <div class="pvc-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pvc-data-grid__spacer"></div>
               ${rows.join("\n")}
             </div>
           </div>
@@ -1551,13 +1551,13 @@ describe("data_grid_controller (virtual mode)", () => {
     });
 
     return `
-      <div data-controller="pathogen--data-grid" class="pathogen-data-grid pathogen-data-grid--virtual">
+      <div data-controller="pathogen--data-grid" class="pvc-data-grid pvc-data-grid--virtual">
         <div data-pathogen--data-grid-target="scrollContainer"
-             class="pathogen-data-grid__scroll"
+             class="pvc-data-grid__scroll"
              style="height: ${viewportHeight}px; overflow: auto;">
           <div role="grid" data-pathogen--data-grid-target="grid"
                aria-rowcount="${rowCount + 1}" aria-colcount="1">
-            <div class="pathogen-data-grid__virtual-status"
+            <div class="pvc-data-grid__virtual-status"
                  data-pathogen--data-grid-target="virtualStatus"
                  data-loading-text="Loading rows…"
                  data-loaded-text="Rows loaded."
@@ -1565,12 +1565,12 @@ describe("data_grid_controller (virtual mode)", () => {
                  aria-live="polite">
               Loading rows…
             </div>
-            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+            <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header"
                  aria-rowindex="1" style="grid-template-columns: 260px;">
               ${headerCells}
             </div>
-            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
-              <div class="pathogen-data-grid__spacer"></div>
+            <div class="pvc-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pvc-data-grid__spacer"></div>
               ${rows.join("\n")}
             </div>
           </div>
@@ -1589,8 +1589,8 @@ describe("data_grid_controller (virtual mode)", () => {
     application.register("pathogen--data-grid", DataGridController);
     await flush();
 
-    const spacer = document.querySelector(".pathogen-data-grid__spacer");
-    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const spacer = document.querySelector(".pvc-data-grid__spacer");
+    const viewport = document.querySelector(".pvc-data-grid__viewport");
     const renderedRows = viewport.querySelectorAll('[role="row"]');
 
     // Spacer should have height representing all rows
@@ -1781,7 +1781,7 @@ describe("data_grid_controller (virtual mode)", () => {
     application.register("pathogen--data-grid", DataGridController);
     await flush();
 
-    const viewport = document.querySelector(".pathogen-data-grid__viewport");
+    const viewport = document.querySelector(".pvc-data-grid__viewport");
     const firstRenderedRow = viewport.querySelector('[role="row"]');
     Object.defineProperty(firstRenderedRow, "offsetHeight", { value: 60, configurable: true });
 
@@ -1789,7 +1789,7 @@ describe("data_grid_controller (virtual mode)", () => {
     window.dispatchEvent(new Event("resize"));
     vi.advanceTimersByTime(120);
 
-    const spacer = document.querySelector(".pathogen-data-grid__spacer");
+    const spacer = document.querySelector(".pvc-data-grid__spacer");
     expect(spacer.style.height).toBe("1200px");
 
     rafSpy.mockRestore();
