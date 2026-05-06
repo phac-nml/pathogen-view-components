@@ -25,7 +25,7 @@ const virtualLaneGridHTML = (
     .map(
       (_width, index) => `
       <div role="columnheader" tabindex="-1"
-        class="pathogen-data-grid__cell pathogen-data-grid__cell--sticky"
+        class="pvc-data-grid__cell pvc-data-grid__cell--sticky"
         data-pathogen--data-grid-target="cell"
         data-pathogen--data-grid-row-index="0"
         data-pathogen--data-grid-column-index="${index}"
@@ -40,11 +40,11 @@ const virtualLaneGridHTML = (
       const columnIndex = pinnedCount + index;
       return `
       <div role="columnheader" tabindex="-1"
-        class="pathogen-data-grid__cell"
+        class="pvc-data-grid__cell"
         data-pathogen--data-grid-target="cell"
         data-pathogen--data-grid-row-index="0"
         data-pathogen--data-grid-column-index="${columnIndex}"
-        data-pathogen-data-grid-virtual-col-index="${columnIndex}"
+        data-pvc-data-grid-virtual-col-index="${columnIndex}"
         data-pathogen--data-grid-has-interactive="false">
         H-${columnIndex}
       </div>`;
@@ -57,7 +57,7 @@ const virtualLaneGridHTML = (
       .map(
         (_width, index) => `
           <div role="gridcell"
-            class="pathogen-data-grid__cell pathogen-data-grid__cell--sticky"
+            class="pvc-data-grid__cell pvc-data-grid__cell--sticky"
             tabindex="${rowIndex === 1 && index === 0 ? "0" : "-1"}"
             ${rowIndex === 1 && index === 0 ? 'data-pathogen--data-grid-active="true"' : ""}
             data-pathogen--data-grid-target="cell"
@@ -74,12 +74,12 @@ const virtualLaneGridHTML = (
         const columnIndex = pinnedCount + index;
         return `
           <div role="gridcell"
-            class="pathogen-data-grid__cell"
+            class="pvc-data-grid__cell"
             tabindex="-1"
             data-pathogen--data-grid-target="cell"
             data-pathogen--data-grid-row-index="${rowIndex}"
             data-pathogen--data-grid-column-index="${columnIndex}"
-            data-pathogen-data-grid-virtual-col-index="${columnIndex}"
+            data-pvc-data-grid-virtual-col-index="${columnIndex}"
             data-pathogen--data-grid-has-interactive="false">
             R${rowIndex}-C${columnIndex}
           </div>`;
@@ -88,14 +88,14 @@ const virtualLaneGridHTML = (
 
     return `
         <div role="row" aria-rowindex="${rowIndex + 1}" style="grid-template-columns: ${fullTemplate}; height: 40px;">
-          <div class="pathogen-data-grid__lane pathogen-data-grid__lane--pinned"
-               data-pathogen-data-grid-lane="pinned"
+          <div class="pvc-data-grid__lane pvc-data-grid__lane--pinned"
+               data-pvc-data-grid-lane="pinned"
                role="presentation"
                style="grid-template-columns: ${pinnedTemplate};">
             ${pinnedCells}
           </div>
-          <div class="pathogen-data-grid__lane pathogen-data-grid__lane--center"
-               data-pathogen-data-grid-lane="center"
+          <div class="pvc-data-grid__lane pvc-data-grid__lane--center"
+               data-pvc-data-grid-lane="center"
                role="presentation"
                style="grid-template-columns: ${centerTemplate};">
             ${centerCells}
@@ -104,18 +104,18 @@ const virtualLaneGridHTML = (
   });
 
   return `
-      <div data-controller="pathogen--data-grid" class="pathogen-data-grid pathogen-data-grid--virtual">
+      <div data-controller="pathogen--data-grid" class="pvc-data-grid pvc-data-grid--virtual">
         <div data-pathogen--data-grid-target="scrollContainer"
-             class="pathogen-data-grid__scroll"
+             class="pvc-data-grid__scroll"
              style="height: ${viewportHeight}px; overflow: auto;">
           <div role="grid" data-pathogen--data-grid-target="grid"
                aria-rowcount="${rowCount + 1}" aria-colcount="${columnWidths.length}"
-               data-pathogen-data-grid-row-height="40"
-               data-pathogen-data-grid-row-overscan="10"
-               data-pathogen-data-grid-column-overscan="${columnOverscan}"
-               data-pathogen-data-grid-pinned-count="${pinnedCount}"
-               data-pathogen-data-grid-column-widths="${columnWidths.join(",")}">
-            <div class="pathogen-data-grid__virtual-status"
+               data-pvc-data-grid-row-height="40"
+               data-pvc-data-grid-row-overscan="10"
+               data-pvc-data-grid-column-overscan="${columnOverscan}"
+               data-pvc-data-grid-pinned-count="${pinnedCount}"
+               data-pvc-data-grid-column-widths="${columnWidths.join(",")}">
+            <div class="pvc-data-grid__virtual-status"
                  data-pathogen--data-grid-target="virtualStatus"
                  data-loading-text="Loading rows…"
                  data-loaded-text="Rows loaded."
@@ -123,23 +123,23 @@ const virtualLaneGridHTML = (
                  aria-live="polite">
               Loading rows…
             </div>
-            <div role="row" class="pathogen-data-grid__row pathogen-data-grid__row--header"
+            <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header"
                  aria-rowindex="1" style="grid-template-columns: ${fullTemplate};">
-              <div class="pathogen-data-grid__lane pathogen-data-grid__lane--pinned"
-                   data-pathogen-data-grid-lane="pinned"
+              <div class="pvc-data-grid__lane pvc-data-grid__lane--pinned"
+                   data-pvc-data-grid-lane="pinned"
                    role="presentation"
                    style="grid-template-columns: ${pinnedTemplate};">
                 ${headerPinnedCells}
               </div>
-              <div class="pathogen-data-grid__lane pathogen-data-grid__lane--center"
-                   data-pathogen-data-grid-lane="center"
+              <div class="pvc-data-grid__lane pvc-data-grid__lane--center"
+                   data-pvc-data-grid-lane="center"
                    role="presentation"
                    style="grid-template-columns: ${centerTemplate};">
                 ${headerCenterCells}
               </div>
             </div>
-            <div class="pathogen-data-grid__viewport" data-pathogen--data-grid-target="viewport">
-              <div class="pathogen-data-grid__spacer"></div>
+            <div class="pvc-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pvc-data-grid__spacer"></div>
               ${rows.join("\n")}
             </div>
           </div>
@@ -177,10 +177,10 @@ describe("data_grid_controller horizontal virtualization", () => {
 
     return {
       scrollContainer,
-      headerPinnedLane: headerRow.querySelector('[data-pathogen-data-grid-lane="pinned"]'),
-      headerCenterLane: headerRow.querySelector('[data-pathogen-data-grid-lane="center"]'),
-      bodyPinnedLane: firstBodyRow.querySelector('[data-pathogen-data-grid-lane="pinned"]'),
-      bodyCenterLane: firstBodyRow.querySelector('[data-pathogen-data-grid-lane="center"]'),
+      headerPinnedLane: headerRow.querySelector('[data-pvc-data-grid-lane="pinned"]'),
+      headerCenterLane: headerRow.querySelector('[data-pvc-data-grid-lane="center"]'),
+      bodyPinnedLane: firstBodyRow.querySelector('[data-pvc-data-grid-lane="pinned"]'),
+      bodyCenterLane: firstBodyRow.querySelector('[data-pvc-data-grid-lane="center"]'),
     };
   };
 
@@ -247,7 +247,7 @@ describe("data_grid_controller horizontal virtualization", () => {
       ];
 
       renderedCenterCells.forEach((cell) => {
-        expect(cell.getAttribute("data-pathogen-data-grid-virtual-col-index")).toBe(
+        expect(cell.getAttribute("data-pvc-data-grid-virtual-col-index")).toBe(
           cell.getAttribute("data-pathogen--data-grid-column-index"),
         );
       });
