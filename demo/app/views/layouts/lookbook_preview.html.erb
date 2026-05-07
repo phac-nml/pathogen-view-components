@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 
-<html>
+<% lookbook_theme = params.dig(:lookbook, :display, :theme).to_s == 'dark' ? 'dark' : 'light' %>
+
+<html
+  class="<%= 'dark' if lookbook_theme == 'dark' %>"
+  data-theme="<%= lookbook_theme %>"
+>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= stylesheet_link_tag "pathogen_view_components" %>
