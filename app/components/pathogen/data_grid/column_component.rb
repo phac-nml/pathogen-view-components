@@ -4,7 +4,7 @@ module Pathogen
   module DataGrid
     COLUMN_CELL_BASE = %w[
       box-border min-h-10 whitespace-nowrap align-middle font-normal
-      border-b bg-inherit bg-clip-padding transition-colors
+      border-b bg-clip-padding transition-colors
       text-[length:var(--pvc-data-grid-font-size)]
       leading-[var(--pvc-data-grid-line-height)]
       text-[var(--pvc-data-grid-text-color)]
@@ -21,12 +21,12 @@ module Pathogen
     ].freeze
 
     COLUMN_STICKY_TD = %w[
-      sticky z-[2] bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      sticky z-[2] shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
       left-[var(--pvc-data-grid-sticky-left,0px)]
     ].freeze
 
     COLUMN_STICKY_TH = %w[
-      bg-inherit shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
+      sticky shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
       left-[var(--pvc-data-grid-sticky-left,0px)]
       z-[calc(var(--pvc-data-grid-header-z)+1)]
     ].freeze
@@ -37,6 +37,7 @@ module Pathogen
       'left' => nil
     }.freeze
 
+    # rubocop:disable Metrics/ClassLength
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
       attr_accessor :sticky, :sticky_left
@@ -60,17 +61,25 @@ module Pathogen
 
       def interactive? = @interactive
 
-      def header_cell_attributes(column_index:)
-        attributes_for(header: true, row_index: 0, column_index: column_index)
+      def header_cell_attributes(column_index:, aria_column_index: column_index + 1, virtual_column_index: nil)
+        attributes_for(
+          header: true,
+          row_index: 0,
+          column_index: column_index,
+          aria_column_index: aria_column_index,
+          virtual_column_index: virtual_column_index
+        )
       end
 
-      def body_cell_attributes(row_index:, column_index:, active: false, interactive: false)
+      def body_cell_attributes(row_index:, column_index:, state: {})
         attributes_for(
           header: false,
           row_index: row_index,
           column_index: column_index,
-          active: active,
-          interactive: interactive
+          active: state.fetch(:active, false),
+          interactive: state.fetch(:interactive, false),
+          aria_column_index: state.fetch(:aria_column_index, column_index + 1),
+          virtual_column_index: state.fetch(:virtual_column_index, nil)
         )
       end
 
@@ -101,28 +110,40 @@ module Pathogen
 
       private
 
-      def attributes_for(header:, row_index:, column_index:, active: false, interactive: false)
-        {
+      # rubocop:disable Metrics/ParameterLists
+      def attributes_for(header:, row_index:, column_index:, aria_column_index:, active: false, interactive: false,
+                         virtual_column_index: nil)
+        attributes = {
           class: class_names(*cell_classes(header:)),
           data: cell_data_attributes(row_index:, column_index:, interactive:),
           role: cell_role(header:),
+          aria: { colindex: aria_column_index },
           style: cell_styles,
           tabindex: cell_tabindex(header:, active:)
         }
+        attributes['data-pvc-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
+        attributes
       end
+      # rubocop:enable Metrics/ParameterLists
 
+      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def cell_classes(header:)
-        parts = [*COLUMN_CELL_BASE, @system_arguments[:class]]
+        parts = [*COLUMN_CELL_BASE, 'pvc-data-grid__cell', @system_arguments[:class]]
         if header
           parts.concat(COLUMN_HEADER_ROW)
+          parts << 'pvc-data-grid__cell--header'
           parts << 'z-[3]' unless @sticky
           parts.concat(COLUMN_STICKY_TH) if @sticky
-        elsif @sticky
-          parts.concat(COLUMN_STICKY_TD)
+        else
+          parts << 'pvc-data-grid__cell--body'
+          parts.concat(COLUMN_STICKY_TD) if @sticky
         end
+        parts << 'pvc-data-grid__cell--sticky' if @sticky
+        parts << "pvc-data-grid__cell--align-#{@align}" if @align && %w[left center right].include?(@align.to_s)
         parts << COLUMN_ALIGN[@align.to_s] if @align && COLUMN_ALIGN[@align.to_s]
         class_names(*parts.compact)
       end
+      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}
@@ -144,8 +165,14 @@ module Pathogen
 
       def cell_styles
         styles = []
-        styles << "--pvc-data-grid-col-width: #{@width};" if @width
-        styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};" if @sticky
+        if @width
+          styles << "--pvc-data-grid-col-width: #{@width};"
+          styles << "--pvc-data-grid-col-width: #{@width};"
+        end
+        if @sticky
+          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
+          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
+        end
         styles.join(' ')
       end
 
@@ -166,5 +193,6 @@ module Pathogen
         row[@key.to_s] if @key && row.is_a?(Hash)
       end
     end
+    # rubocop:enable Metrics/ClassLength
   end
 end

@@ -8,7 +8,7 @@ const root = process.cwd();
 const buildScript = resolve(root, "scripts/build-pathogen-tailwind.mjs");
 const watchGlobs = [
   resolve(root, "app/assets/stylesheets/pathogen.tailwind.css"),
-  resolve(root, "app/assets/stylesheets/pathogen_datagrid_layer.css"),
+  resolve(root, "app/assets/stylesheets/pvc_datagrid_layer.css"),
   resolve(root, "app/components"),
   resolve(root, "app/assets/javascripts"),
 ];

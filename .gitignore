@@ -1,3 +1,6 @@
+# Planning (local-only, never commit)
+.planning/
+
 # Devenv
 .devenv/
 devenv.local.nix

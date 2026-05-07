@@ -97,7 +97,6 @@ module Pathogen
   #       <%= render partial: "details" %>
   #     <% end %>
   #   <% end %>
-  # rubocop:disable Metrics/ClassLength
   class Tabs < Pathogen::Component
     # Orientation options for the tablist
     ORIENTATION_OPTIONS = %i[horizontal vertical].freeze
@@ -273,5 +272,4 @@ module Pathogen
       @system_arguments[:data]['pathogen--tabs-default-index-value'] = selected_index
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
