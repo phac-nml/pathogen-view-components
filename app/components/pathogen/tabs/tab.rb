@@ -7,16 +7,18 @@ module Pathogen
       attr_reader :id, :label, :selected, :orientation
 
       TAB_BUTTON_BASE = %w[
-        appearance-none cursor-pointer border-0 bg-transparent text-sm font-semibold
-        text-neutral-600 dark:text-neutral-400
+        appearance-none cursor-pointer bg-transparent text-sm font-semibold
+        text-neutral-600 dark:text-neutral-300
         transition-[color,border-color,background-color] duration-150 ease-out
-        hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-100
+        hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-50
         focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
         focus-visible:outline-neutral-600 dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2
-        aria-selected:border-primary-600 aria-selected:text-neutral-900 dark:aria-selected:text-neutral-100
+        aria-selected:border-primary-600 aria-selected:text-neutral-900
+        dark:aria-selected:border-primary-400 dark:aria-selected:text-white
         data-[state=active]:border-primary-600
+        dark:data-[state=active]:border-primary-400
         data-[state=active]:text-neutral-900
-        dark:data-[state=active]:text-neutral-100
+        dark:data-[state=active]:text-white
       ].freeze
 
       TAB_HORIZONTAL = %w[-mb-px rounded-t-md border-b-2 border-transparent px-3.5 py-2.5].freeze
