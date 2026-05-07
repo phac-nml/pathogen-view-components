@@ -7,7 +7,7 @@ module Pathogen
       attr_reader :id, :label, :selected, :orientation
 
       TAB_BUTTON_BASE = %w[
-        appearance-none cursor-pointer border-0 bg-transparent text-sm font-semibold
+        appearance-none cursor-pointer bg-transparent text-sm font-semibold
         text-neutral-600 dark:text-neutral-400
         transition-[color,border-color,background-color] duration-150 ease-out
         hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-100
