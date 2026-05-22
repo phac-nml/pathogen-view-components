@@ -99,7 +99,7 @@ module Pathogen
         assert_selector 'input[role="switch"][checked]'
       end
 
-      test 'renders disabled switch' do
+      test 'renders disabled switch with disabled visual hooks' do
         render_inline(Pathogen::Form::Switch.new(
                         attribute: :enabled,
                         label: 'Dark mode',
@@ -107,16 +107,20 @@ module Pathogen
                       ))
 
         assert_selector 'input[role="switch"][disabled]'
+
+        track_label = page.find('label', text: 'Off')
+        assert_includes track_label[:class], 'peer-disabled:cursor-not-allowed'
+        assert_includes track_label[:class], 'peer-disabled:[&_.pathogen-switch-track]:opacity-60'
       end
 
-      test 'supports aria-disabled via html options' do
+      test 'treats aria-disabled as native disabled' do
         render_inline(Pathogen::Form::Switch.new(
                         attribute: :enabled,
                         label: 'Dark mode',
                         'aria-disabled': 'true'
                       ))
 
-        assert_selector 'input[role="switch"][aria-disabled="true"]'
+        assert_selector 'input[role="switch"][disabled][aria-disabled="true"]'
       end
 
       test 'uses custom id without value suffix' do

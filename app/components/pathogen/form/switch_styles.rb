@@ -14,13 +14,14 @@ module Pathogen
 
       SWITCH_TRACK_LABEL_CLASSES = %w[
         group inline-flex cursor-pointer select-none items-center gap-2 leading-none
-        peer-aria-disabled:cursor-not-allowed
+        peer-disabled:cursor-not-allowed peer-aria-disabled:cursor-not-allowed
         peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
         peer-focus-visible:outline-black dark:peer-focus-visible:outline-white
         peer-checked:[&_.pathogen-switch-track]:bg-primary-600
         dark:peer-checked:[&_.pathogen-switch-track]:bg-primary-500
         peer-checked:[&_.pathogen-switch-track]:after:translate-x-5
         peer-checked:[&_.pathogen-switch-track]:after:-translate-y-1/2
+        peer-disabled:[&_.pathogen-switch-track]:opacity-60
         peer-aria-disabled:[&_.pathogen-switch-track]:opacity-60
         peer-checked:[&_[data-switch-state=off]]:hidden
         peer-checked:[&_[data-switch-state=on]]:inline

@@ -1,4 +1,4 @@
-/* Switch (role=switch checkbox): forced-colors and aria-disabled fallbacks. */
+/* Switch (role=switch checkbox): forced-colors and disabled fallbacks. */
 
 @media (forced-colors: active) {
   .pathogen-switch-track {
@@ -21,6 +21,11 @@
   }
 }
 
+input[role="switch"]:disabled ~ label .pathogen-switch-track,
 input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
   opacity: 0.6;
+}
+
+input[role="switch"]:disabled ~ label {
+  cursor: not-allowed;
 }

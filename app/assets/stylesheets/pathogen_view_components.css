@@ -1843,6 +1843,11 @@
       outline-color: var(--color-black);
     }
   }
+  .peer-disabled\:cursor-not-allowed {
+    &:is(:where(.peer):disabled ~ *) {
+      cursor: not-allowed;
+    }
+  }
   .peer-aria-disabled\:cursor-not-allowed {
     &:is(:where(.peer)[aria-disabled="true"] ~ *) {
       cursor: not-allowed;
@@ -3111,6 +3116,13 @@
       }
     }
   }
+  .peer-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60 {
+    &:is(:where(.peer):disabled ~ *) {
+      & .pathogen-switch-track {
+        opacity: 60%;
+      }
+    }
+  }
   .peer-aria-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60 {
     &:is(:where(.peer)[aria-disabled="true"] ~ *) {
       & .pathogen-switch-track {
@@ -3313,8 +3325,11 @@
     outline-offset: 2px;
   }
 }
-input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
+input[role="switch"]:disabled ~ label .pathogen-switch-track, input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
   opacity: 0.6;
+}
+input[role="switch"]:disabled ~ label {
+  cursor: not-allowed;
 }
 @property --tw-border-spacing-x {
   syntax: "<length>";
