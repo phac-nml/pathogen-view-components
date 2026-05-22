@@ -17,11 +17,10 @@ module Pathogen
       private
 
       def switch_component_options(attribute_name, options)
-        {
+        component_options = {
           form: self,
           attribute: attribute_name,
           label: options.delete(:label),
-          checked: options.delete(:checked) { false },
           disabled: options.delete(:disabled) { false },
           show_state_text: options.delete(:show_state_text) { true },
           state_text: options.delete(:state_text),
@@ -29,7 +28,9 @@ module Pathogen
           unchecked_value: options.delete(:unchecked_value) { '0' },
           id: options.delete(:id),
           class: options.delete(:class)
-        }.merge(options)
+        }
+        component_options[:checked] = options.delete(:checked) if options.key?(:checked)
+        component_options.merge(options)
       end
     end
   end

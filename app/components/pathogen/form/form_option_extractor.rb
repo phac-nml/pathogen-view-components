@@ -32,8 +32,9 @@ module Pathogen
         @input_name = options.delete(:input_name)
         @id = options.delete(:id)
         @label = options.delete(:label)
-        @checked = options.delete(:checked) || false
-        @disabled = options.delete(:disabled) || false
+        @checked_provided = options.key?(:checked)
+        @checked = options.delete(:checked) { false }
+        @disabled = options.delete(:disabled) { false }
         @class = options.delete(:class)
         @help_text = options.delete(:help_text)
         @error_text = options.delete(:error_text)

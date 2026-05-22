@@ -72,13 +72,15 @@ module Pathogen
 
       # @return [Hash] HTML attributes for the switch input
       def form_attributes
-        {
+        attributes = {
           id: input_id,
-          checked: @checked,
           disabled: @disabled,
           class: input_classes(@class),
           role: 'switch'
-        }.compact.merge(aria_attributes).merge(@html_options || {})
+        }
+        attributes[:checked] = @checked unless @form && !@checked_provided
+
+        attributes.compact.merge(aria_attributes).merge(@html_options || {})
       end
 
       private

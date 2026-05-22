@@ -169,6 +169,29 @@ module Pathogen
         assert_selector 'input#user_enabled[role="switch"]'
       end
 
+      test 'form builder switch uses bound object value when checked option is omitted' do
+        user = Struct.new(:notifications).new(true)
+        template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+        form = ActionView::Helpers::FormBuilder.new('user', user, template, {})
+
+        render_inline(Pathogen::Form::Switch.new(
+                        form: form,
+                        attribute: :notifications,
+                        label: 'Notifications'
+                      ))
+
+        assert_selector 'input[name="user[notifications]"][role="switch"][checked]'
+      end
+
+      test 'pathogen form builder preserves omitted checked option' do
+        template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+        form = Pathogen::FormBuilders::PathogenFormBuilder.new('user', nil, template, {})
+
+        component_options = form.send(:switch_component_options, :notifications, { label: 'Notifications' })
+
+        assert_not component_options.key?(:checked)
+      end
+
       test 'track label follows checkbox for form builder hidden field' do
         template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
         form = ActionView::Helpers::FormBuilder.new('user', nil, template, {})
