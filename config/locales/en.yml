@@ -1,6 +1,10 @@
 ---
 en:
   pathogen:
+    form:
+      switch:
+        'off': 'Off'
+        'on': 'On'
     label:
       required_indicator: "*"
       title: required

@@ -79,14 +79,29 @@ module Pathogen
       # @raise [ArgumentError] if no accessible label is provided
       # @return [void]
       def validate_accessibility_requirements!
-        # Radio buttons don't require labels if they're part of a fieldset
-        return if input_type == 'radio' && @label.blank?
-        return unless @label.blank? && @aria_label.blank? && @aria_labelledby.blank?
+        return if exempt_from_accessibility_label_requirement?
+        return unless missing_accessible_name?
 
         raise ArgumentError,
               "Form component requires either 'label', " \
               "'aria: { label: ... }', or 'aria: { labelledby: ... }' " \
               'for accessibility compliance'
+      end
+
+      # @return [Boolean] whether an accessible name is not required for this component
+      def exempt_from_accessibility_label_requirement?
+        (input_type == 'radio' && @label.blank?) ||
+          (switch_component? && @aria_labelledby.present?)
+      end
+
+      # @return [Boolean] whether no accessible name source was provided
+      def missing_accessible_name?
+        @label.blank? && @aria_label.blank? && @aria_labelledby.blank?
+      end
+
+      # @return [Boolean] whether the current component is a switch
+      def switch_component?
+        is_a?(Switch)
       end
     end
   end

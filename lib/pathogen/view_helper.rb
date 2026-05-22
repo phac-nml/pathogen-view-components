@@ -7,6 +7,7 @@ module Pathogen
       button: 'Pathogen::Button',
       link: 'Pathogen::Link',
       radio_button: 'Pathogen::Form::RadioButton',
+      switch: 'Pathogen::Form::Switch',
       heading: 'Pathogen::Typography::Heading',
       heading_group: 'Pathogen::Typography::HeadingGroup',
       section: 'Pathogen::Typography::Section',

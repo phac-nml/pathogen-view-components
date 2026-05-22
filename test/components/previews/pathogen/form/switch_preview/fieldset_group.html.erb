@@ -1,0 +1,24 @@
+<fieldset>
+  <legend class="sr-only">Notification preferences</legend>
+
+  <div class="space-y-4">
+    <%= render Pathogen::Form::Switch.new(
+      form: form,
+      attribute: :email_notifications,
+      label: "Email notifications",
+      checked: true
+    ) %>
+
+    <%= render Pathogen::Form::Switch.new(
+      form: form,
+      attribute: :push_notifications,
+      label: "Push notifications"
+    ) %>
+
+    <%= render Pathogen::Form::Switch.new(
+      form: form,
+      attribute: :sms_notifications,
+      label: "SMS notifications"
+    ) %>
+  </div>
+</fieldset>
