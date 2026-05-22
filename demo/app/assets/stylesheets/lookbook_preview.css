@@ -1,0 +1,19 @@
+/* Lookbook preview iframe — scenario group labels and layout chrome */
+
+.lookbook-scenario {
+  display: block;
+  margin-bottom: 1.875rem;
+}
+
+.lookbook-scenario__label {
+  display: block;
+  margin: 0 0 0.625rem;
+  font-family: var(--font-sans, sans-serif);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+}
+
+html.dark .lookbook-scenario__label {
+  color: var(--color-neutral-300);
+}
