@@ -60,6 +60,16 @@ module Pathogen
         )
       end
 
+      # @label Custom State Text
+      def custom_state_text
+        pathogen_switch(
+          attribute: :notifications,
+          id: 'switch-preview-custom-state-text',
+          label: 'Email notifications',
+          state_text: { on: 'Enabled', off: 'Disabled' }
+        )
+      end
+
       # @!endgroup
 
       # @!group Form Integration
