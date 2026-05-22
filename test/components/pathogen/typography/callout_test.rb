@@ -28,7 +28,7 @@ module Pathogen
       test 'applies muted color variant' do
         render_inline(Callout.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600"]'
+        assert_selector 'p[class*="text-neutral-500"]'
       end
 
       test 'applies leading and font classes' do

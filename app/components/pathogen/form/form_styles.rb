@@ -9,7 +9,7 @@ module Pathogen
     # Shared styling helpers for form controls
     module FormStyles
       LABEL_CLASSES = %w[
-        block font-sans text-sm font-medium text-neutral-900 dark:text-neutral-100 cursor-pointer
+        block font-sans text-sm font-semibold text-neutral-900 dark:text-neutral-100 cursor-pointer
         disabled:opacity-50 disabled:cursor-not-allowed
       ].join(' ').freeze
 
@@ -22,8 +22,8 @@ module Pathogen
         bg-white dark:bg-neutral-950 transition-[border-color,background-color]
         accent-primary-600 checked:border-primary-600
         enabled:hover:border-primary-600
-        focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
-        dark:focus-visible:outline-neutral-300
+        focus-visible:outline focus-visible:outline-2 focus-visible:outline-black
+        dark:focus-visible:outline-white
         focus-visible:outline-offset-2
         disabled:opacity-50 disabled:cursor-not-allowed disabled:border-neutral-200 dark:disabled:border-neutral-700
         disabled:bg-neutral-50 dark:disabled:bg-neutral-900

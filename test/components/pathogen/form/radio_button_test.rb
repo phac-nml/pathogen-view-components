@@ -23,7 +23,7 @@ module Pathogen
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'label.block.text-sm.font-medium'
+        assert_selector 'label.block.text-sm.font-semibold'
         assert_text 'Dark Theme'
       end
 
@@ -90,7 +90,7 @@ module Pathogen
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'label.text-sm.font-medium'
+        assert_selector 'label.text-sm.font-semibold'
       end
     end
   end

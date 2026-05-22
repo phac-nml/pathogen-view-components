@@ -1339,6 +1339,11 @@
       outline-offset: 2px;
     }
   }
+  .focus-visible\:outline-black {
+    &:focus-visible {
+      outline-color: var(--color-black);
+    }
+  }
   .focus-visible\:outline-neutral-600 {
     &:focus-visible {
       outline-color: var(--color-neutral-600);
@@ -1687,6 +1692,13 @@
     &:where(.dark, .dark *) {
       &:focus-visible {
         outline-color: var(--color-red-400);
+      }
+    }
+  }
+  .dark\:focus-visible\:outline-white {
+    &:where(.dark, .dark *) {
+      &:focus-visible {
+        outline-color: var(--color-white);
       }
     }
   }

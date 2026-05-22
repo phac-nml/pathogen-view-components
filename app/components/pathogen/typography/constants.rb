@@ -55,7 +55,7 @@ module Pathogen
 
       COLOR_VARIANTS = {
         default: 'text-neutral-900 dark:text-neutral-100',
-        muted: 'text-neutral-600 dark:text-neutral-400',
+        muted: 'text-neutral-500 dark:text-neutral-400',
         subdued: 'text-neutral-600/80 dark:text-neutral-400/80',
         inverse: 'text-white'
       }.freeze
