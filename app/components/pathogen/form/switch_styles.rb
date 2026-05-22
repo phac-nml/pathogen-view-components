@@ -16,7 +16,7 @@ module Pathogen
         group inline-flex cursor-pointer select-none items-center gap-2 leading-none
         peer-aria-disabled:cursor-not-allowed
         peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
-        peer-focus-visible:outline-neutral-900 dark:peer-focus-visible:outline-neutral-100
+        peer-focus-visible:outline-black dark:peer-focus-visible:outline-white
         peer-checked:[&_.pathogen-switch-track]:bg-primary-600
         dark:peer-checked:[&_.pathogen-switch-track]:bg-primary-500
         peer-checked:[&_.pathogen-switch-track]:after:translate-x-5

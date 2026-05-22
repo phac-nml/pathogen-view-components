@@ -124,6 +124,7 @@
     --color-neutral-800: var(--color-slate-800);
     --color-neutral-900: var(--color-slate-900);
     --color-neutral-950: var(--color-slate-950);
+    --color-black: #000;
     --color-white: #fff;
     --spacing: 0.25rem;
     --container-xs: 20rem;
@@ -1837,9 +1838,9 @@
       outline-offset: 2px;
     }
   }
-  .peer-focus-visible\:outline-neutral-900 {
+  .peer-focus-visible\:outline-black {
     &:is(:where(.peer):focus-visible ~ *) {
-      outline-color: var(--color-neutral-900);
+      outline-color: var(--color-black);
     }
   }
   .peer-aria-disabled\:cursor-not-allowed {
@@ -2946,10 +2947,10 @@
       --tw-ring-color: var(--color-slate-700);
     }
   }
-  .dark\:peer-focus-visible\:outline-neutral-100 {
+  .dark\:peer-focus-visible\:outline-white {
     &:where(.dark, .dark *) {
       &:is(:where(.peer):focus-visible ~ *) {
-        outline-color: var(--color-neutral-100);
+        outline-color: var(--color-white);
       }
     }
   }
