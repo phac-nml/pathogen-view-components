@@ -99,7 +99,7 @@ Sticky columns:
 
 The engine ships a single precompiled `pathogen_view_components.css`, produced in this repository with **Tailwind CSS v4** from `app/assets/stylesheets/pathogen.tailwind.css` (sources scanned across components, ERB, and Stimulus). In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
 
-**Breaking change (v1):** components no longer emit BEM-style `pathogen-*` class hooks for styling. Prefer roles, ARIA, and `data-*` targets (for example `data-pvc-grid`, Stimulus `data-pathogen--*`) for tests and host-app hooks.
+**Breaking change (v1):** components no longer emit BEM-style `pathogen-*` class hooks for styling. Prefer roles, ARIA, and `data-*` targets (for example `data-pathogen-grid`, Stimulus `data-pathogen--*`) for tests and host-app hooks.
 
 To rebuild the stylesheet during development:
 
