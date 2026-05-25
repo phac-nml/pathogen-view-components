@@ -112,6 +112,6 @@ export function ensureCellInViewport(cell) {
   }
 
   if (scrollY !== 0) {
-    window.scrollBy({ left: 0, top: scrollY, behavior: "instant" });
+    window.scrollBy({ left: 0, top: scrollY, behavior: "auto" });
   }
 }
