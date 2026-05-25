@@ -12,7 +12,7 @@ module Pathogen
         transition-[color,border-color,background-color] duration-150 ease-out
         hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-50
         focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
-        focus-visible:outline-neutral-600 dark:focus-visible:outline-neutral-300 focus-visible:outline-offset-2
+        focus-visible:outline-black dark:focus-visible:outline-white focus-visible:outline-offset-2
         aria-selected:border-primary-600 aria-selected:text-neutral-900
         dark:aria-selected:border-primary-400 dark:aria-selected:text-white
         data-[state=active]:border-primary-600
