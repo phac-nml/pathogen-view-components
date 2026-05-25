@@ -12,31 +12,32 @@ module Pathogen
     DEFAULT_SCHEME = :default
 
     BASE_CLASSES = %w[
-      relative inline-flex items-center justify-center cursor-pointer select-none
-      rounded-md font-sans font-medium no-underline border border-transparent
-      transition-[color,background-color,border-color,opacity]
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
-      dark:focus-visible:outline-neutral-300
-      focus-visible:outline-offset-2 focus-visible:z-10
+      relative inline-flex min-h-11 min-w-11 items-center justify-center cursor-pointer select-none
+      rounded-lg font-sans font-medium no-underline border
+      transition-[color,background-color,border-color,opacity] duration-200 ease-in-out
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:z-10
       disabled:opacity-70 disabled:cursor-not-allowed
     ].join(' ').freeze
 
     SCHEME_CLASSES = {
       default: %w[
-        text-neutral-900 bg-neutral-100 border-neutral-200
-        dark:text-neutral-100 dark:bg-neutral-950 dark:border-neutral-700
-        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-300
-        dark:enabled:hover:bg-neutral-900 dark:enabled:hover:border-neutral-600
+        text-neutral-900 bg-white border-neutral-300
+        dark:text-neutral-100 dark:bg-neutral-800 dark:border-neutral-600
+        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-400
+        dark:enabled:hover:bg-neutral-700 dark:enabled:hover:border-neutral-500
+        focus-visible:outline-neutral-700 dark:focus-visible:outline-neutral-300
       ].join(' ').freeze,
       primary: %w[
-        text-white bg-primary-700 border-primary-700
+        text-white bg-primary-700 border-primary-700 shadow-sm
         enabled:hover:bg-primary-600 enabled:hover:border-primary-600
+        focus-visible:outline-primary-800 dark:focus-visible:outline-primary-400
       ].join(' ').freeze,
       danger: %w[
-        text-red-600 bg-red-50 border-red-300
-        dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/40
-        enabled:hover:text-white enabled:hover:bg-red-600
-        enabled:hover:border-red-600 dark:enabled:hover:bg-red-600
+        text-red-600 bg-white border-red-300
+        dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/60
+        enabled:hover:bg-red-50 enabled:hover:border-red-400 enabled:hover:text-red-700
+        dark:enabled:hover:bg-red-950/30 dark:enabled:hover:border-red-500
+        focus-visible:outline-red-600 dark:focus-visible:outline-red-400
       ].join(' ').freeze
     }.freeze
 
