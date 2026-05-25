@@ -34,7 +34,7 @@ module Pathogen
       # @param form [ActionView::Helpers::FormBuilder, nil] optional form builder
       # @param options [Hash] component options
       def initialize(attribute:, value: '1', form: nil, **options)
-        extract_switch_options!(options)
+        extract_switch_options!(options, value: value)
         super
         aria_disabled_value = (@html_options || {}).values_at(:'aria-disabled', 'aria-disabled').compact.first
         @disabled = true if aria_disabled_value.to_s == 'true'
@@ -88,11 +88,12 @@ module Pathogen
       private
 
       # @param options [Hash] options hash to modify
+      # @param value [String] the default checked value (used when checked_value is not explicitly provided)
       # @return [void]
-      def extract_switch_options!(options)
+      def extract_switch_options!(options, value: '1')
         @show_state_text = options.delete(:show_state_text) != false
         @state_text = (options.delete(:state_text) || {}).transform_keys(&:to_sym)
-        @checked_value = options.delete(:checked_value) || '1'
+        @checked_value = options.delete(:checked_value) || value
         @unchecked_value = options.delete(:unchecked_value) || '0'
       end
 
