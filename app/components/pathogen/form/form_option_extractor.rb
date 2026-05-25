@@ -91,18 +91,12 @@ module Pathogen
 
       # @return [Boolean] whether an accessible name is not required for this component
       def exempt_from_accessibility_label_requirement?
-        (input_type == 'radio' && @label.blank?) ||
-          (switch_component? && @aria_labelledby.present?)
+        input_type == 'radio' && @label.blank?
       end
 
       # @return [Boolean] whether no accessible name source was provided
       def missing_accessible_name?
         @label.blank? && @aria_label.blank? && @aria_labelledby.blank?
-      end
-
-      # @return [Boolean] whether the current component is a switch
-      def switch_component?
-        is_a?(Switch)
       end
     end
   end
