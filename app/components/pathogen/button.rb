@@ -4,6 +4,7 @@ module Pathogen
   # Pathogen::Button — Tailwind-styled button (see also Pathogen::BaseButton).
   class Button < Pathogen::Component
     include Pathogen::ButtonSizes
+
     renders_one :leading_visual
     renders_one :trailing_visual
 
