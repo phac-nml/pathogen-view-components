@@ -4,7 +4,7 @@
   <!-- Header -->
   <div class="mb-12 text-center">
     <h1 class="mb-4 text-4xl font-bold text-slate-900 dark:text-slate-100">
-      Tab Orientations & Layouts
+      Tab Orientations &amp; Layouts
     </h1>
 
     <p class="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-400">
@@ -74,7 +74,7 @@
               "
             >
               <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Content sections", orientation: :horizontal # Default, can be omitted )) do |tabs| %&gt; &lt;!-- tabs and panels here --&gt; &lt;% end %&gt;                                                                      
+&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Content sections", orientation: :horizontal # Default, can be omitted )) do |tabs| %&gt; &lt;!-- tabs and panels here --&gt; &lt;% end %&gt;
 </code></pre>
             </div>
           </div>
@@ -226,7 +226,7 @@
               "
             >
               <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "sidebar-tabs", label: "Sidebar navigation", orientation: :vertical )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Dashboard") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Settings") %&gt; &lt;% tabs.with_panel(id: "panel-1", tab_id: "tab-1") do %&gt; Dashboard content &lt;% end %&gt; &lt;% tabs.with_panel(id: "panel-2", tab_id: "tab-2") do %&gt; Settings content &lt;% end %&gt; &lt;% end %&gt;                                                                      
+&lt;%= render(Pathogen::Tabs.new( id: "sidebar-tabs", label: "Sidebar navigation", orientation: :vertical )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Dashboard") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Settings") %&gt; &lt;% tabs.with_panel(id: "panel-1", tab_id: "tab-1") do %&gt; Dashboard content &lt;% end %&gt; &lt;% tabs.with_panel(id: "panel-2", tab_id: "tab-2") do %&gt; Settings content &lt;% end %&gt; &lt;% end %&gt;
 </code></pre>
             </div>
           </div>

@@ -91,7 +91,7 @@
           "
         >
           <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Multi-step form", default_index: 2 # &lt;-- Start on third tab (zero-based) )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Step 1") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Step 2") %&gt; &lt;% tabs.with_tab(id: "tab-3", label: "Step 3") %&gt; ... &lt;% end %&gt;                                                  
+&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Multi-step form", default_index: 2 # &lt;-- Start on third tab (zero-based) )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Step 1") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Step 2") %&gt; &lt;% tabs.with_tab(id: "tab-3", label: "Step 3") %&gt; ... &lt;% end %&gt;
 </code></pre>
         </div>
       </div>
@@ -101,7 +101,7 @@
   <!-- Edge Cases -->
   <div class="mb-12">
     <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Edge Cases & Limits
+      Edge Cases &amp; Limits
     </h2>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -312,7 +312,7 @@
             "
           >
             <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new(id: "lazy-tabs", label: "Lazy loaded tabs")) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-overview", label: "Overview", selected: true) %&gt; &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt; &lt;% tabs.with_tab(id: "tab-reports", label: "Reports") %&gt; &lt;!-- First panel: eager loaded (no turbo_frame) --&gt; &lt;% tabs.with_panel(id: "panel-overview", tab_id: "tab-overview") do %&gt; &lt;div class="p-6"&gt; &lt;h3&gt;Overview Content&lt;/h3&gt; &lt;p&gt;This loads immediately on page load.&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;!-- Second panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-analytics", tab_id: "tab-analytics") do %&gt; &lt;%= turbo_frame_tag "analytics-content", src: analytics_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading analytics...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;!-- Third panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-reports", tab_id: "tab-reports") do %&gt; &lt;%= turbo_frame_tag "reports-content", src: reports_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading reports...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;% end %&gt;                                                            
+&lt;%= render(Pathogen::Tabs.new(id: "lazy-tabs", label: "Lazy loaded tabs")) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-overview", label: "Overview", selected: true) %&gt; &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt; &lt;% tabs.with_tab(id: "tab-reports", label: "Reports") %&gt; &lt;!-- First panel: eager loaded (no turbo_frame) --&gt; &lt;% tabs.with_panel(id: "panel-overview", tab_id: "tab-overview") do %&gt; &lt;div class="p-6"&gt; &lt;h3&gt;Overview Content&lt;/h3&gt; &lt;p&gt;This loads immediately on page load.&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;!-- Second panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-analytics", tab_id: "tab-analytics") do %&gt; &lt;%= turbo_frame_tag "analytics-content", src: analytics_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading analytics...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;!-- Third panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-reports", tab_id: "tab-reports") do %&gt; &lt;%= turbo_frame_tag "reports-content", src: reports_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading reports...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;% end %&gt;
 </code></pre>
           </div>
 
@@ -341,7 +341,7 @@
             "
           >
             <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-# routes.rb resources :projects do member do get :analytics get :reports end end # projects_controller.rb def analytics @project = Project.find(params[:id]) # Heavy computation here @analytics_data = AnalyticsService.new(@project).compute render turbo_frame: "analytics-content" end # views/projects/analytics.html.erb &lt;%= turbo_frame_tag "analytics-content" do %&gt;<div class="p-6"><h3 class="text-xl font-semibold">Analytics</h3>                <!-- Render complex analytics charts/data -->&lt;%= render "analytics_charts", data: @analytics_data %&gt;                                                              </div>&lt;% end %&gt;                                                            
+# routes.rb resources :projects do member do get :analytics get :reports end end # projects_controller.rb def analytics @project = Project.find(params[:id]) # Heavy computation here @analytics_data = AnalyticsService.new(@project).compute render turbo_frame: "analytics-content" end # views/projects/analytics.html.erb &lt;%= turbo_frame_tag "analytics-content" do %&gt;<div class="p-6"><h3 class="text-xl font-semibold">Analytics</h3>                <!-- Render complex analytics charts/data -->&lt;%= render "analytics_charts", data: @analytics_data %&gt;                                                              </div>&lt;% end %&gt;
 </code></pre>
           </div>
         </div>
