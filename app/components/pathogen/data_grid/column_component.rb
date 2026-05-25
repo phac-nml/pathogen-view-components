@@ -167,10 +167,8 @@ module Pathogen
         styles = []
         if @width
           styles << "--pvc-data-grid-col-width: #{@width};"
-          styles << "--pvc-data-grid-col-width: #{@width};"
         end
         if @sticky
-          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
           styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
         end
         styles.join(' ')
