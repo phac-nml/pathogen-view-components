@@ -188,14 +188,14 @@
 }
 
 @container (max-width: 64rem) {
-  .pvc-data-grid[data-pvc-grid-multi-sticky] tbody [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
+  .pvc-data-grid.pvc-data-grid--multi-sticky tbody [data-pathogen--data-grid-target~="cell"][data-sticky-cell] {
     position: static;
     left: auto;
     z-index: auto;
     box-shadow: none;
   }
 
-  .pvc-data-grid[data-pvc-grid-multi-sticky]
+  .pvc-data-grid.pvc-data-grid--multi-sticky
     [data-pathogen--data-grid-target~="cell"][data-sticky-cell][role="columnheader"] {
     left: auto;
     z-index: var(--pvc-data-grid-header-z);
