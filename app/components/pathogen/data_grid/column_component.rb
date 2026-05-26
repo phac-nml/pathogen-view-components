@@ -37,7 +37,6 @@ module Pathogen
       'left' => nil
     }.freeze
 
-    # rubocop:disable Metrics/ClassLength
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
       attr_accessor :sticky, :sticky_left
@@ -165,12 +164,8 @@ module Pathogen
 
       def cell_styles
         styles = []
-        if @width
-          styles << "--pvc-data-grid-col-width: #{@width};"
-        end
-        if @sticky
-          styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};"
-        end
+        styles << "--pvc-data-grid-col-width: #{@width};" if @width
+        styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};" if @sticky
         styles.join(' ')
       end
 
@@ -191,6 +186,5 @@ module Pathogen
         row[@key.to_s] if @key && row.is_a?(Hash)
       end
     end
-    # rubocop:enable Metrics/ClassLength
   end
 end
