@@ -1322,6 +1322,24 @@
       border-radius: var(--radius-md);
     }
   }
+  .focus-visible\:rounded-t-md {
+    &:focus-visible {
+      border-top-left-radius: var(--radius-md);
+      border-top-right-radius: var(--radius-md);
+    }
+  }
+  .focus-visible\:rounded-l-md {
+    &:focus-visible {
+      border-top-left-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-md);
+    }
+  }
+  .focus-visible\:rounded-r-none {
+    &:focus-visible {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+  }
   .focus-visible\:outline {
     &:focus-visible {
       outline-style: var(--tw-outline-style);
@@ -1342,11 +1360,6 @@
   .focus-visible\:outline-black {
     &:focus-visible {
       outline-color: var(--color-black);
-    }
-  }
-  .focus-visible\:outline-neutral-600 {
-    &:focus-visible {
-      outline-color: var(--color-neutral-600);
     }
   }
   .focus-visible\:outline-neutral-700 {

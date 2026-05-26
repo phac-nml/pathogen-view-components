@@ -11,7 +11,7 @@ module Pathogen
         text-neutral-600 dark:text-neutral-300
         transition-[color,border-color,background-color] duration-150 ease-out
         hover:bg-neutral-50 hover:text-neutral-900 dark:hover:bg-neutral-900 dark:hover:text-neutral-50
-        focus-visible:rounded-md focus-visible:outline focus-visible:outline-2
+        focus-visible:outline focus-visible:outline-2
         focus-visible:outline-black dark:focus-visible:outline-white focus-visible:outline-offset-2
         aria-selected:border-primary-600 aria-selected:text-neutral-900
         dark:aria-selected:border-primary-400 dark:aria-selected:text-white
@@ -21,9 +21,12 @@ module Pathogen
         dark:data-[state=active]:text-white
       ].freeze
 
-      TAB_HORIZONTAL = %w[-mb-px rounded-t-md border-b-2 border-transparent px-3.5 py-2.5].freeze
+      TAB_HORIZONTAL = %w[-mb-px rounded-t-md focus-visible:rounded-t-md border-b-2 border-transparent px-3.5
+                          py-2.5].freeze
       TAB_VERTICAL = %w[
-        mb-0 -mr-px rounded-md rounded-r-none border-r-2 border-b-0 border-transparent py-2.5 pl-3.5 pr-3 text-left
+        mb-0 -mr-px rounded-md rounded-r-none
+        focus-visible:rounded-l-md focus-visible:rounded-r-none
+        border-r-2 border-b-0 border-transparent py-2.5 pl-3.5 pr-3 text-left
       ].freeze
 
       def initialize(id:, label:, selected: false, orientation: :horizontal, **system_arguments)
