@@ -191,9 +191,26 @@ module Pathogen
         template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
         form = Pathogen::FormBuilders::PathogenFormBuilder.new('user', nil, template, {})
 
-        component_options = form.send(:switch_component_options, :notifications, { label: 'Notifications' })
+        component_options = form.send(:switch_component_options, :notifications, {
+                                        label: 'Notifications',
+                                        value: 'yes'
+                                      })
 
         assert_not component_options.key?(:checked)
+        assert_not component_options.key?(:checked_value)
+        assert_equal 'yes', component_options[:value]
+      end
+
+      test 'pathogen form builder keeps explicit checked_value option' do
+        template = ActionView::Base.new(ActionView::LookupContext.new([]), {}, nil)
+        form = Pathogen::FormBuilders::PathogenFormBuilder.new('user', nil, template, {})
+
+        component_options = form.send(:switch_component_options, :notifications, {
+                                        label: 'Notifications',
+                                        checked_value: 'custom'
+                                      })
+
+        assert_equal 'custom', component_options[:checked_value]
       end
 
       test 'track label follows checkbox for form builder hidden field' do

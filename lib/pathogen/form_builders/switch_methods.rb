@@ -24,11 +24,11 @@ module Pathogen
           disabled: options.delete(:disabled) { false },
           show_state_text: options.delete(:show_state_text) { true },
           state_text: options.delete(:state_text),
-          checked_value: options.delete(:checked_value) { '1' },
           unchecked_value: options.delete(:unchecked_value) { '0' },
           id: options.delete(:id),
           class: options.delete(:class)
         }
+        component_options[:checked_value] = options.delete(:checked_value) if options.key?(:checked_value)
         component_options[:checked] = options.delete(:checked) if options.key?(:checked)
         component_options.merge(options)
       end
