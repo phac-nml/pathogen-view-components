@@ -42,7 +42,7 @@ describe("ensureCellInViewport", () => {
 
     ensureCellInViewport(cell);
 
-    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: -30, behavior: "instant" });
+    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: -30, behavior: "auto" });
   });
 
   it("scrolls down when cell is below the viewport", () => {
@@ -58,7 +58,7 @@ describe("ensureCellInViewport", () => {
 
     ensureCellInViewport(cell);
 
-    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: 20, behavior: "instant" });
+    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: 20, behavior: "auto" });
   });
 });
 
@@ -133,7 +133,7 @@ describe("ensureCellFullyVisible", () => {
 
     ensureCellFullyVisible(cell, scrollContainer, null);
 
-    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: 20, behavior: "instant" });
+    expect(scrollBySpy).toHaveBeenCalledWith({ left: 0, top: 20, behavior: "auto" });
   });
 
   it("falls back to scrollIntoView when no scroll container is provided", () => {
