@@ -60,7 +60,7 @@ module Pathogen
       test 'applies muted variant color classes' do
         render_inline(Eyebrow.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="text-neutral-600"]'
       end
 
       test 'applies subdued variant color classes' do

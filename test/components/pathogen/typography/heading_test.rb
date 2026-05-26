@@ -39,7 +39,7 @@ module Pathogen
         assert_selector 'h2[class*="text-neutral-900"]'
 
         render_inline(Heading.new(level: 2, variant: :muted)) { 'Test' }
-        assert_selector 'h2[class*="text-neutral-500"]'
+        assert_selector 'h2[class*="text-neutral-600"]'
 
         render_inline(Heading.new(level: 2, variant: :subdued)) { 'Test' }
         assert_selector 'h2[class*="text-neutral-600/80"]'
