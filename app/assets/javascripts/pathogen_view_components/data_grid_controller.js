@@ -46,6 +46,8 @@ const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
 const RESIZE_DEBOUNCE_MS = 120;
 const DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2;
 const DEFAULT_VIRTUAL_COLUMN_WIDTH = 120;
+const DEFAULT_VIRTUAL_ROW_HEIGHT = 40;
+const DEFAULT_VIRTUAL_ROW_OVERSCAN = 10;
 
 export default class extends Controller {
   static targets = [
@@ -76,6 +78,7 @@ export default class extends Controller {
   #virtualPinnedCount = 0;
   #virtualPinnedWidth = 0;
   #virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+  #virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
   #virtualAllCells = null;
   #centerLaneCellCache = new WeakMap();
 
@@ -119,6 +122,7 @@ export default class extends Controller {
     this.#virtualPinnedCount = 0;
     this.#virtualPinnedWidth = 0;
     this.#virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+    this.#virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
     this.#visibleColumnStartIndex = -1;
     this.#visibleColumnEndIndex = -1;
     this.#centerLaneCellCache = new WeakMap();
@@ -512,8 +516,12 @@ export default class extends Controller {
     this.#readVirtualColumnContract();
     this.#invalidateCellCaches();
 
-    // Measure row height from the first rendered row
-    this.#rowHeight = measureRowHeight(viewport);
+    // Measure row height from the first rendered row. Prefer the live DOM
+    // measurement so the actual rendered height is always authoritative.
+    // Fall back to the server-provided data attribute value (set via
+    // data-pvc-data-grid-row-height) if the grid is hidden or CSS has not
+    // yet loaded (offsetHeight === 0), then to the built-in default.
+    this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
 
     // Set spacer to represent total content height
     const totalHeight = rows.length * this.#rowHeight;
@@ -605,6 +613,7 @@ export default class extends Controller {
       viewportHeight,
       rowHeight: this.#rowHeight,
       totalRows: this.#allRowElements.length,
+      buffer: this.#virtualRowOverscan,
     });
 
     const rowRangeUnchanged = startIndex === this.#visibleStartIndex && endIndex === this.#visibleEndIndex;
@@ -759,6 +768,15 @@ export default class extends Controller {
     const overscanValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridColumnOverscan || "", 10);
     this.#virtualColumnOverscan =
       Number.isFinite(overscanValue) && overscanValue >= 0 ? overscanValue : DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
+
+    const rowHeightValue = Number.parseFloat(this.gridTarget.dataset.pvcDataGridRowHeight || "");
+    if (Number.isFinite(rowHeightValue) && rowHeightValue > 0) {
+      this.#rowHeight = rowHeightValue;
+    }
+
+    const rowOverscanValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridRowOverscan || "", 10);
+    this.#virtualRowOverscan =
+      Number.isFinite(rowOverscanValue) && rowOverscanValue >= 0 ? rowOverscanValue : DEFAULT_VIRTUAL_ROW_OVERSCAN;
 
     this.#virtualColumnOffsets = [];
     let runningOffset = 0;

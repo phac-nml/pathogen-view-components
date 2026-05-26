@@ -17,8 +17,7 @@
   <%= tag.div(
     class: header_row_classes,
     role: 'row',
-    aria: { rowindex: 1 },
-    style: @grid.row_style
+    aria: { rowindex: 1 }
   ) do %>
     <%= tag.div(
       class: header_pinned_lane_classes,
@@ -56,8 +55,7 @@
       <%= tag.div(
         class: body_row_classes,
         role: 'row',
-        aria: { rowindex: aria_row_index(row_index) },
-        style: @grid.row_style
+        aria: { rowindex: aria_row_index(row_index) }
       ) do %>
         <%= tag.div(
           class: body_pinned_lane_classes,
