@@ -27,6 +27,7 @@ module Pathogen
 
     def build_button_arguments!
       @system_arguments.delete(:disabled)
+      @system_arguments.delete('disabled')
       @system_arguments[:tag] = @tag
       @system_arguments[:tabindex] = -1
 
