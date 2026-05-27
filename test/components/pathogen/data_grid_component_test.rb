@@ -703,7 +703,7 @@ module Pathogen
       assert_no_selector '.pvc-data-grid__viewport'
     end
 
-    test 'virtual mode uses grid-template-columns style from column widths' do
+    test 'virtual mode uses fixed pixel grid-template-columns from column widths' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
                       sticky_columns: 1,
@@ -713,10 +713,22 @@ module Pathogen
         grid.with_column('Name', key: :name, width: 200)
       end
 
-      # Column widths are applied to lane divs (which use display:grid), not to
-      # row divs (which use display:flex). Verify both pinned and center lanes.
-      assert_selector 'div[data-pvc-data-grid-lane="pinned"][style*="grid-template-columns"]'
-      assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns"]'
+      assert_selector 'div[role="grid"][data-pvc-data-grid-column-widths="120.0,200.0"]'
+      assert_selector 'div[data-pvc-data-grid-lane="pinned"][style*="grid-template-columns: 120.0px;"]'
+      assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 200.0px;"]'
+    end
+
+    test 'virtual mode falls back to fixed pixel tracks for non-pixel widths' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [{ id: 'S-001', name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: '10rem')
+        grid.with_column('Name', key: :name)
+      end
+
+      assert_selector 'div[role="grid"][data-pvc-data-grid-column-widths="120,120"]'
+      assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 120px 120px;"]'
     end
   end
 end

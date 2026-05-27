@@ -212,13 +212,7 @@ module Pathogen
     end
 
     def virtual_column_track_size(column)
-      width = column.width.presence
-      return 'minmax(120px, 120fr)' unless width
-
-      px = column.width_px
-      return "minmax(#{width}, #{px.to_i}fr)" if px
-
-      width
+      "#{virtual_column_width(column)}px"
     end
 
     def default_active_row_index = @rows.present? ? 1 : nil
@@ -405,7 +399,11 @@ module Pathogen
     end
 
     def virtual_column_widths
-      columns.map { |column| column.width_px || DEFAULT_VIRTUAL_COLUMN_WIDTH }.join(',')
+      columns.map { |column| virtual_column_width(column) }.join(',')
+    end
+
+    def virtual_column_width(column)
+      column.width_px || DEFAULT_VIRTUAL_COLUMN_WIDTH
     end
 
     def append_component_class!(*component_classes)
