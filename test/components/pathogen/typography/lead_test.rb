@@ -40,7 +40,7 @@ module Pathogen
       test 'applies muted variant color classes' do
         render_inline(Lead.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600"]'
+        assert_selector 'p[class*="text-neutral-500"]'
       end
 
       test 'applies subdued variant color classes' do
