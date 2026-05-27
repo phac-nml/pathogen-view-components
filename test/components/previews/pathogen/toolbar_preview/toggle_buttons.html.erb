@@ -1,0 +1,43 @@
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    <%= t('pathogen.toolbar_preview.toggle_buttons.title') %>
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: t('pathogen.toolbar_preview.toggle_buttons.toolbar_label')) do %>
+    <%= render Pathogen::Toolbar::Button.new(pressed: true) do %>
+      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.compact') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new(pressed: false) do %>
+      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.group') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.export') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Separator.new %>
+
+    <button
+      type="button"
+      tabindex="-1"
+      aria-haspopup="menu"
+      aria-expanded="false"
+      data-pathogen--toolbar-target="item"
+      class="
+        inline-flex items-center rounded-md border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-900
+        dark:border-neutral-700 dark:text-neutral-100
+      "
+    >
+      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.more') %>
+    </button>
+  <% end %>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    <%= t('pathogen.toolbar_preview.toggle_buttons.consumer_note') %>
+  </p>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    <%= t('pathogen.toolbar_preview.toggle_buttons.static_note') %>
+  </p>
+</section>
