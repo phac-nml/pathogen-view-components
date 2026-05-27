@@ -186,6 +186,49 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it("does not intercept arrow keys for contenteditable toolbar items", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <div id="editor" contenteditable data-pathogen--toolbar-target="item" tabindex="-1">Editable</div>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      </div>
+    `);
+
+    const editor = document.querySelector("#editor");
+    editor.focus();
+
+    const event = dispatchKey(editor, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(editor);
+  });
+
+  it("allows arrow key navigation from non-text input buttons", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <input id="item-reset" type="reset" data-pathogen--toolbar-target="item" tabindex="-1" value="Reset" />
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      </div>
+    `);
+
+    const reset = document.querySelector("#item-reset");
+    const second = document.querySelector("#item-two");
+    reset.focus();
+
+    const event = dispatchKey(reset, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(second);
+  });
+
   it("updates the tab stop when focus enters a custom targeted control", async () => {
     await startController(`
       <div
