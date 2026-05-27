@@ -4,7 +4,7 @@ const TOOLBAR_ERROR_CLASS =
   "rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-100";
 
 const TEXT_ENTRY_SELECTOR =
-  'input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]):not([type=hidden]), textarea, [contenteditable=""], [contenteditable="true"]';
+  'input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=file]):not([type=image]), textarea, [contenteditable]:not([contenteditable="false"])';
 
 export default class extends Controller {
   static targets = ["item"];
