@@ -83,6 +83,16 @@ module Pathogen
         assert_selector 'input.size-5'
       end
 
+      test 'emits design-contract focus outline classes on radio input' do
+        render_inline(Pathogen::Form::RadioButton.new(
+                        attribute: :theme,
+                        value: 'dark'
+                      ))
+
+        assert_selector "input[class*='focus-visible:outline-black']"
+        assert_selector "input[class*='dark:focus-visible:outline-white']"
+      end
+
       test 'emits Tailwind utilities on label' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,

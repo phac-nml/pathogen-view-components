@@ -20,6 +20,8 @@ module Pathogen
         'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'
       )
       assert_includes rendered_content, 'dark:text-neutral-300'
+      assert_includes rendered_content, 'focus-visible:outline-black'
+      assert_includes rendered_content, 'dark:focus-visible:outline-white'
       assert_includes rendered_content, 'dark:aria-selected:border-primary-400'
       assert_includes rendered_content, 'dark:aria-selected:text-white'
       assert_includes rendered_content, 'dark:data-[state=active]:border-primary-400'
