@@ -288,12 +288,14 @@ module Pathogen
 
       helpers.safe_join(
         [
-          helpers.link_to(
-            "View #{sample_id}",
-            "/samples/#{sample_id}",
-            class: 'pathogen-u-link',
-            aria: { label: "View sample #{sample_id}" }
-          ),
+          helpers.render(
+            Pathogen::Link.new(
+              href: "/samples/#{sample_id}",
+              aria: { label: "View sample #{sample_id}" }
+            )
+          ) do
+            "View #{sample_id}"
+          end,
           helpers.render(
             Pathogen::Button.new(
               type: :button,

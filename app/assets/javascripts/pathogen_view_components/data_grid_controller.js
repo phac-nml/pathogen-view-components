@@ -646,6 +646,7 @@ export default class extends Controller {
     const focusedRowIndex = focusedCell ? rowIndexOf(focusedCell) : null;
     const focusedColumnIndex = focusedCell ? columnIndexOf(focusedCell) : null;
     const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
+    let didRestoreCellFocus = false;
 
     // Remove current body rows (keep the spacer)
     const currentRows = viewport.querySelectorAll('[role="row"]');
@@ -673,11 +674,21 @@ export default class extends Controller {
       if (mappedCell && mappedCell.isConnected) {
         this.#setActiveCell(mappedCell);
         mappedCell.focus({ preventScroll: true });
+        didRestoreCellFocus = true;
       }
     }
 
+    if (!didRestoreCellFocus) this.#ensureRenderedFocusableCell();
+
     // Cell caches built from #allRowElements cover all rows (in- and out-of-DOM)
     // and remain valid across window slides — no invalidation needed here.
+  }
+
+  #ensureRenderedFocusableCell() {
+    if (this.viewportTarget.querySelector(FOCUSABLE_CELL_SELECTOR)) return;
+
+    const fallbackCell = this.viewportTarget.querySelector(CELL_SELECTOR);
+    if (fallbackCell) this.#setActiveCell(fallbackCell);
   }
 
   /**

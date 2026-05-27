@@ -1681,6 +1681,32 @@ describe("data_grid_controller (virtual mode)", () => {
     expect(secondRowCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
 
+  it("keeps one rendered virtual cell tabbable after scrolling the active row out of the window", async () => {
+    document.body.innerHTML = virtualGridHTML(80);
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.scrollTop = 1200;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+
+    const focusableCells = document.querySelectorAll(
+      '.pvc-data-grid__viewport [data-pathogen--data-grid-target~="cell"][tabindex="0"]',
+    );
+
+    expect(focusableCells).toHaveLength(1);
+    expect(focusableCells[0].getAttribute("data-pathogen--data-grid-row-index")).toBe("21");
+    expect(focusableCells[0].getAttribute("data-pathogen--data-grid-column-index")).toBe("0");
+
+    rafSpy.mockRestore();
+  });
+
   it("header cells are accessible for Ctrl+Home navigation", async () => {
     document.body.innerHTML = virtualGridHTML(10);
     application = Application.start();
