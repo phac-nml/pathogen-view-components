@@ -1,0 +1,26 @@
+<% rows = [
+  { sample_id: 'SAM-0001', name: t('pathogen.toolbar_preview.with_aria_controls.rows.first_name'), status: t('pathogen.toolbar_preview.with_aria_controls.rows.first_status') },
+  { sample_id: 'SAM-0002', name: t('pathogen.toolbar_preview.with_aria_controls.rows.second_name'), status: t('pathogen.toolbar_preview.with_aria_controls.rows.second_status') }
+] %>
+
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    <%= t('pathogen.toolbar_preview.with_aria_controls.title') %>
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: t('pathogen.toolbar_preview.with_aria_controls.toolbar_label'), controls: 'toolbar-preview-grid') do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.with_aria_controls.actions.filter') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.with_aria_controls.actions.download') %>
+    <% end %>
+  <% end %>
+
+  <%= render Pathogen::DataGridComponent.new(id: 'toolbar-preview-grid', caption: t('pathogen.toolbar_preview.with_aria_controls.grid_caption'), rows: rows) do |grid| %>
+    <% grid.with_column(t('pathogen.toolbar_preview.with_aria_controls.columns.sample_id'), key: :sample_id, width: 160) %>
+    <% grid.with_column(t('pathogen.toolbar_preview.with_aria_controls.columns.name'), key: :name) %>
+    <% grid.with_column(t('pathogen.toolbar_preview.with_aria_controls.columns.status'), key: :status, width: 140) %>
+  <% end %>
+</section>
