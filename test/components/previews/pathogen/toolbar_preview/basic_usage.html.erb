@@ -1,0 +1,21 @@
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    <%= t('pathogen.toolbar_preview.basic_usage.title') %>
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: t('pathogen.toolbar_preview.basic_usage.toolbar_label')) do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.basic_usage.actions.edit') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.basic_usage.actions.duplicate') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Separator.new %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.basic_usage.actions.archive') %>
+    <% end %>
+  <% end %>
+</section>

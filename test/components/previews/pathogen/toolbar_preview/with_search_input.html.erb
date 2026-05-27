@@ -1,0 +1,34 @@
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    <%= t('pathogen.toolbar_preview.with_search_input.title') %>
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: t('pathogen.toolbar_preview.with_search_input.toolbar_label')) do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.with_search_input.actions.add') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.with_search_input.actions.bulk') %>
+    <% end %>
+
+    <input
+      id="toolbar-preview-search"
+      type="search"
+      autocomplete="off"
+      tabindex="-1"
+      data-pathogen--toolbar-target="item"
+      value="<%= t('pathogen.toolbar_preview.with_search_input.search_value') %>"
+      aria-label="<%= t('pathogen.toolbar_preview.with_search_input.search_label') %>"
+      placeholder="<%= t('pathogen.toolbar_preview.with_search_input.search_placeholder') %>"
+      class="
+        min-w-56 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900
+        dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100
+      "
+    >
+  <% end %>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    <%= t('pathogen.toolbar_preview.with_search_input.description') %>
+  </p>
+</section>
