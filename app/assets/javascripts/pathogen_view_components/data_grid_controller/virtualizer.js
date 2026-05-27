@@ -165,13 +165,13 @@ export function scrollLeftForColumn({
 /**
  * Measures the actual row height from the first rendered body row.
  * @param {HTMLElement} viewport - The viewport element containing body rows
- * @returns {number} Measured row height, or 40 as fallback
+ * @returns {number|null} Measured row height, or null when measurement fails
  */
 export function measureRowHeight(viewport) {
-  if (!viewport) return 40;
+  if (!viewport) return null;
 
   const firstRow = viewport.querySelector('[role="row"]');
-  if (!firstRow) return 40;
+  if (!firstRow) return null;
 
-  return firstRow.offsetHeight || 40;
+  return firstRow.offsetHeight > 0 ? firstRow.offsetHeight : null;
 }

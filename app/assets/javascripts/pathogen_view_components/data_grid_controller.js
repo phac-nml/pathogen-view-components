@@ -474,16 +474,36 @@ export default class extends Controller {
     });
 
     if (this.hasScrollContainerTarget) {
-      this.scrollContainerTarget.addEventListener("scroll", () => this.#syncScrollAffordance(), {
-        signal,
-        passive: true,
-      });
+      this.scrollContainerTarget.addEventListener(
+        "scroll",
+        () => {
+          if (this.#isVirtual()) {
+            this.#onScroll();
+          } else {
+            this.#syncScrollAffordance();
+          }
+        },
+        {
+          signal,
+          passive: true,
+        },
+      );
     }
 
-    window.addEventListener("resize", () => this.#syncScrollAffordance(), {
-      signal,
-      passive: true,
-    });
+    window.addEventListener(
+      "resize",
+      () => {
+        if (this.#isVirtual()) {
+          this.#onResize();
+        } else {
+          this.#syncScrollAffordance();
+        }
+      },
+      {
+        signal,
+        passive: true,
+      },
+    );
   }
 
   // ── Virtual mode ────────────────────────────────────────────────────────
@@ -541,19 +561,6 @@ export default class extends Controller {
     if (this.hasVirtualStatusTarget && loadedText) {
       this.virtualStatusTarget.textContent = loadedText;
     }
-
-    // Listen for scroll on the scroll container
-    if (this.hasScrollContainerTarget) {
-      this.scrollContainerTarget.addEventListener("scroll", () => this.#onScroll(), {
-        signal: this.#abortController.signal,
-        passive: true,
-      });
-    }
-
-    window.addEventListener("resize", () => this.#onResize(), {
-      signal: this.#abortController.signal,
-      passive: true,
-    });
   }
 
   #onScroll() {

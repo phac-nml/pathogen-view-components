@@ -1621,6 +1621,23 @@ describe("data_grid_controller (virtual mode)", () => {
     setAttributeSpy.mockRestore();
   });
 
+  it("registers one scroll and resize listener in virtual mode", async () => {
+    document.body.innerHTML = virtualGridHTML(25);
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    const scrollListenerSpy = vi.spyOn(scrollContainer, "addEventListener");
+    const resizeListenerSpy = vi.spyOn(window, "addEventListener");
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    expect(scrollListenerSpy.mock.calls.filter(([eventName]) => eventName === "scroll")).toHaveLength(1);
+    expect(resizeListenerSpy.mock.calls.filter(([eventName]) => eventName === "resize")).toHaveLength(1);
+
+    scrollListenerSpy.mockRestore();
+    resizeListenerSpy.mockRestore();
+  });
+
   it("preserves keyboard navigation between visible cells in virtual mode", async () => {
     document.body.innerHTML = virtualGridHTML(20);
     application = Application.start();

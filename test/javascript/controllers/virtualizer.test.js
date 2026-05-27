@@ -236,22 +236,29 @@ describe("scrollLeftForColumn", () => {
 });
 
 describe("measureRowHeight", () => {
-  it("returns fallback when viewport is null", () => {
-    expect(measureRowHeight(null)).toBe(40);
+  it("returns null when viewport is null", () => {
+    expect(measureRowHeight(null)).toBeNull();
   });
 
-  it("returns fallback when no rows exist", () => {
+  it("returns null when no rows exist", () => {
     const div = document.createElement("div");
-    expect(measureRowHeight(div)).toBe(40);
+    expect(measureRowHeight(div)).toBeNull();
   });
 
   it("returns offsetHeight of the first row", () => {
     const div = document.createElement("div");
     const row = document.createElement("div");
     row.setAttribute("role", "row");
-    // jsdom doesn't compute layout, so offsetHeight is 0
+    Object.defineProperty(row, "offsetHeight", { value: 48 });
     div.appendChild(row);
-    // With jsdom, offsetHeight is always 0, so fallback to 40
-    expect(measureRowHeight(div)).toBe(40);
+    expect(measureRowHeight(div)).toBe(48);
+  });
+
+  it("returns null when the first row has no measurable height", () => {
+    const div = document.createElement("div");
+    const row = document.createElement("div");
+    row.setAttribute("role", "row");
+    div.appendChild(row);
+    expect(measureRowHeight(div)).toBeNull();
   });
 });
