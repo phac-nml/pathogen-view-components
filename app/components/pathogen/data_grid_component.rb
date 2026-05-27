@@ -188,14 +188,6 @@ module Pathogen
       attributes
     end
 
-    def grid_template_columns_style
-      columns.map { |col| col.width.presence || 'minmax(120px, 1fr)' }.join(' ')
-    end
-
-    def row_style
-      "grid-template-columns: #{grid_template_columns_style};"
-    end
-
     def virtual_pinned_column_entries
       columns.each_with_index.take(virtual_pinned_count)
     end

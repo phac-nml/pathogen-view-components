@@ -10,7 +10,8 @@ describe("ensureCellInViewport", () => {
   });
 
   afterEach(() => {
-    scrollBySpy.mockRestore();
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
   });
 
   it("does nothing when cell is fully within the viewport", () => {
@@ -70,7 +71,8 @@ describe("ensureCellFullyVisible", () => {
   });
 
   afterEach(() => {
-    scrollBySpy.mockRestore();
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
   });
 
   it("calls ensureCellInViewport after container scroll adjustment", () => {
