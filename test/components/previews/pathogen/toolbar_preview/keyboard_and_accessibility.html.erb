@@ -1,0 +1,39 @@
+<section class="space-y-4 p-4">
+  <h2 id="toolbar-preview-a11y-title" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.title') %>
+  </h2>
+
+  <p class="text-sm text-neutral-700 dark:text-neutral-300">
+    <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.description') %>
+  </p>
+
+  <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title') do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.actions.refresh') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+      <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.actions.sync') %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Separator.new %>
+
+    <button
+      type="button"
+      tabindex="-1"
+      aria-haspopup="menu"
+      aria-expanded="false"
+      data-pathogen--toolbar-target="item"
+      class="
+        inline-flex items-center rounded-md border border-neutral-200 px-3 py-2 text-sm font-medium text-neutral-900
+        dark:border-neutral-700 dark:text-neutral-100
+      "
+    >
+      <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.actions.more') %>
+    </button>
+  <% end %>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    <%= t('pathogen.toolbar_preview.keyboard_and_accessibility.dropdown_note') %>
+  </p>
+</section>
