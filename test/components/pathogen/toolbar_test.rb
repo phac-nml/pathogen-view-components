@@ -111,6 +111,13 @@ module Pathogen
       assert_no_selector 'button[disabled]'
     end
 
+    test 'removes string-keyed native disabled from toolbar button arguments' do
+      render_inline(Pathogen::Toolbar::Button.new('disabled' => true)) { 'Archive' }
+
+      assert_selector 'button[data-pathogen--toolbar-target="item"][tabindex="-1"]', text: 'Archive'
+      assert_no_selector 'button[disabled]'
+    end
+
     test 'uses small Pathogen::Button sizing defaults in toolbar context' do
       render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
 
