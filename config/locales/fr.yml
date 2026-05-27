@@ -30,6 +30,63 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    toolbar_preview:
+      basic_usage:
+        actions:
+          archive: Archiver
+          duplicate: Dupliquer
+          edit: Modifier
+        title: Utilisation de base de la barre d’outils
+        toolbar_label: Actions de l’échantillon
+      keyboard_and_accessibility:
+        actions:
+          more: Plus d’actions
+          refresh: Actualiser les données
+          sync: Synchroniser tout
+        description: Les actions indisponibles restent repérables et les contrôles
+          personnalisés peuvent rejoindre l’ensemble ciblé.
+        dropdown_note: Les menus déroulants restent gérés par l’application; seul
+          le déclencheur participe au focus circulaire.
+        title: Navigation au clavier et accessibilité
+      toggle_buttons:
+        actions:
+          compact: Lignes compactes
+          export: Exporter
+          group: Grouper par statut
+          more: Menu d’affichage
+        consumer_note: Les états activé/désactivé sont gérés par l’application; la
+          barre affiche seulement aria-pressed.
+        static_note: Cet aperçu laisse volontairement à la logique consommatrice la
+          mise à jour de l’état activé.
+        title: Actions de type bascule
+        toolbar_label: Options d’affichage
+      with_aria_controls:
+        actions:
+          download: Télécharger CSV
+          filter: Filtrer les lignes
+        columns:
+          name: Nom
+          sample_id: ID échantillon
+          status: Statut
+        grid_caption: Inventaire des échantillons
+        rows:
+          first_name: Isolat du bassin nord
+          first_status: Actif
+          second_name: Échantillon de sédiment côtier
+          second_status: En attente
+        title: Barre d’outils liée au contenu contrôlé
+        toolbar_label: Actions de la grille d’échantillons
+      with_search_input:
+        actions:
+          add: Ajouter un échantillon
+          bulk: Actions groupées
+        description: Dans le champ de recherche, les flèches gardent le curseur natif
+          tandis que les actions conservent le focus circulaire.
+        search_label: Rechercher des échantillons
+        search_placeholder: Rechercher par ID d’échantillon
+        search_value: SAM-
+        title: Barre d’outils avec recherche
+        toolbar_label: Recherche et actions
     tooltip:
       portal:
         aria_label: Info-bulles

@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, data grids, and toolbars.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -120,6 +120,35 @@ Sticky columns:
 <% end %>
 ```
 
+#### Toolbar
+
+```erb
+<%= render Pathogen::Toolbar.new(label: "Grid actions", controls: "samples-grid") do %>
+  <%= render Pathogen::Toolbar::Button.new do %>
+    Filter
+  <% end %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") do %>
+    Dense
+  <% end %>
+  <%= render Pathogen::Toolbar::Separator.new %>
+
+  <button
+    type="button"
+    tabindex="-1"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    data-pathogen--toolbar-target="item"
+    class="inline-flex items-center rounded-md border border-neutral-200 px-3 py-2 text-sm"
+  >
+    More
+  </button>
+<% end %>
+```
+
+- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"`.
+- v1 navigation is scoped to the item set present when the controller connects. Re-render or reconnect after add/remove/reorder state changes.
+- Host-local dropdown popups stay consumer-managed in v1. Only the closed trigger joins toolbar navigation.
+
 #### Tooltip
 
 ```erb
@@ -171,6 +200,7 @@ registerPathogenControllers(application);
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
+- `pathogen--toolbar`: Horizontal toolbar roving focus, disabled-action interception, and text-entry-safe key handling
 
 ## Development
 
