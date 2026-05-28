@@ -9,6 +9,8 @@ const TEXT_ENTRY_SELECTOR =
 const MOVE_FORWARD = "forward";
 const MOVE_BACKWARD = "backward";
 
+const TOOLBAR_NAV_KEYS = new Set(["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"]);
+
 export default class extends Controller {
   static targets = ["item"];
 
@@ -16,8 +18,14 @@ export default class extends Controller {
 
   #boundSyncItems = null;
 
+  #boundHandleSubmitEnd = null;
+
+  #lastFocusedToolbarItemId = null;
+
   connect() {
     this.#bindDomSync();
+    this.#boundHandleSubmitEnd = this.handleSubmitEnd.bind(this);
+    this.element.addEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
 
     if (this.itemTargets.length === 0) {
       this.element.innerHTML = `<div class="${TOOLBAR_ERROR_CLASS}">At least one toolbar item target is required</div>`;
@@ -37,8 +45,23 @@ export default class extends Controller {
   }
 
   handleKeyDown(event) {
-    const currentItem = this.#itemFromTarget(event.target);
+    if (!TOOLBAR_NAV_KEYS.has(event.key)) {
+      return;
+    }
+
+    if (this.#shouldYieldMenuNavigation(event)) {
+      return;
+    }
+
+    let currentItem = this.#itemFromTarget(event.target);
     if (!currentItem) {
+      currentItem = this.#toolbarItemForOpenPopup(event.target);
+    }
+    if (!currentItem) {
+      return;
+    }
+
+    if (this.#shouldDeferToPopup(event, currentItem, event.target)) {
       return;
     }
 
@@ -84,7 +107,31 @@ export default class extends Controller {
       return;
     }
 
+    if (item.id) {
+      this.#lastFocusedToolbarItemId = item.id;
+    }
+
     this.#setTabStopForItem(item);
+  }
+
+  handleSubmitEnd(event) {
+    if (!(event.target instanceof Element) || !this.element.contains(event.target)) {
+      return;
+    }
+
+    const submitter = event.detail?.formSubmission?.submitter;
+    if (!(submitter instanceof HTMLElement) || !this.element.contains(submitter)) {
+      return;
+    }
+
+    const item = this.#connectedItemForTarget(submitter);
+    if (!item) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      this.#focusToolbarItem(item);
+    });
   }
 
   handleClick(event) {
@@ -99,8 +146,10 @@ export default class extends Controller {
 
   disconnect() {
     this.#unbindDomSync();
+    this.element.removeEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
     delete this.element.dataset.controllerConnected;
     this.#items = [];
+    this.#lastFocusedToolbarItemId = null;
   }
 
   #setInitialTabStop() {
@@ -195,7 +244,50 @@ export default class extends Controller {
       return;
     }
 
+    if (this.#toolbarItemForOpenPopup(document.activeElement)) {
+      return;
+    }
+
+    if (this.#restoreLastFocusedToolbarItem()) {
+      return;
+    }
+
     this.#setInitialTabStop();
+  }
+
+  #focusToolbarItem(item) {
+    if (!item?.isConnected || !this.#isVisibleItem(item)) {
+      return;
+    }
+
+    item.focus({ focusVisible: true });
+    this.#setTabStopForItem(item);
+  }
+
+  #restoreLastFocusedToolbarItem() {
+    const activeElement = document.activeElement;
+    if (
+      activeElement instanceof HTMLElement &&
+      activeElement.isConnected &&
+      this.#connectedItemForTarget(activeElement)
+    ) {
+      return false;
+    }
+
+    if (!this.#lastFocusedToolbarItemId) {
+      return false;
+    }
+
+    const item = this.#items.find(
+      (toolbarItem) => toolbarItem.isConnected && toolbarItem.id === this.#lastFocusedToolbarItemId,
+    );
+
+    if (!item || !this.#isVisibleItem(item)) {
+      return false;
+    }
+
+    this.#focusToolbarItem(item);
+    return true;
   }
 
   #connectedItemForTarget(target) {
@@ -216,6 +308,124 @@ export default class extends Controller {
     // Refresh targets lazily when events originate from newly replaced nodes.
     this.#syncItemsAfterDomChange();
     return this.#connectedItemForTarget(target);
+  }
+
+  #shouldYieldMenuNavigation(event) {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return false;
+    }
+
+    const openMenu = target.closest('[role="menu"]');
+    if (openMenu && this.element.contains(openMenu) && this.#isOpenMenu(openMenu)) {
+      return true;
+    }
+
+    const triggerWithOpenMenu = this.#items.find(
+      (item) =>
+        item.isConnected &&
+        (item === target || item.contains(target)) &&
+        this.#openMenuForTrigger(item) &&
+        (event.key === "ArrowDown" || event.key === "ArrowUp"),
+    );
+
+    return Boolean(triggerWithOpenMenu);
+  }
+
+  #isOpenMenu(menu) {
+    if (menu.getAttribute("role") !== "menu" || menu.hidden || menu.getAttribute("aria-hidden") === "true") {
+      return false;
+    }
+
+    const { display, visibility } = window.getComputedStyle(menu);
+    return display !== "none" && visibility !== "hidden";
+  }
+
+  #openMenuForTrigger(trigger) {
+    const menuId = trigger.getAttribute("aria-controls");
+    if (!menuId) {
+      return null;
+    }
+
+    const menu = document.getElementById(menuId);
+    if (!menu || !this.#isOpenMenu(menu)) {
+      return null;
+    }
+
+    return menu;
+  }
+
+  #toolbarItemForOpenPopup(target) {
+    if (!(target instanceof Element)) {
+      return null;
+    }
+
+    const openMenu = target.closest('[role="menu"]');
+    if (!openMenu || !this.#isOpenMenu(openMenu)) {
+      return null;
+    }
+
+    const menuId = openMenu.id;
+    if (menuId) {
+      const itemByControls = this.#items.find(
+        (item) => item.isConnected && item.getAttribute("aria-controls") === menuId,
+      );
+      if (itemByControls) {
+        return itemByControls;
+      }
+    }
+
+    const labelledBy = openMenu.getAttribute("aria-labelledby");
+    if (labelledBy) {
+      const itemByLabel = this.#items.find((item) => item.isConnected && item.id === labelledBy);
+      if (itemByLabel) {
+        return itemByLabel;
+      }
+    }
+
+    return null;
+  }
+
+  #shouldDeferToPopup(event, item, target) {
+    if (!TOOLBAR_NAV_KEYS.has(event.key)) {
+      return false;
+    }
+
+    const openMenu = this.#openMenuForTrigger(item);
+    if (
+      openMenu &&
+      event.key !== "ArrowRight" &&
+      event.key !== "ArrowLeft" &&
+      event.key !== "Home" &&
+      event.key !== "End"
+    ) {
+      return true;
+    }
+
+    if (target instanceof Element && this.#targetIsInOpenPopup(item, target)) {
+      return true;
+    }
+
+    // Menu buttons use ArrowUp/ArrowDown to open and navigate their popup (APG menu button).
+    if ((event.key === "ArrowDown" || event.key === "ArrowUp") && item.hasAttribute("aria-haspopup")) {
+      return true;
+    }
+
+    return false;
+  }
+
+  #targetIsInOpenPopup(item, target) {
+    const menuId = item.getAttribute("aria-controls");
+    if (!menuId) {
+      return false;
+    }
+
+    const menu = document.getElementById(menuId);
+    if (!menu || !this.#isOpenMenu(menu)) {
+      return false;
+    }
+
+    return menu.contains(target);
   }
 
   #isAriaDisabled(item) {
