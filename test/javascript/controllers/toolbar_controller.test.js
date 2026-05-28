@@ -523,4 +523,302 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(three);
     expect(three.tabIndex).toBe(0);
   });
+
+  it("does not capture arrow keys while focus is in an open menu popup", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <button
+          id="menu-trigger"
+          type="button"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+          aria-haspopup="true"
+          aria-expanded="true"
+          aria-controls="sample-menu"
+        >
+          Actions
+        </button>
+        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
+          <li role="none">
+            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
+          </li>
+          <li role="none">
+            <a id="menu-second" href="#" role="menuitem" tabindex="-1">Second</a>
+          </li>
+        </ul>
+      </div>
+    `);
+
+    const first = document.querySelector("#menu-first");
+    first.focus();
+
+    const event = dispatchKey(first, "ArrowDown");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(first);
+  });
+
+  it("defers ArrowDown on menu button triggers to the consumer", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+        <button
+          id="menu-trigger"
+          type="button"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="sample-menu"
+        >
+          Actions
+        </button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
+      </div>
+    `);
+
+    const trigger = document.querySelector("#menu-trigger");
+    trigger.focus();
+
+    const event = dispatchKey(trigger, "ArrowDown");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("restores focus to the submitter after a turbo form submission within the toolbar", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <form id="select-all-form" data-turbo-frame="selected">
+          <button
+            id="select-all-button"
+            type="submit"
+            data-pathogen--toolbar-target="item"
+            tabindex="0"
+          >
+            Select all
+          </button>
+        </form>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      </div>
+    `);
+
+    const form = document.querySelector("#select-all-form");
+    const selectAll = document.querySelector("#select-all-button");
+    const two = document.querySelector("#item-two");
+
+    selectAll.focus();
+    document.body.focus();
+
+    form.dispatchEvent(
+      new CustomEvent("turbo:submit-end", {
+        bubbles: true,
+        detail: {
+          formSubmission: {
+            submitter: selectAll,
+          },
+        },
+      }),
+    );
+
+    await flush();
+
+    expect(document.activeElement).toBe(selectAll);
+    expect(two.tabIndex).toBe(-1);
+    expect(selectAll.tabIndex).toBe(0);
+  });
+
+  it("yields arrow keys to an open menu when aria-expanded is missing on the trigger", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+        <button
+          id="menu-trigger"
+          type="button"
+          data-pathogen--toolbar-target="item"
+          tabindex="0"
+          aria-haspopup="true"
+          aria-controls="sample-menu"
+        >
+          Actions
+        </button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
+          <li role="none">
+            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
+          </li>
+        </ul>
+      </div>
+    `);
+
+    const trigger = document.querySelector("#menu-trigger");
+    trigger.focus();
+
+    const event = dispatchKey(trigger, "ArrowDown");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("does not reset roving tabindex while focus is in an open menu popup", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <button
+          id="menu-trigger"
+          type="button"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+          aria-haspopup="true"
+          aria-expanded="true"
+          aria-controls="sample-menu"
+        >
+          Actions
+        </button>
+        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
+          <li role="none">
+            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
+          </li>
+        </ul>
+      </div>
+    `);
+
+    const first = document.querySelector("#menu-first");
+
+    first.focus();
+    document
+      .querySelector('[data-controller="pathogen--toolbar"]')
+      .dispatchEvent(new CustomEvent("pathogen--toolbar:sync", { bubbles: true }));
+
+    await flush();
+
+    expect(document.activeElement).toBe(first);
+    expect(first.tabIndex).toBe(0);
+  });
+
+  it("keeps toolbar navigation when aria-controls points to non-menu content", async () => {
+    await startController(`
+    <div
+      role="toolbar"
+      data-controller="pathogen--toolbar"
+      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+    >
+      <button
+        id="details-trigger"
+        type="button"
+        data-pathogen--toolbar-target="item"
+        tabindex="-1"
+        aria-expanded="true"
+        aria-controls="details-panel"
+      >
+        Details
+      </button>
+      <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      <section id="details-panel">Expanded details</section>
+    </div>
+  `);
+
+    const trigger = document.querySelector("#details-trigger");
+    const two = document.querySelector("#item-two");
+
+    trigger.focus();
+    const event = dispatchKey(trigger, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(two);
+  });
+
+  it("keeps toolbar navigation when the controlled menu is hidden by CSS", async () => {
+    await startController(`
+    <style>
+      .hidden-menu {
+        display: none;
+      }
+    </style>
+    <div
+      role="toolbar"
+      data-controller="pathogen--toolbar"
+      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+    >
+      <button
+        id="menu-trigger"
+        type="button"
+        data-pathogen--toolbar-target="item"
+        tabindex="-1"
+        aria-haspopup="true"
+        aria-controls="sample-menu"
+      >
+        Actions
+      </button>
+      <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      <ul id="sample-menu" class="hidden-menu" role="menu" aria-labelledby="menu-trigger">
+        <li role="none">
+          <a href="#" role="menuitem" tabindex="-1">First</a>
+        </li>
+      </ul>
+    </div>
+  `);
+
+    const trigger = document.querySelector("#menu-trigger");
+    const two = document.querySelector("#item-two");
+
+    trigger.focus();
+    const event = dispatchKey(trigger, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(two);
+  });
+
+  it("still moves horizontally across menu button triggers with ArrowRight", async () => {
+    await startController(`
+      <div
+        role="toolbar"
+        data-controller="pathogen--toolbar"
+        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
+      >
+        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+        <button
+          id="menu-trigger"
+          type="button"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="sample-menu"
+        >
+          Actions
+        </button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
+      </div>
+    `);
+
+    const one = document.querySelector("#item-one");
+    const trigger = document.querySelector("#menu-trigger");
+
+    one.focus();
+    dispatchKey(one, "ArrowRight");
+
+    expect(document.activeElement).toBe(trigger);
+  });
 });
