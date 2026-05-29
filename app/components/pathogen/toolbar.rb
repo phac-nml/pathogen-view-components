@@ -16,8 +16,6 @@ module Pathogen
       click->pathogen--toolbar#handleClick:capture
     ].freeze
 
-    MISSING_ITEMS_MESSAGE_KEY = 'pathogen--toolbar-missing-items-message-value'
-
     def initialize(label: nil, labelled_by: nil, controls: nil, **system_arguments)
       @label = label
       @labelled_by = labelled_by
@@ -55,7 +53,6 @@ module Pathogen
       @system_arguments[:data] ||= {}
       merge_stimulus_data!(@system_arguments[:data], :controller, 'pathogen--toolbar')
       merge_stimulus_data!(@system_arguments[:data], :action, *TOOLBAR_ACTIONS)
-      @system_arguments[:data][MISSING_ITEMS_MESSAGE_KEY] = I18n.t('pathogen.toolbar.errors.missing_items')
     end
   end
 end

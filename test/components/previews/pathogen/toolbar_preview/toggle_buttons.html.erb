@@ -1,35 +1,27 @@
 <section class="space-y-4 p-4">
   <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-    <%= t('pathogen.toolbar_preview.toggle_buttons.title') %>
+    Toggle-style actions
   </h2>
 
-  <%= render Pathogen::Toolbar.new(label: t('pathogen.toolbar_preview.toggle_buttons.toolbar_label')) do %>
+  <%= render Pathogen::Toolbar.new(label: 'Display options') do %>
     <%= render Pathogen::Toolbar::Button.new(pressed: true) do %>
-      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.compact') %>
+      Compact rows
     <% end %>
 
     <%= render Pathogen::Toolbar::Button.new(pressed: false) do %>
-      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.group') %>
+      Group by status
     <% end %>
 
     <%= render Pathogen::Toolbar::Button.new do %>
-      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.export') %>
-    <% end %>
-
-    <%= render Pathogen::Toolbar::Separator.new %>
-
-    <%= render Pathogen::Toolbar::MenuTrigger.new(
-          label: t('pathogen.toolbar_preview.toggle_buttons.actions.more')
-        ) do %>
-      <%= t('pathogen.toolbar_preview.toggle_buttons.actions.more') %>
+      Export
     <% end %>
   <% end %>
 
   <p class="text-sm text-neutral-600 dark:text-neutral-400">
-    <%= t('pathogen.toolbar_preview.toggle_buttons.consumer_note') %>
+    Pressed states are consumer-owned. The toolbar only reflects the current state through aria-pressed.
   </p>
 
   <p class="text-sm text-neutral-600 dark:text-neutral-400">
-    <%= t('pathogen.toolbar_preview.toggle_buttons.static_note') %>
+    This preview intentionally leaves pressed-state updates to consumer logic.
   </p>
 </section>

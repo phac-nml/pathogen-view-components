@@ -9,7 +9,7 @@ module Pathogen
     def keyboard_and_accessibility; end
 
     # @label Toggle Buttons
-    # Toggle and dropdown trigger state remain consumer-managed in v1.
+    # Toggle state remains consumer-managed in v1.
     def toggle_buttons; end
 
     # @label With Aria Controls

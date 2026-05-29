@@ -17,7 +17,6 @@ search:
   paths:
     - app/
     - lib/
-    - test/components/previews
 
   relative_roots:
     - app/components
