@@ -39,7 +39,6 @@ export default defineConfig({
         "data_grid_controller/virtual_columns.js",
       ),
       "pathogen_view_components/toolbar_controller/constants": resolve(jsRoot, "toolbar_controller/constants.js"),
-      "pathogen_view_components/toolbar_controller/menu_popup": resolve(jsRoot, "toolbar_controller/menu_popup.js"),
       "pathogen_view_components/toolbar_controller/roving_focus": resolve(jsRoot, "toolbar_controller/roving_focus.js"),
       "pathogen_view_components/toolbar_controller/text_entry": resolve(jsRoot, "toolbar_controller/text_entry.js"),
       "pathogen_view_components/toolbar_controller/visibility": resolve(jsRoot, "toolbar_controller/visibility.js"),
