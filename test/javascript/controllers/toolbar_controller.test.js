@@ -2,7 +2,7 @@ import { Application } from "@hotwired/stimulus";
 import { afterEach, describe, expect, it } from "vitest";
 
 import ToolbarController from "../../../app/assets/javascripts/pathogen_view_components/toolbar_controller";
-import { toolbarMarkup } from "../support/toolbar_controller_fixtures";
+import { toolbarMarkup, toolbarShell } from "../support/toolbar_controller_fixtures";
 
 const flush = async () => Promise.resolve();
 
@@ -31,24 +31,20 @@ describe("toolbar_controller", () => {
     await flush();
   };
 
+  const startToolbar = async (innerHtml) => startController(toolbarShell(innerHtml));
+
   afterEach(() => {
     application?.stop();
     document.body.innerHTML = "";
   });
 
   it("sets the first non-disabled item as the initial tab stop", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-disabled" type="button" data-pathogen--toolbar-target="item" tabindex="-1" aria-disabled="true">
           Disabled
         </button>
         <button id="item-enabled" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Enabled</button>
         <button id="item-third" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Third</button>
-      </div>
     `);
 
     const disabled = document.querySelector("#item-disabled");
@@ -117,19 +113,11 @@ describe("toolbar_controller", () => {
   });
 
   it("intercepts clicks for aria-disabled toolbar items", async () => {
-    await startController(`
-      <div id="toolbar-shell">
-        <div
-          role="toolbar"
-          data-controller="pathogen--toolbar"
-          data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-        >
+    await startToolbar(`
           <button id="item-disabled" type="button" data-pathogen--toolbar-target="item" aria-disabled="true" tabindex="-1">
             Disabled
           </button>
           <button id="item-enabled" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Enabled</button>
-        </div>
-      </div>
     `);
 
     const shell = document.querySelector("#toolbar-shell");
@@ -185,16 +173,10 @@ describe("toolbar_controller", () => {
   });
 
   it("moves focus to the next visible toolbar button from a text-entry target boundary", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="abc" />
         <button id="item-search-submit" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Search</button>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      </div>
     `);
 
     const input = document.querySelector("#item-search");
@@ -209,16 +191,10 @@ describe("toolbar_controller", () => {
   });
 
   it("skips hidden toolbar items during arrow navigation", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
         <button id="item-hidden" type="button" data-pathogen--toolbar-target="item" hidden tabindex="-1">Hidden</button>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      </div>
     `);
 
     const one = document.querySelector("#item-one");
@@ -261,16 +237,10 @@ describe("toolbar_controller", () => {
   });
 
   it("places the caret on the arrival edge when arrowing into a text-entry item", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-actions" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Actions</button>
         <input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="100" />
         <button id="item-advanced" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Advanced</button>
-      </div>
     `);
 
     const actions = document.querySelector("#item-actions");
@@ -300,16 +270,10 @@ describe("toolbar_controller", () => {
   });
 
   it("moves focus to the previous toolbar item when search text is fully selected", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-actions" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Actions</button>
         <input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="100" />
         <button id="item-advanced" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Advanced</button>
-      </div>
     `);
 
     const actions = document.querySelector("#item-actions");
@@ -324,15 +288,9 @@ describe("toolbar_controller", () => {
   });
 
   it("does not intercept arrow keys for contenteditable toolbar items", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <div id="editor" contenteditable data-pathogen--toolbar-target="item" tabindex="-1">Editable</div>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      </div>
     `);
 
     const editor = document.querySelector("#editor");
@@ -345,16 +303,10 @@ describe("toolbar_controller", () => {
   });
 
   it("does not attempt input caret placement when arrowing into contenteditable toolbar items", async () => {
-    await startController(`
-    <div
-      role="toolbar"
-      data-controller="pathogen--toolbar"
-      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-    >
+    await startToolbar(`
       <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
       <div id="editor" contenteditable data-pathogen--toolbar-target="item" tabindex="-1">Editable</div>
-    </div>
-  `);
+    `);
 
     const one = document.querySelector("#item-one");
     const editor = document.querySelector("#editor");
@@ -368,15 +320,9 @@ describe("toolbar_controller", () => {
   });
 
   it("allows arrow key navigation from non-text input buttons", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <input id="item-reset" type="reset" data-pathogen--toolbar-target="item" tabindex="-1" value="Reset" />
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      </div>
     `);
 
     const reset = document.querySelector("#item-reset");
@@ -390,15 +336,9 @@ describe("toolbar_controller", () => {
   });
 
   it("updates the tab stop when focus enters a custom targeted control", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
         <a id="custom-item" href="#" data-pathogen--toolbar-target="item" tabindex="-1">Custom</a>
-      </div>
     `);
 
     const one = document.querySelector("#item-one");
@@ -412,14 +352,8 @@ describe("toolbar_controller", () => {
   });
 
   it("fails fast when no toolbar item targets are present", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <span>No controls</span>
-      </div>
     `);
 
     const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
@@ -507,12 +441,7 @@ describe("toolbar_controller", () => {
   });
 
   it("does not capture arrow keys while focus is in an open menu popup", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button
           id="menu-trigger"
           type="button"
@@ -532,7 +461,6 @@ describe("toolbar_controller", () => {
             <a id="menu-second" href="#" role="menuitem" tabindex="-1">Second</a>
           </li>
         </ul>
-      </div>
     `);
 
     const first = document.querySelector("#menu-first");
@@ -545,12 +473,7 @@ describe("toolbar_controller", () => {
   });
 
   it("defers ArrowDown on menu button triggers to the consumer", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
         <button
           id="menu-trigger"
@@ -565,7 +488,6 @@ describe("toolbar_controller", () => {
         </button>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
         <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
-      </div>
     `);
 
     const trigger = document.querySelector("#menu-trigger");
@@ -578,12 +500,7 @@ describe("toolbar_controller", () => {
   });
 
   it("restores focus to the submitter after a turbo form submission within the toolbar", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <form id="select-all-form" data-turbo-frame="selected">
           <button
             id="select-all-button"
@@ -595,7 +512,6 @@ describe("toolbar_controller", () => {
           </button>
         </form>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      </div>
     `);
 
     const form = document.querySelector("#select-all-form");
@@ -624,12 +540,7 @@ describe("toolbar_controller", () => {
   });
 
   it("yields arrow keys to an open menu when aria-expanded is missing on the trigger", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
         <button
           id="menu-trigger"
@@ -647,7 +558,6 @@ describe("toolbar_controller", () => {
             <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
           </li>
         </ul>
-      </div>
     `);
 
     const trigger = document.querySelector("#menu-trigger");
@@ -660,12 +570,7 @@ describe("toolbar_controller", () => {
   });
 
   it("does not reset roving tabindex while focus is in an open menu popup", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button
           id="menu-trigger"
           type="button"
@@ -682,7 +587,6 @@ describe("toolbar_controller", () => {
             <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
           </li>
         </ul>
-      </div>
     `);
 
     const first = document.querySelector("#menu-first");
@@ -699,12 +603,7 @@ describe("toolbar_controller", () => {
   });
 
   it("keeps toolbar navigation when aria-controls points to non-menu content", async () => {
-    await startController(`
-    <div
-      role="toolbar"
-      data-controller="pathogen--toolbar"
-      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-    >
+    await startToolbar(`
       <button
         id="details-trigger"
         type="button"
@@ -717,8 +616,7 @@ describe("toolbar_controller", () => {
       </button>
       <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
       <section id="details-panel">Expanded details</section>
-    </div>
-  `);
+    `);
 
     const trigger = document.querySelector("#details-trigger");
     const two = document.querySelector("#item-two");
@@ -731,17 +629,12 @@ describe("toolbar_controller", () => {
   });
 
   it("keeps toolbar navigation when the controlled menu is hidden by CSS", async () => {
-    await startController(`
+    await startToolbar(`
     <style>
       .hidden-menu {
         display: none;
       }
     </style>
-    <div
-      role="toolbar"
-      data-controller="pathogen--toolbar"
-      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-    >
       <button
         id="menu-trigger"
         type="button"
@@ -758,8 +651,7 @@ describe("toolbar_controller", () => {
           <a href="#" role="menuitem" tabindex="-1">First</a>
         </li>
       </ul>
-    </div>
-  `);
+    `);
 
     const trigger = document.querySelector("#menu-trigger");
     const two = document.querySelector("#item-two");
@@ -772,12 +664,7 @@ describe("toolbar_controller", () => {
   });
 
   it("still moves horizontally across menu button triggers with ArrowRight", async () => {
-    await startController(`
-      <div
-        role="toolbar"
-        data-controller="pathogen--toolbar"
-        data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-      >
+    await startToolbar(`
         <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
         <button
           id="menu-trigger"
@@ -792,7 +679,6 @@ describe("toolbar_controller", () => {
         </button>
         <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
         <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
-      </div>
     `);
 
     const one = document.querySelector("#item-one");
