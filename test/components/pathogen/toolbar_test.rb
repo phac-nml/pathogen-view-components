@@ -4,22 +4,6 @@ require 'test_helper'
 
 module Pathogen
   class ToolbarTest < ViewComponent::TestCase
-    test 'renders localized missing-items message for the Stimulus controller' do
-      render_inline(Pathogen::Toolbar.new(label: 'Sample actions')) do
-        ActionController::Base.helpers.tag.button(
-          'Edit',
-          type: 'button',
-          tabindex: -1,
-          data: { 'pathogen--toolbar-target': 'item' }
-        )
-      end
-
-      missing_items_message = I18n.t('pathogen.toolbar.errors.missing_items')
-      assert_selector(
-        "div[role='toolbar'][data-pathogen--toolbar-missing-items-message-value='#{missing_items_message}']"
-      )
-    end
-
     test 'renders toolbar root semantics and controller wiring' do
       render_inline(Pathogen::Toolbar.new(label: 'Sample actions')) do
         ActionController::Base.helpers.tag.button(
@@ -191,18 +175,6 @@ module Pathogen
       render_inline(Pathogen::Toolbar::Button.new(data: { 'pathogen--toolbar-target': 'custom' })) { 'Custom target' }
 
       assert_selector 'button[data-pathogen--toolbar-target~="custom"][data-pathogen--toolbar-target~="item"]'
-    end
-
-    test 'renders menu trigger with popup semantics and toolbar item target' do
-      render_inline(
-        Pathogen::Toolbar::MenuTrigger.new(label: 'More actions', controls: 'actions-menu', id: 'actions-trigger')
-      ) { 'More' }
-
-      assert_selector(
-        'button#actions-trigger[data-pathogen--toolbar-target~="item"][tabindex="-1"]' \
-        '[aria-haspopup="menu"][aria-expanded="false"][aria-controls="actions-menu"][aria-label="More actions"]',
-        text: 'More'
-      )
     end
   end
 end

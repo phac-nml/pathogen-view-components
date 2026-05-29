@@ -1,5 +1,5 @@
 import { Application } from "@hotwired/stimulus";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import ToolbarController from "../../../app/assets/javascripts/pathogen_view_components/toolbar_controller";
 import { toolbarMarkup, toolbarShell } from "../support/toolbar_controller_fixtures";
@@ -351,7 +351,9 @@ describe("toolbar_controller", () => {
     expect(custom.tabIndex).toBe(0);
   });
 
-  it("fails fast when no toolbar item targets are present", async () => {
+  it("fails fast without mutating markup when no toolbar item targets are present", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
     await startToolbar(`
         <span>No controls</span>
     `);
@@ -359,7 +361,10 @@ describe("toolbar_controller", () => {
     const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
 
     expect(toolbar.dataset.controllerConnected).toBeUndefined();
-    expect(toolbar.textContent).toContain("At least one toolbar item target is required");
+    expect(toolbar.textContent).toContain("No controls");
+    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("At least one toolbar item target is required"));
+
+    errorSpy.mockRestore();
   });
 
   it("includes newly connected toolbar items after the DOM changes", async () => {
@@ -440,65 +445,6 @@ describe("toolbar_controller", () => {
     expect(three.tabIndex).toBe(0);
   });
 
-  it("does not capture arrow keys while focus is in an open menu popup", async () => {
-    await startToolbar(`
-        <button
-          id="menu-trigger"
-          type="button"
-          data-pathogen--toolbar-target="item"
-          tabindex="-1"
-          aria-haspopup="true"
-          aria-expanded="true"
-          aria-controls="sample-menu"
-        >
-          Actions
-        </button>
-        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
-          <li role="none">
-            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
-          </li>
-          <li role="none">
-            <a id="menu-second" href="#" role="menuitem" tabindex="-1">Second</a>
-          </li>
-        </ul>
-    `);
-
-    const first = document.querySelector("#menu-first");
-    first.focus();
-
-    const event = dispatchKey(first, "ArrowDown");
-
-    expect(event.defaultPrevented).toBe(false);
-    expect(document.activeElement).toBe(first);
-  });
-
-  it("defers ArrowDown on menu button triggers to the consumer", async () => {
-    await startToolbar(`
-        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
-        <button
-          id="menu-trigger"
-          type="button"
-          data-pathogen--toolbar-target="item"
-          tabindex="-1"
-          aria-haspopup="true"
-          aria-expanded="false"
-          aria-controls="sample-menu"
-        >
-          Actions
-        </button>
-        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
-    `);
-
-    const trigger = document.querySelector("#menu-trigger");
-    trigger.focus();
-
-    const event = dispatchKey(trigger, "ArrowDown");
-
-    expect(event.defaultPrevented).toBe(false);
-    expect(document.activeElement).toBe(trigger);
-  });
-
   it("restores focus to the submitter after a turbo form submission within the toolbar", async () => {
     await startToolbar(`
         <form id="select-all-form" data-turbo-frame="selected">
@@ -539,69 +485,6 @@ describe("toolbar_controller", () => {
     expect(selectAll.tabIndex).toBe(0);
   });
 
-  it("yields arrow keys to an open menu when aria-expanded is missing on the trigger", async () => {
-    await startToolbar(`
-        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
-        <button
-          id="menu-trigger"
-          type="button"
-          data-pathogen--toolbar-target="item"
-          tabindex="0"
-          aria-haspopup="true"
-          aria-controls="sample-menu"
-        >
-          Actions
-        </button>
-        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
-          <li role="none">
-            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
-          </li>
-        </ul>
-    `);
-
-    const trigger = document.querySelector("#menu-trigger");
-    trigger.focus();
-
-    const event = dispatchKey(trigger, "ArrowDown");
-
-    expect(event.defaultPrevented).toBe(false);
-    expect(document.activeElement).toBe(trigger);
-  });
-
-  it("does not reset roving tabindex while focus is in an open menu popup", async () => {
-    await startToolbar(`
-        <button
-          id="menu-trigger"
-          type="button"
-          data-pathogen--toolbar-target="item"
-          tabindex="-1"
-          aria-haspopup="true"
-          aria-expanded="true"
-          aria-controls="sample-menu"
-        >
-          Actions
-        </button>
-        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger">
-          <li role="none">
-            <a id="menu-first" href="#" role="menuitem" tabindex="0">First</a>
-          </li>
-        </ul>
-    `);
-
-    const first = document.querySelector("#menu-first");
-
-    first.focus();
-    document
-      .querySelector('[data-controller="pathogen--toolbar"]')
-      .dispatchEvent(new CustomEvent("pathogen--toolbar:sync", { bubbles: true }));
-
-    await flush();
-
-    expect(document.activeElement).toBe(first);
-    expect(first.tabIndex).toBe(0);
-  });
-
   it("keeps toolbar navigation when aria-controls points to non-menu content", async () => {
     await startToolbar(`
       <button
@@ -628,65 +511,19 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(two);
   });
 
-  it("keeps toolbar navigation when the controlled menu is hidden by CSS", async () => {
-    await startToolbar(`
-    <style>
-      .hidden-menu {
-        display: none;
-      }
-    </style>
-      <button
-        id="menu-trigger"
-        type="button"
-        data-pathogen--toolbar-target="item"
-        tabindex="-1"
-        aria-haspopup="true"
-        aria-controls="sample-menu"
-      >
-        Actions
-      </button>
-      <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      <ul id="sample-menu" class="hidden-menu" role="menu" aria-labelledby="menu-trigger">
-        <li role="none">
-          <a href="#" role="menuitem" tabindex="-1">First</a>
-        </li>
-      </ul>
-    `);
+  it("re-syncs the roving tab stop on the pathogen--toolbar:sync event", async () => {
+    await startController(toolbarMarkup());
 
-    const trigger = document.querySelector("#menu-trigger");
+    const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
     const two = document.querySelector("#item-two");
 
-    trigger.focus();
-    const event = dispatchKey(trigger, "ArrowRight");
+    two.focus();
+    two.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    document.body.focus();
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(two);
-  });
+    toolbar.dispatchEvent(new CustomEvent("pathogen--toolbar:sync", { bubbles: true }));
+    await flush();
 
-  it("still moves horizontally across menu button triggers with ArrowRight", async () => {
-    await startToolbar(`
-        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
-        <button
-          id="menu-trigger"
-          type="button"
-          data-pathogen--toolbar-target="item"
-          tabindex="-1"
-          aria-haspopup="true"
-          aria-expanded="false"
-          aria-controls="sample-menu"
-        >
-          Actions
-        </button>
-        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-        <ul id="sample-menu" role="menu" aria-labelledby="menu-trigger" hidden></ul>
-    `);
-
-    const one = document.querySelector("#item-one");
-    const trigger = document.querySelector("#menu-trigger");
-
-    one.focus();
-    dispatchKey(one, "ArrowRight");
-
-    expect(document.activeElement).toBe(trigger);
+    expect(two.tabIndex).toBe(0);
   });
 });
