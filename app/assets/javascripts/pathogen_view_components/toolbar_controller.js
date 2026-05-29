@@ -1,17 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
-import {
-  DEFAULT_MISSING_ITEMS_MESSAGE,
-  MOVE_BACKWARD,
-  MOVE_FORWARD,
-  TOOLBAR_ERROR_CLASS,
-  TOOLBAR_NAV_KEYS,
-} from "pathogen_view_components/toolbar_controller/constants";
-import {
-  shouldDeferToPopup,
-  shouldYieldMenuNavigation,
-  toolbarItemForOpenPopup,
-} from "pathogen_view_components/toolbar_controller/menu_popup";
+import { MOVE_BACKWARD, MOVE_FORWARD, TOOLBAR_NAV_KEYS } from "pathogen_view_components/toolbar_controller/constants";
 import {
   connectedItemForTarget,
   nextIndex,
@@ -29,10 +18,6 @@ import { isAriaDisabled, isVisibleItem, visibleItems } from "pathogen_view_compo
 export default class extends Controller {
   static targets = ["item"];
 
-  static values = {
-    missingItemsMessage: { type: String, default: DEFAULT_MISSING_ITEMS_MESSAGE },
-  };
-
   #items = [];
 
   #boundSyncItems = null;
@@ -42,14 +27,16 @@ export default class extends Controller {
   #lastFocusedToolbarItemId = null;
 
   connect() {
+    if (this.itemTargets.length === 0) {
+      // Invalid configuration is a development error per the v1 contract: fail
+      // fast without mutating consumer markup and without claiming a connection.
+      console.error("[pathogen--toolbar] At least one toolbar item target is required.");
+      return;
+    }
+
     this.#bindDomSync();
     this.#boundHandleSubmitEnd = this.handleSubmitEnd.bind(this);
     this.element.addEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
-
-    if (this.itemTargets.length === 0) {
-      this.element.innerHTML = `<div class="${TOOLBAR_ERROR_CLASS}">${this.missingItemsMessageValue}</div>`;
-      return;
-    }
 
     this.#syncItemsAfterDomChange();
     this.element.dataset.controllerConnected = "true";
@@ -68,19 +55,8 @@ export default class extends Controller {
       return;
     }
 
-    if (shouldYieldMenuNavigation({ event, toolbarRoot: this.element, items: this.#items })) {
-      return;
-    }
-
-    let currentItem = this.#itemFromTarget(event.target);
+    const currentItem = this.#itemFromTarget(event.target);
     if (!currentItem) {
-      currentItem = toolbarItemForOpenPopup(this.#items, event.target);
-    }
-    if (!currentItem) {
-      return;
-    }
-
-    if (shouldDeferToPopup({ event, toolbarRoot: this.element, item: currentItem, target: event.target })) {
       return;
     }
 
@@ -205,10 +181,6 @@ export default class extends Controller {
     const focusedItem = connectedItemForTarget(this.#items, document.activeElement);
     if (focusedItem && isVisibleItem(focusedItem)) {
       setTabStopForItems(this.#items, focusedItem);
-      return;
-    }
-
-    if (toolbarItemForOpenPopup(this.#items, document.activeElement)) {
       return;
     }
 
