@@ -132,22 +132,15 @@ Sticky columns:
   <% end %>
   <%= render Pathogen::Toolbar::Separator.new %>
 
-  <button
-    type="button"
-    tabindex="-1"
-    aria-haspopup="menu"
-    aria-expanded="false"
-    data-pathogen--toolbar-target="item"
-    class="inline-flex items-center rounded-md border border-neutral-200 px-3 py-2 text-sm"
-  >
+  <%= render Pathogen::Toolbar::MenuTrigger.new(label: "More actions", controls: "grid-actions-menu") do %>
     More
-  </button>
+  <% end %>
 <% end %>
 ```
 
-- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"`.
-- v1 navigation is scoped to the item set present when the controller connects. Re-render or reconnect after add/remove/reorder state changes.
-- Host-local dropdown popups stay consumer-managed in v1. Only the closed trigger joins toolbar navigation.
+- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button`, `Toolbar::MenuTrigger`, or an explicit target on custom controls).
+- The controller resyncs when items connect/disconnect, on `turbo:morph`, and when handling events from replaced descendants. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
+- Host-local dropdown popups stay consumer-managed in v1. Only the closed trigger joins toolbar navigation. Prefer menus inside the toolbar subtree or portaled with stable `aria-controls` IDs.
 
 #### Tooltip
 
