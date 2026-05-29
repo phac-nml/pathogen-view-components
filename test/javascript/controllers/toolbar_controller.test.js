@@ -2,6 +2,7 @@ import { Application } from "@hotwired/stimulus";
 import { afterEach, describe, expect, it } from "vitest";
 
 import ToolbarController from "../../../app/assets/javascripts/pathogen_view_components/toolbar_controller";
+import { toolbarMarkup } from "../support/toolbar_controller_fixtures";
 
 const flush = async () => Promise.resolve();
 
@@ -16,25 +17,6 @@ const dispatchKey = (target, key) => {
 
   return event;
 };
-
-const toolbarMarkup = ({ includeInput = false } = {}) => `
-  <div id="toolbar-shell">
-    <div
-      role="toolbar"
-      data-controller="pathogen--toolbar"
-      data-action="keydown->pathogen--toolbar#handleKeyDown focusin->pathogen--toolbar#handleFocusIn click->pathogen--toolbar#handleClick:capture"
-    >
-      <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
-      <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-      <button id="item-three" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Three</button>
-      ${
-        includeInput
-          ? '<input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="abc" />'
-          : ""
-      }
-    </div>
-  </div>
-`;
 
 describe("toolbar_controller", () => {
   let application;
