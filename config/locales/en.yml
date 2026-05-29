@@ -35,6 +35,9 @@ en:
         open_label: Open sidebar
       trigger:
         open_label: Open sidebar
+    toolbar:
+      errors:
+        missing_items: At least one toolbar item target is required
     toolbar_preview:
       basic_usage:
         actions:

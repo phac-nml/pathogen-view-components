@@ -38,6 +38,9 @@ fr:
         open_label: Ouvrir la barre latérale
       trigger:
         open_label: Ouvrir la barre latérale
+    toolbar:
+      errors:
+        missing_items: Au moins un élément cible de barre d’outils est requis
     toolbar_preview:
       basic_usage:
         actions:
