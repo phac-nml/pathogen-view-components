@@ -8,8 +8,6 @@ pin 'pathogen_view_components/data_grid_controller', to: 'pathogen_view_componen
 pin 'pathogen_view_components/toolbar_controller', to: 'pathogen_view_components/toolbar_controller.js'
 pin 'pathogen_view_components/toolbar_controller/constants',
     to: 'pathogen_view_components/toolbar_controller/constants.js'
-pin 'pathogen_view_components/toolbar_controller/menu_popup',
-    to: 'pathogen_view_components/toolbar_controller/menu_popup.js'
 pin 'pathogen_view_components/toolbar_controller/roving_focus',
     to: 'pathogen_view_components/toolbar_controller/roving_focus.js'
 pin 'pathogen_view_components/toolbar_controller/text_entry',

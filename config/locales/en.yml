@@ -24,66 +24,6 @@ en:
       title: required
     link:
       aria-label: "%{content} (opens in a new window)"
-    toolbar:
-      errors:
-        missing_items: At least one toolbar item target is required
-    toolbar_preview:
-      basic_usage:
-        actions:
-          archive: Archive
-          duplicate: Duplicate
-          edit: Edit
-        title: Basic toolbar usage
-        toolbar_label: Sample actions
-      keyboard_and_accessibility:
-        actions:
-          more: More actions
-          refresh: Refresh data
-          sync: Sync all
-        description: Disabled actions remain discoverable, and custom controls can
-          join the item set when targeted.
-        dropdown_note: Dropdown popups stay consumer-managed; only the trigger participates
-          in toolbar roving focus.
-        title: Keyboard navigation and accessibility
-      toggle_buttons:
-        actions:
-          compact: Compact rows
-          export: Export
-          group: Group by status
-          more: Display menu
-        consumer_note: Pressed states are consumer-owned. The toolbar only reflects
-          the current state through aria-pressed.
-        static_note: This preview intentionally leaves pressed-state updates to consumer
-          logic.
-        title: Toggle-style actions
-        toolbar_label: Display options
-      with_aria_controls:
-        actions:
-          download: Download CSV
-          filter: Filter rows
-        columns:
-          name: Name
-          sample_id: Sample ID
-          status: Status
-        grid_caption: Sample inventory
-        rows:
-          first_name: Northern basin isolate
-          first_status: Active
-          second_name: Coastal sediment sample
-          second_status: Pending
-        title: Toolbar linked to controlled content
-        toolbar_label: Sample grid actions
-      with_search_input:
-        actions:
-          add: Add sample
-          bulk: Bulk actions
-        description: Arrow keys inside the search field keep native caret behavior
-          while command items keep roving focus.
-        search_label: Search samples
-        search_placeholder: Search by sample ID
-        search_value: SAM-
-        title: Toolbar with search input
-        toolbar_label: Search and actions
     tooltip:
       portal:
         aria_label: Tooltips

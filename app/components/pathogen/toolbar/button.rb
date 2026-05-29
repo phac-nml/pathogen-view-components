@@ -11,12 +11,12 @@ module Pathogen
     renders_one :trailing_visual
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(label: nil, pressed: nil, disabled: false, button_tag: :button, scheme: :default, size: :small,
+    def initialize(label: nil, pressed: nil, disabled: false, tag: :button, scheme: :default, size: :small,
                    **system_arguments)
       @label = label
       @pressed = pressed
       @disabled = disabled
-      @button_tag = button_tag
+      @tag = tag
       @scheme = scheme
       @size = size
       @system_arguments = system_arguments
@@ -30,7 +30,7 @@ module Pathogen
     def build_button_arguments!
       @system_arguments.delete(:disabled)
       @system_arguments.delete('disabled')
-      @system_arguments[:tag] = @button_tag
+      @system_arguments[:tag] = @tag
       @system_arguments[:tabindex] = -1
 
       apply_aria_attributes!
