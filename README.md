@@ -132,15 +132,15 @@ Sticky columns:
   <% end %>
   <%= render Pathogen::Toolbar::Separator.new %>
 
-  <%= render Pathogen::Toolbar::MenuTrigger.new(label: "More actions", controls: "grid-actions-menu") do %>
-    More
-  <% end %>
+  <%# Custom controls (e.g. a consumer-managed dropdown trigger) join roving focus
+      by exposing the toolbar item target explicitly. %>
+  <button type="button" tabindex="-1" data-pathogen--toolbar-target="item">More</button>
 <% end %>
 ```
 
-- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button`, `Toolbar::MenuTrigger`, or an explicit target on custom controls).
-- The controller resyncs when items connect/disconnect, on `turbo:morph`, and when handling events from replaced descendants. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
-- Host-local dropdown popups stay consumer-managed in v1. Only the closed trigger joins toolbar navigation. Prefer menus inside the toolbar subtree or portaled with stable `aria-controls` IDs.
+- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
+- The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
+- Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 
 #### Tooltip
 
