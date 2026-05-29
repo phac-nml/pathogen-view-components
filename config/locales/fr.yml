@@ -30,6 +30,9 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    toolbar:
+      errors:
+        missing_items: Au moins un élément cible de barre d’outils est requis
     toolbar_preview:
       basic_usage:
         actions:
