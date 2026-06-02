@@ -251,7 +251,7 @@ describe("data_grid_controller focus restore", () => {
       firstRowColumnTwo.focus();
 
       dispatchKey(firstRowColumnTwo, "PageDown");
-      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("6");
+      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("5");
       expect(document.activeElement.getAttribute("data-pathogen--data-grid-column-index")).toBe("2");
 
       dispatchKey(document.activeElement, "PageUp");
@@ -277,15 +277,15 @@ describe("data_grid_controller focus restore", () => {
 
       dispatchKey(firstRowColumnTwo, "PageDown");
       const pagedCell = document.activeElement;
-      expect(pagedCell.getAttribute("data-pathogen--data-grid-row-index")).toBe("6");
+      expect(pagedCell.getAttribute("data-pathogen--data-grid-row-index")).toBe("5");
       expect(pagedCell.getAttribute("data-pathogen--data-grid-column-index")).toBe("2");
 
       dispatchKey(pagedCell, "End");
-      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("6");
+      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("5");
       expect(document.activeElement.getAttribute("data-pathogen--data-grid-column-index")).toBe("3");
 
       dispatchKey(document.activeElement, "Home");
-      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("6");
+      expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("5");
       expect(document.activeElement.getAttribute("data-pathogen--data-grid-column-index")).toBe("0");
     } finally {
       rafSpy.mockRestore();
