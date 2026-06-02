@@ -348,14 +348,17 @@ export default class extends Controller {
       ? this.#rowHeight || 40
       : this.gridTarget.querySelector("tbody tr")?.offsetHeight || 1;
 
+    const hasStickyHeader = this.hasGridTarget && this.gridTarget.querySelector('[role="columnheader"]') !== null;
+    const headerAdjustment = hasStickyHeader ? 1 : 0;
+
     if (
       this.hasScrollContainerTarget &&
       this.scrollContainerTarget.clientHeight !== this.scrollContainerTarget.scrollHeight
     ) {
-      return Math.max(1, Math.floor(this.scrollContainerTarget.clientHeight / rowHeight));
+      return Math.max(1, Math.floor(this.scrollContainerTarget.clientHeight / rowHeight) - headerAdjustment);
     }
 
-    return Math.max(1, Math.floor(window.innerHeight / rowHeight));
+    return Math.max(1, Math.floor(window.innerHeight / rowHeight) - headerAdjustment);
   }
 
   #resolveCell(target) {

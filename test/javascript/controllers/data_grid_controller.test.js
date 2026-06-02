@@ -1224,9 +1224,9 @@ describe("data_grid_controller", () => {
     application.register("pathogen--data-grid", DataGridController);
     await flush();
 
-    // Mock dimensions so pageSize = Math.floor(2 / 1) = 2
+    // Mock dimensions so pageSize = Math.floor(3 / 1) - 1 = 2 (sticky header adjusts by 1)
     const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
-    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 3 });
     Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
 
     const startCell = document.querySelector(
@@ -1292,8 +1292,9 @@ describe("data_grid_controller", () => {
     application.register("pathogen--data-grid", DataGridController);
     await flush();
 
+    // Mock dimensions so pageSize = Math.floor(3 / 1) - 1 = 2 (sticky header adjusts by 1)
     const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
-    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 3 });
     Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
 
     const startCell = document.querySelector(
@@ -1442,6 +1443,65 @@ describe("data_grid_controller", () => {
 
     expect(document.activeElement).toBe(firstBodyCell);
     expect(firstBodyCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+  });
+
+  it("PageDown reduces page size by 1 when sticky header is present", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--data-grid">
+        <div data-pathogen--data-grid-target="scrollContainer">
+          <table role="grid" data-pathogen--data-grid-target="grid">
+            <thead>
+              <tr role="row">
+                <th role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${Array.from({ length: 5 }, (_, i) => {
+                const r = i + 1;
+                const isFirst = r === 1;
+                return `
+              <tr role="row">
+                <td role="gridcell" tabindex="${isFirst ? "0" : "-1"}"
+                  ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="${r}"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">R${r}</td>
+              </tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    application.stop();
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    // clientHeight=2, rowHeight=1 → raw page size = 2
+    // With sticky header adjustment: pageSize = max(1, 2 - 1) = 1
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 2 });
+    Object.defineProperty(scrollContainer, "scrollHeight", { configurable: true, value: 10 });
+
+    const startCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const expectedCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="2"][data-pathogen--data-grid-column-index="0"]',
+    );
+
+    startCell.focus();
+    dispatchKey(startCell, "PageDown");
+
+    expect(document.activeElement).toBe(expectedCell);
+    expect(expectedCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
 });
 
