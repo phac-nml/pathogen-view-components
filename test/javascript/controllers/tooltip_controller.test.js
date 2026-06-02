@@ -141,4 +141,151 @@ describe("tooltip_controller", () => {
     expect(tooltip.dataset.state).toBe("closed");
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
+
+  it("reconnects hover listeners after a Turbo-style disconnect and reconnect", async () => {
+    const { container, trigger, tooltip } = appendTooltip();
+    await waitForController();
+
+    const dialog = container.closest("dialog");
+    dialog.remove();
+    await waitForController();
+
+    document.body.appendChild(dialog);
+    await waitForController();
+
+    trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    await waitForController();
+
+    expect(tooltip.dataset.state).toBe("open");
+    expect(tooltip.getAttribute("aria-hidden")).toBe("false");
+  });
+
+  it("keeps tooltip reference when target disconnects due to portal", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-portal-reference");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-portal-reference";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("data-placement", "top");
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    container.appendChild(tooltip);
+    document.body.appendChild(container);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+
+    controller.show();
+    await waitForController();
+    expect(tooltip.parentElement).toBe(document.body);
+    expect(tooltip.dataset.state).toBe("open");
+
+    controller.hide();
+    await waitForController();
+    expect(tooltip.dataset.state).toBe("closed");
+
+    controller.show();
+    await waitForController();
+    expect(tooltip.dataset.state).toBe("open");
+
+    container.remove();
+    tooltip.remove();
+  });
+
+  it("keeps tooltip in its container until opened", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-portal");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-portal";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("data-placement", "top");
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    container.appendChild(tooltip);
+    document.body.appendChild(container);
+    await waitForController();
+
+    expect(tooltip.parentElement).toBe(container);
+    container.remove();
+  });
+
+  it("restores portaled tooltip to its container before Turbo caches the page", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-portal");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-portal";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("data-placement", "top");
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    container.appendChild(tooltip);
+    document.body.appendChild(container);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+    controller.show();
+    expect(tooltip.parentElement).toBe(document.body);
+
+    document.dispatchEvent(new Event("turbo:before-cache"));
+    await waitForController();
+
+    expect(tooltip.parentElement).toBe(container);
+    container.remove();
+  });
+
+  it("reconciles tooltip left in body when Stimulus cannot see the tooltip target", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-orphan");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-orphan";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("data-placement", "top");
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    document.body.appendChild(container);
+    document.body.appendChild(tooltip);
+    await waitForController();
+
+    trigger.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    await waitForController();
+
+    expect(tooltip.dataset.state).toBe("open");
+    container.remove();
+    tooltip.remove();
+  });
 });

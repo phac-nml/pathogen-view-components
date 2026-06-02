@@ -2,7 +2,7 @@
  * Run pnpm run build:css after changing components or pathogen.tailwind.css.
  */
 
-/*! tailwindcss v4.2.4 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -342,6 +342,9 @@
   .pointer-events-none {
     pointer-events: none;
   }
+  .collapse {
+    visibility: collapse;
+  }
   .invisible {
     visibility: hidden;
   }
@@ -373,12 +376,6 @@
   }
   .sticky {
     position: sticky;
-  }
-  .start {
-    inset-inline-start: var(--spacing);
-  }
-  .end {
-    inset-inline-end: var(--spacing);
   }
   .top-0 {
     top: calc(var(--spacing) * 0);
@@ -1500,6 +1497,12 @@
   .whitespace-pre-wrap {
     white-space: pre-wrap;
   }
+  .tab-1 {
+    tab-size: 1;
+  }
+  .tab-2 {
+    tab-size: 2;
+  }
   .text-\[var\(--pvc-data-grid-text-color\)\] {
     color: var(--pvc-data-grid-text-color);
   }
@@ -1658,6 +1661,9 @@
   }
   .text-yellow-500 {
     color: var(--color-yellow-500);
+  }
+  .lowercase {
+    text-transform: lowercase;
   }
   .uppercase {
     text-transform: uppercase;

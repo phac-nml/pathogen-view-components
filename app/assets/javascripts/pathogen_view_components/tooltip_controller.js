@@ -8,11 +8,16 @@ import { arrow, autoUpdate, computePosition, flip, offset, shift } from "@floati
 class TooltipRegistry {
   #controllers = new Set();
   #abortController = null;
+  #pageShowListener = null;
 
   register(controller) {
     this.#controllers.add(controller);
     if (!this.#abortController) {
       this.#setupGlobalListeners();
+    }
+    if (!this.#pageShowListener) {
+      this.#pageShowListener = (event) => this.#handlePageShow(event);
+      window.addEventListener("pageshow", this.#pageShowListener);
     }
   }
 
@@ -20,7 +25,19 @@ class TooltipRegistry {
     this.#controllers.delete(controller);
     if (this.#controllers.size === 0) {
       this.#teardownGlobalListeners();
+      if (this.#pageShowListener) {
+        window.removeEventListener("pageshow", this.#pageShowListener);
+        this.#pageShowListener = null;
+      }
     }
+  }
+
+  #handlePageShow(event) {
+    if (!event.persisted) return;
+
+    this.#controllers.forEach((controller) => {
+      controller.recoverFromPageCache?.();
+    });
   }
 
   hideAllExcept(activeController) {
@@ -80,7 +97,7 @@ const tooltipRegistry = new TooltipRegistry();
  * - Configurable autoUpdate for performance tuning
  * - Touch device support with tap-to-show/tap-to-navigate
  * - Respects prefers-reduced-motion
- * - Portals tooltip to body to escape CSS containment contexts
+ * - Portals tooltip to body only while open (Turbo cache safe)
  *
  * ## Accessibility (W3C ARIA APG Tooltip Pattern)
  * - Tooltip remains open over trigger OR tooltip
@@ -118,7 +135,7 @@ export default class extends Controller {
     animationFrame: { type: Boolean, default: false },
   };
 
-  // Private fields - store direct references since tooltip is portaled to body
+  // Private fields - store direct references since tooltip is portaled to body while open
   #cleanupAutoUpdate = null;
   #touchDismissTimeout = null;
   #hideTimeout = null;
@@ -126,7 +143,9 @@ export default class extends Controller {
   #touchPrimed = false;
   #touchStarted = false;
   #escapeDismissed = false;
-  #abortController = new AbortController();
+  #abortController = null;
+  #boundBeforeCache = null;
+  #bindingsActive = false;
   #originalParent = null;
   #tooltipElement = null;
   #triggerElement = null;
@@ -134,8 +153,23 @@ export default class extends Controller {
 
   connect() {
     this.element.dataset.controllerConnected = "true";
-
+    this.#resetAbortController();
+    this.#registerBeforeCacheListener();
     tooltipRegistry.register(this);
+    this.#reconcileTooltipDom();
+    this.#activateBindings();
+  }
+
+  /**
+   * Re-sync after browser back-forward cache restore (pageshow with persisted).
+   * Turbo cache restore uses connect(); bfcache may skip that lifecycle.
+   */
+  recoverFromPageCache() {
+    if (!this.element.isConnected) return;
+
+    this.#resetAbortController();
+    this.#reconcileTooltipDom();
+    this.#activateBindings();
   }
 
   disconnect() {
@@ -145,77 +179,42 @@ export default class extends Controller {
     this.#stopAutoUpdate();
     this.#clearTouchTimeout();
     this.#abortController?.abort();
+    this.#abortController = null;
+    this.#bindingsActive = false;
+    this.#unregisterBeforeCacheListener();
     tooltipRegistry.unregister(this);
-
-    // Return tooltip to original parent if portaled
-    if (this.#tooltipElement?.parentElement === document.body && this.#originalParent) {
-      this.#originalParent.appendChild(this.#tooltipElement);
-    }
+    this.#restoreTooltipToOriginalParent();
+    delete this.element.dataset.controllerConnected;
   }
 
   triggerTargetConnected(element) {
     this.#triggerElement = element;
-    this.#validateAriaDescribedBy(element);
-    this.#validateKeyboardAccessibility(element);
+    this.#activateBindings();
+  }
 
-    const { signal } = this.#abortController;
-
-    element.addEventListener(
-      "mouseenter",
-      () => {
-        this.#clearHideTimeout();
-        this.show();
-      },
-      { signal },
-    );
-
-    element.addEventListener(
-      "mouseleave",
-      () => {
-        this.#scheduleHide();
-      },
-      { signal },
-    );
-
-    element.addEventListener("focusin", () => this.show(), { signal });
-    element.addEventListener("focusout", () => this.hide(), { signal });
-    element.addEventListener("touchstart", (e) => this.#handleTouchStart(e), {
-      signal,
-      passive: true,
-    });
-    element.addEventListener("click", (e) => this.#handleClick(e), { signal });
+  triggerTargetDisconnected(element) {
+    if (this.#triggerElement === element) {
+      this.#triggerElement = null;
+      this.#bindingsActive = false;
+    }
   }
 
   tooltipTargetConnected(element) {
-    // Store direct reference before portaling (Stimulus targets won't work after)
-    this.#tooltipElement = element;
+    this.#captureTooltipElement(element);
+    this.#activateBindings();
+  }
 
-    // Find and store arrow element (nested inside tooltip, won't work as Stimulus target after portal)
-    this.#arrowElement = element.querySelector('[data-pathogen--tooltip-target="arrow"]');
+  tooltipTargetDisconnected(element) {
+    if (this.#tooltipElement === element) {
+      // Stimulus emits targetDisconnected when we portal the tooltip from the controller
+      // element to <body>. In that case we must keep the direct reference.
+      if (element.isConnected && element.parentElement === document.body) {
+        return;
+      }
 
-    const { signal } = this.#abortController;
-
-    element.addEventListener(
-      "mouseenter",
-      () => {
-        this.#clearHideTimeout();
-      },
-      { signal },
-    );
-    element.addEventListener(
-      "mouseleave",
-      () => {
-        this.#scheduleHide();
-      },
-      { signal },
-    );
-
-    // Portal tooltip to body to escape CSS containment contexts
-    // (container queries, transforms, filters create containing blocks
-    // that break position: fixed). Skip when inside a dialog so the tooltip
-    // remains in the top layer with the dialog content.
-    if (!element.closest("dialog")) {
-      this.#portalToBody(element);
+      this.#tooltipElement = null;
+      this.#arrowElement = null;
+      this.#bindingsActive = false;
     }
   }
 
@@ -228,6 +227,7 @@ export default class extends Controller {
 
     this.#hideOtherTooltips();
     this.#clearHideAfterTransitionTimeout();
+    this.#portalTooltipIfNeeded();
     this.#tooltipElement.removeAttribute("hidden");
 
     this.#tooltipElement.dataset.state = "open";
@@ -293,6 +293,102 @@ export default class extends Controller {
 
   // Private methods
 
+  #activateBindings() {
+    if (!this.element.isConnected || !this.element.dataset.controllerConnected) return;
+    if (!this.#triggerElement || !this.#tooltipElement) return;
+
+    if (this.#bindingsActive) return;
+
+    this.#validateAriaDescribedBy(this.#triggerElement);
+    this.#validateKeyboardAccessibility(this.#triggerElement);
+    this.#bindTriggerListeners(this.#triggerElement);
+    this.#bindTooltipListeners(this.#tooltipElement);
+    this.#bindingsActive = true;
+  }
+
+  #bindTriggerListeners(element) {
+    const { signal } = this.#ensureAbortController();
+
+    element.addEventListener(
+      "mouseenter",
+      () => {
+        this.#clearHideTimeout();
+        this.show();
+      },
+      { signal },
+    );
+
+    element.addEventListener(
+      "mouseleave",
+      () => {
+        this.#scheduleHide();
+      },
+      { signal },
+    );
+
+    element.addEventListener("focusin", () => this.show(), { signal });
+    element.addEventListener("focusout", () => this.hide(), { signal });
+    element.addEventListener("touchstart", (e) => this.#handleTouchStart(e), {
+      signal,
+      passive: true,
+    });
+    element.addEventListener("click", (e) => this.#handleClick(e), { signal });
+  }
+
+  #bindTooltipListeners(element) {
+    const { signal } = this.#ensureAbortController();
+
+    element.addEventListener(
+      "mouseenter",
+      () => {
+        this.#clearHideTimeout();
+      },
+      { signal },
+    );
+    element.addEventListener(
+      "mouseleave",
+      () => {
+        this.#scheduleHide();
+      },
+      { signal },
+    );
+  }
+
+  #captureTooltipElement(element) {
+    this.#tooltipElement = element;
+    this.#arrowElement = element.querySelector('[data-pathogen--tooltip-target="arrow"]');
+  }
+
+  #reconcileTooltipDom() {
+    if (!this.#triggerElement && this.hasTriggerTarget) {
+      this.#triggerElement = this.triggerTarget;
+    }
+
+    if (!this.#tooltipElement) {
+      if (this.hasTooltipTarget) {
+        this.#captureTooltipElement(this.tooltipTarget);
+      } else if (this.#triggerElement) {
+        const tooltipId = this.#tooltipIdFromTrigger(this.#triggerElement);
+        const tooltip = tooltipId ? document.getElementById(tooltipId) : null;
+        if (tooltip) {
+          this.#captureTooltipElement(tooltip);
+        }
+      }
+    }
+
+    if (this.#tooltipElement && !this.element.contains(this.#tooltipElement)) {
+      this.#originalParent = this.element;
+      this.element.appendChild(this.#tooltipElement);
+    }
+  }
+
+  #tooltipIdFromTrigger(triggerElement) {
+    const describedBy = triggerElement.getAttribute("aria-describedby");
+    if (!describedBy) return null;
+
+    return describedBy.split(/\s+/).filter(Boolean).at(-1) ?? null;
+  }
+
   #handleTouchStart() {
     if (!this.#tooltipElement || !this.#triggerElement) return;
     this.#touchStarted = true;
@@ -334,6 +430,8 @@ export default class extends Controller {
       middleware,
     })
       .then(({ x, y, placement: finalPlacement, middlewareData }) => {
+        if (!this.#tooltipElement) return;
+
         this.#tooltipElement.dataset.currentPlacement = finalPlacement;
 
         Object.assign(this.#tooltipElement.style, {
@@ -346,6 +444,8 @@ export default class extends Controller {
         }
       })
       .catch(() => {
+        if (!this.#tooltipElement) return;
+
         Object.assign(this.#tooltipElement.style, {
           top: "-9999px",
           left: "-9999px",
@@ -354,6 +454,8 @@ export default class extends Controller {
   }
 
   #positionArrow(placement, arrowData) {
+    if (!this.#arrowElement) return;
+
     const { x: arrowX, y: arrowY } = arrowData;
 
     const staticSide = {
@@ -417,6 +519,7 @@ export default class extends Controller {
       // Only hide if we are still closed (avoid race when reopened quickly)
       if (this.#tooltipElement?.dataset.state === "closed") {
         this.#tooltipElement.setAttribute("hidden", "");
+        this.#restoreTooltipToOriginalParent();
       }
       this.#hideAfterTransitionTimeout = null;
     }, transitionMs);
@@ -443,6 +546,13 @@ export default class extends Controller {
     }
   }
 
+  #portalTooltipIfNeeded() {
+    if (!this.#tooltipElement || this.#tooltipElement.closest("dialog")) return;
+    if (this.#tooltipElement.parentElement === document.body) return;
+
+    this.#portalToBody(this.#tooltipElement);
+  }
+
   #portalToBody(tooltipElement) {
     // Store original parent for cleanup
     this.#originalParent = tooltipElement.parentElement;
@@ -451,6 +561,46 @@ export default class extends Controller {
     // (container queries, transforms, filters create containing blocks
     // that break position: fixed)
     document.body.appendChild(tooltipElement);
+  }
+
+  #resetAbortController() {
+    this.#abortController?.abort();
+    this.#abortController = new AbortController();
+    this.#bindingsActive = false;
+  }
+
+  #ensureAbortController() {
+    if (!this.#abortController) {
+      this.#abortController = new AbortController();
+    }
+
+    return this.#abortController;
+  }
+
+  #registerBeforeCacheListener() {
+    if (this.#boundBeforeCache) return;
+
+    this.#boundBeforeCache = () => {
+      this.hide();
+      this.#restoreTooltipToOriginalParent();
+    };
+    document.addEventListener("turbo:before-cache", this.#boundBeforeCache);
+  }
+
+  #unregisterBeforeCacheListener() {
+    if (!this.#boundBeforeCache) return;
+
+    document.removeEventListener("turbo:before-cache", this.#boundBeforeCache);
+    this.#boundBeforeCache = null;
+  }
+
+  #restoreTooltipToOriginalParent() {
+    if (!this.#tooltipElement) return;
+
+    const parent = this.#originalParent ?? this.element;
+    if (this.#tooltipElement.parentElement !== parent && parent?.isConnected) {
+      parent.appendChild(this.#tooltipElement);
+    }
   }
 
   #isVisible() {
