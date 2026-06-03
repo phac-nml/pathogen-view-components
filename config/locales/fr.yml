@@ -1,6 +1,10 @@
 ---
 fr:
   pathogen:
+    form:
+      switch:
+        'off': Désactivé
+        'on': Activé
     label:
       required_indicator: "*"
       title: obligatoire

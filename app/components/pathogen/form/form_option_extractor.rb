@@ -32,8 +32,9 @@ module Pathogen
         @input_name = options.delete(:input_name)
         @id = options.delete(:id)
         @label = options.delete(:label)
-        @checked = options.delete(:checked) || false
-        @disabled = options.delete(:disabled) || false
+        @checked_provided = options.key?(:checked)
+        @checked = options.delete(:checked) { false }
+        @disabled = options.delete(:disabled) { false }
         @class = options.delete(:class)
         @help_text = options.delete(:help_text)
         @error_text = options.delete(:error_text)
@@ -79,14 +80,23 @@ module Pathogen
       # @raise [ArgumentError] if no accessible label is provided
       # @return [void]
       def validate_accessibility_requirements!
-        # Radio buttons don't require labels if they're part of a fieldset
-        return if input_type == 'radio' && @label.blank?
-        return unless @label.blank? && @aria_label.blank? && @aria_labelledby.blank?
+        return if exempt_from_accessibility_label_requirement?
+        return unless missing_accessible_name?
 
         raise ArgumentError,
               "Form component requires either 'label', " \
               "'aria: { label: ... }', or 'aria: { labelledby: ... }' " \
               'for accessibility compliance'
+      end
+
+      # @return [Boolean] whether an accessible name is not required for this component
+      def exempt_from_accessibility_label_requirement?
+        input_type == 'radio' && @label.blank?
+      end
+
+      # @return [Boolean] whether no accessible name source was provided
+      def missing_accessible_name?
+        @label.blank? && @aria_label.blank? && @aria_labelledby.blank?
       end
     end
   end

@@ -2,6 +2,7 @@
 
 require_relative '../styles/form_styles'
 require_relative '../test_selector_helper'
+require_relative 'switch_methods'
 
 module Pathogen
   module FormBuilders
@@ -18,6 +19,7 @@ module Pathogen
       include Pathogen::TestSelectorHelper
       include ActionView::Helpers::TagHelper
       include Pathogen::Styles::FormStyles
+      include SwitchMethods
 
       def field_set_tag(&)
         # Format the fieldset tag so it looks kick ass

@@ -9,10 +9,16 @@
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= stylesheet_link_tag "pathogen_view_components" %>
+    <%= stylesheet_link_tag "lookbook_preview" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body style="padding: 1rem;">
+  <body
+    class="
+      min-h-screen bg-white p-4 text-neutral-900 dark:bg-neutral-800
+      dark:text-neutral-100
+    "
+  >
     <%= yield %>
   </body>
 </html>
