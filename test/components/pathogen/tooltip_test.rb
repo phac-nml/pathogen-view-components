@@ -4,6 +4,10 @@ require 'test_helper'
 
 module Pathogen
   class TooltipTest < ViewComponent::TestCase
+    test 'portal_aria_label uses I18n' do
+      assert_equal I18n.t('pathogen.tooltip.portal.aria_label'), Pathogen::Tooltip.portal_aria_label
+    end
+
     test 'renders with required parameters' do
       render_inline(Pathogen::Tooltip.new(
                       text: 'Sample tooltip',

@@ -160,6 +160,84 @@ describe("tooltip_controller", () => {
     expect(tooltip.getAttribute("aria-hidden")).toBe("false");
   });
 
+  it("portals open tooltip to the global tooltip landmark", async () => {
+    const main = document.createElement("main");
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-landmark");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-landmark";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("data-placement", "top");
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    container.appendChild(tooltip);
+    main.appendChild(container);
+    document.body.appendChild(main);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+
+    controller.show();
+    await waitForController();
+    const portal = document.getElementById("pathogen-tooltip-portal");
+    expect(portal).toBeTruthy();
+    expect(portal.getAttribute("role")).toBe("region");
+    expect(portal.getAttribute("aria-label")).toBe("Tooltips");
+    expect(tooltip.parentElement).toBe(portal);
+    expect(main.contains(portal)).toBe(false);
+    expect(tooltip.dataset.state).toBe("open");
+
+    controller.hide();
+    await waitForController();
+    expect(tooltip.dataset.state).toBe("closed");
+
+    controller.show();
+    await waitForController();
+    expect(tooltip.dataset.state).toBe("open");
+
+    main.remove();
+  });
+
+  it("uses portalAriaLabel value for the tooltip landmark aria-label", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--tooltip");
+    container.setAttribute("data-pathogen--tooltip-portal-aria-label-value", "Info-bulles");
+
+    const trigger = document.createElement("button");
+    trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+    trigger.setAttribute("aria-describedby", "tip-i18n");
+    trigger.setAttribute("tabindex", "0");
+
+    const tooltip = document.createElement("div");
+    tooltip.id = "tip-i18n";
+    tooltip.setAttribute("role", "tooltip");
+    tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+    tooltip.dataset.state = "closed";
+    tooltip.setAttribute("aria-hidden", "true");
+
+    container.appendChild(trigger);
+    container.appendChild(tooltip);
+    document.body.appendChild(container);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+    controller.show();
+    await waitForController();
+
+    expect(document.getElementById("pathogen-tooltip-portal").getAttribute("aria-label")).toBe("Info-bulles");
+    container.remove();
+    document.getElementById("pathogen-tooltip-portal")?.remove();
+  });
+
   it("keeps tooltip reference when target disconnects due to portal", async () => {
     const container = document.createElement("div");
     container.setAttribute("data-controller", "pathogen--tooltip");
@@ -186,7 +264,7 @@ describe("tooltip_controller", () => {
 
     controller.show();
     await waitForController();
-    expect(tooltip.parentElement).toBe(document.body);
+    expect(tooltip.parentElement).toBe(document.getElementById("pathogen-tooltip-portal"));
     expect(tooltip.dataset.state).toBe("open");
 
     controller.hide();
@@ -251,7 +329,7 @@ describe("tooltip_controller", () => {
 
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
     controller.show();
-    expect(tooltip.parentElement).toBe(document.body);
+    expect(tooltip.parentElement).toBe(document.getElementById("pathogen-tooltip-portal"));
 
     document.dispatchEvent(new Event("turbo:before-cache"));
     await waitForController();
