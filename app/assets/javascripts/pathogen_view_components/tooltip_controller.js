@@ -78,6 +78,7 @@ class TooltipRegistry {
 }
 
 const tooltipRegistry = new TooltipRegistry();
+const TOOLTIP_PORTAL_ID = "pathogen-tooltip-portal";
 
 /**
  * Pathogen::Tooltip Stimulus Controller
@@ -97,7 +98,7 @@ const tooltipRegistry = new TooltipRegistry();
  * - Configurable autoUpdate for performance tuning
  * - Touch device support with tap-to-show/tap-to-navigate
  * - Respects prefers-reduced-motion
- * - Portals tooltip to body only while open (Turbo cache safe)
+ * - Portals tooltip to a stable landmark while open (Turbo cache safe)
  *
  * ## Accessibility (W3C ARIA APG Tooltip Pattern)
  * - Tooltip remains open over trigger OR tooltip
@@ -109,7 +110,8 @@ const tooltipRegistry = new TooltipRegistry();
  * - Prevents simultaneous tooltips
  *
  * @example Basic usage
- * <div data-controller="pathogen--tooltip">
+ * <div data-controller="pathogen--tooltip"
+ *      data-pathogen--tooltip-portal-aria-label-value="Tooltips">
  *   <button data-pathogen--tooltip-target="trigger"
  *           aria-describedby="tip-1">Hover me</button>
  *   <div id="tip-1" role="tooltip"
@@ -133,9 +135,11 @@ export default class extends Controller {
     elementResize: { type: Boolean, default: true },
     layoutShift: { type: Boolean, default: true },
     animationFrame: { type: Boolean, default: false },
+    // Set from I18n in Ruby wrappers (e.g. Pathogen::Link); English fallback for manual markup.
+    portalAriaLabel: { type: String, default: "Tooltips" },
   };
 
-  // Private fields - store direct references since tooltip is portaled to body while open
+  // Private fields - store direct references since tooltip may be portaled while open
   #cleanupAutoUpdate = null;
   #touchDismissTimeout = null;
   #hideTimeout = null;
@@ -207,8 +211,8 @@ export default class extends Controller {
   tooltipTargetDisconnected(element) {
     if (this.#tooltipElement === element) {
       // Stimulus emits targetDisconnected when we portal the tooltip from the controller
-      // element to <body>. In that case we must keep the direct reference.
-      if (element.isConnected && element.parentElement === document.body) {
+      // element to the tooltip portal. In that case we must keep the direct reference.
+      if (element.isConnected && element.parentElement !== this.#originalParent) {
         return;
       }
 
@@ -548,19 +552,29 @@ export default class extends Controller {
 
   #portalTooltipIfNeeded() {
     if (!this.#tooltipElement || this.#tooltipElement.closest("dialog")) return;
-    if (this.#tooltipElement.parentElement === document.body) return;
+    if (this.#tooltipElement.parentElement !== this.#originalParent && this.#originalParent) return;
 
-    this.#portalToBody(this.#tooltipElement);
+    this.#portalTooltip(this.#tooltipElement);
   }
 
-  #portalToBody(tooltipElement) {
+  #portalTooltip(tooltipElement) {
     // Store original parent for cleanup
     this.#originalParent = tooltipElement.parentElement;
 
-    // Move tooltip to body to escape CSS containment contexts
-    // (container queries, transforms, filters create containing blocks
-    // that break position: fixed)
-    document.body.appendChild(tooltipElement);
+    this.#portalTarget().appendChild(tooltipElement);
+  }
+
+  #portalTarget() {
+    const existingPortal = document.getElementById(TOOLTIP_PORTAL_ID);
+    if (existingPortal) return existingPortal;
+
+    const portal = document.createElement("div");
+    portal.id = TOOLTIP_PORTAL_ID;
+    portal.setAttribute("role", "region");
+    portal.setAttribute("aria-label", this.portalAriaLabelValue);
+    portal.setAttribute("data-pathogen-tooltip-portal", "");
+    document.body.appendChild(portal);
+    return portal;
   }
 
   #resetAbortController() {

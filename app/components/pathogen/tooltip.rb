@@ -5,6 +5,11 @@ module Pathogen
   class Tooltip < Pathogen::Component
     VALID_PLACEMENTS = %i[top bottom left right].freeze
 
+    # Accessible name for the shared tooltip portal landmark (Stimulus portalAriaLabel value).
+    def self.portal_aria_label
+      I18n.t('pathogen.tooltip.portal.aria_label')
+    end
+
     TOOLTIP_CLASSES = %w[
       fixed z-50 inline-block max-w-xs min-w-0 px-3 py-2
       bg-neutral-950 text-white font-sans text-sm font-medium
