@@ -10,3 +10,6 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    tooltip:
+      portal:
+        aria_label: Info-bulles

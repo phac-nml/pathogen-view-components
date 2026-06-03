@@ -36,8 +36,6 @@ module Pathogen
       def initialize(attribute:, value: '1', form: nil, **options)
         extract_switch_options!(options, value: value)
         super
-        aria_disabled_value = (@html_options || {}).values_at(:'aria-disabled', 'aria-disabled').compact.first
-        @disabled = true if aria_disabled_value.to_s == 'true'
         @role = 'switch'
       end
 

@@ -113,14 +113,14 @@ module Pathogen
         assert_includes track_label[:class], 'peer-disabled:[&_.pathogen-switch-track]:opacity-60'
       end
 
-      test 'treats aria-disabled as native disabled' do
+      test 'keeps switch focusable when aria-disabled is set' do
         render_inline(Pathogen::Form::Switch.new(
                         attribute: :enabled,
                         label: 'Dark mode',
                         'aria-disabled': 'true'
                       ))
 
-        assert_selector 'input[role="switch"][disabled][aria-disabled="true"]'
+        assert_selector 'input[role="switch"][aria-disabled="true"]:not([disabled])'
       end
 
       test 'uses custom id without value suffix' do
