@@ -1,0 +1,9 @@
+/* Demo Lookbook utilities only; not shipped with the gem. */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@import "tailwindcss" source(none);
+
+@source "../../views/**/*.erb";
+@source "../../../../test/components/previews/**/*.erb";
+@source "../../../../test/components/previews/**/*.rb";

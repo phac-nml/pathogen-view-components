@@ -2,7 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 
 @source "../../components/**/*.rb";
 @source "../../components/**/*.erb";
@@ -72,5 +72,5 @@
   }
 }
 
-@import "./pathogen_datagrid_layer.css";
+@import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
