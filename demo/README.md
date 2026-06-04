@@ -16,18 +16,22 @@ bundle install
 bin/dev
 ```
 
-This starts Rails on port 3001 and the Pathogen CSS watcher via Foreman. Open `http://localhost:3001` — it redirects to `/lookbook` automatically.
+This starts Rails on port 3001 plus two CSS watchers via Foreman (Pathogen gem CSS and demo Tailwind CSS). Open `http://localhost:3001` — it redirects to `/lookbook` automatically.
 
 ## How it works
 
 - **Previews** are in `../test/components/previews/pathogen/` (shared with the gem's test suite).
-- **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads the compiled `pathogen_view_components.css` stylesheet.
-- **Styles** are the gem’s pre-built Tailwind output (`pathogen_view_components.css`). Run `pnpm --dir .. run build:css` for a one-shot build or `pnpm --dir .. run build:css:watch` for watch mode (see `app/assets/stylesheets/pathogen.tailwind.css` in the repo root).
+- **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads both `pathogen_view_components.css` (gem CSS) and `tailwind.css` (demo CSS).
+- **Gem CSS (host-app surface)** is `../app/assets/stylesheets/pathogen_view_components.css`. Build with `pnpm --dir .. run build:css` or watch with `pnpm --dir .. run build:css:watch` from the repo root.
+- **Demo CSS (Lookbook-only)** is compiled from `app/assets/tailwind/application.css` into `app/assets/builds/tailwind.css` by `bin/rails tailwindcss:build` / `bin/rails tailwindcss:watch`.
 - **Port 3001** is hardcoded in `Procfile.dev` to avoid conflicts with other local Rails apps.
 
 ## CSS development
 
-The `Procfile.dev` watcher runs `pnpm --dir .. run build:css:watch`, which runs the Tailwind v4 CLI against `../app/assets/stylesheets/pathogen.tailwind.css` and writes `../app/assets/stylesheets/pathogen_view_components.css`.
+`Procfile.dev` runs two CSS processes:
+
+- `pathogen-css`: `pnpm --dir .. run build:css:watch` (builds `../app/assets/stylesheets/pathogen_view_components.css` for component styles shared with host apps).
+- `tailwindcss`: `bin/rails tailwindcss:watch` (builds `app/assets/builds/tailwind.css` for Lookbook preview/layout utilities).
 
 ## Adding previews
 
