@@ -30,6 +30,8 @@ module Pathogen
       assert_selector 'th.pvc-data-grid__cell--header > span.pvc-data-grid__header-label', count: 2
       assert_selector 'th.pvc-data-grid__cell--sticky[style*="--pvc-data-grid-sticky-left: 0px"]'
       assert_selector 'td.pvc-data-grid__cell--body[role="gridcell"]', text: 'Sample one'
+      assert_no_selector 'th[aria-colindex]'
+      assert_no_selector 'td[aria-colindex]'
       assert_selector 'tbody tr:first-child td:first-child[tabindex="0"]'
       assert_selector 'tbody tr:first-child td:nth-child(2)[tabindex="-1"]'
       assert_selector '.pvc-data-grid__keyboard-help',

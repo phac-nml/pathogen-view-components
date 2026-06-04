@@ -116,10 +116,10 @@ module Pathogen
           class: class_names(*cell_classes(header:)),
           data: cell_data_attributes(row_index:, column_index:, interactive:),
           role: cell_role(header:),
-          aria: { colindex: aria_column_index },
           style: cell_styles,
           tabindex: cell_tabindex(header:, active:)
         }
+        attributes[:aria] = { colindex: aria_column_index } unless aria_column_index.nil?
         attributes['data-pvc-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
         attributes
       end
