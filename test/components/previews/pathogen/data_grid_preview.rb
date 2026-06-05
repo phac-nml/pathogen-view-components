@@ -146,6 +146,14 @@ module Pathogen
       render_with_template
     end
 
+    # @label Virtual Infinite Scroll (5,000 rows)
+    # Rows are fetched from `/demo/samples/rows.json` when running the demo app.
+    def virtual_infinite_scroll
+      component = build_virtual_infinite_scroll_component if demo_samples_available?
+
+      render_with_template(locals: { component: })
+    end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
@@ -280,6 +288,22 @@ module Pathogen
     def fixed_window_metric(row, index)
       sample_number = row[:sample_id].delete('^0-9').to_i
       "M#{index}-#{(sample_number + index) % 997}"
+    end
+
+    def demo_samples_available?
+      defined?(Demo::SampleDataset) && defined?(Demo::SamplesGrid)
+    end
+
+    def build_virtual_infinite_scroll_component
+      page_size = Demo::SamplesGrid::DEFAULT_PAGE_SIZE
+      seed_rows = Demo::SampleDataset.page(page: 1, limit: page_size)
+
+      Demo::SamplesGrid.build(
+        rows: seed_rows,
+        fill_container: true,
+        caption: 'Virtual grid with 5,000 server-backed rows',
+        style: 'width: 100%; height: 100%; min-height: 0;'
+      )
     end
 
     # rubocop:disable Metrics/MethodLength

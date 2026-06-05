@@ -721,6 +721,109 @@ module Pathogen
       assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 200.0px;"]'
     end
 
+    test 'virtual pagination exposes metadata attributes and total aria-rowcount' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      virtual_pagination: {
+                        total_count: 5_000,
+                        rows_url: '/demo/samples/rows.json'
+                      },
+                      rows: [{ id: 'S-001', name: 'Alpha' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector(
+        'div[role="grid"]' \
+        '[aria-rowcount="5001"]' \
+        '[data-pvc-data-grid-total-count="5000"]' \
+        '[data-pvc-data-grid-rows-url="/demo/samples/rows.json"]' \
+        '[data-pvc-data-grid-page-size="20"]' \
+        '[data-pvc-data-grid-row-offset="0"]'
+      )
+      assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="0"][aria-rowindex="2"]'
+      assert_selector(
+        '.pvc-data-grid__virtual-status' \
+        '[data-loading-more-text="Loading more rows…"]' \
+        '[data-fetch-error-text="Unable to load more rows. Scroll to try again."]'
+      )
+    end
+
+    test 'virtual pagination requires an explicit rows URL' do
+      error = assert_raises(ArgumentError) do
+        Pathogen::DataGridComponent.new(
+          virtual: true,
+          virtual_pagination: { total_count: 100 },
+          rows: [{ id: 'S-001' }]
+        )
+      end
+
+      assert_equal 'virtual_pagination requires rows_url', error.message
+    end
+
+    test 'virtual pagination with row offset keeps global indexes on seed rows' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      virtual_pagination: {
+                        total_count: 5_000,
+                        rows_url: '/demo/samples/rows.json',
+                        page_size: 20,
+                        row_offset: 20
+                      },
+                      rows: [{ id: 'S-021', name: 'Omega' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="20"][aria-rowindex="22"]'
+      assert_selector(
+        'div[role="gridcell"][data-pathogen--data-grid-row-index="21"][data-pathogen--data-grid-column-index="0"]'
+      )
+      assert_selector 'div[role="gridcell"][tabindex="0"][data-pathogen--data-grid-row-index="21"]'
+    end
+
+    test 'non-paginated virtual mode is unchanged when pagination metadata is absent' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      rows: [
+                        { id: 'S-001', name: 'Alpha' },
+                        { id: 'S-002', name: 'Beta' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 200)
+      end
+
+      assert_selector 'div[role="grid"][aria-rowcount="3"]'
+      assert_no_selector 'div[role="grid"][data-pvc-data-grid-total-count]'
+      assert_no_selector 'div[role="grid"][data-pvc-data-grid-rows-url]'
+      assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="0"]'
+      assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="1"]'
+    end
+
+    test 'virtual pagination localizes loading-more and fetch-error status copy' do
+      I18n.with_locale(:fr) do
+        render_inline(Pathogen::DataGridComponent.new(
+                        virtual: true,
+                        virtual_pagination: {
+                          total_count: 100,
+                          rows_url: '/demo/samples/rows.json'
+                        },
+                        rows: [{ id: 'S-001', name: 'Alpha' }]
+                      )) do |grid|
+          grid.with_column('ID', key: :id, width: 120)
+        end
+
+        assert_selector(
+          '.pvc-data-grid__virtual-status' \
+          '[data-loading-more-text="Chargement de lignes supplémentaires…"]' \
+          '[data-fetch-error-text="Impossible de charger d’autres lignes. Faites défiler pour réessayer."]'
+        )
+      end
+    end
+
     test 'virtual mode falls back to fixed pixel tracks for non-pixel widths' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
