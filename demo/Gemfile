@@ -3,6 +3,8 @@
 source 'https://rubygems.org'
 
 gem 'importmap-rails'
+gem 'jbuilder'
+gem 'pagy'
 gem 'pathogen_view_components', path: '..'
 gem 'propshaft'
 gem 'puma', '>= 5.0'
