@@ -181,9 +181,9 @@ module Pathogen
 
       def value_for(row, index)
         return row[index] if row.is_a?(Array)
-        return row[@key] if @key && row.is_a?(Hash) && row.key?(@key)
+        return unless @key && row.is_a?(Hash)
 
-        row[@key.to_s] if @key && row.is_a?(Hash)
+        row.fetch(@key) { row[@key.to_s] }
       end
     end
   end

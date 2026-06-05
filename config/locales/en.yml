@@ -15,6 +15,9 @@ en:
       virtual:
         loaded: Rows loaded.
         loading: Loading rows…
+        pagination:
+          fetch_error: Unable to load more rows. Scroll to try again.
+          loading_more: Loading more rows…
     form:
       switch:
         'off': 'Off'
