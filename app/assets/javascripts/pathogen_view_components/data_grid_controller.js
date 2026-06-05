@@ -18,13 +18,19 @@ import {
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
+import { computeVisibleColumnRange, measureRowHeight } from "pathogen_view_components/data_grid_controller/virtualizer";
+
 import {
-  computeVisibleColumnRange,
-  computeVisibleRange,
-  measureRowHeight,
-  scrollLeftForColumn,
-  scrollTopForRow,
-} from "pathogen_view_components/data_grid_controller/virtualizer";
+  buildPaginationMode,
+  cachedVirtualCells,
+  paginationContract,
+  setPaginationBusy,
+} from "pathogen_view_components/data_grid_controller/pagination_mode";
+import { CenterColumnWindow } from "pathogen_view_components/data_grid_controller/virtual_columns";
+import {
+  ensureVirtualCellVisible,
+  renderVirtualWindow,
+} from "pathogen_view_components/data_grid_controller/virtual_window";
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
@@ -48,6 +54,7 @@ const DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2;
 const DEFAULT_VIRTUAL_COLUMN_WIDTH = 120;
 const DEFAULT_VIRTUAL_ROW_HEIGHT = 40;
 const DEFAULT_VIRTUAL_ROW_OVERSCAN = 10;
+const DEFAULT_VIRTUAL_PAGE_SIZE = 20;
 
 export default class extends Controller {
   static targets = [
@@ -64,7 +71,6 @@ export default class extends Controller {
   // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
   #lastActiveCell = null;
 
-  // Virtual mode state
   #allRowElements = null; // Detached row elements (only in virtual mode)
   #rowHeight = 0;
   #visibleStartIndex = -1;
@@ -80,9 +86,15 @@ export default class extends Controller {
   #virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
   #virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
   #virtualAllCells = null;
-  #centerLaneCellCache = new WeakMap();
+  #centerColumnWindow = new CenterColumnWindow({
+    pinnedCount: () => this.#virtualPinnedCount,
+    cellSelector: CELL_SELECTOR,
+  });
 
-  // Cell caches for keyboard hot paths
+  #virtualRows = null;
+
+  #pagination = null;
+
   #allCellsCache = null;
   #cellSetCache = null;
   #cellIndexCache = new WeakMap();
@@ -125,7 +137,10 @@ export default class extends Controller {
     this.#virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
     this.#visibleColumnStartIndex = -1;
     this.#visibleColumnEndIndex = -1;
-    this.#centerLaneCellCache = new WeakMap();
+    this.#centerColumnWindow.reset();
+    this.#virtualRows = null;
+    this.#pagination?.disconnect();
+    this.#pagination = null;
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
@@ -250,7 +265,18 @@ export default class extends Controller {
     if (this.#allCellsCache) return this.#allCellsCache;
 
     let cells;
-    if (this.#isVirtual() && this.#virtualAllCells) {
+    if (this.#isPaginatedVirtual() && this.#pagination) {
+      const headerCells = this.hasGridTarget
+        ? Array.from(this.gridTarget.querySelectorAll(`${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"]`))
+        : [];
+      const bodyCells = [];
+      this.#pagination.getCachedRows().forEach((row) => {
+        row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
+          bodyCells.push(cell);
+        });
+      });
+      cells = [...headerCells, ...bodyCells];
+    } else if (this.#isVirtual() && this.#virtualAllCells) {
       // Virtual mode must use stable logical ordering (row-major across all rows),
       // not current DOM window ordering, so interactive traversal is deterministic.
       cells = [...this.#virtualAllCells];
@@ -477,13 +503,28 @@ export default class extends Controller {
     });
 
     if (this.hasScrollContainerTarget) {
-      this.scrollContainerTarget.addEventListener(
+      const scrollContainer = this.scrollContainerTarget;
+
+      scrollContainer.addEventListener(
         "scroll",
         () => {
           if (this.#isVirtual()) {
             this.#onScroll();
           } else {
             this.#syncScrollAffordance();
+          }
+        },
+        {
+          signal,
+          passive: true,
+        },
+      );
+
+      scrollContainer.addEventListener(
+        "scrollend",
+        () => {
+          if (this.#isPaginatedVirtual()) {
+            this.#onScrollEnd();
           }
         },
         {
@@ -515,6 +556,15 @@ export default class extends Controller {
     return this.hasViewportTarget;
   }
 
+  #isPaginatedVirtual() {
+    if (!this.hasGridTarget) return false;
+
+    const totalCount = Number.parseInt(this.gridTarget.dataset.pvcDataGridTotalCount || "", 10);
+    const rowsUrl = this.gridTarget.dataset.pvcDataGridRowsUrl || "";
+
+    return Number.isFinite(totalCount) && totalCount > 0 && rowsUrl.length > 0;
+  }
+
   #initVirtualMode() {
     const loadingText = this.#virtualStatusMessage(
       "loadingText",
@@ -532,9 +582,18 @@ export default class extends Controller {
     const viewport = this.viewportTarget;
     const spacer = viewport.querySelector(".pvc-data-grid__spacer");
 
-    // Collect all body rows (skip the spacer)
     const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
+
+    if (this.#isPaginatedVirtual()) {
+      this.#initPaginatedVirtualMode(rows, spacer, viewport, loadedText);
+      return;
+    }
+
     this.#allRowElements = rows;
+    this.#virtualRows = {
+      totalRows: rows.length,
+      rowAt: (index) => this.#allRowElements[index],
+    };
     this.#virtualAllCells = this.hasGridTarget ? Array.from(this.gridTarget.querySelectorAll(CELL_SELECTOR)) : null;
     this.#readVirtualColumnContract();
     this.#invalidateCellCaches();
@@ -553,10 +612,49 @@ export default class extends Controller {
     // Detach all rows — we'll render only the visible range
     rows.forEach((row) => row.remove());
 
-    // Render initial visible range
     this.#renderVisibleRows();
 
-    // Reveal viewport now that only visible rows are in the DOM (prevents FOUC)
+    this.#revealVirtualMode(loadedText);
+  }
+
+  #initPaginatedVirtualMode(rows, spacer, viewport, loadedText) {
+    const contract = paginationContract(this.gridTarget, DEFAULT_VIRTUAL_PAGE_SIZE);
+    this.#readVirtualColumnContract();
+
+    const mode = buildPaginationMode({
+      rows,
+      contract,
+      cellSelector: CELL_SELECTOR,
+      rowHeight: () => this.#rowHeight,
+      visibleRange: () => ({ startIndex: this.#visibleStartIndex, endIndex: this.#visibleEndIndex }),
+      onRowsChanged: () => {
+        this.#updateVirtualAllCellsFromCache();
+        this.#invalidateCellCaches();
+      },
+      onVisibleRowsChanged: () => {
+        this.#visibleStartIndex = -1;
+        this.#visibleEndIndex = -1;
+        this.#scheduleVirtualRender();
+      },
+      setBusy: (isBusy) => this.#setPaginationBusy(isBusy),
+      handleError: (error) => this.#handlePaginationError(error),
+    });
+    this.#pagination = mode.pagination;
+    this.#allRowElements = null;
+    this.#virtualRows = mode.virtualRows;
+
+    this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
+    if (spacer) spacer.style.height = `${contract.totalRows * this.#rowHeight}px`;
+
+    rows.forEach((row) => row.remove());
+    this.#updateVirtualAllCellsFromCache();
+    this.#invalidateCellCaches();
+    this.#renderVisibleRows();
+    this.#revealVirtualMode(loadedText);
+    this.#flushPageFetches(this.#visibleStartIndex, this.#visibleEndIndex);
+  }
+
+  #revealVirtualMode(loadedText) {
     this.element.setAttribute("data-virtual-ready", "");
     if (this.hasGridTarget) {
       this.gridTarget.setAttribute("aria-busy", "false");
@@ -569,6 +667,8 @@ export default class extends Controller {
   #onScroll() {
     this.#syncScrollAffordance();
     this.#scheduleVirtualRender();
+
+    if (this.#pagination) this.#pagination.handleScroll();
   }
 
   #onResize() {
@@ -594,13 +694,15 @@ export default class extends Controller {
   }
 
   #refreshVirtualMeasurements() {
-    if (!this.#allRowElements) return;
+    if (!this.#isVirtual()) return;
+    if (!this.#isPaginatedVirtual() && !this.#allRowElements) return;
 
     this.#rowHeight = measureRowHeight(this.viewportTarget) || this.#rowHeight;
 
     const spacer = this.viewportTarget.querySelector(".pvc-data-grid__spacer");
     if (spacer) {
-      spacer.style.height = `${this.#allRowElements.length * this.#rowHeight}px`;
+      const totalRows = this.#virtualRows ? this.#virtualRows.totalRows : this.#allRowElements.length;
+      spacer.style.height = `${totalRows * this.#rowHeight}px`;
     }
 
     // Force re-render after resize even if indices did not change.
@@ -611,80 +713,69 @@ export default class extends Controller {
   }
 
   #renderVisibleRows() {
-    if (!this.#allRowElements) return;
-
-    const scrollTop = this.hasScrollContainerTarget ? this.scrollContainerTarget.scrollTop : 0;
-    const containerHeight = this.hasScrollContainerTarget ? this.scrollContainerTarget.clientHeight : 0;
-    const viewportHeight = containerHeight > 0 ? containerHeight : window.innerHeight;
-    const columnRange = this.#computeVisibleColumnRange();
-
-    const { startIndex, endIndex } = computeVisibleRange({
-      scrollTop,
-      viewportHeight,
+    renderVirtualWindow({
+      rowSource: this.#virtualRows,
       rowHeight: this.#rowHeight,
-      totalRows: this.#allRowElements.length,
-      buffer: this.#virtualRowOverscan,
+      rowOverscan: this.#virtualRowOverscan,
+      scrollContainer: this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      viewport: this.viewportTarget,
+      currentRange: {
+        rowStart: this.#visibleStartIndex,
+        rowEnd: this.#visibleEndIndex,
+        columnStart: this.#visibleColumnStartIndex,
+        columnEnd: this.#visibleColumnEndIndex,
+      },
+      setCurrentRange: ({ rowStart, rowEnd, columnStart, columnEnd }) => {
+        this.#visibleStartIndex = rowStart;
+        this.#visibleEndIndex = rowEnd;
+        this.#visibleColumnStartIndex = columnStart;
+        this.#visibleColumnEndIndex = columnEnd;
+      },
+      computeColumnRange: () => this.#computeVisibleColumnRange(),
+      applyColumnWindow: (row, columnRange) => this.#centerColumnWindow.apply(row, columnRange),
+      headerRow: () => this.#virtualHeaderRow(),
+      resolveCell: (target) => this.#resolveCell(target),
+      cellByCoordinate: (rowIndex, columnIndex) => this.#cellByCoordinate(rowIndex, columnIndex),
+      setActiveCell: (cell) => this.#setActiveCell(cell),
+      ensureFocusableCell: () => this.#ensureRenderedFocusableCell(),
     });
+  }
+  #onScrollEnd() {
+    this.#pagination?.handleScrollEnd();
+  }
 
-    const rowRangeUnchanged = startIndex === this.#visibleStartIndex && endIndex === this.#visibleEndIndex;
-    const columnRangeUnchanged =
-      (columnRange === null && this.#visibleColumnStartIndex === -1 && this.#visibleColumnEndIndex === -1) ||
-      (columnRange !== null &&
-        columnRange.startIndex === this.#visibleColumnStartIndex &&
-        columnRange.endIndex === this.#visibleColumnEndIndex);
-    if (rowRangeUnchanged && columnRangeUnchanged) return;
+  #flushPageFetches(startIndex, endIndex) {
+    this.#pagination?.flushRange(startIndex, endIndex);
+  }
 
-    this.#visibleStartIndex = startIndex;
-    this.#visibleEndIndex = endIndex;
-    this.#visibleColumnStartIndex = columnRange ? columnRange.startIndex : -1;
-    this.#visibleColumnEndIndex = columnRange ? columnRange.endIndex : -1;
+  #setPaginationBusy(isBusy) {
+    setPaginationBusy(
+      {
+        grid: this.hasGridTarget ? this.gridTarget : null,
+        status: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
+        loadingMoreText: this.#virtualStatusMessage("loadingMoreText", null),
+        loadedText: this.#virtualStatusMessage("loadedText", null),
+      },
+      isBusy,
+    );
+  }
 
-    const viewport = this.viewportTarget;
-    const spacer = viewport.querySelector(".pvc-data-grid__spacer");
+  #handlePaginationError(error) {
+    console.error("[pathogen--data-grid] Pagination fetch error", error);
 
-    // Preserve logical focus coordinates across virtual re-renders.
-    // If widget mode was active, restore focus to the owning cell so Enter/F2 is
-    // required to re-enter widget mode after a render boundary.
-    const focusedCell = this.#resolveCell(document.activeElement);
-    const focusedRowIndex = focusedCell ? rowIndexOf(focusedCell) : null;
-    const focusedColumnIndex = focusedCell ? columnIndexOf(focusedCell) : null;
-    const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
-    let didRestoreCellFocus = false;
+    const fetchErrorText = this.#virtualStatusMessage("fetchErrorText", null);
+    if (fetchErrorText) this.#showErrorState(fetchErrorText);
+    else this.#reportError(error);
+  }
 
-    // Remove current body rows (keep the spacer)
-    const currentRows = viewport.querySelectorAll('[role="row"]');
-    currentRows.forEach((row) => row.remove());
+  #updateVirtualAllCellsFromCache() {
+    if (!this.hasGridTarget || !this.#pagination) return;
 
-    // Insert visible rows after the spacer, positioned absolutely at their virtual coordinate
-    const fragment = document.createDocumentFragment();
-    for (let i = startIndex; i < endIndex; i++) {
-      const row = this.#allRowElements[i];
-      row.style.top = `${i * this.#rowHeight}px`;
-      this.#applyCenterColumnWindow(row, columnRange);
-      fragment.appendChild(row);
-    }
-
-    if (spacer) {
-      spacer.after(fragment);
-    } else {
-      viewport.appendChild(fragment);
-    }
-
-    this.#applyCenterColumnWindow(this.#virtualHeaderRow(), columnRange);
-
-    if (shouldRestoreCellFocus) {
-      const mappedCell = this.#cellByCoordinate(focusedRowIndex, focusedColumnIndex);
-      if (mappedCell && mappedCell.isConnected) {
-        this.#setActiveCell(mappedCell);
-        mappedCell.focus({ preventScroll: true });
-        didRestoreCellFocus = true;
-      }
-    }
-
-    if (!didRestoreCellFocus) this.#ensureRenderedFocusableCell();
-
-    // Cell caches built from #allRowElements cover all rows (in- and out-of-DOM)
-    // and remain valid across window slides — no invalidation needed here.
+    this.#virtualAllCells = cachedVirtualCells({
+      grid: this.gridTarget,
+      rows: this.#pagination.getCachedRows(),
+      cellSelector: CELL_SELECTOR,
+    });
   }
 
   #ensureRenderedFocusableCell() {
@@ -700,66 +791,33 @@ export default class extends Controller {
    * @param {number|null} columnIndex - absolute logical column index
    */
   #ensureVirtualRowVisible(rowIndex, columnIndex = null) {
-    if (!this.#isVirtual() || !this.#allRowElements) return;
+    if (!this.#isVirtual()) return;
+    if (!this.#isPaginatedVirtual() && !this.#allRowElements) return;
 
-    const scrollContainer = this.hasScrollContainerTarget ? this.scrollContainerTarget : null;
-    if (!scrollContainer) return;
-
-    let didAdjustScroll = false;
-
-    if (typeof rowIndex === "number" && rowIndex >= 0) {
-      const newScrollTop = scrollTopForRow({
-        rowIndex,
-        scrollTop: scrollContainer.scrollTop,
-        viewportHeight: scrollContainer.clientHeight,
-        rowHeight: this.#rowHeight,
-      });
-
-      if (newScrollTop !== null) {
-        scrollContainer.scrollTop = newScrollTop;
-        didAdjustScroll = true;
-      }
-    }
-
-    if (
-      columnIndex !== null &&
-      columnIndex >= this.#virtualPinnedCount &&
-      this.#virtualColumnWidths.length > 0 &&
-      this.#virtualColumnOffsets.length === this.#virtualColumnWidths.length
-    ) {
-      const newScrollLeft = scrollLeftForColumn({
-        columnIndex,
-        scrollLeft: scrollContainer.scrollLeft,
-        viewportWidth: scrollContainer.clientWidth,
-        pinnedWidth: this.#virtualPinnedWidth,
-        columnOffsets: this.#virtualColumnOffsets,
-        columnWidths: this.#virtualColumnWidths,
-      });
-
-      if (newScrollLeft !== null) {
-        scrollContainer.scrollLeft = newScrollLeft;
-        didAdjustScroll = true;
-      }
-    }
-
-    const rowRendered =
-      rowIndex === null || rowIndex < 0 || (rowIndex >= this.#visibleStartIndex && rowIndex < this.#visibleEndIndex);
-    const columnRendered = this.#isColumnRendered(columnIndex);
-
-    // Synchronize render before focus if a scroll move happened or target coords are not mounted.
-    if (didAdjustScroll || !rowRendered || !columnRendered) {
-      if (this.#rafId) {
-        cancelAnimationFrame(this.#rafId);
-        this.#rafId = null;
-      }
-      try {
-        this.#renderVisibleRows();
-      } catch (error) {
-        this.#reportError(error);
-      }
-    }
+    ensureVirtualCellVisible({
+      rowIndex,
+      columnIndex,
+      rowHeight: this.#rowHeight,
+      scrollContainer: this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      visibleRange: { startIndex: this.#visibleStartIndex, endIndex: this.#visibleEndIndex },
+      pinnedCount: this.#virtualPinnedCount,
+      columnWidths: this.#virtualColumnWidths,
+      columnOffsets: this.#virtualColumnOffsets,
+      pinnedWidth: this.#virtualPinnedWidth,
+      isColumnRendered: (index) => this.#isColumnRendered(index),
+      prefetchRow: (index) => {
+        if (this.#isPaginatedVirtual()) this.#pagination?.ensureRowLoaded(index);
+      },
+      cancelScheduledRender: () => {
+        if (this.#rafId) {
+          cancelAnimationFrame(this.#rafId);
+          this.#rafId = null;
+        }
+      },
+      renderNow: () => this.#renderVisibleRows(),
+      reportError: (error) => this.#reportError(error),
+    });
   }
-
   #readVirtualColumnContract() {
     if (!this.hasGridTarget) return;
 
@@ -841,46 +899,6 @@ export default class extends Controller {
   #virtualHeaderRow() {
     if (!this.hasGridTarget) return null;
     return this.gridTarget.querySelector('.pvc-data-grid__row--header[role="row"]');
-  }
-
-  #centerLaneCells(centerLane) {
-    if (!centerLane) return [];
-
-    const cachedCells = this.#centerLaneCellCache.get(centerLane);
-    if (cachedCells) return cachedCells;
-
-    const cells = Array.from(centerLane.querySelectorAll(CELL_SELECTOR));
-    this.#centerLaneCellCache.set(centerLane, cells);
-    return cells;
-  }
-
-  #applyCenterColumnWindow(row, columnRange) {
-    if (!row || !columnRange) return;
-
-    const centerLane = row.querySelector('[data-pvc-data-grid-lane="center"]');
-    if (!centerLane) return;
-
-    const allCenterCells = this.#centerLaneCells(centerLane);
-    if (allCenterCells.length === 0) return;
-
-    const visibleCells = [];
-    allCenterCells.forEach((cell) => {
-      const columnIndex = columnIndexOf(cell);
-      if (columnIndex === null) return;
-
-      // Keep each sliced cell anchored to its original center-lane track so
-      // horizontal scroll math and rendered content stay aligned.
-      const centerTrack = columnIndex - this.#virtualPinnedCount + 1;
-      if (centerTrack > 0) {
-        cell.style.gridColumn = `${centerTrack}`;
-      }
-
-      if (columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex) {
-        visibleCells.push(cell);
-      }
-    });
-
-    centerLane.replaceChildren(...visibleCells);
   }
 
   #syncScrollAffordance() {
