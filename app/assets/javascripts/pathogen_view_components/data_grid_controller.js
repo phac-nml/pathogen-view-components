@@ -101,8 +101,6 @@ export default class extends Controller {
   #coordinateCellCache = null;
   #navigationCellMapCache = null;
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
-
   connect() {
     this.#abortController?.abort();
     this.#abortController = new AbortController();
@@ -145,8 +143,6 @@ export default class extends Controller {
     this.element.removeAttribute("data-virtual-ready");
   }
 
-  // Stimulus target callbacks — invalidate caches when Turbo morphs or
-  // reconnects modify the cell set underneath us.
   cellTargetConnected() {
     this.#invalidateCellCaches();
   }
@@ -154,8 +150,6 @@ export default class extends Controller {
   cellTargetDisconnected() {
     this.#invalidateCellCaches();
   }
-
-  // ── DOM event handlers ────────────────────────────────────────────────────
 
   handleFocusin(event) {
     const cell = this.#resolveCell(event.target);
@@ -213,15 +207,12 @@ export default class extends Controller {
     if (!NAVIGATION_KEYS.has(event.key)) return;
 
     const map = this.#navigationCellMap();
-    const nextCell = nextCellForKey(activeCell, event, map, this.#pageSize());
+    const nextCell = this.#absoluteVirtualEdgeCell(event) || nextCellForKey(activeCell, event, map, this.#pageSize());
     if (!nextCell) return;
 
     event.preventDefault();
     this.#focusCell(nextCell);
 
-    // ctrl+Home: snap scroll to origin so the top-left corner is fully visible.
-    // ensureCellFullyVisible skips sticky cells (they appear always visible),
-    // so we must reset both axes explicitly.
     if ((event.ctrlKey || event.metaKey) && event.key === "Home" && this.hasScrollContainerTarget) {
       this.scrollContainerTarget.scrollTop = 0;
       this.scrollContainerTarget.scrollLeft = 0;
@@ -234,8 +225,6 @@ export default class extends Controller {
       typeof detail?.message === "string" && detail.message.trim().length > 0 ? detail.message.trim() : null;
     this.#showErrorState(message);
   }
-
-  // ── Private helpers ───────────────────────────────────────────────────────
 
   #activeCell() {
     if (!this.hasGridTarget) return null;
@@ -269,13 +258,15 @@ export default class extends Controller {
       const headerCells = this.hasGridTarget
         ? Array.from(this.gridTarget.querySelectorAll(`${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"]`))
         : [];
-      const bodyCells = [];
-      this.#pagination.getCachedRows().forEach((row) => {
-        row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
-          bodyCells.push(cell);
-        });
+      const cachedBodyCells = cachedVirtualCells({
+        grid: null,
+        rows: this.#pagination.getCachedRows(),
+        cellSelector: CELL_SELECTOR,
       });
-      cells = [...headerCells, ...bodyCells];
+      const renderedBodyCells = this.hasViewportTarget
+        ? Array.from(this.viewportTarget.querySelectorAll(CELL_SELECTOR))
+        : [];
+      cells = [...headerCells, ...cachedBodyCells, ...renderedBodyCells];
     } else if (this.#isVirtual() && this.#virtualAllCells) {
       // Virtual mode must use stable logical ordering (row-major across all rows),
       // not current DOM window ordering, so interactive traversal is deterministic.
@@ -299,13 +290,37 @@ export default class extends Controller {
     return cells;
   }
 
+  #absoluteVirtualEdgeCell(event) {
+    if (!this.#isVirtual() || !(event.ctrlKey || event.metaKey) || event.key !== "End") return null;
+    if (!this.#virtualRows || this.#virtualRows.totalRows < 1) return null;
+
+    const rowIndex = this.#virtualRows.totalRows;
+    const columnIndex = this.#lastColumnIndex();
+    if (columnIndex < 0) return null;
+
+    this.#ensureVirtualRowVisible(rowIndex - 1, columnIndex);
+    this.#invalidateCellCaches();
+
+    return (
+      this.viewportTarget.querySelector(
+        `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="${rowIndex}"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
+      ) || this.#cellByCoordinate(rowIndex, columnIndex)
+    );
+  }
+
+  #lastColumnIndex() {
+    if (this.#virtualColumnWidths.length > 0) return this.#virtualColumnWidths.length - 1;
+
+    const ariaColumnCount = Number.parseInt(this.gridTarget?.getAttribute("aria-colcount") || "", 10);
+    return Number.isFinite(ariaColumnCount) && ariaColumnCount > 0 ? ariaColumnCount - 1 : -1;
+  }
+
   #focusCell(cell) {
     let targetCell = cell;
     const rowIndex = rowIndexOf(cell);
     const columnIndex = columnIndexOf(cell);
 
     if (this.#isVirtual()) {
-      // In virtual mode, reveal target logical coordinates before focusing.
       const virtualRowIndex = rowIndex === null ? null : rowIndex - 1;
       this.#ensureVirtualRowVisible(virtualRowIndex, columnIndex);
 
@@ -406,7 +421,6 @@ export default class extends Controller {
         });
       });
     } else if (this.#lastActiveCell !== cell) {
-      // Different cell: deactivate only the previous one (O(1)).
       const prev = this.#lastActiveCell;
       prev.removeAttribute("data-pathogen--data-grid-active");
       prev.tabIndex = -1;
@@ -415,7 +429,6 @@ export default class extends Controller {
       });
     }
 
-    // Always reset the active cell — handles both navigation and widget-mode exit.
     cell.tabIndex = 0;
     cell.querySelectorAll("a, button, input, select, textarea").forEach((el) => {
       el.tabIndex = -1;
@@ -550,8 +563,6 @@ export default class extends Controller {
     );
   }
 
-  // ── Virtual mode ────────────────────────────────────────────────────────
-
   #isVirtual() {
     return this.hasViewportTarget;
   }
@@ -598,18 +609,11 @@ export default class extends Controller {
     this.#readVirtualColumnContract();
     this.#invalidateCellCaches();
 
-    // Measure row height from the first rendered row. Prefer the live DOM
-    // measurement so the actual rendered height is always authoritative.
-    // Fall back to the server-provided data attribute value (set via
-    // data-pvc-data-grid-row-height) if the grid is hidden or CSS has not
-    // yet loaded (offsetHeight === 0), then to the built-in default.
     this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
 
-    // Set spacer to represent total content height
     const totalHeight = rows.length * this.#rowHeight;
     if (spacer) spacer.style.height = `${totalHeight}px`;
 
-    // Detach all rows — we'll render only the visible range
     rows.forEach((row) => row.remove());
 
     this.#renderVisibleRows();
@@ -705,7 +709,6 @@ export default class extends Controller {
       spacer.style.height = `${totalRows * this.#rowHeight}px`;
     }
 
-    // Force re-render after resize even if indices did not change.
     this.#visibleStartIndex = -1;
     this.#visibleEndIndex = -1;
     this.#visibleColumnStartIndex = -1;
