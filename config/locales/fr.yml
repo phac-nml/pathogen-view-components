@@ -17,6 +17,10 @@ fr:
       virtual:
         loaded: Lignes chargées.
         loading: Chargement des lignes…
+        pagination:
+          fetch_error: Impossible de charger d’autres lignes. Faites défiler pour
+            réessayer.
+          loading_more: Chargement de lignes supplémentaires…
     form:
       switch:
         'off': Désactivé
