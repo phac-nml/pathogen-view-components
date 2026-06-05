@@ -216,6 +216,11 @@ export default class extends Controller {
     if ((event.ctrlKey || event.metaKey) && event.key === "Home" && this.hasScrollContainerTarget) {
       this.scrollContainerTarget.scrollTop = 0;
       this.scrollContainerTarget.scrollLeft = 0;
+      if (this.#isVirtual()) {
+        this.#visibleStartIndex = -1;
+        this.#renderVisibleRows();
+        this.#flushPageFetches(this.#visibleStartIndex, this.#visibleEndIndex);
+      }
     }
   }
 
