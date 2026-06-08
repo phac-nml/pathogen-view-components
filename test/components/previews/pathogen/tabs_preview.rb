@@ -26,6 +26,10 @@ module Pathogen
     # Default selection, edge cases, and lazy loading patterns
     def advanced_features; end
 
+    # @label Turbo Frame Lazy Load
+    # Demonstrates lazy-loaded tab panels using Turbo Frames and demo-only request mocks
+    def turbo_frame_lazy_load; end
+
     # @label Integration Examples
     # Real-world usage patterns with forms, navigation, and content organization
     def integration_examples; end
