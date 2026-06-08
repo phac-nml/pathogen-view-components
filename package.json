@@ -33,6 +33,7 @@
     "eslint-config-prettier": "^10.0.0",
     "globals": "^17.7.0",
     "jsdom": "^29.1.1",
+    "msw": "^2.14.6",
     "prettier": "^3.9.5",
     "tailwindcss": "^4.3.2",
     "vite": "^7.3.6",
@@ -53,5 +54,10 @@
       "esbuild": "^0.28.1"
     }
   },
-  "license": "MIT"
+  "license": "MIT",
+  "msw": {
+    "workerDirectory": [
+      "demo/public"
+    ]
+  }
 }
