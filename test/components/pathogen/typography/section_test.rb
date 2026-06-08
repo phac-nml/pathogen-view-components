@@ -41,12 +41,20 @@ module Pathogen
         assert_selector 'section.space-y-6'
       end
 
-      test 'adds region role for h2 sections' do
+      test 'adds region role for labelled h2 sections' do
+        render_inline(Section.new(level: 2, heading_id: 'main-section')) do |section|
+          section.with_heading { 'Main Section' }
+        end
+
+        assert_selector 'section[role="region"][aria-labelledby="main-section"]'
+      end
+
+      test 'does not add region role for unlabelled h2 sections' do
         render_inline(Section.new(level: 2)) do |section|
           section.with_heading { 'Main Section' }
         end
 
-        assert_selector 'section[role="region"]'
+        assert_no_selector 'section[role="region"]'
       end
 
       test 'does not add region role for other levels' do
@@ -70,7 +78,7 @@ module Pathogen
           section.with_heading { 'Overview' }
         end
 
-        assert_selector 'section#overview[aria-labelledby="overview-heading"]'
+        assert_selector 'section#overview[role="region"][aria-labelledby="overview-heading"]'
         assert_selector 'h2#overview-heading', text: 'Overview'
       end
 
@@ -79,7 +87,7 @@ module Pathogen
           section.with_heading { 'Custom Heading' }
         end
 
-        assert_selector 'section[aria-labelledby="custom-heading"]'
+        assert_selector 'section[role="region"][aria-labelledby="custom-heading"]'
         assert_selector 'h2#custom-heading', text: 'Custom Heading'
       end
 
@@ -97,6 +105,7 @@ module Pathogen
         end
 
         assert_no_selector 'h2'
+        assert_no_selector 'section[role="region"]'
         assert_text 'Only content'
       end
 
@@ -131,8 +140,8 @@ module Pathogen
           section.with_heading { 'String Level' }
         end
 
-        assert_selector 'section[role="region"]'
         assert_selector 'h2', text: 'String Level'
+        assert_no_selector 'section[role="region"]'
       end
 
       test 'normalizes string parent_level for hierarchy validation' do
