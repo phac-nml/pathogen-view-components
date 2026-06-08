@@ -28,6 +28,24 @@ export default defineConfig([
     },
   },
   {
+    name: "demo-javascript",
+    files: ["demo/app/javascript/**/*.js"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      "no-console": ["warn", { allow: ["error", "warn"] }],
+      "no-var": "error",
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "prefer-const": "error",
+    },
+  },
+  {
     name: "pathogen-javascript",
     files: ["app/assets/javascripts/**/*.js", "test/javascript/**/*.js"],
     languageOptions: {
