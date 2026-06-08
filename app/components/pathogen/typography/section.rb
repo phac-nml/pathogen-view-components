@@ -51,8 +51,13 @@ module Pathogen
           spacing_class
         )
 
-        @system_arguments[:role] = 'region' if @level == 2
+        # Ensure aria-labelledby is assigned (if a heading id is available)
         assign_labelledby
+
+        # Only add role="region" for top-level sections when they will have an
+        # accessible name. Creating unnamed regions is harmful to screen reader
+        # users, so guard role assignment on presence of an accessible name.
+        @system_arguments[:role] = 'region' if @level == 2 && @system_arguments.key?(:'aria-labelledby')
       end
 
       private
