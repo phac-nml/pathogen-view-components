@@ -47,9 +47,10 @@ module Pathogen
         @variant = variant
         @system_arguments = system_arguments
 
-        # Add role="list" for accessibility when list styling might be removed
-        # This ensures screen readers announce it as a list even with custom styles
-        @system_arguments[:role] ||= 'list'
+        # Do not force a redundant ARIA role on native list elements (ul/ol).
+        # Native elements already expose list semantics to assistive technologies.
+        # If a caller needs a non-native element to behave like a list, they can
+        # pass an explicit `role` in `system_arguments`.
 
         @system_arguments[:class] = class_names(
           system_arguments[:class],
