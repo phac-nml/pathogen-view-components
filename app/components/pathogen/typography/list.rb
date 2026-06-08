@@ -47,11 +47,6 @@ module Pathogen
         @variant = variant
         @system_arguments = system_arguments
 
-        # Do not force a redundant ARIA role on native list elements (ul/ol).
-        # Native elements already expose list semantics to assistive technologies.
-        # If a caller needs a non-native element to behave like a list, they can
-        # pass an explicit `role` in `system_arguments`.
-
         @system_arguments[:class] = class_names(
           system_arguments[:class],
           Constants::TYPOGRAPHY_SCALE[16],
