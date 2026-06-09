@@ -15,7 +15,8 @@ module Pathogen
       relative inline-flex min-h-11 min-w-11 items-center justify-center cursor-pointer select-none
       rounded-lg font-sans font-medium no-underline border
       transition-[color,background-color,border-color,opacity] duration-200 ease-in-out
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:z-10
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-2
+      focus-visible:z-10 dark:focus-visible:outline-white
       disabled:opacity-70 disabled:cursor-not-allowed
     ].join(' ').freeze
 
@@ -25,19 +26,16 @@ module Pathogen
         dark:text-neutral-100 dark:bg-neutral-800 dark:border-neutral-600
         enabled:hover:bg-neutral-50 enabled:hover:border-neutral-400
         dark:enabled:hover:bg-neutral-700 dark:enabled:hover:border-neutral-500
-        focus-visible:outline-neutral-700 dark:focus-visible:outline-neutral-300
       ].join(' ').freeze,
       primary: %w[
         text-white bg-primary-700 border-primary-700 shadow-sm
         enabled:hover:bg-primary-600 enabled:hover:border-primary-600
-        focus-visible:outline-primary-800 dark:focus-visible:outline-primary-400
       ].join(' ').freeze,
       danger: %w[
         text-red-600 bg-white border-red-300
         dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/60
         enabled:hover:bg-red-50 enabled:hover:border-red-400 enabled:hover:text-red-700
         dark:enabled:hover:bg-red-950/30 dark:enabled:hover:border-red-500
-        focus-visible:outline-red-600 dark:focus-visible:outline-red-400
       ].join(' ').freeze
     }.freeze
 

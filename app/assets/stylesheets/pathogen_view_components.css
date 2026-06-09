@@ -25,7 +25,6 @@
     --color-blue-500: oklch(62.3% 0.214 259.815);
     --color-blue-600: oklch(54.6% 0.245 262.881);
     --color-blue-700: oklch(48.8% 0.243 264.376);
-    --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-blue-950: oklch(28.2% 0.091 267.935);
     --color-slate-50: oklch(98.4% 0.003 247.858);
     --color-slate-100: oklch(96.8% 0.007 247.896);
@@ -98,7 +97,6 @@
     --color-primary-500: var(--color-blue-500);
     --color-primary-600: var(--color-blue-600);
     --color-primary-700: var(--color-blue-700);
-    --color-primary-800: var(--color-blue-800);
     --color-primary-950: var(--color-blue-950);
     --color-primary: var(--color-primary-600);
   }
@@ -1362,21 +1360,6 @@
       outline-color: var(--color-black);
     }
   }
-  .focus-visible\:outline-neutral-700 {
-    &:focus-visible {
-      outline-color: var(--color-neutral-700);
-    }
-  }
-  .focus-visible\:outline-primary-800 {
-    &:focus-visible {
-      outline-color: var(--color-primary-800);
-    }
-  }
-  .focus-visible\:outline-red-600 {
-    &:focus-visible {
-      outline-color: var(--color-red-600);
-    }
-  }
   .enabled\:hover\:border-neutral-400 {
     &:enabled {
       &:hover {
@@ -1684,27 +1667,6 @@
         @media (hover: hover) {
           color: var(--color-primary-400);
         }
-      }
-    }
-  }
-  .dark\:focus-visible\:outline-neutral-300 {
-    &:where(.dark, .dark *) {
-      &:focus-visible {
-        outline-color: var(--color-neutral-300);
-      }
-    }
-  }
-  .dark\:focus-visible\:outline-primary-400 {
-    &:where(.dark, .dark *) {
-      &:focus-visible {
-        outline-color: var(--color-primary-400);
-      }
-    }
-  }
-  .dark\:focus-visible\:outline-red-400 {
-    &:where(.dark, .dark *) {
-      &:focus-visible {
-        outline-color: var(--color-red-400);
       }
     }
   }

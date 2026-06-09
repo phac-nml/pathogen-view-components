@@ -65,6 +65,18 @@ module Pathogen
       assert_selector 'button.text-xs'
     end
 
+    test 'all schemes emit design-contract focus outline classes' do
+      Pathogen::Button::SCHEME_OPTIONS.each do |scheme|
+        render_inline(Pathogen::Button.new(scheme: scheme)) { scheme.to_s.humanize }
+
+        assert_selector "button[class*='focus-visible:outline-black']"
+        assert_selector "button[class*='dark:focus-visible:outline-white']"
+        assert_no_selector "button[class*='focus-visible:outline-neutral-700']"
+        assert_no_selector "button[class*='focus-visible:outline-primary-800']"
+        assert_no_selector "button[class*='focus-visible:outline-red-600']"
+      end
+    end
+
     test 'leading and trailing visuals are hidden from assistive technology' do
       render_inline(Pathogen::Button.new) do |button|
         button.with_leading_visual { 'Leading' }
