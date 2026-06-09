@@ -1,0 +1,18 @@
+<div class="space-y-4">
+  <div class="flex items-start gap-3">
+    <%= check_box_tag "sample[qc_passed]", "1", true, id: "sample_qc_passed" %>
+
+    <div class="min-w-0">
+      <%= label_tag "sample_qc_passed", "QC passed", class: "block text-sm font-semibold text-neutral-900 dark:text-neutral-100" %>
+
+      <p class="m-0 mt-1 text-sm leading-[1.45] text-neutral-600 dark:text-neutral-400">
+        Mark the sample as ready for downstream analysis.
+      </p>
+    </div>
+  </div>
+
+  <div class="flex items-start gap-3">
+    <%= check_box_tag "sample[notify]", "1", false, id: "sample_notify" %>
+    <%= label_tag "sample_notify", "Notify project members", class: "block text-sm font-semibold text-neutral-900 dark:text-neutral-100" %>
+  </div>
+</div>
