@@ -12,12 +12,13 @@ module Pathogen
     DEFAULT_SCHEME = :default
 
     BASE_CLASSES = %w[
-      relative inline-flex min-h-11 min-w-11 items-center justify-center cursor-pointer select-none
+      relative inline-flex items-center justify-center cursor-pointer select-none
       rounded-lg font-sans font-medium no-underline border
       transition-[color,background-color,border-color,opacity] duration-200 ease-in-out
       focus-visible:outline focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-2
       focus-visible:z-10 dark:focus-visible:outline-white
       disabled:opacity-70 disabled:cursor-not-allowed
+      aria-disabled:opacity-70 aria-disabled:cursor-not-allowed
     ].join(' ').freeze
 
     SCHEME_CLASSES = {
@@ -39,30 +40,39 @@ module Pathogen
       ].join(' ').freeze
     }.freeze
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, size: DEFAULT_SIZE, block: false,
-                   disabled: false, **system_arguments)
+                   icon_only: false, label: nil, disabled: false, aria_disabled: false, **system_arguments)
+      raise ArgumentError, 'Cannot set both disabled and aria_disabled on a button' if disabled && aria_disabled
+
       @base_button_class = base_button_class
       @scheme = scheme
       @size = size
       @block = block
+      @icon_only = icon_only
+      @label = label
 
       @system_arguments = system_arguments
-      @system_arguments[:disabled] = disabled
+      @system_arguments[:disabled] = true if disabled
+      @system_arguments[:'aria-disabled'] = 'true' if aria_disabled
+      validate_icon_only_accessible_name! if @icon_only
+      apply_icon_only_accessible_name! if @icon_only
 
       @id = @system_arguments[:id]
 
       @system_arguments[:classes] = class_names(
         BASE_CLASSES,
         SCHEME_CLASSES[fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME)],
-        SIZE_MAPPINGS[fetch_or_fallback(SIZE_OPTIONS, size, DEFAULT_SIZE)],
+        size_classes,
         'flex w-full' => block
       )
     end
-    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def before_render
+      validate_icon_only_content! if @icon_only
       return unless leading_visual.present? || trailing_visual.present?
+      return if @icon_only && button_text.blank?
 
       @system_arguments[:classes] = class_names(
         @system_arguments[:classes],
@@ -70,7 +80,47 @@ module Pathogen
       )
     end
 
+    def button_text
+      return if @icon_only
+
+      trimmed_content.presence || @label
+    end
+
     private
+
+    def validate_icon_only_accessible_name!
+      return if accessible_name.present?
+
+      raise ArgumentError,
+            "Icon-only buttons require 'label', 'aria-label', 'aria: { label: ... }', " \
+            "or 'aria: { labelledby: ... }'"
+    end
+
+    def validate_icon_only_content!
+      return if leading_visual.present? || trailing_visual.present?
+
+      raise ArgumentError, 'Icon-only buttons require icon content in leading_visual or trailing_visual'
+    end
+
+    def apply_icon_only_accessible_name!
+      return if @label.blank?
+
+      @system_arguments[:'aria-label'] ||= @label
+    end
+
+    def accessible_name
+      aria = @system_arguments[:aria]
+      @label.presence ||
+        @system_arguments[:'aria-label'].presence ||
+        (aria.is_a?(Hash) && (aria[:label] || aria['label'] || aria[:labelledby] || aria['labelledby']).presence)
+    end
+
+    def size_classes
+      size = fetch_or_fallback(SIZE_OPTIONS, @size, DEFAULT_SIZE)
+      return ICON_ONLY_SIZE_MAPPINGS[size] if @icon_only
+
+      SIZE_MAPPINGS[size]
+    end
 
     def trimmed_content
       return if content.blank?

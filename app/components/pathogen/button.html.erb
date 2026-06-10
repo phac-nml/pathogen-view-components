@@ -3,7 +3,9 @@
     <span class="inline-flex shrink-0 items-center" aria-hidden="true"><%= leading_visual %></span>
   <% end %>
 
-  <span><%= trimmed_content %></span>
+  <% if button_text.present? %>
+    <span><%= button_text %></span>
+  <% end %>
 
   <% if trailing_visual %>
     <span class="inline-flex shrink-0 items-center" aria-hidden="true"><%= trailing_visual %></span>
