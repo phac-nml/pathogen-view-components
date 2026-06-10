@@ -1,4 +1,4 @@
-<%= render Pathogen::Button.new(scheme:, size:) do |button| %>
+<%= render Pathogen::Button.new(scheme:, size:, label: 'Warning') do |button| %>
   <% button.with_leading_visual do %>
     <svg
       aria-hidden="true"
@@ -15,5 +15,4 @@
       ></path>
     </svg>
   <% end %>
-  Warning
 <% end %>

@@ -1,6 +1,5 @@
-<%= render Pathogen::Button.new(scheme:, size:) do |button| %>
+<%= render Pathogen::Button.new(scheme:, size:, label: 'Search') do |button| %>
   <% button.with_leading_visual do %>
     <%= icon("magnifying-glass", class: "size-4") %>
   <% end %>
-  Search
 <% end %>

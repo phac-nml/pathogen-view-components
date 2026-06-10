@@ -47,6 +47,10 @@ module Pathogen
 
     def all_schemes; end
 
+    # @label Accessibility patterns
+    # Repeating labels, icon-only buttons, and focusable disabled states
+    def accessibility; end
+
     def full_width
       pathogen_button(block: true, test_selector: 'full-width') do
         'Button'
