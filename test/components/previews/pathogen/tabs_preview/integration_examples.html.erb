@@ -42,14 +42,7 @@
               </div>
 
               <div>
-                <button
-                  class="
-                    px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-md
-                    hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors text-sm
-                  "
-                >
-                  Change Photo
-                </button>
+                <%= render Pathogen::Button.new(scheme: :default, size: :small, label: 'Change Photo') %>
               </div>
             </div>
 
@@ -268,15 +261,7 @@
                     Two-factor authentication is currently enabled for your account.
                   </div>
 
-                  <button
-                    class="
-                      px-3 py-1.5 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 border
-                      border-slate-300 dark:border-slate-600 rounded-md hover:bg-slate-50 dark:hover:bg-slate-600
-                      transition-colors text-sm
-                    "
-                  >
-                    Manage Settings
-                  </button>
+                  <%= render Pathogen::Button.new(scheme: :default, size: :small, label: 'Manage Settings') %>
                 </div>
               </div>
             </div>
@@ -320,9 +305,7 @@
                     </div>
                   </div>
 
-                  <button class="text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
-                    Revoke
-                  </button>
+                  <%= render Pathogen::Button.new(scheme: :danger, size: :small, label: 'Revoke') %>
                 </div>
               </div>
             </div>
@@ -379,9 +362,7 @@
                     Enable push notifications to get real-time updates on your device.
                   </div>
 
-                  <button class="px-3 py-1.5 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors text-sm">
-                    Enable Push Notifications
-                  </button>
+                  <%= render Pathogen::Button.new(scheme: :primary, size: :small, label: 'Enable Push Notifications') %>
                 </div>
               </div>
             </div>

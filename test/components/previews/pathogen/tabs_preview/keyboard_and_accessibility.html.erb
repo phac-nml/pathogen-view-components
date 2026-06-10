@@ -155,9 +155,7 @@
               to move focus OUT of the tab list and into the panel content below. This button should receive focus:
             </p>
 
-            <button class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg">
-              Focusable button in panel
-            </button>
+            <%= render Pathogen::Button.new(scheme: :primary, label: 'Focusable button in panel') %>
           </div>
         <% end %>
       <% end %>

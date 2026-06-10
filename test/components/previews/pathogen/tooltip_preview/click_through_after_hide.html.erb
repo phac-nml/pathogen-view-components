@@ -34,16 +34,7 @@
           <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-bold">0</p>
         </div>
 
-        <button
-          type="button"
-          id="pv-tooltip-reset"
-          class="
-            rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 hover:bg-gray-50
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-          "
-        >
-          Reset
-        </button>
+        <%= render Pathogen::Button.new(id: 'pv-tooltip-reset', scheme: :default, size: :small, label: 'Reset') %>
       </div>
 
       <div>
@@ -54,17 +45,13 @@
               data-pathogen--tooltip-portal-aria-label-value="<%= Pathogen::Tooltip.portal_aria_label %>"
               class="flex flex-col items-center"
             >
-              <button
-                type="button"
-                class="
-                  rounded-lg border border-blue-700 bg-blue-600 px-3 py-2 text-sm font-medium text-white
-                  hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                "
-                aria-describedby="pv-tooltip-1"
-                data-pathogen--tooltip-target="trigger"
-              >
-                Tooltip trigger
-              </button>
+              <%= render Pathogen::Button.new(
+                    scheme: :primary,
+                    size: :small,
+                    label: 'Tooltip trigger',
+                    aria: { describedby: 'pv-tooltip-1' },
+                    data: { 'pathogen--tooltip-target': 'trigger' }
+                  ) %>
 
               <%= render Pathogen::Tooltip.new(
                 id: "pv-tooltip-1",
@@ -73,16 +60,7 @@
               ) %>
             </div>
 
-            <button
-              type="button"
-              id="pv-underlying-action"
-              class="
-                -mt-1 rounded-lg border border-emerald-700 bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white
-                hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-              "
-            >
-              Underlying action
-            </button>
+            <%= render Pathogen::Button.new(id: 'pv-underlying-action', scheme: :primary, label: 'Underlying action') %>
 
             <p class="max-w-xl text-center text-xs text-gray-600">
               Tooltip placement is <code>bottom</code>. While open, it should overlap the button above; after it hides,
