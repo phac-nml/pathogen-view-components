@@ -1,11 +1,23 @@
---- title: Tokens --- # Tokens Pathogen currently exposes Tailwind-compatible `primary-*` and `neutral-*` colour
-aliases. Components should move toward semantic roles on top of those aliases so implementation code describes intent
-instead of choosing raw colour stops. ## Existing Theme Contract - `--font-sans` is Inter-first: `"Inter", "Avenir
-Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif`. - `--font-mono` is a standard UI monospace stack. -
-`--color-primary-*` defaults to Tailwind blue. - `--color-neutral-*` defaults to Tailwind slate. - Host apps may
-override `--color-primary-*`. ## Recommended Semantic Colour Roles These roles should become the preferred language for
-components and previews. The swatches show Pathogen's current default theme values; host applications may map the same
-roles to different brand values.
+---
+title: Tokens
+---
+
+# Tokens
+
+Pathogen currently exposes Tailwind-compatible `primary-*` and `neutral-*` colour aliases. Components should move toward semantic roles on top of those aliases so implementation code describes intent instead of choosing raw colour stops.
+
+## Existing Theme Contract
+
+- `--font-sans` is Inter-first: `"Inter", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif`.
+- `--font-mono` is a standard UI monospace stack.
+- `--color-primary-*` defaults to Tailwind blue.
+- `--color-neutral-*` defaults to Tailwind slate.
+- Host apps may override `--color-primary-*`.
+
+## Recommended Semantic Colour Roles
+
+These roles should become the preferred language for components and previews. The swatches show Pathogen's current default theme values; host applications may map the same roles to different brand values.
+
 <style>
   .pvc-token-table {
     display: grid;
@@ -106,44 +118,105 @@ roles to different brand values.
     ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-400)', '#60a5fa']
   ].each do |label, token, light_fallback, light_swatch, dark_fallback, dark_swatch| %>
     <div role="cell"><%= label %><br><code><%= token %></code></div>
-
     <div class="pvc-token-table__swatch-cell" role="cell">
       <span class="pvc-token-table__swatch" style="--token-swatch: <%= light_swatch %>;"></span>
       <code><%= light_swatch %></code>
     </div>
-
     <div class="pvc-token-table__swatch-cell" role="cell">
       <span class="pvc-token-table__swatch" style="--token-swatch: <%= dark_swatch %>;"></span>
       <code><%= dark_swatch %></code>
     </div>
-
     <div role="cell">
       <code>light: <%= light_fallback %></code><br>
       <code>dark: <%= dark_fallback %></code>
     </div>
   <% end %>
 </div>
-```css :root { --pvc-color-surface: var(--color-white); --pvc-color-surface-muted: var(--color-neutral-50);
---pvc-color-surface-raised: var(--color-white); --pvc-color-border: var(--color-neutral-200); --pvc-color-border-strong:
-var(--color-neutral-300); --pvc-color-text: var(--color-neutral-900); --pvc-color-text-muted: var(--color-neutral-600);
---pvc-color-accent: var(--color-primary-600); --pvc-color-accent-strong: var(--color-primary-700); --pvc-color-danger:
-var(--color-red-600); --pvc-color-success: var(--color-emerald-600); --pvc-color-warning: var(--color-amber-600);
---pvc-color-focus: var(--color-primary-500); } ``` ```css .dark { --pvc-color-surface: var(--color-neutral-900);
---pvc-color-surface-muted: var(--color-neutral-800); --pvc-color-surface-raised: color-mix(in oklab,
-var(--color-neutral-800) 82%, white); --pvc-color-border: var(--color-neutral-700); --pvc-color-border-strong:
-var(--color-neutral-600); --pvc-color-text: var(--color-neutral-100); --pvc-color-text-muted: var(--color-neutral-400);
---pvc-color-accent: var(--color-primary-400); --pvc-color-accent-strong: var(--color-primary-300); --pvc-color-danger:
-var(--color-red-400); --pvc-color-success: var(--color-emerald-400); --pvc-color-warning: var(--color-amber-400);
---pvc-color-focus: var(--color-primary-400); } ``` ## Type Scale Use ```css --type-meta: 0.75rem; /* 12px: metadata,
-hints */ --type-control: 0.875rem; /* 14px: controls, labels, dense UI */ --type-body: 1rem; /* 16px: body copy */
---type-section: 1.25rem; /* 20px: section headings */ --type-page: 1.9375rem; /* 31px: page headings */ ``` Use `14px`
-and `16px` as the product workhorses. Use larger sizes sparingly in real application surfaces. ## Radius ```css
---pvc-radius-control-sm: 0.25rem; /* form primitives */ --pvc-radius-control: 0.375rem; /* compact controls */
---pvc-radius-action: 0.5rem; /* buttons, tabs, grouped controls */ --pvc-radius-panel: 0.5rem; /* data grids and panels
-*/ ``` Guidance: - Form primitives: `2px` to `4px`. - Buttons, tabs, links focus shapes, and inputs: `6px` to `8px`. -
-Data grids and grouped component frames: `8px`. - Large preview and docs containers should avoid `xl` and `2xl` unless
-intentionally emphasized. ## Elevation ```css --pvc-shadow-none: none; --pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 /
-0.2); ``` Guidance: - Base product surfaces: no shadow. - Grouped surfaces: border plus subtle background difference. -
-Overlays, tooltips, popovers, and menus: small shadow. - Avoid `shadow-lg` in product examples. ## Motion ```css
---pvc-duration-fast: 120ms; --pvc-duration-default: 160ms; --pvc-duration-overlay: 200ms; ``` Use colour, border,
-background, and opacity transitions before movement. Reserve scale/fade for overlays.
+
+```css
+:root {
+  --pvc-color-surface: var(--color-white);
+  --pvc-color-surface-muted: var(--color-neutral-50);
+  --pvc-color-surface-raised: var(--color-white);
+  --pvc-color-border: var(--color-neutral-200);
+  --pvc-color-border-strong: var(--color-neutral-300);
+  --pvc-color-text: var(--color-neutral-900);
+  --pvc-color-text-muted: var(--color-neutral-600);
+  --pvc-color-accent: var(--color-primary-600);
+  --pvc-color-accent-strong: var(--color-primary-700);
+  --pvc-color-danger: var(--color-red-600);
+  --pvc-color-success: var(--color-emerald-600);
+  --pvc-color-warning: var(--color-amber-600);
+  --pvc-color-focus: var(--color-primary-500);
+}
+```
+
+```css
+.dark {
+  --pvc-color-surface: var(--color-neutral-900);
+  --pvc-color-surface-muted: var(--color-neutral-800);
+  --pvc-color-surface-raised: color-mix(in oklab, var(--color-neutral-800) 82%, white);
+  --pvc-color-border: var(--color-neutral-700);
+  --pvc-color-border-strong: var(--color-neutral-600);
+  --pvc-color-text: var(--color-neutral-100);
+  --pvc-color-text-muted: var(--color-neutral-400);
+  --pvc-color-accent: var(--color-primary-400);
+  --pvc-color-accent-strong: var(--color-primary-300);
+  --pvc-color-danger: var(--color-red-400);
+  --pvc-color-success: var(--color-emerald-400);
+  --pvc-color-warning: var(--color-amber-400);
+  --pvc-color-focus: var(--color-primary-400);
+}
+```
+
+## Type Scale Use
+
+```css
+--type-meta: 0.75rem;      /* 12px: metadata, hints */
+--type-control: 0.875rem;  /* 14px: controls, labels, dense UI */
+--type-body: 1rem;         /* 16px: body copy */
+--type-section: 1.25rem;   /* 20px: section headings */
+--type-page: 1.9375rem;    /* 31px: page headings */
+```
+
+Use `14px` and `16px` as the product workhorses. Use larger sizes sparingly in real application surfaces.
+
+## Radius
+
+```css
+--pvc-radius-control-sm: 0.25rem;  /* form primitives */
+--pvc-radius-control: 0.375rem;    /* compact controls */
+--pvc-radius-action: 0.5rem;       /* buttons, tabs, grouped controls */
+--pvc-radius-panel: 0.5rem;        /* data grids and panels */
+```
+
+Guidance:
+
+- Form primitives: `2px` to `4px`.
+- Buttons, tabs, links focus shapes, and inputs: `6px` to `8px`.
+- Data grids and grouped component frames: `8px`.
+- Large preview and docs containers should avoid `xl` and `2xl` unless intentionally emphasized.
+
+## Elevation
+
+```css
+--pvc-shadow-none: none;
+--pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 / 0.2);
+```
+
+Guidance:
+
+- Base product surfaces: no shadow.
+- Grouped surfaces: border plus subtle background difference.
+- Overlays, tooltips, popovers, and menus: small shadow.
+- Avoid `shadow-lg` in product examples.
+
+## Motion
+
+```css
+--pvc-duration-fast: 120ms;
+--pvc-duration-default: 160ms;
+--pvc-duration-overlay: 200ms;
+```
+
+Use colour, border, background, and opacity transitions before movement. Reserve scale/fade for overlays.
