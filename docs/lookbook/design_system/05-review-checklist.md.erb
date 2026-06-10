@@ -1,0 +1,19 @@
+--- title: Review Checklist --- # Review Checklist Use this checklist for pull requests that touch Pathogen UI, styles,
+previews, or design-system documentation. ## Contract - Does the change follow the Lookbook design contract? - If it
+introduces an exception, is the exception documented with a short rationale? - Should any local pattern become a shared
+Pathogen component or token? ## Tokens And Colour - Does the change use semantic colour/surface roles where available? -
+Does it preserve the public `--color-primary-*` override contract? - Are status colours used only for status meaning? -
+Does the change avoid hard-coded host application brand colours? ## Dark Mode - Does dark mode avoid large default
+`neutral-950` surfaces? - Are dark borders, muted text, hover states, selected states, disabled states, and focus states
+still clear? - Are dense surfaces such as grids layered rather than flat? ## Layout And Surfaces - Is the UI compact
+enough for data-heavy workflows? - Are shadows reserved for overlays or meaningful elevation? - Are standard panels and
+controls using `rounded-md` or `rounded-lg` unless there is a reason not to? - Are cards used for repeated items,
+modals, and framed tools rather than every page section? ## Accessibility - Is semantic HTML used first? - Is focus
+visible in light mode, dark mode, and high-contrast modes? - Is state communicated by more than colour? - Are labels,
+descriptions, and live regions programmatically connected where needed? - Is reduced motion handled for non-essential
+animation? ## Previews - Does the preview demonstrate a realistic product context? - Does it avoid marketing-style
+gradients, oversized stats, decorative cards, and heavy shadows? - Does it use the same token language as shipped
+components? - Has the preview been checked in light and dark modes? ## Validation For implementation changes, run the
+checks that match the touched surface: - `pnpm run build:css:check` for CSS/token/utility changes. - `bin/test` for Ruby
+component changes. - `pnpm test` for JavaScript interaction changes. - Visual Lookbook review for changed components in
+light and dark modes.
