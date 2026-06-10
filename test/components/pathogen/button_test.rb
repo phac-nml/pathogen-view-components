@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Pathogen
   class ButtonTest < ViewComponent::TestCase
-    test 'renders button with Tailwind base layout and 44px touch target' do
+    test 'medium size uses 44px touch target' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector 'button.inline-flex.min-h-11.min-w-11.items-center.rounded-lg', text: 'Click me'
@@ -39,11 +39,11 @@ module Pathogen
       assert_selector 'button.px-3.py-2.text-sm'
     end
 
-    test 'small size uses compact padding' do
+    test 'small size uses 24px AA minimum touch target and balanced padding' do
       render_inline(Pathogen::Button.new(size: :small)) { 'Small' }
 
-      assert_selector "button[class*='px-2.5']"
-      assert_selector 'button.text-xs'
+      assert_selector 'button.min-h-6.min-w-6'
+      assert_selector 'button.px-2.py-1.text-xs'
     end
 
     test 'block layout is full width flex' do
@@ -86,6 +86,115 @@ module Pathogen
 
       assert_selector 'button [aria-hidden="true"]', count: 2
       assert_selector 'button', text: 'Search'
+    end
+
+    test 'keeps button focusable when aria_disabled is set' do
+      render_inline(Pathogen::Button.new(aria_disabled: true)) { 'Continue' }
+
+      assert_selector 'button[aria-disabled="true"]:not([disabled])'
+    end
+
+    test 'raises when disabled and aria_disabled are both set' do
+      assert_raises(ArgumentError) do
+        render_inline(Pathogen::Button.new(disabled: true, aria_disabled: true)) { 'Continue' }
+      end
+    end
+
+    test 'passes axe-core checks for all schemes' do
+      Pathogen::Button::SCHEME_OPTIONS.each do |scheme|
+        render_inline(Pathogen::Button.new(scheme: scheme)) { 'Submit' }
+
+        assert_axe_structural_accessible rendered_content, context: scheme
+      end
+    end
+
+    test 'passes axe-core checks when disabled' do
+      render_inline(Pathogen::Button.new(scheme: :primary, disabled: true)) { 'Submit' }
+
+      assert_axe_structural_accessible rendered_content, context: 'disabled primary'
+    end
+
+    test 'passes axe-core checks when aria_disabled' do
+      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true)) { 'Continue' }
+
+      assert_axe_structural_accessible rendered_content, context: 'aria-disabled primary'
+    end
+
+    test 'passes axe-core checks when rendered as a link' do
+      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', scheme: :primary, label: 'View samples'))
+
+      assert_selector 'a[href="/samples"]', text: 'View samples'
+      assert_axe_structural_accessible rendered_content, context: 'link button'
+    end
+
+    test 'icon_only passes axe-core checks when rendered as a link' do
+      render_inline(Pathogen::Button.new(icon_only: true, tag: :a, href: '/search', label: 'Search')) do |button|
+        button.with_leading_visual do
+          '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
+        end
+      end
+
+      assert_selector 'a[href="/search"][aria-label="Search"]'
+      assert_axe_structural_accessible rendered_content, context: 'icon-only link button'
+    end
+
+    test 'renders label option without a content block' do
+      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true, label: 'Continue'))
+
+      assert_selector 'button[aria-disabled="true"]', text: 'Continue'
+    end
+
+    test 'icon_only medium uses 44px square target' do
+      render_inline(Pathogen::Button.new(icon_only: true, label: 'Search')) do |button|
+        button.with_leading_visual { 'Icon' }
+      end
+
+      assert_selector 'button[aria-label="Search"]'
+      assert_selector 'button[class*="aspect-square"]'
+      assert_selector 'button[class*="w-11"]'
+      assert_selector 'button[class*="p-0"]'
+      assert_no_selector 'button > span:not([aria-hidden])'
+    end
+
+    test 'icon_only small uses 24px AA square target' do
+      render_inline(Pathogen::Button.new(icon_only: true, size: :small, label: 'Search')) do |button|
+        button.with_leading_visual { 'Icon' }
+      end
+
+      assert_selector 'button[class*="w-6"]'
+      assert_selector 'button[class*="h-6"]'
+    end
+
+    test 'icon_only raises without an accessible name' do
+      assert_raises(ArgumentError) do
+        render_inline(Pathogen::Button.new(icon_only: true)) do |button|
+          button.with_leading_visual { 'Icon' }
+        end
+      end
+    end
+
+    test 'icon_only raises without icon content' do
+      assert_raises(ArgumentError) do
+        render_inline(Pathogen::Button.new(icon_only: true, label: 'Search'))
+      end
+    end
+
+    test 'icon_only accepts aria labelledby when referenced text contains the full action label' do
+      render_inline(Pathogen::Button.new(icon_only: true, aria: { labelledby: 'edit-payment-date-label' })) do |button|
+        button.with_leading_visual { 'Icon' }
+      end
+
+      assert_selector 'button[aria-labelledby="edit-payment-date-label"]'
+    end
+
+    test 'icon_only passes axe-core structural checks' do
+      render_inline(Pathogen::Button.new(icon_only: true, label: 'Search', scheme: :primary)) do |button|
+        button.with_leading_visual do
+          '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
+        end
+      end
+
+      assert_axe_structural_accessible rendered_content, context: 'icon-only button'
     end
   end
 end
