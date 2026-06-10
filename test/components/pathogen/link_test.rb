@@ -17,6 +17,13 @@ module Pathogen
       assert_selector "a[class*='text-neutral-900']"
     end
 
+    test 'emits design-contract focus outline classes' do
+      render_inline(Pathogen::Link.new(href: '/samples')) { 'Samples' }
+
+      assert_selector "a[class*='focus-visible:outline-black']"
+      assert_selector "a[class*='dark:focus-visible:outline-white']"
+    end
+
     test 'merges custom class with link classes' do
       render_inline(Pathogen::Link.new(href: '/samples', class: 'my-custom')) { 'Samples' }
 

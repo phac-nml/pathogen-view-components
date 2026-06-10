@@ -185,7 +185,7 @@ module Pathogen
           'block',           # Display as block element
           'mb-2',            # Margin bottom for spacing
           'text-sm',         # Small text size
-          'font-medium',     # Medium font weight
+          'font-semibold',   # Semibold font weight
           'text-slate-900',  # Text color for light mode
           'dark:text-white'  # Text color for dark mode
         ]

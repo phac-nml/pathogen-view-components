@@ -1,0 +1,32 @@
+<table class="w-full border-separate border-spacing-0 text-left text-sm text-neutral-900 dark:text-neutral-100">
+  <thead>
+    <tr>
+      <th class="border-b border-neutral-200 px-3 py-2 dark:border-neutral-700">
+        <%= check_box_tag "select_all", "1", false, id: "select_all", data: { table: true } %>
+      </th>
+
+      <th class="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-700">Sample</th>
+      <th class="border-b border-neutral-200 px-3 py-2 font-semibold dark:border-neutral-700">Status</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr>
+      <td class="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
+        <%= check_box_tag "sample_ids[]", "sample-a", true, id: "sample_a", data: { table: true } %>
+      </td>
+
+      <td class="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">Sample A</td>
+      <td class="border-b border-neutral-100 px-3 py-2 text-neutral-600 dark:text-neutral-400">Ready</td>
+    </tr>
+
+    <tr>
+      <td class="px-3 py-2">
+        <%= check_box_tag "sample_ids[]", "sample-b", false, id: "sample_b", data: { table: true } %>
+      </td>
+
+      <td class="px-3 py-2">Sample B</td>
+      <td class="px-3 py-2 text-neutral-600 dark:text-neutral-400">Pending</td>
+    </tr>
+  </tbody>
+</table>

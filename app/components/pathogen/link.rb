@@ -13,8 +13,8 @@ module Pathogen
       transition-[color,text-decoration-thickness] hover:text-primary-600 hover:decoration-2
       dark:text-neutral-100 dark:hover:text-primary-400
       rounded-md
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-neutral-600
-      dark:focus-visible:outline-neutral-300
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-black
+      dark:focus-visible:outline-white
       focus-visible:outline-offset-2
     ].join(' ').freeze
 
