@@ -1445,131 +1445,11 @@
       outline-color: var(--color-black);
     }
   }
-  .enabled\:hover\:border-\[var\(--pvc-color-accent-solid-hover\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          border-color: var(--pvc-color-accent-solid-hover);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:border-\[var\(--pvc-color-border\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          border-color: var(--pvc-color-border);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:border-\[var\(--pvc-color-danger\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          border-color: var(--pvc-color-danger);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:border-\[var\(--pvc-color-text-muted\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          border-color: var(--pvc-color-text-muted);
-        }
-      }
-    }
-  }
   .enabled\:hover\:border-primary-600 {
     &:enabled {
       &:hover {
         @media (hover: hover) {
           border-color: var(--color-primary-600);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_8\%\,transparent\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-accent);
-          @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--pvc-color-accent) 8%, transparent);
-          }
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_8\%\,var\(--pvc-color-surface\)\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-accent);
-          @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--pvc-color-accent) 8%, var(--pvc-color-surface));
-          }
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_8\%\,transparent\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-danger);
-          @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--pvc-color-danger) 8%, transparent);
-          }
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_8\%\,var\(--pvc-color-surface\)\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-danger);
-          @supports (color: color-mix(in lab, red, red)) {
-            background-color: color-mix(in oklab, var(--pvc-color-danger) 8%, var(--pvc-color-surface));
-          }
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[var\(--pvc-color-accent-solid-hover\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-accent-solid-hover);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[var\(--pvc-color-surface-muted\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-surface-muted);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:bg-\[var\(--pvc-color-text-muted\)\] {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          background-color: var(--pvc-color-text-muted);
-        }
-      }
-    }
-  }
-  .enabled\:hover\:opacity-90 {
-    &:enabled {
-      &:hover {
-        @media (hover: hover) {
-          opacity: 90%;
         }
       }
     }
@@ -1860,6 +1740,78 @@
       &[data-state="active"] {
         color: var(--color-white);
       }
+    }
+  }
+  .interactive-hover\:border-\[var\(--pvc-color-accent-solid-hover\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      border-color: var(--pvc-color-accent-solid-hover);
+    }
+  }
+  .interactive-hover\:border-\[var\(--pvc-color-border\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      border-color: var(--pvc-color-border);
+    }
+  }
+  .interactive-hover\:border-\[var\(--pvc-color-danger\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      border-color: var(--pvc-color-danger);
+    }
+  }
+  .interactive-hover\:border-\[var\(--pvc-color-text-muted\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      border-color: var(--pvc-color-text-muted);
+    }
+  }
+  .interactive-hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_8\%\,transparent\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-accent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--pvc-color-accent) 8%, transparent);
+      }
+    }
+  }
+  .interactive-hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_8\%\,var\(--pvc-color-surface\)\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-accent);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--pvc-color-accent) 8%, var(--pvc-color-surface));
+      }
+    }
+  }
+  .interactive-hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_8\%\,transparent\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-danger);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--pvc-color-danger) 8%, transparent);
+      }
+    }
+  }
+  .interactive-hover\:bg-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_8\%\,var\(--pvc-color-surface\)\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-danger);
+      @supports (color: color-mix(in lab, red, red)) {
+        background-color: color-mix(in oklab, var(--pvc-color-danger) 8%, var(--pvc-color-surface));
+      }
+    }
+  }
+  .interactive-hover\:bg-\[var\(--pvc-color-accent-solid-hover\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-accent-solid-hover);
+    }
+  }
+  .interactive-hover\:bg-\[var\(--pvc-color-surface-muted\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-surface-muted);
+    }
+  }
+  .interactive-hover\:bg-\[var\(--pvc-color-text-muted\)\] {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-text-muted);
+    }
+  }
+  .interactive-hover\:opacity-90 {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      opacity: 90%;
     }
   }
   .peer-checked\:\[\&_\.pathogen-switch-track\]\:bg-primary-600 {

@@ -153,6 +153,13 @@ module Pathogen
       assert_axe_structural_accessible rendered_content, context: 'link button'
     end
 
+    test 'link buttons include interactive hover classes' do
+      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid,
+                                         text: 'View samples'))
+
+      assert_selector "a[class*='interactive-hover:bg-[var(--pvc-color-accent-solid-hover)]']"
+    end
+
     test 'icon_only passes axe-core checks when rendered as a link' do
       render_inline(Pathogen::Button.new(icon_only: true, tag: :a, href: '/search', text: 'Search')) do |button|
         button.with_leading_visual do

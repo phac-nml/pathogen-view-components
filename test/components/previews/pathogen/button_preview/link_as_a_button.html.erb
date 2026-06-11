@@ -1,0 +1,35 @@
+<div class="flex max-w-3xl flex-col gap-6 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Link styled as a button</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Use <code class="font-mono">tag: :a</code> with <code class="font-mono">href</code> when navigation should look
+      like a button. Tone and emphasis follow the same rules as <code class="font-mono">&lt;button&gt;</code> actions.
+    </p>
+
+    <div
+      class="
+        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/protocol', tone: :primary, emphasis: :ghost, text: 'View protocol') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/help', tone: :neutral, emphasis: :ghost, text: 'Help') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/confirm-delete', tone: :danger, emphasis: :solid, text: 'Confirm delete') %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Legacy scheme mapping</h2>
+
+    <div class="flex flex-wrap items-center gap-2">
+      <%= render Pathogen::Button.new(tag: :a, href: '#', scheme: :default, text: 'scheme: default') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '#', scheme: :primary, text: 'scheme: primary') %>
+      <%= render Pathogen::Button.new(tag: :a, href: '#', scheme: :danger, text: 'scheme: danger') %>
+    </div>
+  </section>
+</div>

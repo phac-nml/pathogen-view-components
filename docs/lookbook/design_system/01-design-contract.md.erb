@@ -111,6 +111,7 @@ See the Button previews for hierarchy, toolbar, form-action, and accessibility e
 - Labels should be short, direct verbs. Avoid uppercase, wide tracking, or display styling.
 - Icon-only buttons require an accessible name through `text`, `aria-label`, or `aria-labelledby`.
 - Use `disabled` when the control should not be focusable. Use `aria_disabled` when the control should remain focusable so validation feedback can be announced after activation.
+- Link-styled buttons (`tag: :a`) use the same hover treatment as `<button>` actions. Prefer `Pathogen::Link` for inline text navigation; use button-as-link when the affordance should match a button cluster.
 
 ## Focus And Keyboard Access
 

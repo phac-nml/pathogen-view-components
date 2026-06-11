@@ -35,50 +35,50 @@ module Pathogen
         outline: %w[
           text-[var(--pvc-color-text)] bg-[var(--pvc-color-surface)]
           border-[var(--pvc-color-border-strong)]
-          enabled:hover:bg-[var(--pvc-color-surface-muted)]
-          enabled:hover:border-[var(--pvc-color-text-muted)]
+          interactive-hover:bg-[var(--pvc-color-surface-muted)]
+          interactive-hover:border-[var(--pvc-color-text-muted)]
         ],
         solid: %w[
           text-[var(--pvc-color-surface)] bg-[var(--pvc-color-text)]
           border-[var(--pvc-color-text)]
-          enabled:hover:bg-[var(--pvc-color-text-muted)] enabled:hover:border-[var(--pvc-color-text-muted)]
+          interactive-hover:bg-[var(--pvc-color-text-muted)] interactive-hover:border-[var(--pvc-color-text-muted)]
         ],
         ghost: %w[
           text-[var(--pvc-color-text)] bg-transparent border-transparent
-          enabled:hover:bg-[var(--pvc-color-surface-muted)]
-          enabled:hover:border-[var(--pvc-color-border)]
+          interactive-hover:bg-[var(--pvc-color-surface-muted)]
+          interactive-hover:border-[var(--pvc-color-border)]
         ]
       },
       primary: {
         solid: %w[
           text-white bg-[var(--pvc-color-accent-solid)] border-[var(--pvc-color-accent-solid)]
-          enabled:hover:bg-[var(--pvc-color-accent-solid-hover)]
-          enabled:hover:border-[var(--pvc-color-accent-solid-hover)]
+          interactive-hover:bg-[var(--pvc-color-accent-solid-hover)]
+          interactive-hover:border-[var(--pvc-color-accent-solid-hover)]
         ],
         outline: %w[
           text-[var(--pvc-color-accent-strong)] bg-[var(--pvc-color-surface)]
           border-[var(--pvc-color-accent)]
-          enabled:hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_8%,var(--pvc-color-surface))]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_8%,var(--pvc-color-surface))]
         ],
         ghost: %w[
           text-[var(--pvc-color-accent-strong)] bg-transparent border-transparent
-          enabled:hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_8%,transparent)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_8%,transparent)]
         ]
       },
       danger: {
         outline: %w[
           text-[var(--pvc-color-danger)] bg-[var(--pvc-color-surface)]
           border-[color-mix(in_oklab,var(--pvc-color-danger)_45%,var(--pvc-color-border))]
-          enabled:hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]
-          enabled:hover:border-[var(--pvc-color-danger)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]
+          interactive-hover:border-[var(--pvc-color-danger)]
         ],
         solid: %w[
           text-white bg-[var(--pvc-color-danger)] border-[var(--pvc-color-danger)]
-          enabled:hover:opacity-90
+          interactive-hover:opacity-90
         ],
         ghost: %w[
           text-[var(--pvc-color-danger)] bg-transparent border-transparent
-          enabled:hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,transparent)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,transparent)]
         ]
       }
     }.freeze
