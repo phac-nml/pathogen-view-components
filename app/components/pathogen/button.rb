@@ -42,7 +42,7 @@ module Pathogen
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, size: DEFAULT_SIZE, block: false,
-                   icon_only: false, label: nil, disabled: false, aria_disabled: false, **system_arguments)
+                   icon_only: false, text: nil, disabled: false, aria_disabled: false, **system_arguments)
       raise ArgumentError, 'Cannot set both disabled and aria_disabled on a button' if disabled && aria_disabled
 
       @base_button_class = base_button_class
@@ -50,7 +50,7 @@ module Pathogen
       @size = size
       @block = block
       @icon_only = icon_only
-      @label = label
+      @text = text
 
       @system_arguments = system_arguments
       @system_arguments[:disabled] = true if disabled
@@ -83,7 +83,7 @@ module Pathogen
     def button_text
       return if @icon_only
 
-      trimmed_content.presence || @label
+      trimmed_content.presence || @text
     end
 
     private
@@ -92,7 +92,7 @@ module Pathogen
       return if accessible_name.present?
 
       raise ArgumentError,
-            "Icon-only buttons require 'label', 'aria-label', 'aria: { label: ... }', " \
+            "Icon-only buttons require 'text', 'aria-label', 'aria: { label: ... }', " \
             "or 'aria: { labelledby: ... }'"
     end
 
@@ -103,14 +103,14 @@ module Pathogen
     end
 
     def apply_icon_only_accessible_name!
-      return if @label.blank?
+      return if @text.blank?
 
-      @system_arguments[:'aria-label'] ||= @label
+      @system_arguments[:'aria-label'] ||= @text
     end
 
     def accessible_name
       aria = @system_arguments[:aria]
-      @label.presence ||
+      @text.presence ||
         @system_arguments[:'aria-label'].presence ||
         (aria.is_a?(Hash) && (aria[:label] || aria['label'] || aria[:labelledby] || aria['labelledby']).presence)
     end

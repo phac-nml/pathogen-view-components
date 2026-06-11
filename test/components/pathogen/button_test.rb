@@ -121,14 +121,14 @@ module Pathogen
     end
 
     test 'passes axe-core checks when rendered as a link' do
-      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', scheme: :primary, label: 'View samples'))
+      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', scheme: :primary, text: 'View samples'))
 
       assert_selector 'a[href="/samples"]', text: 'View samples'
       assert_axe_structural_accessible rendered_content, context: 'link button'
     end
 
     test 'icon_only passes axe-core checks when rendered as a link' do
-      render_inline(Pathogen::Button.new(icon_only: true, tag: :a, href: '/search', label: 'Search')) do |button|
+      render_inline(Pathogen::Button.new(icon_only: true, tag: :a, href: '/search', text: 'Search')) do |button|
         button.with_leading_visual do
           '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
         end
@@ -138,14 +138,14 @@ module Pathogen
       assert_axe_structural_accessible rendered_content, context: 'icon-only link button'
     end
 
-    test 'renders label option without a content block' do
-      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true, label: 'Continue'))
+    test 'renders text option without a content block' do
+      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: 'Continue'))
 
       assert_selector 'button[aria-disabled="true"]', text: 'Continue'
     end
 
     test 'icon_only medium uses 44px square target' do
-      render_inline(Pathogen::Button.new(icon_only: true, label: 'Search')) do |button|
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Search')) do |button|
         button.with_leading_visual { 'Icon' }
       end
 
@@ -157,7 +157,7 @@ module Pathogen
     end
 
     test 'icon_only small uses 24px AA square target' do
-      render_inline(Pathogen::Button.new(icon_only: true, size: :small, label: 'Search')) do |button|
+      render_inline(Pathogen::Button.new(icon_only: true, size: :small, text: 'Search')) do |button|
         button.with_leading_visual { 'Icon' }
       end
 
@@ -175,7 +175,7 @@ module Pathogen
 
     test 'icon_only raises without icon content' do
       assert_raises(ArgumentError) do
-        render_inline(Pathogen::Button.new(icon_only: true, label: 'Search'))
+        render_inline(Pathogen::Button.new(icon_only: true, text: 'Search'))
       end
     end
 
@@ -188,7 +188,7 @@ module Pathogen
     end
 
     test 'icon_only passes axe-core structural checks' do
-      render_inline(Pathogen::Button.new(icon_only: true, label: 'Search', scheme: :primary)) do |button|
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Search', scheme: :primary)) do |button|
         button.with_leading_visual do
           '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
         end

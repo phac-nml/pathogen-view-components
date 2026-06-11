@@ -50,17 +50,17 @@ Pathogen components are under the `Pathogen` namespace and follow the ViewCompon
 #### Button
 
 ```erb
-<%= render Pathogen::Button.new(scheme: :primary, label: "Save") %>
+<%= render Pathogen::Button.new(scheme: :primary, text: "Save") %>
 ```
 
-Pass button text with `label:` in Lookbook preview templates and other ERB templates rendered outside a normal ViewComponent block context. Content blocks still work from Ruby preview methods and host app views.
+Pass button text with `text:` in Lookbook preview templates and other ERB templates rendered outside a normal ViewComponent block context. Content blocks still work from Ruby preview methods and host app views.
 
 Use `disabled: true` for fully inactive buttons (removed from tab order). Use `aria_disabled: true` when the
 button should stay focusable but not act yet, for example, a form submit that announces validation errors after
 activation ([focusable disabled pattern](https://www.atomica11y.com/accessible-design/button/)).
 
 ```erb
-<%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, label: "Continue") %>
+<%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: "Continue") %>
 ```
 
 For icon-only actions, use `icon_only: true` with a required accessible name. Pass the icon through
@@ -68,7 +68,7 @@ For icon-only actions, use `icon_only: true` with a required accessible name. Pa
 distinct name:
 
 ```erb
-<%= render Pathogen::Button.new(icon_only: true, label: "Edit payment date", size: :small) do |button| %>
+<%= render Pathogen::Button.new(icon_only: true, text: "Edit payment date", size: :small) do |button| %>
   <% button.with_leading_visual do %>
     <%= icon("pencil", class: "size-4") %>
   <% end %>

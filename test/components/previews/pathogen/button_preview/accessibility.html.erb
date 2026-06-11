@@ -12,7 +12,7 @@
       <div class="mt-4 flex items-center justify-between gap-4 border-b border-neutral-200 py-3 dark:border-neutral-700">
         <span id="payment-date" class="text-sm text-neutral-700 dark:text-neutral-300">1 Jan, 2024</span>
 
-        <%= render Pathogen::Button.new(icon_only: true, label: 'Edit payment date', size: :small) do |button| %>
+        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment date', size: :small) do |button| %>
           <% button.with_leading_visual do %>
             <%= icon('pencil', class: 'size-4') %>
           <% end %>
@@ -22,7 +22,7 @@
       <div class="flex items-center justify-between gap-4 py-3">
         <span id="payment-amount" class="text-sm text-neutral-700 dark:text-neutral-300">$200.00</span>
 
-        <%= render Pathogen::Button.new(icon_only: true, label: 'Edit payment amount', size: :small) do |button| %>
+        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment amount', size: :small) do |button| %>
           <% button.with_leading_visual do %>
             <%= icon('pencil', class: 'size-4') %>
           <% end %>
@@ -39,6 +39,6 @@
       remain focusable so screen reader users hear validation feedback after activation.
     </p>
 
-    <%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, label: 'Continue') %>
+    <%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: 'Continue') %>
   </section>
 </div>
