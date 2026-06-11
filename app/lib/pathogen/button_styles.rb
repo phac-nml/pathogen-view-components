@@ -51,8 +51,9 @@ module Pathogen
       },
       primary: {
         solid: %w[
-          text-white bg-[var(--pvc-color-accent-strong)] border-[var(--pvc-color-accent-strong)]
-          enabled:hover:bg-[var(--pvc-color-accent)] enabled:hover:border-[var(--pvc-color-accent)]
+          text-white bg-[var(--pvc-color-accent-solid)] border-[var(--pvc-color-accent-solid)]
+          enabled:hover:bg-[var(--pvc-color-accent-solid-hover)]
+          enabled:hover:border-[var(--pvc-color-accent-solid-hover)]
         ],
         outline: %w[
           text-[var(--pvc-color-accent-strong)] bg-[var(--pvc-color-surface)]

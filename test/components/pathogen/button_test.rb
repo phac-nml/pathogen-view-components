@@ -22,7 +22,7 @@ module Pathogen
     test 'primary scheme maps to primary solid without shadow' do
       render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
       assert_selector "button[class*='text-white']"
       assert_no_selector "button[class*='shadow-sm']"
     end
@@ -37,7 +37,7 @@ module Pathogen
     test 'scheme primary maps to tone primary emphasis solid' do
       render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
     end
 
     test 'tone neutral emphasis ghost emits quiet classes' do
@@ -58,7 +58,7 @@ module Pathogen
       render_inline(Pathogen::Button.new(scheme: :primary, tone: :neutral, emphasis: :ghost)) { 'Back' }
 
       assert_selector "button[class*='bg-transparent']"
-      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
+      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
     end
 
     test 'medium size padding by default' do

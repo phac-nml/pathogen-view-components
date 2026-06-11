@@ -775,8 +775,8 @@
   .border-\[var\(--pvc-color-accent\)\] {
     border-color: var(--pvc-color-accent);
   }
-  .border-\[var\(--pvc-color-accent-strong\)\] {
-    border-color: var(--pvc-color-accent-strong);
+  .border-\[var\(--pvc-color-accent-solid\)\] {
+    border-color: var(--pvc-color-accent-solid);
   }
   .border-\[var\(--pvc-color-border-strong\)\] {
     border-color: var(--pvc-color-border-strong);
@@ -814,8 +814,8 @@
       background-color: color-mix(in oklab, var(--color-red-500) 12%, transparent);
     }
   }
-  .bg-\[var\(--pvc-color-accent-strong\)\] {
-    background-color: var(--pvc-color-accent-strong);
+  .bg-\[var\(--pvc-color-accent-solid\)\] {
+    background-color: var(--pvc-color-accent-solid);
   }
   .bg-\[var\(--pvc-color-danger\)\] {
     background-color: var(--pvc-color-danger);
@@ -1445,11 +1445,11 @@
       outline-color: var(--color-black);
     }
   }
-  .enabled\:hover\:border-\[var\(--pvc-color-accent\)\] {
+  .enabled\:hover\:border-\[var\(--pvc-color-accent-solid-hover\)\] {
     &:enabled {
       &:hover {
         @media (hover: hover) {
-          border-color: var(--pvc-color-accent);
+          border-color: var(--pvc-color-accent-solid-hover);
         }
       }
     }
@@ -1538,11 +1538,11 @@
       }
     }
   }
-  .enabled\:hover\:bg-\[var\(--pvc-color-accent\)\] {
+  .enabled\:hover\:bg-\[var\(--pvc-color-accent-solid-hover\)\] {
     &:enabled {
       &:hover {
         @media (hover: hover) {
-          background-color: var(--pvc-color-accent);
+          background-color: var(--pvc-color-accent-solid-hover);
         }
       }
     }
@@ -1946,6 +1946,8 @@
     --pvc-color-text-muted: var(--color-neutral-600);
     --pvc-color-accent: var(--color-primary-600);
     --pvc-color-accent-strong: var(--color-primary-700);
+    --pvc-color-accent-solid: var(--color-primary-700);
+    --pvc-color-accent-solid-hover: var(--color-primary-600);
     --pvc-color-danger: var(--color-red-600);
     --pvc-color-success: var(--color-emerald-600);
     --pvc-color-warning: var(--color-amber-600);
@@ -1978,6 +1980,8 @@
     --pvc-color-text-muted: var(--color-neutral-400);
     --pvc-color-accent: var(--color-primary-400);
     --pvc-color-accent-strong: var(--color-primary-300);
+    --pvc-color-accent-solid: var(--color-primary-600);
+    --pvc-color-accent-solid-hover: var(--color-primary-500);
     --pvc-color-danger: var(--color-red-400);
     --pvc-color-success: var(--color-emerald-400);
     --pvc-color-warning: var(--color-amber-400);
