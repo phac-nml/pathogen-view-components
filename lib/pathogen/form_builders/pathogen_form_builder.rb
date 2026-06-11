@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative '../button_helper_options'
 require_relative '../styles/form_styles'
 require_relative '../test_selector_helper'
 require_relative 'switch_methods'
@@ -77,6 +78,23 @@ module Pathogen
       end
       alias check_box checkbox
 
+      # Renders a Pathogen-styled submit button for the current form.
+      #
+      # Accepts the same +value+ and +options+ as Rails +FormBuilder#submit+, plus
+      # Pathogen::Button kwargs such as +scheme+, +size+, and +block+.
+      #
+      # @param value [String, nil] button label (defaults to Rails create/update copy)
+      # @param options [Hash] submit and Pathogen button options
+      # @return [String] HTML for the submit button
+      def submit(value = nil, options = {})
+        if value.is_a?(Hash)
+          options = value
+          value = nil
+        end
+
+        @template.render(pathogen_submit_button(value, options || {}))
+      end
+
       # Renders a label with consistent styling and required field indicators
       #
       # Overrides the default Rails form builder's label method to provide
@@ -115,7 +133,22 @@ module Pathogen
         super(method, enhanced_content, options)
       end
 
-      private
+      def pathogen_submit_button(value, options)
+        options = add_test_selector(options)
+        label = value || submit_default_value
+
+        pathogen_options, submit_options = ButtonHelperOptions.split_submit_options(options)
+        submit_options = ButtonHelperOptions.apply_disable_with!(label, submit_options)
+        submit_options['name'] ||= 'commit'
+        submit_options['value'] ||= label
+
+        Pathogen::Button.new(
+          type: :submit,
+          text: label,
+          **pathogen_options,
+          **submit_options.symbolize_keys
+        )
+      end
 
       def normalize_label_params(content_or_options, options)
         if content_or_options.is_a?(Hash)

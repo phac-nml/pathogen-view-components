@@ -3,6 +3,7 @@
 require 'rails/engine'
 require 'view_component'
 require 'view_component/version'
+require_relative '../button_to_helper'
 require_relative '../view_helper'
 require_relative '../form_helper'
 require_relative '../form_tag_helper'
@@ -30,6 +31,7 @@ module Pathogen
 
       initializer 'pathogen_view_components' do
         ActiveSupport.on_load(:action_view) do
+          include Pathogen::ButtonToHelper
           include Pathogen::ViewHelper
           include Pathogen::FormHelper
           include Pathogen::FormTagHelper

@@ -45,6 +45,10 @@ module Pathogen
       end
     end
 
+    # @label Standalone form actions
+    # Delete and retry patterns using pathogen_button_to
+    def button_to; end
+
     def all_schemes; end
 
     # @label Accessibility patterns
