@@ -7,30 +7,58 @@ module Pathogen
     test 'medium size uses 44px touch target' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector 'button.inline-flex.min-h-11.min-w-11.items-center.rounded-lg', text: 'Click me'
+      assert_selector 'button.inline-flex.min-h-11.min-w-11.items-center[class*="rounded-[var(--pvc-radius-action)]"]',
+                      text: 'Click me'
     end
 
-    test 'default scheme uses white surface and visible border' do
+    test 'default scheme maps to neutral outline semantic tokens' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector "button[class*='border-neutral-300']"
-      assert_selector "button[class*='bg-white']"
+      assert_selector "button[class*='border-[var(--pvc-color-border-strong)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-surface)]']"
+      assert_selector "button[class*='text-[var(--pvc-color-text)]']"
     end
 
-    test 'primary scheme uses brand background and shadow' do
+    test 'primary scheme maps to primary solid without shadow' do
       render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
 
-      assert_selector "button[class*='bg-primary-700']"
+      assert_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
       assert_selector "button[class*='text-white']"
-      assert_selector "button[class*='shadow-sm']"
+      assert_no_selector "button[class*='shadow-sm']"
     end
 
-    test 'danger scheme uses bordered outline destructive style' do
+    test 'danger scheme maps to danger outline semantic tokens' do
       render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
 
-      assert_selector "button[class*='text-red-600']"
-      assert_selector "button[class*='bg-white']"
-      assert_selector "button[class*='border-red-300']"
+      assert_selector "button[class*='text-[var(--pvc-color-danger)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-surface)]']"
+    end
+
+    test 'scheme primary maps to tone primary emphasis solid' do
+      render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
+
+      assert_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
+    end
+
+    test 'tone neutral emphasis ghost emits quiet classes' do
+      render_inline(Pathogen::Button.new(tone: :neutral, emphasis: :ghost)) { 'Cancel' }
+
+      assert_selector "button[class*='bg-transparent']"
+      assert_selector "button[class*='border-transparent']"
+    end
+
+    test 'tone danger emphasis solid emits solid destructive classes' do
+      render_inline(Pathogen::Button.new(tone: :danger, emphasis: :solid)) { 'Delete' }
+
+      assert_selector "button[class*='bg-[var(--pvc-color-danger)]']"
+      assert_selector "button[class*='text-white']"
+    end
+
+    test 'tone and emphasis override scheme when provided' do
+      render_inline(Pathogen::Button.new(scheme: :primary, tone: :neutral, emphasis: :ghost)) { 'Back' }
+
+      assert_selector "button[class*='bg-transparent']"
+      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-strong)]']"
     end
 
     test 'medium size padding by default' do
@@ -65,15 +93,13 @@ module Pathogen
       assert_selector 'button.text-xs'
     end
 
-    test 'all schemes emit design-contract focus outline classes' do
+    test 'all schemes emit token-backed focus outline classes' do
       Pathogen::Button::SCHEME_OPTIONS.each do |scheme|
         render_inline(Pathogen::Button.new(scheme: scheme)) { scheme.to_s.humanize }
 
-        assert_selector "button[class*='focus-visible:outline-black']"
-        assert_selector "button[class*='dark:focus-visible:outline-white']"
-        assert_no_selector "button[class*='focus-visible:outline-neutral-700']"
-        assert_no_selector "button[class*='focus-visible:outline-primary-800']"
-        assert_no_selector "button[class*='focus-visible:outline-red-600']"
+        assert_selector "button[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
+        assert_no_selector "button[class*='focus-visible:outline-black']"
+        assert_no_selector "button[class*='focus-visible:outline-white']"
       end
     end
 
