@@ -23,7 +23,7 @@ module Pathogen
       pathogen_options, form_extra, method_override, button_options =
         ButtonHelperOptions.split_button_to_options(html_options)
 
-      pathogen_options[:text] = name.to_s if name.present? && !block
+      pathogen_options[:text] = name.to_s if name.present?
       context = build_button_to_context(options, form_extra, method_override, button_options)
 
       button = render_pathogen_submit_button(pathogen_options, context, options, &block)
