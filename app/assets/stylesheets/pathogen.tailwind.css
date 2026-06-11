@@ -50,6 +50,54 @@
 @layer base {
   :root {
     font-family: var(--font-sans);
+
+    --pvc-color-surface: var(--color-white);
+    --pvc-color-surface-muted: var(--color-neutral-50);
+    --pvc-color-surface-raised: var(--color-white);
+    --pvc-color-border: var(--color-neutral-200);
+    --pvc-color-border-strong: var(--color-neutral-300);
+    --pvc-color-text: var(--color-neutral-900);
+    --pvc-color-text-muted: var(--color-neutral-600);
+    --pvc-color-accent: var(--color-primary-600);
+    --pvc-color-accent-strong: var(--color-primary-700);
+    --pvc-color-danger: var(--color-red-600);
+    --pvc-color-success: var(--color-emerald-600);
+    --pvc-color-warning: var(--color-amber-600);
+    --pvc-color-focus: var(--color-primary-500);
+
+    --type-meta: 0.75rem;
+    --type-control: 0.875rem;
+    --type-body: 1rem;
+    --type-section: 1.25rem;
+    --type-page: 1.9375rem;
+
+    --pvc-radius-control-sm: 0.125rem;
+    --pvc-radius-control: 0.25rem;
+    --pvc-radius-action: 0.375rem;
+    --pvc-radius-panel: 0.5rem;
+
+    --pvc-shadow-none: none;
+    --pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 / 0.2);
+
+    --pvc-duration-fast: 120ms;
+    --pvc-duration-default: 160ms;
+    --pvc-duration-overlay: 200ms;
+  }
+
+  .dark {
+    --pvc-color-surface: var(--color-neutral-900);
+    --pvc-color-surface-muted: var(--color-neutral-800);
+    --pvc-color-surface-raised: color-mix(in oklab, var(--color-neutral-800) 82%, white);
+    --pvc-color-border: var(--color-neutral-700);
+    --pvc-color-border-strong: var(--color-neutral-600);
+    --pvc-color-text: var(--color-neutral-100);
+    --pvc-color-text-muted: var(--color-neutral-400);
+    --pvc-color-accent: var(--color-primary-400);
+    --pvc-color-accent-strong: var(--color-primary-300);
+    --pvc-color-danger: var(--color-red-400);
+    --pvc-color-success: var(--color-emerald-400);
+    --pvc-color-warning: var(--color-amber-400);
+    --pvc-color-focus: var(--color-primary-400);
   }
 }
 
