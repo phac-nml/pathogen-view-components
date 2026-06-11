@@ -1,0 +1,7 @@
+<div class="flex flex-wrap items-center gap-3">
+  <%= pathogen_button_to "Delete", "#", method: :delete, scheme: :danger, data: { turbo_confirm: "Delete this record?" } %>
+
+  <%= pathogen_button_to "#", method: :post, scheme: :primary do %>
+    Retry
+  <% end %>
+</div>
