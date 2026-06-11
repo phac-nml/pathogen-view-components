@@ -1,0 +1,37 @@
+---
+title: Dark Mode
+---
+
+# Dark Mode
+
+Dark mode should feel like a softer clinical workspace, not a black canvas. The common failure mode is using `neutral-950` for large surfaces and then layering `neutral-900` / `neutral-800` cards on top until the UI feels heavy, flat, and cold.
+
+## Rules
+
+- Avoid `neutral-950` as the default large-surface background.
+- Use layered dark surfaces with clear separation.
+- Keep borders visible enough for dense controls and tables.
+- Keep muted text readable, especially in grids, forms, and helper text.
+- Preserve strong focus rings. In dark mode, white or primary-400 focus treatment is acceptable if contrast is clear.
+- Do not use decorative gradients to make dark mode feel richer.
+- Preserve the same crisp geometry as light mode: visible dividers, controlled surface steps, and purposeful accent colour.
+- Do not compensate for low contrast with glow, blur, or oversized colour blocks.
+
+## Recommended Surface Stack
+
+```css
+.dark {
+  --pvc-color-surface: var(--color-neutral-900);
+  --pvc-color-surface-muted: var(--color-neutral-800);
+  --pvc-color-surface-raised: color-mix(in oklab, var(--color-neutral-800) 82%, white);
+  --pvc-color-border: var(--color-neutral-700);
+  --pvc-color-border-strong: var(--color-neutral-600);
+  --pvc-color-text: var(--color-neutral-100);
+  --pvc-color-text-muted: var(--color-neutral-400);
+  --pvc-color-focus: var(--color-primary-400);
+}
+```
+
+## Component Checks
+
+Check dark mode for data-grid surfaces, form states, button states, tabs, tooltips, code blocks, and preview backgrounds.

@@ -215,7 +215,7 @@ bundle install
 bin/dev
 ```
 
-Open `http://localhost:3001/lookbook`. Component previews live in `test/components/previews/pathogen/` and are shared between the test suite and Lookbook.
+Open `http://localhost:3001/lookbook`. Design-system guidance lives in the Lookbook Pages section from `docs/lookbook/`. Component previews live in `test/components/previews/pathogen/` and are shared between the test suite and Lookbook.
 
 ## Contributing
 

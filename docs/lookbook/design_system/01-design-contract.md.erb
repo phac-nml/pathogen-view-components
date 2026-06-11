@@ -1,0 +1,82 @@
+---
+title: Design Contract
+---
+
+# Design Contract
+
+This contract applies to `Pathogen::*` components, Lookbook previews, and host application usage. It does not replace feature-level UI specs. Feature specs should cite this contract, follow it by default, and document local exceptions with a short rationale.
+
+## Ownership
+
+- `Pathogen::*` components are the shared cross-project design-system surface.
+- Host applications may keep local components for product-specific needs, but new reusable UI should be considered for Pathogen first.
+- Existing host components should conform to Pathogen tokens and accessibility rules when they remain in use.
+- Lookbook previews should demonstrate the same product environment host apps should build.
+
+## Aesthetic
+
+Pathogen should read as a clinical enterprise data tool: compact, precise, accessible, and quiet.
+
+Use restrained systems such as GitHub, dense Linear product surfaces, and public-sector utility design as closer references than expressive brand sites. Avoid large decorative gradients, oversized cards, heavy shadows, and marketing-page composition in component examples.
+
+The Bauhaus influence should be functional, not ornamental. Favour clean lines, rational grids, visible structure, direct hierarchy, and simple geometric relationships. Deliberate asymmetry is welcome when it improves scanning or creates a clearer workflow path; arbitrary offset decoration is not.
+
+## Typography
+
+- Use the Pathogen sans stack by default.
+- Body text and descriptions should usually be `text-sm` or `text-base`.
+- Labels use `text-sm font-semibold` when they identify a setting, row, or control.
+- Muted copy uses neutral muted text.
+- Use type scale contrast to clarify information structure, not to create display moments.
+- Page headings are component-owned. Host pages should not override heading size or weight on shared heading components.
+- Keep weights restrained. Prefer normal body text and semibold labels/headings before adding new weights.
+- Avoid decorative display typography in product surfaces.
+
+## Spacing, Radius, And Surfaces
+
+- Prefer Tailwind's default 4px spacing rhythm: `gap-1`, `gap-2`, `gap-4`, `gap-6`, and `gap-8`.
+- Card and panel surfaces use a neutral background, a 1px neutral border, and a small radius.
+- Form primitives can use `rounded-sm`; most controls and panels should converge around `rounded-sm` or `rounded-md`.
+- Use `rounded-lg` only when a larger grouped surface needs a softer boundary. Do not use `rounded-xl` or larger for standard product surfaces.
+- Product UI should be mostly flat. Use shadows primarily for overlays, tooltips, popovers, and menus.
+- Prefer visible borders, dividers, and surface contrast over decorative cards.
+- Do not add page-specific spacing tokens unless a component needs to absorb the pattern.
+
+## Layout And Composition
+
+- Align controls, labels, data, and action groups to clear grid lines.
+- Use asymmetric layouts only when they prioritize the main workflow, split primary and secondary tasks, or improve comparison.
+- Keep dense screens compact, but preserve enough rhythm for keyboard focus, row state, and validation messages to remain legible.
+- Let component structure provide visual interest before adding icons, colour blocks, or illustration.
+
+## Colour
+
+- Pathogen owns semantic tokens. Host applications own brand mapping.
+- Keep the public `--color-primary-*` override contract.
+- Use primary/accent roles for the main brand/action scale.
+- Use neutral/surface roles for surfaces, borders, body text, muted text, and dark-mode neutrals.
+- Components should avoid hard-coded host brand colours.
+- Status colours must carry status meaning: danger, warning, success, or info.
+- Strong colour blocks should be small and purposeful: active navigation, selected state, focus, status, or meaningful grouping.
+
+## Focus And Keyboard Access
+
+Focus must be visible in light mode, dark mode, and high-contrast modes.
+
+- Components must expose a visible `focus-visible` outline or equivalent focused state.
+- Do not rely on transparent borders to hide focus or state. Forced-colours modes may render them visibly.
+- Keyboard interaction should use native controls first.
+- Custom controls must preserve expected keyboard behaviour.
+- Dense widgets such as data grids must keep active, focus, selected, disabled, and hover states visually distinct.
+
+## Accessibility Baseline
+
+Shared components must meet these expectations:
+
+- Semantic HTML first.
+- WCAG AA contrast for text and meaningful UI state.
+- Visible keyboard focus.
+- Screen-reader names, descriptions, and statuses that match the visible UI.
+- Reduced-motion handling for non-essential animation.
+- Forced-colours/high-contrast support for custom controls.
+- State must not be communicated by colour alone.
