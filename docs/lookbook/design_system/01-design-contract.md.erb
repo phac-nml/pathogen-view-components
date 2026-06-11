@@ -59,6 +59,59 @@ The Bauhaus influence should be functional, not ornamental. Favour clean lines, 
 - Status colours must carry status meaning: danger, warning, success, or info.
 - Strong colour blocks should be small and purposeful: active navigation, selected state, focus, status, or meaningful grouping.
 
+## Buttons
+
+Pathogen buttons separate **meaning** from **hierarchy**:
+
+- `tone` — semantic role: `neutral`, `primary`, or `danger`
+- `emphasis` — visual weight: `outline`, `solid`, or `ghost`
+
+Prefer `tone` and `emphasis` for new usage. Legacy `scheme` values remain supported and map to presets:
+
+| `scheme` | Maps to |
+|----------|---------|
+| `default` | `tone: :neutral`, `emphasis: :outline` |
+| `primary` | `tone: :primary`, `emphasis: :solid` |
+| `danger` | `tone: :danger`, `emphasis: :outline` |
+
+See the Button previews for hierarchy, toolbar, form-action, and accessibility examples.
+
+### When To Use Each Combination
+
+**Primary tone**
+
+- `primary` + `solid` — the single main forward action on a surface. Examples: Save, Submit, Continue, New submission.
+- `primary` + `outline` — a secondary brand action when a solid primary is already present. Examples: Save draft, Apply filter.
+- `primary` + `ghost` — a tertiary brand-linked action that should stay quiet. Examples: View protocol, Open details.
+
+**Neutral tone**
+
+- `neutral` + `outline` — the default secondary action. Examples: Cancel, Close, Keep run.
+- `neutral` + `ghost` — low-priority utility or dismissive actions, especially in toolbars and dense layouts. Examples: Reset, Skip, column controls, icon-only toolbar actions.
+- `neutral` + `solid` — rare. Use only when a strong neutral action is needed and accent colour would mislead.
+
+**Danger tone**
+
+- `danger` + `outline` — destructive actions that are available but not the main focus, or that still need confirmation elsewhere. Examples: Delete specimen, Discard changes.
+- `danger` + `solid` — confirmed destructive actions only. Reserve for dialogs or explicit confirmation steps. Examples: Confirm delete, Delete permanently.
+- `danger` + `ghost` — destructive utility in dense interfaces where outline would add too much weight.
+
+### Placement And Hierarchy
+
+- Prefer one `primary` + `solid` action per action group.
+- In form footers, place the main action last in reading order; keep cancel/back actions secondary.
+- Do not place multiple `primary` + `solid` buttons beside each other unless they represent genuinely equal choices.
+- Pair `danger` + `outline` away from `primary` + `solid` unless the layout is an intentional confirmation cluster.
+- Toolbar actions should stay compact: favour `small` size, `ghost` or `outline` emphasis, and icon-only buttons with distinct accessible names.
+
+### Size, Labels, And State
+
+- `medium` — forms, dialogs, and general page actions. Minimum 44px touch target.
+- `small` — toolbars, data grids, and dense tables. Minimum 24px touch target.
+- Labels should be short, direct verbs. Avoid uppercase, wide tracking, or display styling.
+- Icon-only buttons require an accessible name through `text`, `aria-label`, or `aria-labelledby`.
+- Use `disabled` when the control should not be focusable. Use `aria_disabled` when the control should remain focusable so validation feedback can be announced after activation.
+
 ## Focus And Keyboard Access
 
 Focus must be visible in light mode, dark mode, and high-contrast modes.
