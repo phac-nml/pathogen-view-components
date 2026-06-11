@@ -11,6 +11,7 @@ require 'rails/test_help'
 require 'turbo-rails'
 require 'view_component/test_helpers'
 require 'view_component/test_case'
+require_relative 'support/axe_assertions'
 
 class PathogenTestApplication < Rails::Application
   config.root = Pathname.new(File.expand_path('..', __dir__))
@@ -29,3 +30,9 @@ PathogenTestApplication.config.importmap.cache_sweepers = []
 require_relative '../lib/pathogen/view_components'
 
 PathogenTestApplication.initialize!
+
+module ActiveSupport
+  class TestCase
+    include AxeAssertions
+  end
+end

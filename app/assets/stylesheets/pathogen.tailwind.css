@@ -6,6 +6,7 @@
 
 @source "../../components/**/*.rb";
 @source "../../components/**/*.erb";
+@source "../../lib/**/*.rb";
 @source "../../assets/javascripts/**/*.js";
 @source "../../../lib/**/*.rb";
 /* Anchor utilities so full @theme primary scale and `text-primary` emit for host overrides. */
