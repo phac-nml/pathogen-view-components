@@ -19,12 +19,15 @@ Pathogen should read as a clinical enterprise data tool: compact, precise, acces
 
 Use restrained systems such as GitHub, dense Linear product surfaces, and public-sector utility design as closer references than expressive brand sites. Avoid large decorative gradients, oversized cards, heavy shadows, and marketing-page composition in component examples.
 
+The Bauhaus influence should be functional, not ornamental. Favour clean lines, rational grids, visible structure, direct hierarchy, and simple geometric relationships. Deliberate asymmetry is welcome when it improves scanning or creates a clearer workflow path; arbitrary offset decoration is not.
+
 ## Typography
 
 - Use the Pathogen sans stack by default.
 - Body text and descriptions should usually be `text-sm` or `text-base`.
 - Labels use `text-sm font-semibold` when they identify a setting, row, or control.
 - Muted copy uses neutral muted text.
+- Use type scale contrast to clarify information structure, not to create display moments.
 - Page headings are component-owned. Host pages should not override heading size or weight on shared heading components.
 - Keep weights restrained. Prefer normal body text and semibold labels/headings before adding new weights.
 - Avoid decorative display typography in product surfaces.
@@ -33,9 +36,18 @@ Use restrained systems such as GitHub, dense Linear product surfaces, and public
 
 - Prefer Tailwind's default 4px spacing rhythm: `gap-1`, `gap-2`, `gap-4`, `gap-6`, and `gap-8`.
 - Card and panel surfaces use a neutral background, a 1px neutral border, and a small radius.
-- Form primitives can use `rounded-sm`; most controls and panels should converge around `rounded-md` or `rounded-lg`.
+- Form primitives can use `rounded-sm`; most controls and panels should converge around `rounded-sm` or `rounded-md`.
+- Use `rounded-lg` only when a larger grouped surface needs a softer boundary. Do not use `rounded-xl` or larger for standard product surfaces.
 - Product UI should be mostly flat. Use shadows primarily for overlays, tooltips, popovers, and menus.
+- Prefer visible borders, dividers, and surface contrast over decorative cards.
 - Do not add page-specific spacing tokens unless a component needs to absorb the pattern.
+
+## Layout And Composition
+
+- Align controls, labels, data, and action groups to clear grid lines.
+- Use asymmetric layouts only when they prioritize the main workflow, split primary and secondary tasks, or improve comparison.
+- Keep dense screens compact, but preserve enough rhythm for keyboard focus, row state, and validation messages to remain legible.
+- Let component structure provide visual interest before adding icons, colour blocks, or illustration.
 
 ## Colour
 
@@ -45,6 +57,7 @@ Use restrained systems such as GitHub, dense Linear product surfaces, and public
 - Use neutral/surface roles for surfaces, borders, body text, muted text, and dark-mode neutrals.
 - Components should avoid hard-coded host brand colours.
 - Status colours must carry status meaning: danger, warning, success, or info.
+- Strong colour blocks should be small and purposeful: active navigation, selected state, focus, status, or meaningful grouping.
 
 ## Focus And Keyboard Access
 
