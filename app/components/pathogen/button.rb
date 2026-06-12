@@ -62,10 +62,15 @@ module Pathogen
 
     def resolve_tone_and_emphasis(scheme, tone, emphasis)
       if tone || emphasis
-        [
-          fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE),
-          fetch_or_fallback(EMPHASIS_OPTIONS, emphasis, DEFAULT_EMPHASIS)
-        ]
+        resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
+        resolved_emphasis = if emphasis.nil?
+                              DEFAULT_EMPHASIS
+                            else
+                              fetch_or_fallback(EMPHASIS_OPTIONS, emphasis,
+                                                DEFAULT_EMPHASIS)
+                            end
+
+        [resolved_tone, resolved_emphasis]
       else
         SCHEME_PRESETS.fetch(fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME))
       end

@@ -61,6 +61,21 @@ module Pathogen
       assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
     end
 
+    test 'tone without emphasis uses outline emphasis for requested tone' do
+      render_inline(Pathogen::Button.new(tone: :primary)) { 'Save draft' }
+
+      assert_selector "button[class*='text-[var(--pvc-color-accent-strong)]']"
+      assert_selector "button[class*='border-[var(--pvc-color-accent)]']"
+      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
+    end
+
+    test 'emphasis without tone uses neutral tone' do
+      render_inline(Pathogen::Button.new(emphasis: :solid)) { 'Proceed' }
+
+      assert_selector "button[class*='bg-[var(--pvc-color-text)]']"
+      assert_selector "button[class*='text-[var(--pvc-color-surface)]']"
+    end
+
     test 'medium size padding by default' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
@@ -131,6 +146,14 @@ module Pathogen
         render_inline(Pathogen::Button.new(scheme: scheme)) { 'Submit' }
 
         assert_axe_structural_accessible rendered_content, context: scheme
+      end
+    end
+
+    test 'passes axe-core checks for all tone and emphasis combinations' do
+      Pathogen::Button::TONE_OPTIONS.product(Pathogen::Button::EMPHASIS_OPTIONS).each do |tone, emphasis|
+        render_inline(Pathogen::Button.new(tone: tone, emphasis: emphasis)) { 'Submit' }
+
+        assert_axe_structural_accessible rendered_content, context: "#{tone} #{emphasis}"
       end
     end
 
