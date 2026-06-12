@@ -1,0 +1,26 @@
+<% rows = [
+  { sample_id: 'SAM-0001', name: 'Northern basin isolate', status: 'Active' },
+  { sample_id: 'SAM-0002', name: 'Coastal sediment sample', status: 'Pending' }
+] %>
+
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    Toolbar linked to controlled content
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-preview-grid') do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      Filter rows
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      Download CSV
+    <% end %>
+  <% end %>
+
+  <%= render Pathogen::DataGridComponent.new(id: 'toolbar-preview-grid', caption: 'Sample inventory', rows: rows) do |grid| %>
+    <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+    <% grid.with_column('Name', key: :name) %>
+    <% grid.with_column('Status', key: :status, width: 140) %>
+  <% end %>
+</section>

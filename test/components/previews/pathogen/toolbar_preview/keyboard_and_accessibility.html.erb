@@ -1,0 +1,34 @@
+<section class="space-y-4 p-4">
+  <h2 id="toolbar-preview-a11y-title" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    Keyboard navigation and accessibility
+  </h2>
+
+  <p class="text-sm text-neutral-700 dark:text-neutral-300">
+    Disabled actions remain discoverable, and custom controls can join the item set when targeted.
+  </p>
+
+  <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title') do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      Refresh data
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+      Sync all
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Separator.new %>
+
+    <button
+      type="button"
+      tabindex="-1"
+      data-pathogen--toolbar-target="item"
+      class="rounded-md px-2.5 py-1.5 text-sm text-neutral-900 dark:text-neutral-100"
+    >
+      Custom control
+    </button>
+  <% end %>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    Custom controls participate in roving focus only when they expose <code>data-pathogen--toolbar-target="item"</code>.
+  </p>
+</section>

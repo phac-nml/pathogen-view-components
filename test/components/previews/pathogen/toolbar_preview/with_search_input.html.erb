@@ -1,0 +1,34 @@
+<section class="space-y-4 p-4">
+  <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+    Toolbar with search input
+  </h2>
+
+  <%= render Pathogen::Toolbar.new(label: 'Search and actions') do %>
+    <%= render Pathogen::Toolbar::Button.new do %>
+      Add sample
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Button.new do %>
+      Bulk actions
+    <% end %>
+
+    <input
+      id="toolbar-preview-search"
+      type="search"
+      autocomplete="off"
+      tabindex="-1"
+      data-pathogen--toolbar-target="item"
+      value="SAM-"
+      aria-label="Search samples"
+      placeholder="Search by sample ID"
+      class="
+        min-w-56 rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900
+        dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100
+      "
+    >
+  <% end %>
+
+  <p class="text-sm text-neutral-600 dark:text-neutral-400">
+    Arrow keys inside the search field keep native caret behavior while command items keep roving focus.
+  </p>
+</section>

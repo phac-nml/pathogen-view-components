@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, data grids, and toolbars.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -120,6 +120,28 @@ Sticky columns:
 <% end %>
 ```
 
+#### Toolbar
+
+```erb
+<%= render Pathogen::Toolbar.new(label: "Grid actions", controls: "samples-grid") do %>
+  <%= render Pathogen::Toolbar::Button.new do %>
+    Filter
+  <% end %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") do %>
+    Dense
+  <% end %>
+  <%= render Pathogen::Toolbar::Separator.new %>
+
+  <%# Custom controls (e.g. a consumer-managed dropdown trigger) join roving focus
+      by exposing the toolbar item target explicitly. %>
+  <button type="button" tabindex="-1" data-pathogen--toolbar-target="item">More</button>
+<% end %>
+```
+
+- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
+- The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
+- Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
+
 #### Tooltip
 
 ```erb
@@ -171,6 +193,7 @@ registerPathogenControllers(application);
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
+- `pathogen--toolbar`: Horizontal toolbar roving focus, disabled-action interception, and text-entry-safe key handling
 
 ## Development
 

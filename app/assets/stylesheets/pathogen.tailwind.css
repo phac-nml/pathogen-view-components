@@ -121,5 +121,6 @@
   }
 }
 
+@import "./pathogen/components/toolbar.css";
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
