@@ -1,0 +1,28 @@
+<div class="max-w-4xl p-4">
+  <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
+      <h2 class="text-sm font-semibold text-[var(--pvc-color-text)]">Sequencing submissions</h2>
+
+      <div class="flex items-center gap-1">
+        <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Refresh list') do |button| %>
+          <% button.with_leading_visual do %>
+            <%= icon('arrow-clockwise', class: 'size-4') %>
+          <% end %>
+        <% end %>
+
+        <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Export CSV') do |button| %>
+          <% button.with_leading_visual do %>
+            <%= icon('download-simple', class: 'size-4') %>
+          <% end %>
+        <% end %>
+
+        <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Columns') %>
+        <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'New submission') %>
+      </div>
+    </div>
+
+    <div class="px-4 py-6 text-sm text-[var(--pvc-color-text-muted)]">
+      Grid content would appear here. Toolbar actions stay compact and aligned to the data surface.
+    </div>
+  </div>
+</div>
