@@ -24,6 +24,7 @@ module Demo
       assert_includes rows.first.fetch('html'), 'role="row"'
       assert_includes rows.first.fetch('html'), 'aria-rowindex="22"'
       assert_includes rows.first.fetch('html'), 'data-pvc-data-grid-global-row-index="20"'
+      assert_includes rows.first.fetch('html'), '<em>Staphylococcus aureus</em>'
     end
 
     test 'rows clamps oversized limit values' do
