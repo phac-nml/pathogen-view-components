@@ -34,7 +34,15 @@ module Demo
       grid.with_column('Organism', key: :organism, width: 220)
       grid.with_column('Collected', key: :collected_at, width: 160)
       grid.with_column('Status', key: :status, width: 140)
+      add_metric_columns!(grid)
     end
     private_class_method :add_columns!
+
+    def add_metric_columns!(grid)
+      (1..Demo::SampleDataset::METRIC_COLUMN_COUNT).each do |index|
+        grid.with_column("Metric #{index}", key: :"metric_#{index}", width: 120)
+      end
+    end
+    private_class_method :add_metric_columns!
   end
 end

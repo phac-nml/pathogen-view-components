@@ -18,7 +18,8 @@ export function renderVirtualWindow({
   applyColumnWindow,
   headerRow,
   resolveCell,
-  cellByCoordinate,
+  resolveFocusCell,
+  getPendingFocusCoordinate,
   setActiveCell,
   ensureFocusableCell,
 }) {
@@ -53,9 +54,10 @@ export function renderVirtualWindow({
   });
 
   const spacer = viewport.querySelector(".pvc-data-grid__spacer");
-  const focusedCell = resolveCell(document.activeElement);
-  const focusedRowIndex = focusedCell ? rowIndexOf(focusedCell) : null;
-  const focusedColumnIndex = focusedCell ? columnIndexOf(focusedCell) : null;
+  const pendingFocus = getPendingFocusCoordinate?.() ?? null;
+  const focusedCell = pendingFocus ? null : resolveCell(document.activeElement);
+  const focusedRowIndex = pendingFocus?.rowIndex ?? (focusedCell ? rowIndexOf(focusedCell) : null);
+  const focusedColumnIndex = pendingFocus?.columnIndex ?? (focusedCell ? columnIndexOf(focusedCell) : null);
   const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
   let didRestoreCellFocus = false;
 
@@ -80,7 +82,7 @@ export function renderVirtualWindow({
   applyColumnWindow(headerRow(), columnRange);
 
   if (shouldRestoreCellFocus) {
-    const mappedCell = cellByCoordinate(focusedRowIndex, focusedColumnIndex);
+    const mappedCell = resolveFocusCell(focusedRowIndex, focusedColumnIndex);
     if (mappedCell && mappedCell.isConnected) {
       setActiveCell(mappedCell);
       mappedCell.focus({ preventScroll: true });
@@ -88,7 +90,7 @@ export function renderVirtualWindow({
     }
   }
 
-  if (!didRestoreCellFocus) ensureFocusableCell();
+  if (!didRestoreCellFocus && !pendingFocus) ensureFocusableCell();
 
   rowSource.afterRender?.(startIndex, endIndex, rowOverscan * 2);
 }

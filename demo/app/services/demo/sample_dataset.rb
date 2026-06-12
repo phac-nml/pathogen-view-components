@@ -4,6 +4,7 @@ module Demo
   # In-memory sample dataset for paginated virtual DataGrid previews.
   class SampleDataset
     COUNT = 5_000
+    METRIC_COLUMN_COUNT = 95
 
     ORGANISMS = [
       'Listeria monocytogenes',
@@ -49,14 +50,25 @@ module Demo
       def build_sample(index)
         direction = %w[North South East West Upper Lower Central Outer][index % 8]
         site = SITE_NAMES[index % SITE_NAMES.size]
+        sample_number = index + 1
 
         {
-          puid: format('SAM-%04d', index + 1),
+          puid: format('SAM-%04d', sample_number),
           name: "#{direction} #{site}",
           organism: ORGANISMS[index % ORGANISMS.size],
           collected_at: (Date.new(2026, 1, 1) + index).to_s,
           status: STATUSES[index % STATUSES.size]
-        }
+        }.merge(metric_fields(sample_number))
+      end
+
+      def metric_fields(sample_number)
+        (1..METRIC_COLUMN_COUNT).to_h do |metric_index|
+          [:"metric_#{metric_index}", format_metric(metric_index, sample_number)]
+        end
+      end
+
+      def format_metric(metric_index, sample_number)
+        "M#{metric_index}-#{(sample_number + metric_index) % 997}"
       end
     end
   end
