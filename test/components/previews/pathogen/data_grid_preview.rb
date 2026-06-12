@@ -146,7 +146,7 @@ module Pathogen
       render_with_template
     end
 
-    # @label Virtual Infinite Scroll (5,000 rows)
+    # @label Virtual Infinite Scroll (5,000 rows, 100 columns)
     # Rows are fetched from `/demo/samples/rows.json` when running the demo app.
     def virtual_infinite_scroll
       component = build_virtual_infinite_scroll_component if demo_samples_available?
@@ -301,7 +301,7 @@ module Pathogen
       Demo::SamplesGrid.build(
         rows: seed_rows,
         fill_container: true,
-        caption: 'Virtual grid with 5,000 server-backed rows',
+        caption: 'Virtual grid with 5,000 server-backed rows and 100 columns',
         style: 'width: 100%; height: 100%; min-height: 0;'
       )
     end
