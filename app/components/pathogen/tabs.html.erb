@@ -7,8 +7,7 @@
     "pathogen--tabs-sync-url-value" => @system_arguments[:data]["pathogen--tabs-sync-url-value"],
   },
   class: class_names(
-    "font-sans text-neutral-900 dark:text-neutral-100",
-    @orientation == :vertical ? "flex items-start gap-6" : "block",
+    @orientation == :vertical ? CONTAINER_VERTICAL : CONTAINER_HORIZONTAL,
   ),
 ) do %>
   <%= tag.nav(
@@ -19,8 +18,7 @@
       orientation: @orientation,
     },
     class: class_names(
-      "flex flex-wrap items-end gap-1 border-neutral-200 dark:border-neutral-700",
-      @orientation == :vertical ? "min-w-[12.5rem] flex-col items-stretch border-r border-b-0 pr-3" : "border-b",
+      @orientation == :vertical ? TABLIST_VERTICAL : TABLIST_HORIZONTAL,
       @system_arguments[:class],
     ),
     **@system_arguments.except(:id, :data, :class),

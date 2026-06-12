@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/pathogen/tabs_styles'
+
 module Pathogen
   class Tabs
     # TabPanel Component
@@ -85,6 +87,8 @@ module Pathogen
     # by toggling the `hidden` attribute. No additional JavaScript is needed for Turbo Frame
     # integration - Turbo handles the lazy loading automatically when the panel becomes visible.
     class TabPanel < Pathogen::Component
+      include Pathogen::TabsStyles
+
       attr_reader :id, :tab_id
 
       DEFAULT_INITIALLY_HIDDEN = true
@@ -161,10 +165,7 @@ module Pathogen
 
       def setup_component_classes
         @system_arguments[:class] = class_names(
-          'text-neutral-900 dark:text-neutral-100 leading-[1.45] ' \
-          'focus-visible:rounded-md focus-visible:outline focus-visible:outline-2 ' \
-          'focus-visible:outline-black dark:focus-visible:outline-white focus-visible:outline-offset-2 ' \
-          '[&:is([hidden])]:hidden',
+          PANEL_BASE,
           @system_arguments[:class]
         )
       end

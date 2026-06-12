@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../lib/pathogen/tabs_styles'
+
 module Pathogen
   # Tabs Component
   # Accessible tabs component following W3C ARIA Authoring Practices Guide.
@@ -98,6 +100,8 @@ module Pathogen
   #     <% end %>
   #   <% end %>
   class Tabs < Pathogen::Component
+    include Pathogen::TabsStyles
+
     # Orientation options for the tablist
     ORIENTATION_OPTIONS = %i[horizontal vertical].freeze
     ORIENTATION_DEFAULT = :horizontal
