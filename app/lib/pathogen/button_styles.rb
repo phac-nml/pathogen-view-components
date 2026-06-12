@@ -67,17 +67,18 @@ module Pathogen
       },
       danger: {
         outline: %w[
-          text-[var(--pvc-color-danger)] bg-[var(--pvc-color-surface)]
+          text-[var(--pvc-color-danger-strong)] bg-[var(--pvc-color-surface)]
           border-[color-mix(in_oklab,var(--pvc-color-danger)_45%,var(--pvc-color-border))]
           interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]
           interactive-hover:border-[var(--pvc-color-danger)]
         ],
         solid: %w[
-          text-white bg-[var(--pvc-color-danger)] border-[var(--pvc-color-danger)]
-          interactive-hover:opacity-90
+          text-white bg-[var(--pvc-color-danger-solid)] border-[var(--pvc-color-danger-solid)]
+          interactive-hover:bg-[var(--pvc-color-danger-solid-hover)]
+          interactive-hover:border-[var(--pvc-color-danger-solid-hover)]
         ],
         ghost: %w[
-          text-[var(--pvc-color-danger)] bg-transparent border-transparent
+          text-[var(--pvc-color-danger-strong)] bg-transparent border-transparent
           interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,transparent)]
         ]
       }

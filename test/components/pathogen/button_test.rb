@@ -30,7 +30,7 @@ module Pathogen
     test 'danger scheme maps to danger outline semantic tokens' do
       render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
 
-      assert_selector "button[class*='text-[var(--pvc-color-danger)]']"
+      assert_selector "button[class*='text-[var(--pvc-color-danger-strong)]']"
       assert_selector "button[class*='bg-[var(--pvc-color-surface)]']"
     end
 
@@ -50,7 +50,7 @@ module Pathogen
     test 'tone danger emphasis solid emits solid destructive classes' do
       render_inline(Pathogen::Button.new(tone: :danger, emphasis: :solid)) { 'Delete' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-danger)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-danger-solid)]']"
       assert_selector "button[class*='text-white']"
     end
 

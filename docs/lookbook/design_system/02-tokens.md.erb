@@ -114,7 +114,10 @@ These roles should become the preferred language for components and previews. Th
     ['Strong accent', '--pvc-color-accent-strong', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-300)', '#93c5fd'],
     ['Solid accent fill', '--pvc-color-accent-solid', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-600)', '#2563eb'],
     ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-500)', '#3b82f6'],
-    ['Danger', '--pvc-color-danger', 'var(--color-red-600)', '#dc2626', 'var(--color-red-400)', '#f87171'],
+    ['Danger', '--pvc-color-danger', 'var(--color-red-600)', '#dc2626', 'var(--color-red-500)', '#ef4444'],
+    ['Strong danger', '--pvc-color-danger-strong', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-300)', '#fca5a5'],
+    ['Solid danger fill', '--pvc-color-danger-solid', 'var(--color-red-600)', '#dc2626', 'var(--color-red-600)', '#dc2626'],
+    ['Solid danger hover', '--pvc-color-danger-solid-hover', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-700)', '#b91c1c'],
     ['Success', '--pvc-color-success', 'var(--color-emerald-600)', '#059669', 'var(--color-emerald-400)', '#34d399'],
     ['Warning', '--pvc-color-warning', 'var(--color-amber-600)', '#d97706', 'var(--color-amber-400)', '#fbbf24'],
     ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-400)', '#60a5fa']
@@ -149,6 +152,9 @@ These roles should become the preferred language for components and previews. Th
   --pvc-color-accent-solid: var(--color-primary-700);
   --pvc-color-accent-solid-hover: var(--color-primary-600);
   --pvc-color-danger: var(--color-red-600);
+  --pvc-color-danger-strong: var(--color-red-700);
+  --pvc-color-danger-solid: var(--color-red-600);
+  --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-600);
   --pvc-color-warning: var(--color-amber-600);
   --pvc-color-focus: var(--color-primary-500);
@@ -168,14 +174,17 @@ These roles should become the preferred language for components and previews. Th
   --pvc-color-accent-strong: var(--color-primary-300);
   --pvc-color-accent-solid: var(--color-primary-600);
   --pvc-color-accent-solid-hover: var(--color-primary-500);
-  --pvc-color-danger: var(--color-red-400);
+  --pvc-color-danger: var(--color-red-500);
+  --pvc-color-danger-strong: var(--color-red-300);
+  --pvc-color-danger-solid: var(--color-red-600);
+  --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-400);
   --pvc-color-warning: var(--color-amber-400);
   --pvc-color-focus: var(--color-primary-400);
 }
 ```
 
-Use `--pvc-color-accent` and `--pvc-color-accent-strong` for text, borders, and outline controls on a surface. Use `--pvc-color-accent-solid` and `--pvc-color-accent-solid-hover` for filled primary actions. In dark mode, foreground accents stay lighter for contrast on dark surfaces; solid fills stay saturated so primary buttons remain confident.
+Use `--pvc-color-accent` and `--pvc-color-accent-strong` for text, borders, and outline controls on a surface. Use `--pvc-color-accent-solid` and `--pvc-color-accent-solid-hover` for filled primary actions. Apply the same split for danger: `--pvc-color-danger-strong` for outline and ghost labels, `--pvc-color-danger` for borders and mixes, and `--pvc-color-danger-solid` / `--pvc-color-danger-solid-hover` for filled destructive actions. In dark mode, foreground accents stay lighter for contrast on dark surfaces; solid fills stay saturated so primary and danger buttons remain confident.
 
 ## Type Scale Use
 

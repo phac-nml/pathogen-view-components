@@ -13,9 +13,10 @@
     --color-red-50: oklch(97.1% 0.013 17.38);
     --color-red-100: oklch(93.6% 0.032 17.717);
     --color-red-200: oklch(88.5% 0.062 18.334);
-    --color-red-400: oklch(70.4% 0.191 22.216);
+    --color-red-300: oklch(80.8% 0.114 19.571);
     --color-red-500: oklch(63.7% 0.237 25.331);
     --color-red-600: oklch(57.7% 0.245 27.325);
+    --color-red-700: oklch(50.5% 0.213 27.518);
     --color-red-800: oklch(44.4% 0.177 26.899);
     --color-red-900: oklch(39.6% 0.141 25.723);
     --color-red-950: oklch(25.8% 0.092 26.042);
@@ -781,8 +782,8 @@
   .border-\[var\(--pvc-color-border-strong\)\] {
     border-color: var(--pvc-color-border-strong);
   }
-  .border-\[var\(--pvc-color-danger\)\] {
-    border-color: var(--pvc-color-danger);
+  .border-\[var\(--pvc-color-danger-solid\)\] {
+    border-color: var(--pvc-color-danger-solid);
   }
   .border-\[var\(--pvc-color-text\)\] {
     border-color: var(--pvc-color-text);
@@ -817,8 +818,8 @@
   .bg-\[var\(--pvc-color-accent-solid\)\] {
     background-color: var(--pvc-color-accent-solid);
   }
-  .bg-\[var\(--pvc-color-danger\)\] {
-    background-color: var(--pvc-color-danger);
+  .bg-\[var\(--pvc-color-danger-solid\)\] {
+    background-color: var(--pvc-color-danger-solid);
   }
   .bg-\[var\(--pvc-color-surface\)\] {
     background-color: var(--pvc-color-surface);
@@ -1070,8 +1071,8 @@
   .text-\[var\(--pvc-color-accent-strong\)\] {
     color: var(--pvc-color-accent-strong);
   }
-  .text-\[var\(--pvc-color-danger\)\] {
-    color: var(--pvc-color-danger);
+  .text-\[var\(--pvc-color-danger-strong\)\] {
+    color: var(--pvc-color-danger-strong);
   }
   .text-\[var\(--pvc-color-surface\)\] {
     color: var(--pvc-color-surface);
@@ -1111,6 +1112,12 @@
   }
   .text-primary {
     color: var(--color-primary);
+  }
+  .text-red-300 {
+    color: var(--color-red-300);
+  }
+  .text-red-700 {
+    color: var(--color-red-700);
   }
   .text-red-900 {
     color: var(--color-red-900);
@@ -1763,6 +1770,13 @@
       }
     }
   }
+  .interactive-hover\:border-\[var\(--pvc-color-danger-solid-hover\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        border-color: var(--pvc-color-danger-solid-hover);
+      }
+    }
+  }
   .interactive-hover\:border-\[var\(--pvc-color-text-muted\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -1817,6 +1831,13 @@
       }
     }
   }
+  .interactive-hover\:bg-\[var\(--pvc-color-danger-solid-hover\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        background-color: var(--pvc-color-danger-solid-hover);
+      }
+    }
+  }
   .interactive-hover\:bg-\[var\(--pvc-color-surface-muted\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -1828,13 +1849,6 @@
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
         background-color: var(--pvc-color-text-muted);
-      }
-    }
-  }
-  .interactive-hover\:opacity-90 {
-    @media (hover: hover) {
-      &:hover:not(:disabled):not([aria-disabled="true"]) {
-        opacity: 90%;
       }
     }
   }
@@ -1925,6 +1939,9 @@
     --pvc-color-accent-solid: var(--color-primary-700);
     --pvc-color-accent-solid-hover: var(--color-primary-600);
     --pvc-color-danger: var(--color-red-600);
+    --pvc-color-danger-strong: var(--color-red-700);
+    --pvc-color-danger-solid: var(--color-red-600);
+    --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-600);
     --pvc-color-warning: var(--color-amber-600);
     --pvc-color-focus: var(--color-primary-500);
@@ -1958,7 +1975,10 @@
     --pvc-color-accent-strong: var(--color-primary-300);
     --pvc-color-accent-solid: var(--color-primary-600);
     --pvc-color-accent-solid-hover: var(--color-primary-500);
-    --pvc-color-danger: var(--color-red-400);
+    --pvc-color-danger: var(--color-red-500);
+    --pvc-color-danger-strong: var(--color-red-300);
+    --pvc-color-danger-solid: var(--color-red-600);
+    --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-400);
     --pvc-color-warning: var(--color-amber-400);
     --pvc-color-focus: var(--color-primary-400);
