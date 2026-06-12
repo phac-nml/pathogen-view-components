@@ -70,6 +70,7 @@ export default class extends Controller {
   #abortController = null;
   // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
   #lastActiveCell = null;
+  #pendingFocusCoordinate = null;
 
   #allRowElements = null; // Detached row elements (only in virtual mode)
   #rowHeight = 0;
@@ -139,6 +140,7 @@ export default class extends Controller {
     this.#virtualRows = null;
     this.#pagination?.disconnect();
     this.#pagination = null;
+    this.#pendingFocusCoordinate = null;
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
@@ -155,6 +157,7 @@ export default class extends Controller {
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
 
+    this.#pendingFocusCoordinate = null;
     this.#setActiveCell(cell);
 
     const interactiveTarget = resolveInteractiveTarget(event.target, cell);
@@ -321,22 +324,25 @@ export default class extends Controller {
   }
 
   #focusCell(cell) {
-    let targetCell = cell;
     const rowIndex = rowIndexOf(cell);
     const columnIndex = columnIndexOf(cell);
+
+    if (rowIndex !== null && columnIndex !== null) {
+      this.#pendingFocusCoordinate = { rowIndex, columnIndex };
+    }
 
     if (this.#isVirtual()) {
       const virtualRowIndex = rowIndex === null ? null : rowIndex - 1;
       this.#ensureVirtualRowVisible(virtualRowIndex, columnIndex);
-
-      if (rowIndex !== null && columnIndex !== null) {
-        const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
-        if (mappedCell) targetCell = mappedCell;
-      }
+      this.#invalidateCellCaches();
     }
 
-    if (!targetCell.isConnected) return;
+    const targetCell =
+      rowIndex !== null && columnIndex !== null ? this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex) : cell;
 
+    if (!targetCell?.isConnected) return;
+
+    this.#pendingFocusCoordinate = null;
     this.#setActiveCell(targetCell);
     targetCell.focus({ preventScroll: true });
     this.#scrollCellIntoView(targetCell);
@@ -484,6 +490,37 @@ export default class extends Controller {
     if (!this.#coordinateCellCache) this.#allCells();
     if (!this.#coordinateCellCache) return null;
     return this.#coordinateCellCache.get(`${rowIndex}:${columnIndex}`) || null;
+  }
+
+  #resolveConnectedCellByCoordinate(rowIndex, columnIndex) {
+    if (this.hasViewportTarget) {
+      const viewportCell = this.viewportTarget.querySelector(
+        `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="${rowIndex}"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
+      );
+      if (viewportCell) return viewportCell;
+    }
+
+    if (this.hasGridTarget && rowIndex === 0) {
+      const headerCell = this.gridTarget.querySelector(
+        `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
+      );
+      if (headerCell) return headerCell;
+    }
+
+    const cachedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+    return cachedCell?.isConnected ? cachedCell : null;
+  }
+
+  #restorePendingFocus() {
+    if (!this.#pendingFocusCoordinate) return;
+
+    const { rowIndex, columnIndex } = this.#pendingFocusCoordinate;
+    const cell = this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex);
+    if (!cell?.isConnected) return;
+
+    this.#pendingFocusCoordinate = null;
+    this.#setActiveCell(cell);
+    cell.focus({ preventScroll: true });
   }
 
   #cellIndex(cell) {
@@ -639,6 +676,7 @@ export default class extends Controller {
       onRowsChanged: () => {
         this.#updateVirtualAllCellsFromCache();
         this.#invalidateCellCaches();
+        this.#restorePendingFocus();
       },
       onVisibleRowsChanged: () => {
         this.#visibleStartIndex = -1;
@@ -743,10 +781,12 @@ export default class extends Controller {
       applyColumnWindow: (row, columnRange) => this.#centerColumnWindow.apply(row, columnRange),
       headerRow: () => this.#virtualHeaderRow(),
       resolveCell: (target) => this.#resolveCell(target),
-      cellByCoordinate: (rowIndex, columnIndex) => this.#cellByCoordinate(rowIndex, columnIndex),
+      resolveFocusCell: (rowIndex, columnIndex) => this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex),
+      getPendingFocusCoordinate: () => this.#pendingFocusCoordinate,
       setActiveCell: (cell) => this.#setActiveCell(cell),
       ensureFocusableCell: () => this.#ensureRenderedFocusableCell(),
     });
+    this.#restorePendingFocus();
   }
   #onScrollEnd() {
     this.#pagination?.handleScrollEnd();
