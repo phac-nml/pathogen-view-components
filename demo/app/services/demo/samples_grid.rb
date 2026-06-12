@@ -31,7 +31,7 @@ module Demo
     def add_columns!(grid)
       grid.with_column('Sample ID', key: :puid, width: 160)
       grid.with_column('Name', key: :name, width: 260)
-      grid.with_column('Organism', key: :organism, width: 220)
+      grid.with_column('Organism', width: 220) { |row| helpers.tag.em(row[:organism]) }
       grid.with_column('Collected', key: :collected_at, width: 160)
       grid.with_column('Status', key: :status, width: 140)
       add_metric_columns!(grid)
@@ -44,5 +44,10 @@ module Demo
       end
     end
     private_class_method :add_metric_columns!
+
+    def helpers
+      ActionController::Base.helpers
+    end
+    private_class_method :helpers
   end
 end
