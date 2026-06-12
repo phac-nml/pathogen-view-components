@@ -1,16 +1,16 @@
 <div class="flex max-w-3xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Repeating button labels</h2>
+    <h2 class="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Repeating button labels</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
       When multiple icon-only buttons share the same visual, give each a distinct accessible name.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Payment details</h3>
+    <div class="rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
+      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Payment details</h3>
 
-      <div class="mt-4 flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] py-3">
-        <span id="payment-date" class="text-sm text-[var(--pvc-color-text-muted)]">1 Jan, 2024</span>
+      <div class="mt-4 flex items-center justify-between gap-4 border-b border-neutral-200 py-3 dark:border-neutral-700">
+        <span id="payment-date" class="text-sm text-neutral-700 dark:text-neutral-300">1 Jan, 2024</span>
 
         <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment date', size: :small) do |button| %>
           <% button.with_leading_visual do %>
@@ -20,7 +20,7 @@
       </div>
 
       <div class="flex items-center justify-between gap-4 py-3">
-        <span id="payment-amount" class="text-sm text-[var(--pvc-color-text-muted)]">$200.00</span>
+        <span id="payment-amount" class="text-sm text-neutral-700 dark:text-neutral-300">$200.00</span>
 
         <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment amount', size: :small) do |button| %>
           <% button.with_leading_visual do %>
@@ -32,13 +32,13 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Focusable disabled button</h2>
+    <h2 class="mb-2 text-lg font-semibold text-neutral-900 dark:text-neutral-100">Focusable disabled button</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
       Use <code class="font-mono">aria_disabled: true</code> when the action is not yet available but the button should
       remain focusable so screen reader users hear validation feedback after activation.
     </p>
 
-    <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue') %>
+    <%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: 'Continue') %>
   </section>
 </div>

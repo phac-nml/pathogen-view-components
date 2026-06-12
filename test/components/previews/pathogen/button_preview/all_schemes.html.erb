@@ -1,7 +1,5 @@
-<div class="flex flex-wrap items-center gap-2">
-  <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes') %>
-  <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
-  <%= render Pathogen::Button.new(tone: :neutral, emphasis: :ghost, text: 'Reset filters') %>
-  <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Delete sample') %>
-  <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Confirm delete') %>
+<div class="flex gap-1">
+  <%= render Pathogen::Button.new(scheme: :default, text: 'Button') %>
+  <%= render Pathogen::Button.new(scheme: :primary, text: 'Button') %>
+  <%= render Pathogen::Button.new(scheme: :danger, text: 'Button') %>
 </div>

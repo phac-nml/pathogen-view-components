@@ -1,24 +1,52 @@
 # frozen_string_literal: true
 
-require_relative '../../lib/pathogen/button_styles'
-
 module Pathogen
   # Pathogen::Button — Tailwind-styled button (see also Pathogen::BaseButton).
   class Button < Pathogen::Component
     include Pathogen::ButtonSizes
-    include Pathogen::ButtonStyles
 
     renders_one :leading_visual
     renders_one :trailing_visual
 
+    SCHEME_OPTIONS = %i[primary default danger].freeze
+    DEFAULT_SCHEME = :default
+
+    BASE_CLASSES = %w[
+      relative inline-flex items-center justify-center cursor-pointer select-none
+      rounded-lg font-sans font-medium no-underline border
+      transition-[color,background-color,border-color,opacity] duration-200 ease-in-out
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-black focus-visible:outline-offset-2
+      focus-visible:z-10 dark:focus-visible:outline-white
+      disabled:opacity-70 disabled:cursor-not-allowed
+      aria-disabled:opacity-70 aria-disabled:cursor-not-allowed
+    ].join(' ').freeze
+
+    SCHEME_CLASSES = {
+      default: %w[
+        text-neutral-900 bg-white border-neutral-300
+        dark:text-neutral-100 dark:bg-neutral-800 dark:border-neutral-600
+        enabled:hover:bg-neutral-50 enabled:hover:border-neutral-400
+        dark:enabled:hover:bg-neutral-700 dark:enabled:hover:border-neutral-500
+      ].join(' ').freeze,
+      primary: %w[
+        text-white bg-primary-700 border-primary-700 shadow-sm
+        enabled:hover:bg-primary-600 enabled:hover:border-primary-600
+      ].join(' ').freeze,
+      danger: %w[
+        text-red-600 bg-white border-red-300
+        dark:text-red-400 dark:bg-neutral-900 dark:border-red-500/60
+        enabled:hover:bg-red-50 enabled:hover:border-red-400 enabled:hover:text-red-700
+        dark:enabled:hover:bg-red-950/30 dark:enabled:hover:border-red-500
+      ].join(' ').freeze
+    }.freeze
+
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
-    def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, tone: nil, emphasis: nil,
-                   size: DEFAULT_SIZE, block: false, icon_only: false, text: nil, disabled: false,
-                   aria_disabled: false, **system_arguments)
+    def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, size: DEFAULT_SIZE, block: false,
+                   icon_only: false, text: nil, disabled: false, aria_disabled: false, **system_arguments)
       raise ArgumentError, 'Cannot set both disabled and aria_disabled on a button' if disabled && aria_disabled
 
       @base_button_class = base_button_class
-      @tone, @emphasis = resolve_tone_and_emphasis(scheme, tone, emphasis)
+      @scheme = scheme
       @size = size
       @block = block
       @icon_only = icon_only
@@ -34,7 +62,7 @@ module Pathogen
 
       @system_arguments[:classes] = class_names(
         BASE_CLASSES,
-        style_classes(@tone, @emphasis),
+        SCHEME_CLASSES[fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME)],
         size_classes,
         'flex w-full' => block
       )
@@ -59,17 +87,6 @@ module Pathogen
     end
 
     private
-
-    def resolve_tone_and_emphasis(scheme, tone, emphasis)
-      if tone || emphasis
-        [
-          fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE),
-          fetch_or_fallback(EMPHASIS_OPTIONS, emphasis, DEFAULT_EMPHASIS)
-        ]
-      else
-        SCHEME_PRESETS.fetch(fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME))
-      end
-    end
 
     def validate_icon_only_accessible_name!
       return if accessible_name.present?

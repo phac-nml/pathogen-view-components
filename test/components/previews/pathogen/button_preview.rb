@@ -4,15 +4,14 @@ module Pathogen
   class ButtonPreview < ViewComponent::Preview
     include Pathogen::ViewHelper
 
-    # @param tone select { choices: [neutral, primary, danger] } "Semantic meaning of the button."
-    # @param emphasis select { choices: [outline, solid, ghost] } "Visual hierarchy of the button."
+    # @param scheme select { choices: [default,primary, danger] } "The color scheme of the button."
     # @param size select { choices: [small, medium] } "The size of the button."
     # @param disabled toggle "The Boolean disabled attribute, when present, makes the element not mutable, focusable,
     #   or even submitted with the form. The user can neither edit nor focus on the control, nor its form control
     #   descendants."
     # @param block toggle "If true, the button will take up the full width of its container."
-    def playground(tone: :neutral, emphasis: :outline, size: :medium, disabled: false, block: false)
-      pathogen_button(tone:, emphasis:, size:, disabled:, block:, test_selector: 'playground') do
+    def playground(scheme: :default, size: :medium, disabled: false, block: false)
+      pathogen_button(scheme:, size:, disabled:, block:, test_selector: 'playground') do
         'Button'
       end
     end
@@ -48,14 +47,6 @@ module Pathogen
 
     def all_schemes; end
 
-    def hierarchy; end
-
-    def toolbar; end
-
-    def form_actions; end
-
-    def button_groups; end
-
     # @label Accessibility patterns
     # Repeating labels, icon-only buttons, and focusable disabled states
     def accessibility; end
@@ -66,8 +57,16 @@ module Pathogen
       end
     end
 
-    # @label Link as a button
-    def link_as_a_button; end
+    # @param scheme select { choices: [default,primary, danger] } "The color scheme of the button."
+    # @param href text "The URL to link to."
+    # @param disabled toggle "The Boolean disabled attribute, when present, makes the element not mutable, focusable,
+    #   or even submitted with the form. The user can neither edit nor focus on the control, nor its form control
+    #   descendants."
+    def link_as_a_button(scheme: :default, href: '#', disabled: false)
+      pathogen_button(scheme:, href:, tag: :a, disabled:, test_selector: 'link-as-a-button') do
+        'Button'
+      end
+    end
 
     # @param scheme select { choices: [default,primary, danger] } "The color scheme of the button."
     # @param size select { choices: [small, medium] } "The size of the button."
