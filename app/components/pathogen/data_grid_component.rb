@@ -50,7 +50,7 @@ module Pathogen
 
     SCROLL_CONTAINER_CLASSES = %w[
       relative max-w-full overflow-auto rounded-[inherit]
-      shadow-none transition-shadow duration-[160ms]
+      shadow-none transition-shadow duration-[var(--pvc-duration-default)]
     ].freeze
 
     FILL_SCROLL_CLASSES = %w[
@@ -77,12 +77,16 @@ module Pathogen
 
     SCROLL_HINT_CLASSES = %w[
       hidden m-0 pt-1.5 px-[var(--pvc-data-grid-cell-padding-x)]
-      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+      text-[var(--pvc-data-grid-text-muted-color)]
+      text-[length:var(--pvc-data-grid-meta-font-size)]
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     KEYBOARD_HELP_CLASSES = %w[
       m-0 pt-1 px-[var(--pvc-data-grid-cell-padding-x)] pb-[var(--pvc-data-grid-cell-padding-y)]
-      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+      text-[var(--pvc-data-grid-text-muted-color)]
+      text-[length:var(--pvc-data-grid-meta-font-size)]
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     EMPTY_STATE_CLASSES = %w[
@@ -96,18 +100,20 @@ module Pathogen
 
     ERROR_STATE_CLASSES = %w[
       my-[var(--pvc-data-grid-cell-padding-y)] mx-[var(--pvc-data-grid-cell-padding-x)]
-      border rounded-md
-      border-[color-mix(in_oklab,var(--color-red-500)_45%,var(--pvc-data-grid-border-color))]
-      bg-[color-mix(in_oklab,var(--color-red-500)_12%,transparent)]
+      border rounded-[var(--pvc-radius-control)]
+      border-[var(--pvc-data-grid-error-border)]
+      bg-[var(--pvc-data-grid-error-bg)]
       py-3 px-4
     ].freeze
 
     ERROR_TITLE_CLASSES = %w[
-      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold leading-[1.35]
+      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     ERROR_MESSAGE_CLASSES = %w[
-      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)] leading-[1.4]
+      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)]
+      leading-[var(--pvc-data-grid-line-height)]
     ].freeze
 
     renders_one :empty_state
