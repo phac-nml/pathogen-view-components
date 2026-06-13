@@ -31,7 +31,7 @@ module Pathogen
     include DataGrid::InteractiveContent
 
     ROOT_CLASSES = %w[
-      max-w-full rounded-lg isolate [container-type:inline-size]
+      max-w-full rounded-[var(--pvc-radius-panel)] isolate [container-type:inline-size]
       border border-[var(--pvc-data-grid-border-color)]
       bg-[var(--pvc-data-grid-body-bg)]
       text-[var(--pvc-data-grid-text-color)]
@@ -50,7 +50,7 @@ module Pathogen
 
     SCROLL_CONTAINER_CLASSES = %w[
       relative max-w-full overflow-auto rounded-[inherit]
-      shadow-none transition-shadow duration-[160ms]
+      shadow-none transition-shadow duration-[var(--pvc-duration-default)]
     ].freeze
 
     FILL_SCROLL_CLASSES = %w[
@@ -77,12 +77,16 @@ module Pathogen
 
     SCROLL_HINT_CLASSES = %w[
       hidden m-0 pt-1.5 px-[var(--pvc-data-grid-cell-padding-x)]
-      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+      text-[var(--pvc-data-grid-text-muted-color)]
+      text-[length:var(--pvc-data-grid-meta-font-size)]
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     KEYBOARD_HELP_CLASSES = %w[
       m-0 pt-1 px-[var(--pvc-data-grid-cell-padding-x)] pb-[var(--pvc-data-grid-cell-padding-y)]
-      text-[var(--pvc-data-grid-text-muted-color)] text-xs leading-[1.35]
+      text-[var(--pvc-data-grid-text-muted-color)]
+      text-[length:var(--pvc-data-grid-meta-font-size)]
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     EMPTY_STATE_CLASSES = %w[
@@ -96,18 +100,20 @@ module Pathogen
 
     ERROR_STATE_CLASSES = %w[
       my-[var(--pvc-data-grid-cell-padding-y)] mx-[var(--pvc-data-grid-cell-padding-x)]
-      border rounded-md
-      border-[color-mix(in_oklab,var(--color-red-500)_45%,var(--pvc-data-grid-border-color))]
-      bg-[color-mix(in_oklab,var(--color-red-500)_12%,transparent)]
+      border rounded-[var(--pvc-radius-control)]
+      border-[var(--pvc-data-grid-error-border)]
+      bg-[var(--pvc-data-grid-error-bg)]
       py-3 px-4
     ].freeze
 
     ERROR_TITLE_CLASSES = %w[
-      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold leading-[1.35]
+      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold
+      leading-[var(--pvc-data-grid-meta-line-height)]
     ].freeze
 
     ERROR_MESSAGE_CLASSES = %w[
-      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)] leading-[1.4]
+      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)]
+      leading-[var(--pvc-data-grid-line-height)]
     ].freeze
 
     renders_one :empty_state
@@ -131,8 +137,8 @@ module Pathogen
     # @yieldparam row [Hash, Array, Object] Row data for the current cell.
     # @yieldparam index [Integer] Column index.
     # @return [Pathogen::DataGrid::ColumnComponent]
-    renders_many :columns, lambda { |label, **system_arguments, &block|
-      Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments, &block)
+    renders_many :columns, lambda { |label, **system_arguments|
+      Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
     DEFAULT_EMPTY_STATE_MESSAGE = 'No rows found. Try adjusting filters or refreshing the data.'
@@ -147,11 +153,16 @@ module Pathogen
     DEFAULT_VIRTUAL_ROW_OVERSCAN = 10
     DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2
     DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
-    attr_reader :rows, :keyboard_help_id
+    DEFAULT_VIRTUAL_PAGE_SIZE = 20
+    DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
+    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Scroll to try again.'
+    VirtualPagination = Data.define(:total_count, :rows_url, :page_size, :row_offset)
+
+    attr_reader :rows, :keyboard_help_id, :virtual_pagination
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(rows:, caption: nil, sticky_columns: 0, fill_container: false, dense: false,
-                   virtual: false, **system_arguments)
+                   virtual: false, virtual_pagination: nil, **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       @rows = rows
       @caption = caption
@@ -160,6 +171,7 @@ module Pathogen
       @fill_container = fill_container
       @dense = dense
       @virtual = virtual
+      @virtual_pagination = normalize_virtual_pagination(virtual_pagination)
       @system_arguments = system_arguments
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:pathogen_grid] = true
@@ -168,6 +180,18 @@ module Pathogen
     end
 
     def virtual? = @virtual
+
+    def virtual_pagination? = @virtual && @virtual_pagination.present?
+
+    def virtual_total_count = @virtual_pagination&.total_count
+
+    def virtual_rows_url = @virtual_pagination&.rows_url
+
+    def virtual_page_size = @virtual_pagination&.page_size || DEFAULT_VIRTUAL_PAGE_SIZE
+
+    def virtual_row_offset = @virtual_pagination&.row_offset || 0
+
+    def virtual_global_data_row_index(local_row_index) = virtual_row_offset + local_row_index
 
     def caption? = @caption.present?
 
@@ -182,7 +206,7 @@ module Pathogen
       attributes.merge!(virtual_metadata_attributes) if @virtual
 
       label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = @rows.size + 1 # +1 for header row
+      label_attributes[:rowcount] = virtual_rowcount
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
@@ -207,7 +231,11 @@ module Pathogen
       "#{virtual_column_width(column)}px"
     end
 
-    def default_active_row_index = @rows.present? ? 1 : nil
+    def default_active_row_index
+      return nil if @rows.blank?
+
+      virtual_global_data_row_index(0) + 1
+    end
 
     def default_empty_state
       tag.div(class: class_names('pvc-data-grid__empty-state', *EMPTY_STATE_CLASSES), role: 'status') do
@@ -282,6 +310,20 @@ module Pathogen
       t('pathogen.data_grid.virtual.loaded', default: DEFAULT_VIRTUAL_LOADED_MESSAGE)
     end
 
+    def virtual_pagination_loading_more_text
+      t(
+        'pathogen.data_grid.virtual.pagination.loading_more',
+        default: DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE
+      )
+    end
+
+    def virtual_pagination_fetch_error_text
+      t(
+        'pathogen.data_grid.virtual.pagination.fetch_error',
+        default: DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE
+      )
+    end
+
     def body_cell_payload(column:, row:, column_index:, active:)
       rendered_value = column.render_value(row, column_index)
 
@@ -325,6 +367,53 @@ module Pathogen
 
     private
 
+    def normalize_virtual_pagination(config)
+      return nil if config.nil?
+
+      values = virtual_pagination_values(config)
+      total_count = positive_virtual_pagination_integer!(values, :total_count)
+      rows_url = virtual_pagination_rows_url!(values)
+      page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
+      row_offset = virtual_pagination_row_offset!(values)
+
+      VirtualPagination.new(total_count:, rows_url:, page_size:, row_offset:)
+    end
+
+    def virtual_pagination_values(config)
+      values = config.respond_to?(:to_h) ? config.to_h : config
+      return values if values.respond_to?(:key?)
+
+      raise ArgumentError, 'virtual_pagination must be a hash-like object'
+    end
+
+    def positive_virtual_pagination_integer!(values, key, default = nil)
+      value = virtual_pagination_value(values, key, default).to_i
+      return value if value.positive?
+
+      raise ArgumentError, "virtual_pagination requires a positive #{key}"
+    end
+
+    def virtual_pagination_rows_url!(values)
+      rows_url = virtual_pagination_value(values, :rows_url)
+      raise ArgumentError, 'virtual_pagination requires rows_url' if rows_url.blank?
+
+      rows_url
+    end
+
+    def virtual_pagination_row_offset!(values)
+      row_offset = virtual_pagination_value(values, :row_offset, 0).to_i
+      raise ArgumentError, 'virtual_pagination requires a non-negative row_offset' if row_offset.negative?
+
+      row_offset
+    end
+
+    def virtual_pagination_value(values, key, default = nil)
+      return values[key] if values.key?(key)
+      return values[key.to_s] if values.key?(key.to_s)
+
+      default
+    end
+
     def table_aria_attributes
       attributes = @caption_id.present? ? { labelledby: @caption_id } : { label: DEFAULT_ARIA_LABEL }
       attributes[:describedby] = @keyboard_help_id if @rows.present?
@@ -343,6 +432,7 @@ module Pathogen
       sticky_offset = 0
 
       columns.each_with_index do |column, index|
+        resolve_column_cell_renderer!(column)
         column.normalize_width!
 
         next unless sticky_column?(column, index)
@@ -356,6 +446,19 @@ module Pathogen
         column.sticky_left ||= sticky_offset
         sticky_offset += column.width_px if column.width_px
       end
+    end
+
+    def resolve_column_cell_renderer!(column)
+      return unless column.is_a?(ViewComponent::Slot)
+      return unless column.instance_variable_defined?(:@__vc_content_block)
+
+      content_block = column.instance_variable_get(:@__vc_content_block)
+      return if content_block.blank?
+
+      component = column.instance_variable_get(:@__vc_component_instance)
+      return if component.nil?
+
+      component.instance_variable_set(:@block, content_block)
     end
 
     def apply_fill_container_class!
@@ -377,13 +480,27 @@ module Pathogen
     end
 
     def virtual_metadata_attributes
-      {
+      attributes = {
         'data-pvc-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
         'data-pvc-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
         'data-pvc-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
         'data-pvc-data-grid-pinned-count': virtual_pinned_count,
         'data-pvc-data-grid-column-widths': virtual_column_widths
       }
+      return attributes unless virtual_pagination?
+
+      attributes.merge(
+        'data-pvc-data-grid-total-count': virtual_total_count,
+        'data-pvc-data-grid-rows-url': virtual_rows_url,
+        'data-pvc-data-grid-page-size': virtual_page_size,
+        'data-pvc-data-grid-row-offset': virtual_row_offset
+      )
+    end
+
+    def virtual_rowcount
+      return virtual_total_count + 1 if virtual_pagination? # +1 for header row
+
+      @rows.size + 1
     end
 
     def virtual_pinned_count

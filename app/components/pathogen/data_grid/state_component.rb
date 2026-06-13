@@ -30,11 +30,12 @@ module Pathogen
 
       def body_cell_tag(tag_name:, column:, row:, row_index:, column_index:, aria_column_index: column_index + 1,
                         virtual_column_index: nil)
+        data_row_index = @grid.virtual_global_data_row_index(row_index) + 1
         cell_payload = @grid.body_cell_payload(
           column: column,
           row: row,
           column_index: column_index,
-          active: @grid.default_active_row_index == row_index + 1 && column_index.zero?
+          active: @grid.default_active_row_index == data_row_index && column_index.zero?
         )
 
         tag.public_send(
@@ -49,7 +50,7 @@ module Pathogen
       def body_cell_attributes(column:, row_index:, column_index:, cell_payload:, aria_column_index:,
                                virtual_column_index:)
         column.body_cell_attributes(
-          row_index: row_index + 1,
+          row_index: @grid.virtual_global_data_row_index(row_index) + 1,
           column_index: column_index,
           state: {
             active: cell_payload[:focus_on_cell],
@@ -71,7 +72,7 @@ module Pathogen
       # rubocop:enable Metrics/ParameterLists
 
       # ARIA row indices are 1-based and offset by 1 for the header row.
-      def aria_row_index(row_index) = row_index + 2
+      def aria_row_index(local_row_index) = @grid.virtual_global_data_row_index(local_row_index) + 2
     end
   end
 end

@@ -1582,6 +1582,75 @@ describe("data_grid_controller (virtual mode)", () => {
       </div>`;
   };
 
+  const virtualPaginatedGridHTML = ({ totalRows = 5000, seedRows = 20, viewportHeight = 200 } = {}) => {
+    const seededRows = Array.from({ length: seedRows }, (_, i) => {
+      const rowIndex = i + 1;
+      const isFirst = i === 0;
+      return `
+        <div role="row" aria-rowindex="${rowIndex + 1}" data-pvc-data-grid-global-row-index="${i}" style="height: 40px;">
+          <div role="gridcell"
+            tabindex="${isFirst ? "0" : "-1"}"
+            ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="0"
+            data-pathogen--data-grid-has-interactive="false">
+            ID-${String(rowIndex).padStart(3, "0")}
+          </div>
+          <div role="gridcell"
+            tabindex="-1"
+            data-pathogen--data-grid-target="cell"
+            data-pathogen--data-grid-row-index="${rowIndex}"
+            data-pathogen--data-grid-column-index="1"
+            data-pathogen--data-grid-has-interactive="false">
+            Name ${rowIndex}
+          </div>
+        </div>`;
+    });
+
+    return `
+      <div data-controller="pathogen--data-grid" class="pvc-data-grid pvc-data-grid--virtual">
+        <div data-pathogen--data-grid-target="scrollContainer"
+             class="pvc-data-grid__scroll"
+             style="height: ${viewportHeight}px; overflow: auto;">
+          <div role="grid" data-pathogen--data-grid-target="grid"
+               aria-rowcount="${totalRows + 1}"
+               aria-colcount="2"
+               data-pvc-data-grid-total-count="${totalRows}"
+               data-pvc-data-grid-rows-url="/demo/samples/rows.json"
+               data-pvc-data-grid-page-size="20"
+               data-pvc-data-grid-row-offset="0">
+            <div class="pvc-data-grid__virtual-status"
+                 data-pathogen--data-grid-target="virtualStatus"
+                 data-loading-text="Loading rows…"
+                 data-loaded-text="Rows loaded."
+                 data-loading-more-text="Loading more rows…"
+                 data-fetch-error-text="Unable to load more rows."
+                 role="status"
+                 aria-live="polite">
+              Loading rows…
+            </div>
+            <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header" aria-rowindex="1">
+              <div role="columnheader" tabindex="-1"
+                data-pathogen--data-grid-target="cell"
+                data-pathogen--data-grid-row-index="0"
+                data-pathogen--data-grid-column-index="0"
+                data-pathogen--data-grid-has-interactive="false">ID</div>
+              <div role="columnheader" tabindex="-1"
+                data-pathogen--data-grid-target="cell"
+                data-pathogen--data-grid-row-index="0"
+                data-pathogen--data-grid-column-index="1"
+                data-pathogen--data-grid-has-interactive="false">Name</div>
+            </div>
+            <div class="pvc-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+              <div class="pvc-data-grid__spacer"></div>
+              ${seededRows.join("\n")}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  };
+
   const virtualInteractiveGridHTML = (rowCount, { viewportHeight = 200 } = {}) => {
     const headerCells = `
       <div role="columnheader" tabindex="-1"
@@ -1786,6 +1855,75 @@ describe("data_grid_controller (virtual mode)", () => {
       '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
     );
     expect(document.activeElement).toBe(headerCell);
+  });
+
+  it("moves Ctrl+End to the absolute last cell in a paginated virtual grid", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      async json() {
+        return { rows: [] };
+      },
+    });
+
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 5000, seedRows: 20 });
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    firstCell.focus();
+
+    dispatchKey(firstCell, "End", { ctrlKey: true });
+
+    const renderedLastCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="5000"][data-pathogen--data-grid-column-index="1"]',
+    );
+    expect(renderedLastCell).not.toBeNull();
+    expect(document.activeElement?.getAttribute("data-pathogen--data-grid-row-index")).toBe("5000");
+    expect(document.activeElement?.getAttribute("data-pathogen--data-grid-column-index")).toBe("1");
+
+    fetchSpy.mockRestore();
+  });
+
+  it("rerenders top rows after Ctrl+Home from the bottom of a paginated virtual grid", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      async json() {
+        return { rows: [] };
+      },
+    });
+
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 5000, seedRows: 20 });
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    const firstCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    firstCell.focus();
+    dispatchKey(firstCell, "End", { ctrlKey: true });
+
+    const lastCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="5000"][data-pathogen--data-grid-column-index="1"]',
+    );
+    expect(lastCell).not.toBeNull();
+    expect(document.querySelector('[data-pathogen--data-grid-row-index="1"]')).toBeNull();
+
+    dispatchKey(lastCell, "Home", { ctrlKey: true });
+
+    const headerCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="0"]',
+    );
+    const topRowCell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="0"]',
+    );
+    expect(document.activeElement).toBe(headerCell);
+    expect(topRowCell).not.toBeNull();
+
+    fetchSpy.mockRestore();
   });
 
   it("Tab moves to the next logical interactive row across a virtual window boundary", async () => {

@@ -13,6 +13,18 @@ pin 'pathogen_view_components/data_grid_controller/widget_mode',
     to: 'pathogen_view_components/data_grid_controller/widget_mode.js'
 pin 'pathogen_view_components/data_grid_controller/virtualizer',
     to: 'pathogen_view_components/data_grid_controller/virtualizer.js'
+pin 'pathogen_view_components/data_grid_controller/page_cache',
+    to: 'pathogen_view_components/data_grid_controller/page_cache.js'
+pin 'pathogen_view_components/data_grid_controller/page_source',
+    to: 'pathogen_view_components/data_grid_controller/page_source.js'
+pin 'pathogen_view_components/data_grid_controller/paginated_virtual_rows',
+    to: 'pathogen_view_components/data_grid_controller/paginated_virtual_rows.js'
+pin 'pathogen_view_components/data_grid_controller/pagination_mode',
+    to: 'pathogen_view_components/data_grid_controller/pagination_mode.js'
+pin 'pathogen_view_components/data_grid_controller/virtual_window',
+    to: 'pathogen_view_components/data_grid_controller/virtual_window.js'
+pin 'pathogen_view_components/data_grid_controller/virtual_columns',
+    to: 'pathogen_view_components/data_grid_controller/virtual_columns.js'
 
 # Pin main entry point
 pin 'pathogen_view_components', to: 'pathogen_view_components.js'

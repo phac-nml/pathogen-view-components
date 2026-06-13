@@ -1,14 +1,16 @@
 /* Data grid: layout/focus/sticky (--pvc-* are internal layout tokens, not app theme hooks). */
 
 .pvc-data-grid {
-  --pvc-data-grid-border-color: var(--color-neutral-200);
-  --pvc-data-grid-row-border: var(--color-neutral-100);
-  --pvc-data-grid-text-color: var(--color-neutral-900);
-  --pvc-data-grid-text-muted-color: var(--color-neutral-600);
-  --pvc-data-grid-header-bg: var(--color-white);
-  --pvc-data-grid-body-bg: var(--color-white);
-  --pvc-data-grid-row-hover-bg: var(--color-neutral-50);
-  --pvc-data-grid-focus-ring: var(--color-primary-500);
+  --pvc-data-grid-border-color: var(--pvc-color-border);
+  --pvc-data-grid-row-border: color-mix(in oklab, var(--pvc-color-border) 55%, transparent);
+  --pvc-data-grid-text-color: var(--pvc-color-text);
+  --pvc-data-grid-text-muted-color: var(--pvc-color-text-muted);
+  --pvc-data-grid-header-bg: var(--pvc-color-surface);
+  --pvc-data-grid-body-bg: var(--pvc-color-surface);
+  --pvc-data-grid-row-hover-bg: var(--pvc-color-surface-muted);
+  --pvc-data-grid-focus-ring: var(--pvc-color-focus);
+  --pvc-data-grid-error-border: color-mix(in oklab, var(--pvc-color-danger) 45%, var(--pvc-color-border));
+  --pvc-data-grid-error-bg: color-mix(in oklab, var(--pvc-color-danger) 12%, transparent);
   --pvc-data-grid-active-cell-bg: color-mix(
     in oklab,
     var(--pvc-data-grid-focus-ring) 12%,
@@ -16,22 +18,24 @@
   );
   --pvc-data-grid-cell-padding-y: 1rem;
   --pvc-data-grid-cell-padding-x: 1rem;
-  --pvc-data-grid-font-size: 0.875rem;
+  --pvc-data-grid-font-size: var(--type-control);
+  --pvc-data-grid-meta-font-size: var(--type-meta);
+  --pvc-data-grid-meta-line-height: 1.35;
   --pvc-data-grid-line-height: 1.45;
   --pvc-data-grid-sticky-z: 2;
   --pvc-data-grid-header-z: 3;
   --pvc-data-grid-scroll-cue-size: 1rem;
-  --pvc-data-grid-scroll-cue-color: color-mix(in oklab, var(--color-neutral-950) 20%, transparent);
+  --pvc-data-grid-scroll-cue-color: color-mix(in oklab, var(--pvc-color-text) 20%, transparent);
 }
 
 .dark .pvc-data-grid {
-  --pvc-data-grid-border-color: var(--color-neutral-700);
-  --pvc-data-grid-row-border: var(--color-neutral-800);
-  --pvc-data-grid-text-color: var(--color-neutral-100);
-  --pvc-data-grid-text-muted-color: var(--color-neutral-400);
-  --pvc-data-grid-header-bg: var(--color-neutral-950);
-  --pvc-data-grid-body-bg: var(--color-neutral-950);
-  --pvc-data-grid-row-hover-bg: var(--color-neutral-900);
+  --pvc-data-grid-border-color: var(--pvc-color-border);
+  --pvc-data-grid-row-border: var(--pvc-color-border);
+  --pvc-data-grid-text-color: var(--pvc-color-text);
+  --pvc-data-grid-text-muted-color: var(--pvc-color-text-muted);
+  --pvc-data-grid-header-bg: var(--pvc-color-surface-muted);
+  --pvc-data-grid-body-bg: var(--pvc-color-surface);
+  --pvc-data-grid-row-hover-bg: var(--pvc-color-surface-muted);
 }
 
 .pvc-data-grid.pvc-data-grid--dense {
@@ -57,7 +61,7 @@
   content: "";
   width: 0.75rem;
   height: 0.75rem;
-  border: 2px solid color-mix(in oklab, var(--color-neutral-800) 70%, transparent);
+  border: 2px solid color-mix(in oklab, var(--pvc-color-text-muted) 70%, transparent);
   border-top-color: var(--pvc-data-grid-focus-ring);
   border-radius: 999px;
   animation: pvc-data-grid-spin 720ms linear infinite;
@@ -188,7 +192,13 @@
 [data-pathogen--data-grid-target~="cell"] :is(a, button, input, select, textarea):focus-visible {
   outline: 1px solid var(--pvc-data-grid-focus-ring);
   outline-offset: 0;
-  border-radius: 0.375rem;
+  border-radius: var(--pvc-radius-action);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pvc-data-grid.pvc-data-grid--virtual:not([data-virtual-ready]) .pvc-data-grid__virtual-status::before {
+    animation: none;
+  }
 }
 
 @container (max-width: 64rem) {
