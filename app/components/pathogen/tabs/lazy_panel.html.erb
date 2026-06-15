@@ -7,18 +7,18 @@
     loading: :lazy,
     refresh: @refresh,
   ) {
-    tag.div(class: "animate-pulse rounded-lg border border-neutral-200 bg-neutral-50 p-4 dark:border-neutral-700 dark:bg-neutral-900", aria: { hidden: true }) {
+    tag.div(class: class_names(Pathogen::TabsStyles::LAZY_PANEL_SKELETON), aria: { hidden: true }) {
       tag.div(class: "grid gap-3") {
         safe_join([
-          tag.div(class: "h-3.5 w-[32%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
+          tag.div(class: class_names("h-3.5 w-[32%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
           tag.div(class: "grid gap-2") {
             safe_join([
-              tag.div(class: "h-2.5 w-full rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
-              tag.div(class: "h-2.5 w-[92%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
-              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
-              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
-              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70"),
-              tag.div(class: "h-2.5 w-[84%] rounded-md bg-neutral-300/70 dark:bg-neutral-600/70")
+              tag.div(class: class_names("h-2.5 w-full", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
+              tag.div(class: class_names("h-2.5 w-[92%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
+              tag.div(class: class_names("h-2.5 w-[84%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
+              tag.div(class: class_names("h-2.5 w-[84%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
+              tag.div(class: class_names("h-2.5 w-[84%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR)),
+              tag.div(class: class_names("h-2.5 w-[84%]", Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR))
             ])
           }
         ])

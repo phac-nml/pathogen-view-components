@@ -1,6 +1,13 @@
 /* Pathogen ViewComponents — Tailwind v4 entry (build: pnpm run build:css → pathogen_view_components.css) */
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant interactive-hover {
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      @slot;
+    }
+  }
+}
 
 @import "tailwindcss" source(none);
 
