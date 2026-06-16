@@ -1,6 +1,13 @@
 /* Pathogen ViewComponents — Tailwind v4 entry (build: pnpm run build:css → pathogen_view_components.css) */
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant interactive-hover {
+  @media (hover: hover) {
+    &:hover:not(:disabled):not([aria-disabled="true"]) {
+      @slot;
+    }
+  }
+}
 
 @import "tailwindcss" source(none);
 
@@ -10,7 +17,7 @@
 @source "../../assets/javascripts/**/*.js";
 @source "../../../lib/**/*.rb";
 /* Anchor utilities so full @theme primary scale and `text-primary` emit for host overrides. */
-@source inline("text-primary bg-primary-950");
+@source inline("text-primary bg-primary-950 text-red-300 text-red-700");
 
 /*
  * Theme contract (host apps may override after @import):
@@ -60,7 +67,12 @@
     --pvc-color-text-muted: var(--color-neutral-600);
     --pvc-color-accent: var(--color-primary-600);
     --pvc-color-accent-strong: var(--color-primary-700);
+    --pvc-color-accent-solid: var(--color-primary-700);
+    --pvc-color-accent-solid-hover: var(--color-primary-600);
     --pvc-color-danger: var(--color-red-600);
+    --pvc-color-danger-strong: var(--color-red-700);
+    --pvc-color-danger-solid: var(--color-red-600);
+    --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-600);
     --pvc-color-warning: var(--color-amber-600);
     --pvc-color-focus: var(--color-primary-500);
@@ -94,7 +106,12 @@
     --pvc-color-text-muted: var(--color-neutral-400);
     --pvc-color-accent: var(--color-primary-400);
     --pvc-color-accent-strong: var(--color-primary-300);
-    --pvc-color-danger: var(--color-red-400);
+    --pvc-color-accent-solid: var(--color-primary-600);
+    --pvc-color-accent-solid-hover: var(--color-primary-500);
+    --pvc-color-danger: var(--color-red-500);
+    --pvc-color-danger-strong: var(--color-red-300);
+    --pvc-color-danger-solid: var(--color-red-600);
+    --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-400);
     --pvc-color-warning: var(--color-amber-400);
     --pvc-color-focus: var(--color-primary-400);
