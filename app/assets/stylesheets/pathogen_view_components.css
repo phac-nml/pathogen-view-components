@@ -2,7 +2,7 @@
  * Run pnpm run build:css after changing components or pathogen.tailwind.css.
  */
 
-/*! tailwindcss v4.3.0 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.3.1 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -354,10 +354,10 @@
     position: sticky;
   }
   .top-0 {
-    top: calc(var(--spacing) * 0);
+    top: 0;
   }
   .left-0 {
-    left: calc(var(--spacing) * 0);
+    left: 0;
   }
   .left-\[var\(--pvc-data-grid-sticky-left\,0px\)\] {
     left: var(--pvc-data-grid-sticky-left, 0px);
@@ -405,7 +405,7 @@
     }
   }
   .m-0 {
-    margin: calc(var(--spacing) * 0);
+    margin: 0;
   }
   .mx-\[var\(--pvc-data-grid-cell-padding-x\)\] {
     margin-inline: var(--pvc-data-grid-cell-padding-x);
@@ -420,7 +420,7 @@
     margin-top: calc(var(--spacing) * 0.5);
   }
   .mt-1 {
-    margin-top: calc(var(--spacing) * 1);
+    margin-top: var(--spacing);
   }
   .mt-4 {
     margin-top: calc(var(--spacing) * 4);
@@ -432,7 +432,7 @@
     margin-bottom: -1px;
   }
   .mb-0 {
-    margin-bottom: calc(var(--spacing) * 0);
+    margin-bottom: 0;
   }
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
@@ -498,7 +498,7 @@
     max-height: calc(var(--spacing) * 11);
   }
   .min-h-0 {
-    min-height: calc(var(--spacing) * 0);
+    min-height: 0;
   }
   .min-h-6 {
     min-height: calc(var(--spacing) * 6);
@@ -546,7 +546,7 @@
     max-width: var(--container-xs);
   }
   .min-w-0 {
-    min-width: calc(var(--spacing) * 0);
+    min-width: 0;
   }
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
@@ -582,8 +582,8 @@
     border-collapse: separate;
   }
   .border-spacing-0 {
-    --tw-border-spacing-x: calc(var(--spacing) * 0);
-    --tw-border-spacing-y: calc(var(--spacing) * 0);
+    --tw-border-spacing-x: 0;
+    --tw-border-spacing-y: 0;
     border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y);
   }
   .origin-\[var\(--pvc-tooltip-origin\,center\)\] {
@@ -641,10 +641,10 @@
     justify-content: center;
   }
   .gap-0 {
-    gap: calc(var(--spacing) * 0);
+    gap: 0;
   }
   .gap-1 {
-    gap: calc(var(--spacing) * 1);
+    gap: var(--spacing);
   }
   .gap-1\.5 {
     gap: calc(var(--spacing) * 1.5);
@@ -664,8 +664,8 @@
   .space-y-1 {
     :where(& > :not(:last-child)) {
       --tw-space-y-reverse: 0;
-      margin-block-start: calc(calc(var(--spacing) * 1) * var(--tw-space-y-reverse));
-      margin-block-end: calc(calc(var(--spacing) * 1) * calc(1 - var(--tw-space-y-reverse)));
+      margin-block-start: calc(var(--spacing) * var(--tw-space-y-reverse));
+      margin-block-end: calc(var(--spacing) * calc(1 - var(--tw-space-y-reverse)));
     }
   }
   .space-y-2 {
@@ -864,7 +864,7 @@
     background-clip: padding-box;
   }
   .p-0 {
-    padding: calc(var(--spacing) * 0);
+    padding: 0;
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
@@ -891,7 +891,7 @@
     padding-block: calc(var(--spacing) * 0.5);
   }
   .py-1 {
-    padding-block: calc(var(--spacing) * 1);
+    padding-block: var(--spacing);
   }
   .py-2 {
     padding-block: calc(var(--spacing) * 2);
@@ -906,7 +906,7 @@
     padding-block: var(--pvc-data-grid-cell-padding-y);
   }
   .pt-1 {
-    padding-top: calc(var(--spacing) * 1);
+    padding-top: var(--spacing);
   }
   .pt-1\.5 {
     padding-top: calc(var(--spacing) * 1.5);
