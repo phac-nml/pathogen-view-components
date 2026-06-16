@@ -1,8 +1,7 @@
 <% if render_eager? %>
-  <%= helpers.turbo_frame_tag(@frame_id) { content } %>
+  <%= render_turbo_frame { content } %>
 <% else %>
-  <%= helpers.turbo_frame_tag(
-    @frame_id,
+  <%= render_turbo_frame(
     src: @src_path,
     loading: :lazy,
     refresh: @refresh,
