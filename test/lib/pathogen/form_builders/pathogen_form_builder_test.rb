@@ -44,7 +44,7 @@ module Pathogen
         assert_includes html, 'type="submit"'
         assert_includes html, 'Save changes'
         assert_includes html, 'name="commit"'
-        assert_includes html, 'bg-primary-700'
+        assert_includes html, 'bg-[var(--pvc-color-accent-solid)]'
       end
 
       test 'submit supports disabled state' do
