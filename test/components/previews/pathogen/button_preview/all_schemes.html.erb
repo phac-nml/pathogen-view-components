@@ -1,0 +1,21 @@
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">All legacy schemes</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      These are the legacy <code class="font-mono">scheme</code> presets. Prefer <code class="font-mono">tone</code> +
+      <code class="font-mono">emphasis</code> for new usage.
+    </p>
+
+    <div
+      class="
+        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <%= render Pathogen::Button.new(scheme: :default, text: 'scheme: default') %>
+      <%= render Pathogen::Button.new(scheme: :primary, text: 'scheme: primary') %>
+      <%= render Pathogen::Button.new(scheme: :danger, text: 'scheme: danger') %>
+    </div>
+  </section>
+</div>

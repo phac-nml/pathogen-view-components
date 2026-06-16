@@ -22,7 +22,7 @@ module Pathogen
     test 'forwards Pathogen scheme to the button component' do
       html = @view.pathogen_button_to('Remove', '/items/2', scheme: :danger)
 
-      assert_includes html, 'text-red-600'
+      assert_includes html, 'text-[var(--pvc-color-danger-strong)]'
     end
 
     test 'renders block content inside the Pathogen button' do
