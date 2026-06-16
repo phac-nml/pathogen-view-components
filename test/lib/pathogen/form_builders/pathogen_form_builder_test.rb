@@ -34,6 +34,27 @@ module Pathogen
         assert_includes html, 'focus-visible:outline-black'
         assert_includes html, 'dark:focus-visible:outline-white'
       end
+
+      test 'submit renders a Pathogen button with type submit' do
+        view = ActionView::Base.empty
+        builder = PathogenFormBuilder.new(:sample, nil, view, {})
+
+        html = builder.submit('Save changes', scheme: :primary)
+
+        assert_includes html, 'type="submit"'
+        assert_includes html, 'Save changes'
+        assert_includes html, 'name="commit"'
+        assert_includes html, 'bg-[var(--pvc-color-accent-solid)]'
+      end
+
+      test 'submit supports disabled state' do
+        view = ActionView::Base.empty
+        builder = PathogenFormBuilder.new(:sample, nil, view, {})
+
+        html = builder.submit('Save', disabled: true)
+
+        assert_includes html, 'disabled'
+      end
     end
   end
 end
