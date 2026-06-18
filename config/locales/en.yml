@@ -27,6 +27,15 @@ en:
       title: required
     link:
       aria-label: "%{content} (opens in a new window)"
+    toast:
+      assertive_region_label: Critical notifications
+      dismiss: Dismiss notification
+      region_label: Notifications
+      type:
+        error: Error
+        info: Information
+        success: Success
+        warning: Warning
     tooltip:
       portal:
         aria_label: Tooltips
