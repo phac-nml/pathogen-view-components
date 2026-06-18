@@ -1,0 +1,11 @@
+<div class="<%= shell_class %>">
+  <%= render Pathogen::Toaster.new(**toaster_args, list_id: 'flash-preview') do %>
+    <%= render Pathogen::Toast.new(
+      type: type,
+      message: 'Genome metadata saved.',
+      description: 'Sample QC annotations are now visible to all collaborators.',
+      timeout: timeout,
+      dismissible: dismissible
+    ) %>
+  <% end %>
+</div>
