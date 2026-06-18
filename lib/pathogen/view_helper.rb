@@ -7,6 +7,8 @@ module Pathogen
       button: 'Pathogen::Button',
       avatar: 'Pathogen::Avatar',
       link: 'Pathogen::Link',
+      toaster: 'Pathogen::Toaster',
+      toast: 'Pathogen::Toast',
       radio_button: 'Pathogen::Form::RadioButton',
       switch: 'Pathogen::Form::Switch',
       heading: 'Pathogen::Typography::Heading',
