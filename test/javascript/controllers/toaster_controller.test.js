@@ -11,6 +11,10 @@ const waitForAnimationFrame = () =>
   new Promise((resolve) => {
     requestAnimationFrame(() => resolve());
   });
+const flushAnnouncements = async () => {
+  await waitForAnimationFrame();
+  await waitForAnimationFrame();
+};
 
 const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
   const section = document.createElement("section");
@@ -24,7 +28,7 @@ const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
       "focusin->pathogen--toaster#expand",
       "focusout->pathogen--toaster#collapseIfIdle",
       "pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed",
-      "pathogen:toast:error->pathogen--toaster#announceAssertive",
+      "pathogen:toast:announce->pathogen--toaster#announce",
     ].join(" "),
   );
 
@@ -32,6 +36,10 @@ const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
   list.id = "flashes";
   list.setAttribute("data-pathogen--toaster-target", "list");
   section.appendChild(list);
+
+  const polite = document.createElement("div");
+  polite.setAttribute("data-pathogen--toaster-target", "polite");
+  section.appendChild(polite);
 
   const assertive = document.createElement("div");
   assertive.setAttribute("data-pathogen--toaster-target", "assertive");
@@ -45,7 +53,7 @@ const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
   }
 
   document.body.appendChild(section);
-  return { section, list, assertive };
+  return { section, list, polite, assertive };
 };
 
 describe("toaster_controller", () => {
@@ -90,8 +98,29 @@ describe("toaster_controller", () => {
     await waitForController();
     const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
 
-    controller.announceAssertive({ detail: { message: "Upload failed" } });
-    await waitForAnimationFrame();
+    controller.announce({ detail: { message: "Upload failed", politeness: "assertive" } });
+    await flushAnnouncements();
     expect(assertive.textContent).toBe("Upload failed");
+  });
+
+  it("writes polite text for standard announcements", async () => {
+    const { section, polite } = buildToaster({ maxVisible: 3, count: 1 });
+    await waitForController();
+    const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
+
+    controller.announce({ detail: { message: "Saved", politeness: "polite" } });
+    await flushAnnouncements();
+    expect(polite.textContent).toBe("Saved");
+  });
+
+  it("joins simultaneous announcements so none are dropped", async () => {
+    const { section, assertive } = buildToaster({ maxVisible: 3, count: 1 });
+    await waitForController();
+    const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
+
+    controller.announce({ detail: { message: "First failure", politeness: "assertive" } });
+    controller.announce({ detail: { message: "Second failure", politeness: "assertive" } });
+    await flushAnnouncements();
+    expect(assertive.textContent).toBe("First failure. Second failure");
   });
 });
