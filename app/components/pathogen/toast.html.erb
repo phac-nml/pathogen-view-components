@@ -16,11 +16,13 @@
     <div class="min-w-0 flex-1">
       <p class="text-sm font-semibold text-[var(--pvc-color-text)]">
         <span class="sr-only"><%= icon_label %>:</span>
-        <%= message %>
+        <span data-pathogen--toast-target="message"><%= message %></span>
       </p>
 
       <% if description.present? %>
-        <p class="mt-1 text-sm text-[var(--pvc-color-text-muted)]"><%= description %></p>
+        <p class="mt-1 text-sm text-[var(--pvc-color-text-muted)]" data-pathogen--toast-target="description">
+          <%= description %>
+        </p>
       <% end %>
 
       <% if action? %>
