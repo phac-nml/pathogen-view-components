@@ -11,7 +11,7 @@
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
-        <%= pathogen_button_to "Retry", "#", method: :post, tone: :primary, emphasis: :solid %>
+        <%= pathogen_button_to "Retry analysis", "#", method: :post, tone: :primary, emphasis: :solid %>
         <%= pathogen_button_to "Cancel", "#", method: :post, tone: :neutral, emphasis: :outline %>
         <%= pathogen_button_to "Reset", "#", method: :post, tone: :neutral, emphasis: :ghost %>
       </div>
@@ -46,16 +46,6 @@
           <%= pathogen_button_to "Keep record", "#", method: :post, tone: :neutral, emphasis: :outline %>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Legacy scheme mapping</h2>
-
-    <div class="flex flex-wrap items-center gap-2">
-      <%= pathogen_button_to "scheme: default", "#", method: :post, scheme: :default %>
-      <%= pathogen_button_to "scheme: primary", "#", method: :post, scheme: :primary %>
-      <%= pathogen_button_to "scheme: danger", "#", method: :delete, scheme: :danger %>
     </div>
   </section>
 </div>

@@ -1,4 +1,4 @@
-<div class="flex max-w-3xl flex-col gap-8 p-4">
+<div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Repeating button labels</h2>
 
@@ -7,12 +7,12 @@
     </p>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Payment details</h3>
+      <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Specimen collection details</h3>
 
       <div class="mt-4 flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] py-3">
-        <span id="payment-date" class="text-sm text-[var(--pvc-color-text-muted)]">1 Jan, 2024</span>
+        <span id="collection-date" class="text-sm text-[var(--pvc-color-text-muted)]">Collected 12 Mar 2024</span>
 
-        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment date', size: :small) do |button| %>
+        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit collection date', size: :small, tone: :neutral, emphasis: :ghost) do |button| %>
           <% button.with_leading_visual do %>
             <%= icon('pencil', class: 'size-4') %>
           <% end %>
@@ -20,9 +20,9 @@
       </div>
 
       <div class="flex items-center justify-between gap-4 py-3">
-        <span id="payment-amount" class="text-sm text-[var(--pvc-color-text-muted)]">$200.00</span>
+        <span id="specimen-id" class="text-sm text-[var(--pvc-color-text-muted)]">SP-2024-0042</span>
 
-        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit payment amount', size: :small) do |button| %>
+        <%= render Pathogen::Button.new(icon_only: true, text: 'Edit specimen identifier', size: :small, tone: :neutral, emphasis: :ghost) do |button| %>
           <% button.with_leading_visual do %>
             <%= icon('pencil', class: 'size-4') %>
           <% end %>
@@ -39,6 +39,15 @@
       remain focusable so screen reader users hear validation feedback after activation.
     </p>
 
-    <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue') %>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <form>
+        <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">Complete required fields before continuing.</p>
+
+        <div class="flex items-center gap-2">
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Back') %>
+          <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue') %>
+        </div>
+      </form>
+    </div>
   </section>
 </div>

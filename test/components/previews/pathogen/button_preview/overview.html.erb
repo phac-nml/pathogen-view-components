@@ -8,19 +8,16 @@
       guidance for placing every style in one action group.
     </p>
 
-    <div
-      class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
-      "
-    >
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Submit run') %>
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Save draft') %>
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :ghost, text: 'View protocol') %>
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :ghost, text: 'Skip') %>
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Discard') %>
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Delete permanently') %>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Submit run') %>
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Save draft') %>
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :ghost, text: 'View protocol') %>
+        <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
+        <%= render Pathogen::Button.new(tone: :neutral, emphasis: :ghost, text: 'Skip') %>
+        <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Discard') %>
+        <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Delete permanently') %>
+      </div>
     </div>
 
     <h3 class="mb-2 mt-6 text-sm font-semibold text-[var(--pvc-color-text)]">Legacy scheme mapping</h3>
@@ -46,7 +43,7 @@
         <p class="mt-1 text-sm text-[var(--pvc-color-text-muted)]">Changes apply to the selected isolate record.</p>
       </div>
 
-      <div class="space-y-4 px-4 py-4 text-sm text-[var(--pvc-color-text-muted)]">
+      <div class="px-4 py-4 text-sm text-[var(--pvc-color-text-muted)]">
         <p>Form fields would appear here.</p>
       </div>
 
@@ -141,58 +138,31 @@
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Leading and trailing visuals</h2>
 
     <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Icons are decorative. The visible label carries the accessible name. Inline SVGs need
-      <code class="font-mono">aria-hidden="true"</code>.
+      Icons are decorative. The visible label carries the accessible name.
     </p>
 
     <div class="flex flex-wrap items-center gap-2">
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :medium, text: 'Search samples') do |button| %>
+      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Search samples') do |button| %>
         <% button.with_leading_visual do %>
           <%= icon('magnifying-glass', class: 'size-4') %>
         <% end %>
       <% end %>
 
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, size: :medium, text: 'View alerts') do |button| %>
+      <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'View alerts') do |button| %>
         <% button.with_leading_visual do %>
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-          >
-            <path d="M8 16a2 2 0 001.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 008 16z"></path>
-
-            <path
-              fill-rule="evenodd"
-              d="M8 1.5A3.5 3.5 0 004.5 5v2.947c0 .346-.102.683-.294.97l-1.703 2.556a.018.018 0 00-.003.01l.001.006c0 .002.002.004.004.006a.017.017 0 00.006.004l.007.001h10.964l.007-.001a.016.016 0 00.006-.004.016.016 0 00.004-.006l.001-.007a.017.017 0 00-.003-.01l-1.703-2.554a1.75 1.75 0 01-.294-.97V5A3.5 3.5 0 008 1.5zM3 5a5 5 0 0110 0v2.947c0 .05.015.098.042.139l1.703 2.555A1.518 1.518 0 0113.482 13H2.518a1.518 1.518 0 01-1.263-2.36l1.703-2.554A.25.25 0 003 7.947V5z"
-            ></path>
-          </svg>
+          <%= icon('bell', class: 'size-4') %>
         <% end %>
       <% end %>
 
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :medium, text: 'Continue to review') do |button| %>
+      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Continue to review') do |button| %>
         <% button.with_trailing_visual do %>
           <%= icon('arrow-right', class: 'size-4') %>
         <% end %>
       <% end %>
 
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, size: :medium, text: 'Open run details') do |button| %>
+      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Open run details') do |button| %>
         <% button.with_trailing_visual do %>
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-          >
-            <path d="M8 16a2 2 0 001.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 008 16z"></path>
-
-            <path
-              fill-rule="evenodd"
-              d="M8 1.5A3.5 3.5 0 004.5 5v2.947c0 .346-.102.683-.294.97l-1.703 2.556a.018.018 0 00-.003.01l.001.006c0 .002.002.004.004.006a.017.017 0 00.006.004l.007.001h10.964l.007-.001a.016.016 0 00.006-.004.016.016 0 00.004-.006l.001-.007a.017.017 0 00-.003-.01l-1.703-2.554a1.75 1.75 0 01-.294-.97V5A3.5 3.5 0 008 1.5zM3 5a5 5 0 0110 0v2.947c0 .05.015.098.042.139l1.703 2.555A1.518 1.518 0 0113.482 13H2.518a1.518 1.518 0 01-1.263-2.36l1.703-2.554A.25.25 0 003 7.947V5z"
-            ></path>
-          </svg>
+          <%= icon('arrow-square-out', class: 'size-4') %>
         <% end %>
       <% end %>
     </div>
@@ -206,16 +176,13 @@
       button cluster. Prefer <code class="font-mono">Pathogen::Link</code> for inline text navigation.
     </p>
 
-    <div
-      class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
-      "
-    >
-      <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+      </div>
     </div>
   </section>
 
@@ -233,6 +200,92 @@
 
     <div class="mt-4 max-w-sm">
       <%= render Pathogen::Button.new(block: true, tone: :primary, emphasis: :solid, text: 'Full width action') %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Enabled and disabled states</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Use <code class="font-mono">disabled: true</code> when the control should not be focusable. Disabled buttons use
+      reduced opacity and a not-allowed cursor. For focusable inactive controls that announce validation feedback, see
+      the Accessibility preview and <code class="font-mono">aria_disabled: true</code>.
+    </p>
+
+    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+      <table class="w-full min-w-[32rem] border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+            <th scope="col" class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Variant</th>
+            <th scope="col" class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Enabled</th>
+            <th scope="col" class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Disabled</th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+          <% [
+            [:primary, :solid, 'Submit run'],
+            [:primary, :outline, 'Save draft'],
+            [:primary, :ghost, 'View protocol'],
+            [:neutral, :outline, 'Cancel'],
+            [:neutral, :solid, 'Archive'],
+            [:neutral, :ghost, 'Skip'],
+            [:danger, :outline, 'Discard'],
+            [:danger, :solid, 'Delete permanently'],
+            [:danger, :ghost, 'Remove tag']
+          ].each do |tone, emphasis, label| %>
+            <tr>
+              <td class="px-4 py-3 align-middle text-[var(--pvc-color-text-muted)]">
+                <code class="font-mono text-xs">tone: <%= tone %>, emphasis: <%= emphasis %></code>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, text: label) %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, disabled: true, text: label) %>
+              </td>
+            </tr>
+          <% end %>
+
+          <tr>
+            <td class="px-4 py-3 align-middle text-[var(--pvc-color-text-muted)]">
+              <code class="font-mono text-xs">size: :small</code>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'New submission') %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, disabled: true, text: 'New submission') %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-4 py-3 align-middle text-[var(--pvc-color-text-muted)]">
+              <code class="font-mono text-xs">icon_only: true</code>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Refresh list') do |button| %>
+                <% button.with_leading_visual do %>
+                  <%= icon('arrow-clockwise', class: 'size-4') %>
+                <% end %>
+              <% end %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, disabled: true, text: 'Refresh list') do |button| %>
+                <% button.with_leading_visual do %>
+                  <%= icon('arrow-clockwise', class: 'size-4') %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </div>
