@@ -1,12 +1,14 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["list", "assertive", "toast"];
+  static targets = ["list", "polite", "assertive", "toast"];
   static values = {
     maxVisible: { type: Number, default: 3 },
   };
 
   #expanded = false;
+  #queue = { polite: [], assertive: [] };
+  #flushHandle = null;
 
   connect() {
     this.#applyStack();
@@ -39,16 +41,50 @@ export default class extends Controller {
     this.#applyStack();
   }
 
-  announceAssertive(event) {
-    if (!this.hasAssertiveTarget) return;
-
-    const message = typeof event?.detail?.message === "string" ? event.detail.message.trim() : "";
+  announce(event) {
+    const detail = event?.detail ?? {};
+    const message = typeof detail.message === "string" ? detail.message.trim() : "";
     if (message.length === 0) return;
 
-    this.assertiveTarget.textContent = "";
-    requestAnimationFrame(() => {
-      this.assertiveTarget.textContent = message;
+    const politeness = detail.politeness === "assertive" ? "assertive" : "polite";
+    this.#queue[politeness].push(message);
+    this.#scheduleFlush();
+  }
+
+  #scheduleFlush() {
+    if (this.#flushHandle) return;
+
+    this.#flushHandle = requestAnimationFrame(() => {
+      this.#flushHandle = null;
+      this.#flushRegion("polite");
+      this.#flushRegion("assertive");
     });
+  }
+
+  #flushRegion(politeness) {
+    const messages = this.#queue[politeness];
+    this.#queue[politeness] = [];
+
+    const target = politeness === "assertive" ? this.#assertiveRegion() : this.#politeRegion();
+    if (!target || messages.length === 0) return;
+
+    const text = messages
+      .map((part, index) => (index < messages.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part))
+      .join(" ");
+    // Clear first, then write on the next frame so the region reports a change
+    // and re-announces even when the same message repeats.
+    target.textContent = "";
+    requestAnimationFrame(() => {
+      target.textContent = text;
+    });
+  }
+
+  #politeRegion() {
+    return this.hasPoliteTarget ? this.politeTarget : null;
+  }
+
+  #assertiveRegion() {
+    return this.hasAssertiveTarget ? this.assertiveTarget : null;
   }
 
   #applyStack() {
