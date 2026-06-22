@@ -22,7 +22,7 @@ module Pathogen
       'focusin->pathogen--toaster#expand',
       'focusout->pathogen--toaster#collapseIfIdle',
       'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed',
-      'pathogen:toast:error->pathogen--toaster#announceAssertive'
+      'pathogen:toast:announce->pathogen--toaster#announce'
     ].freeze
 
     attr_reader :list_id, :max_visible, :region_label
@@ -63,6 +63,9 @@ module Pathogen
       return unless @turbo_permanent && @system_arguments[:'data-turbo-permanent'].nil?
 
       @system_arguments[:'data-turbo-permanent'] = true
+      # Turbo only preserves permanent elements that carry a stable id on both the
+      # outgoing and incoming page, so derive one from the list id when none is given.
+      @system_arguments[:id] ||= "#{@list_id}-toaster"
     end
   end
 end
