@@ -18,7 +18,8 @@ module Pathogen
       callout: 'Pathogen::Typography::Callout',
       code: 'Pathogen::Typography::Code',
       code_block: 'Pathogen::Typography::CodeBlock',
-      list: 'Pathogen::Typography::List'
+      list: 'Pathogen::Typography::List',
+      copyable_value: 'Pathogen::CopyableValue'
     }.freeze
 
     # Define helper methods for components
