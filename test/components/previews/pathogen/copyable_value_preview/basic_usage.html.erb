@@ -1,0 +1,37 @@
+<div class="p-8 bg-white dark:bg-neutral-900 min-h-screen">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+      CopyableValue — Basic Usage
+    </h1>
+
+    <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
+      A compact, accessible inline display of a copyable text value. Click the button to copy to clipboard.
+    </p>
+  </div>
+
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+        Project PUID
+      </h2>
+
+      <%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %>
+    </div>
+
+    <div>
+      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+        Sample PUID
+      </h2>
+
+      <%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %>
+    </div>
+
+    <div>
+      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+        Short hash
+      </h2>
+
+      <%= render Pathogen::CopyableValue.new(value: "a3f29c1") %>
+    </div>
+  </div>
+</div>
