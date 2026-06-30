@@ -138,5 +138,15 @@
   }
 }
 
+/* CopyableValue icon swap driven by controller data-state */
+[data-controller~="pathogen--copyable-value"][data-state="success"] [data-pathogen--copyable-value-target="icon"] {
+  display: none;
+}
+
+[data-controller~="pathogen--copyable-value"]:not([data-state="success"])
+  [data-pathogen--copyable-value-target="successIcon"] {
+  display: none;
+}
+
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
