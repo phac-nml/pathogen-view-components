@@ -5,6 +5,7 @@ module Pathogen
   module ViewHelper
     PATHOGEN_COMPONENT_HELPERS = {
       button: 'Pathogen::Button',
+      avatar: 'Pathogen::Avatar',
       link: 'Pathogen::Link',
       radio_button: 'Pathogen::Form::RadioButton',
       switch: 'Pathogen::Form::Switch',
