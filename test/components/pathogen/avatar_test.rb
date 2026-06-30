@@ -64,13 +64,13 @@ module Pathogen
     end
 
     test 'uses deterministic fallback palette classes for a fixed seed' do
-      render_inline(Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-a'))
+      first_classes = render_inline(
+        Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-a')
+      ).css('span[role="img"]').first['class']
 
-      first_classes = page.find('span')['class']
-
-      render_inline(Pathogen::Avatar.new(label: 'Jane Doe', colour_seed: 'stable-seed-a'))
-
-      second_classes = page.find('span')['class']
+      second_classes = render_inline(
+        Pathogen::Avatar.new(label: 'Jane Doe', colour_seed: 'stable-seed-a')
+      ).css('span[role="img"]').first['class']
 
       assert_equal first_classes, second_classes
     end
