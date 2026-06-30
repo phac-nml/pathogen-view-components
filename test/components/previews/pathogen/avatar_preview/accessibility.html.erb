@@ -1,0 +1,54 @@
+<div class="flex max-w-3xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Informative avatars</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Non-decorative avatars expose a stable accessible name so screen readers hear the represented person or entity.
+    </p>
+
+    <div
+      class="
+        flex items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', initials: 'JD') %>
+      <%= render Pathogen::Avatar.new(label: 'Bioinformatics Service Account', shape: :rounded, colour_seed: 'service-account') %>
+      <%= render Pathogen::Avatar.new(label: 'Bob Smith', src: 'https://avatars.githubusercontent.com/u/810438?v=4') %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Decorative usage</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Decorative avatars are hidden from assistive technology when adjacent text already communicates identity.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="flex items-center gap-3">
+        <%= render Pathogen::Avatar.new(decorative: true, initials: 'JD', colour_seed: 'decorative-avatar') %>
+
+        <p class="text-sm text-[var(--pvc-color-text)]">Jane Doe</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Interactive avatars</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Linked avatars remain native anchors with an accessible label and visible focus state from tokenized focus styles.
+    </p>
+
+    <div
+      class="
+        flex items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <%= render Pathogen::Avatar.new(label: 'Open Jane Doe profile', initials: 'JD', url: '/users/jane-doe') %>
+      <%= render Pathogen::Avatar.new(label: 'Open project Delta', shape: :square, url: '/projects/delta', colour_seed: 'project-delta') %>
+    </div>
+  </section>
+</div>
