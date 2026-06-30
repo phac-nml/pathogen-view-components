@@ -19,6 +19,14 @@ module Pathogen
       assert_no_text 'JD'
     end
 
+    test 'renders custom alt text when provided for image avatar' do
+      render_inline(Pathogen::Avatar.new(label: 'John Doe', src: '/images/john-doe.png', alt: 'Portrait of John Doe'))
+
+      assert_selector(
+        "span[role='img'][aria-label='John Doe'] img[src='/images/john-doe.png'][alt='Portrait of John Doe']"
+      )
+    end
+
     test 'renders linked avatar without img role' do
       render_inline(Pathogen::Avatar.new(label: 'John Doe', initials: 'JD', url: '/users/1'))
 
@@ -63,6 +71,22 @@ module Pathogen
       assert_equal 'decorative avatars cannot be interactive links', error.message
     end
 
+    test 'raises when url uses an unsafe protocol' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Avatar.new(label: 'John Doe', url: 'javascript:alert(1)'))
+      end
+
+      assert_equal 'invalid url format: javascript:alert(1)', error.message
+    end
+
+    test 'raises when class argument is provided' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Avatar.new(label: 'John Doe', class: 'custom-class'))
+      end
+
+      assert_equal '`class` is an invalid argument. Use `classes` instead.', error.message
+    end
+
     test 'uses deterministic fallback palette classes for a fixed seed' do
       first_classes = render_inline(
         Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-a')
@@ -73,6 +97,18 @@ module Pathogen
       ).css('span[role="img"]').first['class']
 
       assert_equal first_classes, second_classes
+    end
+
+    test 'uses equivalent deterministic fallback palette classes for color_seed alias' do
+      colour_seed_classes = render_inline(
+        Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-b')
+      ).css('span[role="img"]').first['class']
+
+      color_seed_classes = render_inline(
+        Pathogen::Avatar.new(label: 'Jane Doe', color_seed: 'stable-seed-b')
+      ).css('span[role="img"]').first['class']
+
+      assert_equal colour_seed_classes, color_seed_classes
     end
 
     test 'passes axe-core checks for fallback avatar' do
