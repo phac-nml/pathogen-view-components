@@ -479,6 +479,14 @@
     width: calc(var(--spacing) * 6);
     height: calc(var(--spacing) * 6);
   }
+  .size-\[62\%\] {
+    width: 62%;
+    height: 62%;
+  }
+  .size-full {
+    width: 100%;
+    height: 100%;
+  }
   .h-2\.5 {
     height: calc(var(--spacing) * 2.5);
   }
@@ -488,8 +496,17 @@
   .h-6 {
     height: calc(var(--spacing) * 6);
   }
+  .h-8 {
+    height: calc(var(--spacing) * 8);
+  }
   .h-11 {
     height: calc(var(--spacing) * 11);
+  }
+  .h-12 {
+    height: calc(var(--spacing) * 12);
+  }
+  .h-16 {
+    height: calc(var(--spacing) * 16);
   }
   .max-h-6 {
     max-height: calc(var(--spacing) * 6);
@@ -512,8 +529,17 @@
   .w-6 {
     width: calc(var(--spacing) * 6);
   }
+  .w-8 {
+    width: calc(var(--spacing) * 8);
+  }
   .w-11 {
     width: calc(var(--spacing) * 11);
+  }
+  .w-12 {
+    width: calc(var(--spacing) * 12);
+  }
+  .w-16 {
+    width: calc(var(--spacing) * 16);
   }
   .w-\[32\%\] {
     width: 32%;
@@ -704,6 +730,9 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
+  .rounded {
+    border-radius: 0.25rem;
+  }
   .rounded-\[inherit\] {
     border-radius: inherit;
   }
@@ -767,10 +796,28 @@
       border-color: color-mix(in oklab, var(--color-red-500) 45%, var(--pvc-data-grid-border-color));
     }
   }
+  .border-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_45\%\,var\(--pvc-color-border\)\)\] {
+    border-color: var(--pvc-color-accent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--pvc-color-accent) 45%, var(--pvc-color-border));
+    }
+  }
   .border-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_45\%\,var\(--pvc-color-border\)\)\] {
     border-color: var(--pvc-color-danger);
     @supports (color: color-mix(in lab, red, red)) {
       border-color: color-mix(in oklab, var(--pvc-color-danger) 45%, var(--pvc-color-border));
+    }
+  }
+  .border-\[color-mix\(in_oklab\,var\(--pvc-color-success\)_45\%\,var\(--pvc-color-border\)\)\] {
+    border-color: var(--pvc-color-success);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--pvc-color-success) 45%, var(--pvc-color-border));
+    }
+  }
+  .border-\[color-mix\(in_oklab\,var\(--pvc-color-warning\)_45\%\,var\(--pvc-color-border\)\)\] {
+    border-color: var(--pvc-color-warning);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--pvc-color-warning) 45%, var(--pvc-color-border));
     }
   }
   .border-\[var\(--pvc-color-accent\)\] {
@@ -815,6 +862,30 @@
       background-color: color-mix(in oklab, var(--color-red-500) 12%, transparent);
     }
   }
+  .bg-\[color-mix\(in_oklab\,var\(--pvc-color-accent\)_16\%\,var\(--pvc-color-surface\)\)\] {
+    background-color: var(--pvc-color-accent);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--pvc-color-accent) 16%, var(--pvc-color-surface));
+    }
+  }
+  .bg-\[color-mix\(in_oklab\,var\(--pvc-color-danger\)_14\%\,var\(--pvc-color-surface\)\)\] {
+    background-color: var(--pvc-color-danger);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--pvc-color-danger) 14%, var(--pvc-color-surface));
+    }
+  }
+  .bg-\[color-mix\(in_oklab\,var\(--pvc-color-success\)_20\%\,var\(--pvc-color-surface\)\)\] {
+    background-color: var(--pvc-color-success);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--pvc-color-success) 20%, var(--pvc-color-surface));
+    }
+  }
+  .bg-\[color-mix\(in_oklab\,var\(--pvc-color-warning\)_18\%\,var\(--pvc-color-surface\)\)\] {
+    background-color: var(--pvc-color-warning);
+    @supports (color: color-mix(in lab, red, red)) {
+      background-color: color-mix(in oklab, var(--pvc-color-warning) 18%, var(--pvc-color-surface));
+    }
+  }
   .bg-\[var\(--pvc-color-accent-solid\)\] {
     background-color: var(--pvc-color-accent-solid);
   }
@@ -823,6 +894,9 @@
   }
   .bg-\[var\(--pvc-color-surface\)\] {
     background-color: var(--pvc-color-surface);
+  }
+  .bg-\[var\(--pvc-color-surface-muted\)\] {
+    background-color: var(--pvc-color-surface-muted);
   }
   .bg-\[var\(--pvc-color-text\)\] {
     background-color: var(--pvc-color-text);
@@ -862,6 +936,12 @@
   }
   .bg-clip-padding {
     background-clip: padding-box;
+  }
+  .object-cover {
+    object-fit: cover;
+  }
+  .object-center {
+    object-position: center;
   }
   .p-0 {
     padding: 0;
@@ -980,6 +1060,9 @@
     font-size: var(--text-xs);
     line-height: var(--tw-leading, var(--text-xs--line-height));
   }
+  .text-\[0\.625rem\] {
+    font-size: 0.625rem;
+  }
   .text-\[0\.8125rem\] {
     font-size: 0.8125rem;
   }
@@ -1042,6 +1125,10 @@
     --tw-tracking: calc(var(--tracking-tight) * -1);
     letter-spacing: calc(var(--tracking-tight) * -1);
   }
+  .tracking-\[0\.01em\] {
+    --tw-tracking: 0.01em;
+    letter-spacing: 0.01em;
+  }
   .tracking-\[0\.05em\] {
     --tw-tracking: 0.05em;
     letter-spacing: 0.05em;
@@ -1073,6 +1160,9 @@
   }
   .text-\[var\(--pvc-color-danger-strong\)\] {
     color: var(--pvc-color-danger-strong);
+  }
+  .text-\[var\(--pvc-color-success\)\] {
+    color: var(--pvc-color-success);
   }
   .text-\[var\(--pvc-color-surface\)\] {
     color: var(--pvc-color-surface);
