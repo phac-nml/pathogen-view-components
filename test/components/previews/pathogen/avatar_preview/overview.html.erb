@@ -1,0 +1,81 @@
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Fallback and image variants</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Avatars use simple geometry and deterministic fallback tones to keep dense lists scannable without decorative
+      drift.
+    </p>
+
+    <div
+      class="
+        flex flex-wrap items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', initials: 'JD', size: :xs) %>
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', initials: 'JD', size: :small, colour_seed: 'jane-sm') %>
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', initials: 'JD', size: :medium, colour_seed: 'jane-md') %>
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', initials: 'JD', size: :large, colour_seed: 'jane-lg') %>
+      <%= render Pathogen::Avatar.new(label: 'Project Delta', initials: 'PD', shape: :rounded, colour_seed: 'project-delta') %>
+      <%= render Pathogen::Avatar.new(label: 'Alpha Team', shape: :square, colour_seed: 'alpha-team') %>
+      <%= render Pathogen::Avatar.new(label: 'Jane Doe', src: 'https://avatars.githubusercontent.com/u/9919?v=4') %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">List context</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Typical product usage pairs compact avatars with role metadata and restrained actions.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+      <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] px-4 py-3">
+        <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Run collaborators</h3>
+        <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :ghost, text: 'Manage') %>
+      </div>
+
+      <ul class="divide-y divide-[var(--pvc-color-border)]">
+        <li class="flex items-center justify-between gap-4 px-4 py-3">
+          <div class="flex items-center gap-3">
+            <%= render Pathogen::Avatar.new(label: 'Alice Johnson', initials: 'AJ', size: :small, colour_seed: 'alice-johnson') %>
+
+            <div>
+              <p class="text-sm font-semibold text-[var(--pvc-color-text)]">Alice Johnson</p>
+              <p class="text-sm text-[var(--pvc-color-text-muted)]">Project lead</p>
+            </div>
+          </div>
+
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'View') %>
+        </li>
+
+        <li class="flex items-center justify-between gap-4 px-4 py-3">
+          <div class="flex items-center gap-3">
+            <%= render Pathogen::Avatar.new(label: 'Bob Smith', src: 'https://avatars.githubusercontent.com/u/810438?v=4', size: :small) %>
+
+            <div>
+              <p class="text-sm font-semibold text-[var(--pvc-color-text)]">Bob Smith</p>
+              <p class="text-sm text-[var(--pvc-color-text-muted)]">Bioinformatics analyst</p>
+            </div>
+          </div>
+
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'View') %>
+        </li>
+
+        <li class="flex items-center justify-between gap-4 px-4 py-3">
+          <div class="flex items-center gap-3">
+            <%= render Pathogen::Avatar.new(label: 'Queue Worker', size: :small, shape: :square, colour_seed: 'queue-worker') %>
+
+            <div>
+              <p class="text-sm font-semibold text-[var(--pvc-color-text)]">Queue Worker</p>
+              <p class="text-sm text-[var(--pvc-color-text-muted)]">Automation account</p>
+            </div>
+          </div>
+
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'View') %>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
