@@ -1,4 +1,4 @@
-<%= content_tag(@root_arguments[:href].present? ? :a : :span, **@root_arguments) do %>
+<%= tag.public_send(@root_arguments[:href].present? ? :a : :span, **@root_arguments) do %>
   <% if @image_arguments.present? %>
     <%= tag.img(**@image_arguments) %>
   <% elsif @fallback_text.present? %>

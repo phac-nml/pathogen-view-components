@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'zlib'
-
 module Pathogen
   # Pathogen::Avatar renders a user or entity avatar with image and deterministic fallback styling.
   class Avatar < Pathogen::Component # rubocop:disable Metrics/ClassLength
@@ -89,7 +87,9 @@ module Pathogen
       fallback_seed = colour_seed.presence || color_seed.presence || @label.presence || 'avatar'
       tone = tone_for(fallback_seed)
 
-      custom_classes = system_arguments.delete(:classes) || system_arguments.delete(:class)
+      raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
+
+      custom_classes = system_arguments.delete(:classes)
 
       @root_arguments = add_test_selector(system_arguments)
       @root_arguments[:href] = @url if @url.present?
@@ -112,6 +112,8 @@ module Pathogen
     def validate_arguments!
       raise ArgumentError, 'label is required unless decorative is true' if !@decorative && @label.blank?
       raise ArgumentError, 'decorative avatars cannot be interactive links' if @decorative && @url.present?
+
+      validate_url! if @url.present?
     end
 
     def interactive?
@@ -131,8 +133,18 @@ module Pathogen
     end
 
     def tone_for(seed)
-      index = Zlib.crc32(seed.to_s) % TONE_OPTIONS.length
+      index = seed.to_s.sum % TONE_OPTIONS.length
       TONE_OPTIONS[index]
+    end
+
+    def validate_url!
+      parsed_url = URI.parse(@url)
+      return if parsed_url.scheme.blank?
+      return if %w[http https].include?(parsed_url.scheme.downcase)
+
+      raise ArgumentError, "invalid url format: #{@url}"
+    rescue URI::InvalidURIError
+      raise ArgumentError, "invalid url format: #{@url}"
     end
 
     def apply_accessibility_arguments!
