@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+require 'test_helper'
+
+module Pathogen
+  class CopyableValueTest < ViewComponent::TestCase
+    test 'raises for blank value' do
+      assert_raises(ArgumentError) { Pathogen::CopyableValue.new(value: '') }
+    end
+
+    test 'raises for nil value' do
+      assert_raises(ArgumentError) { Pathogen::CopyableValue.new(value: nil) }
+    end
+
+    test 'renders value text in monospace container' do
+      render_inline(Pathogen::CopyableValue.new(value: 'INXT_PRJ_A2G6VVJNCN'))
+
+      assert_selector 'span[data-controller="pathogen--copyable-value"][class*="font-mono"]'
+      assert_text 'INXT_PRJ_A2G6VVJNCN'
+      assert_selector 'span[data-pathogen--copyable-value-target="text"]',
+                      text: 'INXT_PRJ_A2G6VVJNCN'
+    end
+
+    test 'renders copy button with correct aria-label' do
+      render_inline(Pathogen::CopyableValue.new(value: 'ABC123'))
+
+      assert_selector 'button[type="button"][aria-label="Copy ABC123 to clipboard"]'
+    end
+
+    test 'applies rounded radius via design token' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[class*="rounded-[var(--pvc-radius-action"]'
+    end
+
+    test 'includes sr-only aria-live region for announcements' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span.sr-only[aria-live="polite"][aria-atomic="true"]'
+    end
+
+    test 'uses default copied message from i18n' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector(
+        'span[data-pathogen--copyable-value-copied-message-value="Copied to clipboard"]'
+      )
+    end
+
+    test 'accepts custom copied_message' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test', copied_message: 'ID copied!'))
+
+      assert_selector(
+        'span[data-pathogen--copyable-value-copied-message-value="ID copied!"]'
+      )
+    end
+
+    test 'merges custom system_arguments classes' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test', class: 'my-custom-class'))
+
+      assert_selector 'span.my-custom-class'
+    end
+
+    test 'merges custom data attributes' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test', data: { custom: 'value' }))
+
+      assert_selector 'span[data-custom="value"]'
+    end
+
+    test 'appends copyable-value controller to existing data controllers' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test', data: { controller: 'alpha beta' }))
+
+      assert_selector 'span[data-controller="alpha beta pathogen--copyable-value"]'
+    end
+
+    test 'renders clipboard icon and hidden success icon' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'svg[data-pathogen--copyable-value-target="icon"]', visible: :all
+      assert_selector 'svg[data-pathogen--copyable-value-target="successIcon"]', visible: :all
+    end
+
+    test 'copy button has click action wired to controller' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'button[data-action="click->pathogen--copyable-value#copy"]'
+    end
+
+    test 'value span has select-all class for easy manual selection' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span.select-all[data-pathogen--copyable-value-target="text"]',
+                      text: 'test'
+      assert_includes rendered_content, 'font-variant-numeric:tabular-nums'
+    end
+
+    test 'renders with view-component data attribute' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[data-view-component]'
+    end
+  end
+end
