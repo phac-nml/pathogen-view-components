@@ -18,29 +18,23 @@ module Pathogen
     CONTAINER_CLASSES = %w[
       inline-flex items-center align-middle
       py-1 pl-2
-      font-mono text-[length:var(--type-meta,0.75rem)] leading-4 font-normal
-      rounded-[var(--pvc-radius-action,0.375rem)]
-      border border-[var(--pvc-color-border,theme(colors.neutral.200))]
-      bg-[var(--pvc-color-surface-muted,theme(colors.neutral.50))]
-      text-[color:var(--pvc-color-text,theme(colors.neutral.900))]
-      dark:border-[var(--pvc-color-border,theme(colors.neutral.700))]
-      dark:bg-[var(--pvc-color-surface-muted,theme(colors.neutral.800))]
-      dark:text-[color:var(--pvc-color-text,theme(colors.neutral.100))]
+      font-mono text-[length:var(--type-meta)] leading-4 font-normal
+      rounded-[var(--pvc-radius-action)]
+      border border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface-muted)]
+      text-[var(--pvc-color-text)]
     ].join(' ').freeze
 
     BUTTON_CLASSES = %w[
       inline-flex shrink-0 items-center justify-center self-stretch
       -my-1 py-1 px-1.5
-      rounded-r-[calc(var(--pvc-radius-action,0.375rem)-1px)]
+      rounded-r-[calc(var(--pvc-radius-action)-1px)]
       cursor-pointer
-      text-[color:var(--pvc-color-text-muted,theme(colors.neutral.600))]
-      dark:text-[color:var(--pvc-color-text-muted,theme(colors.neutral.400))]
-      hover:bg-[var(--pvc-color-surface-hover,theme(colors.neutral.100))]
-      dark:hover:bg-[var(--pvc-color-surface-hover,theme(colors.neutral.700))]
+      text-[var(--pvc-color-text-muted)]
+      interactive-hover:bg-[var(--pvc-color-surface-muted)]
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus,theme(colors.primary.500))]
-      focus-visible:outline-offset-[-2px]
-      transition-colors duration-150
+      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-[-2px]
+      transition-[color,background-color] duration-[var(--pvc-duration-fast)] ease-out
     ].join(' ').freeze
 
     VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
@@ -50,12 +44,14 @@ module Pathogen
     # @param value [String] The text to display and copy to clipboard (required)
     # @param copied_message [String, nil] Feedback message announced to screen readers after copy.
     #   Defaults to the `pathogen.copyable_value.copied` i18n key.
+    # @param reset_delay [Integer] Milliseconds before success feedback reverts (default: 2000)
     # @param system_arguments [Hash] Additional HTML attributes for the root element
-    def initialize(value:, copied_message: nil, **system_arguments)
+    def initialize(value:, copied_message: nil, reset_delay: 2000, **system_arguments)
       @value = value.to_s
       raise ArgumentError, 'value must be present' if @value.empty?
 
       @copied_message = copied_message
+      @reset_delay = reset_delay
       @system_arguments = system_arguments
 
       setup_system_arguments
@@ -77,17 +73,31 @@ module Pathogen
       existing_controller = data.delete(:controller) || data.delete('controller')
 
       data[:controller] = [existing_controller, controller_name]
-                          .map { |value| value.to_s.strip }
-                          .reject(&:empty?)
+                          .compact
                           .join(' ')
-      data[:"#{controller_name}-copied-message-value"] = copied_message
-      data[:"#{controller_name}-copy-failed-message-value"] = copy_failed_message
+                          .split
+                          .uniq
+                          .join(' ')
+      data.merge!(stimulus_values)
+      data[:state] = 'idle'
 
       data
     end
 
+    def stimulus_values
+      {
+        "#{controller_name}-copied-message-value": copied_message,
+        "#{controller_name}-copy-failed-message-value": copy_failed_message,
+        "#{controller_name}-reset-delay-value": @reset_delay
+      }
+    end
+
     def controller_name
       'pathogen--copyable-value'
+    end
+
+    def stimulus_target(name)
+      { "#{controller_name}-target": name }
     end
 
     def copied_message
