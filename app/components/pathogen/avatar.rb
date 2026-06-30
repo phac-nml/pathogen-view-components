@@ -103,7 +103,8 @@ module Pathogen
 
       apply_accessibility_arguments!
 
-      @image_arguments = build_image_arguments(alt)
+      @image_alt = image_alt_for(alt)
+      @image_arguments = build_image_arguments
     end
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
 
@@ -164,12 +165,17 @@ module Pathogen
       merged_aria
     end
 
-    def build_image_arguments(alt)
+    def image_alt_for(alt)
+      return '' if @decorative
+
+      alt.to_s
+    end
+
+    def build_image_arguments
       return if @src.blank?
 
       {
         src: @src,
-        alt: @decorative ? '' : alt.to_s,
         class: IMAGE_CLASSES,
         width: SIZE_PIXELS.fetch(@size),
         height: SIZE_PIXELS.fetch(@size),

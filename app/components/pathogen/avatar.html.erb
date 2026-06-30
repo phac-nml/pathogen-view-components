@@ -1,6 +1,6 @@
 <%= tag.public_send(@root_arguments[:href].present? ? :a : :span, **@root_arguments) do %>
   <% if @image_arguments.present? %>
-    <%= tag.img(**@image_arguments) %>
+    <%= tag.img(alt: @image_alt, **@image_arguments) %>
   <% elsif @fallback_text.present? %>
     <span aria-hidden="true" class="leading-none"><%= @fallback_text %></span>
   <% else %>
