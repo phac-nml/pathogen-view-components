@@ -210,7 +210,7 @@ Authoritative definitions live in `app/assets/stylesheets/pathogen.tailwind.css`
 | Outline/ghost destructive | `--pvc-color-danger-strong`, `--pvc-color-danger` (borders via mix) |
 | Filled destructive | `--pvc-color-danger-solid`, `--pvc-color-danger-solid-hover` |
 
-In dark mode, **foreground** accents lighten for contrast on dark surfaces; **solid fills** stay saturated so primary and danger buttons remain confident on the canvas.
+In dark mode, **foreground** accents lighten for contrast on dark surfaces; **solid fills** stay saturated so primary and danger buttons remain confident on the canvas. `--pvc-color-focus` is exempt from the "foreground lightens" rule — it stays fixed at `--color-primary-500` in both modes precisely so it never converges with a lightened dark-mode accent (see [Design Contract → Focus and Keyboard Access](01-design-contract)).
 
 ## Type Scale
 
@@ -219,7 +219,7 @@ In dark mode, **foreground** accents lighten for contrast on dark surfaces; **so
 --type-control: 0.875rem;  /* 14px — labels, buttons, dense UI */
 --type-body: 1rem;         /* 16px — body copy */
 --type-section: 1.25rem;   /* 20px — section headings */
---type-page: 1.9375rem;    /* 31px — page headings */
+--type-page: 2rem;         /* 32px — page headings */
 ```
 
 | Token | px | Tailwind equivalent | Component mapping |
@@ -228,9 +228,11 @@ In dark mode, **foreground** accents lighten for contrast on dark surfaces; **so
 | `--type-control` | 14 | `text-sm` | Labels, buttons, supporting text |
 | `--type-body` | 16 | `text-base` | `Pathogen::Typography::Text` |
 | `--type-section` | 20 | `text-xl` | `Lead`, section headings |
-| `--type-page` | 31 | `text-3xl` (approx.) | `Heading` h1 tier |
+| `--type-page` | 32 | `text-3xl` (approx.) | `Heading` h1 tier |
 
 **14px and 16px** are the product workhorses. Larger sizes are for hierarchy inside real workflows, not preview decoration.
+
+This is a **role-driven** scale, not a single mathematical ratio — each stop is the smallest step that gives its component role room to read as distinct from its neighbour, kept close to Tailwind's own `text-xs/sm/base/xl` defaults so utility classes and tokens rarely disagree. `--type-page` targets a clean, grid-aligned **32px (2rem)** rather than an unrounded value: page headings are rare enough per screen that there is no workflow reason for the size to be anything other than the nearest resolved number. Shipped CSS currently has `31px` (`1.9375rem`) — a rounding artifact from an earlier pass, not a deliberate choice — and needs updating to match; see [Token Migration Roadmap](#token-migration-roadmap).
 
 Implementation preference: `text-[length:var(--type-control)]` in new components. Typography components may continue using Tailwind scale classes where values match exactly.
 
@@ -275,8 +277,10 @@ Use `rounded-[var(--pvc-radius-*)]` in component class strings rather than hard-
 | Level | Rule |
 |-------|------|
 | Product surfaces | No shadow |
-| Grouped regions | Border + surface step |
+| Grouped regions | Border + surface step (composed from surface/border tokens, not a shadow token) |
 | Overlays | `--pvc-shadow-overlay` |
+
+Two tokens, not three, by design: only overlays detach visually from the canvas and need shadow. See [Design Contract → Elevation atoms](01-design-contract) for the full rationale.
 
 ## Motion
 
@@ -320,3 +324,16 @@ Internal tokens such as `--pvc-data-grid-border-color`, `--pvc-data-grid-body-bg
 | `Tooltip` | Hard-coded overlay | `rounded-lg` | — |
 
 New and touched components should move toward the `Button` reference pattern.
+
+## Token Migration Roadmap
+
+This doc set is the source of truth for where tokens are *going*; `pathogen.tailwind.css` is the source of truth for what's *shipped* today. The two disagree in four places as of this rewrite. Each is a deliberate target documented here, not yet a documented exception — someone should close each row and delete it, not leave it open indefinitely:
+
+| # | Token(s) | Shipped today | Target | Why |
+|---|----------|----------------|--------|-----|
+| 1 | `--pvc-color-accent-solid-hover` | `primary-600` (lighter than base `primary-700`) | Darker than base, e.g. `primary-800` | Hover on a solid fill must always darken, matching `danger`'s already-correct direction — see [Design Contract → Hover And Active State](01-design-contract) |
+| 2 | `--pvc-color-focus` (dark mode) | `primary-400` (identical to dark `accent`) | `primary-500`, fixed across both modes | Focus must stay visually distinct from accent in dark mode the way it already is in light mode |
+| 3 | `--type-page` | `1.9375rem` / 31px | `2rem` / 32px | Resolves to the nearest clean, grid-aligned value; no workflow needs the unrounded number |
+| 4 | `--pvc-color-success-strong` / `-solid` / `-solid-hover`, `--pvc-color-warning-strong` / `-solid` / `-solid-hover` | Not defined — only base `success`/`warning` exist | Full four-step ladder matching `accent`/`danger` | Status roles should be complete materials; today a solid success/warning surface has no token to reach for |
+
+Until row 4 ships, treat solid-fill success/warning as unsupported rather than approximating it with raw `emerald-*` / `amber-*` utilities.

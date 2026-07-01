@@ -22,6 +22,8 @@ Use this checklist for pull requests that touch Pathogen UI, styles, previews, o
 - [ ] Status colours used only for status meaning?
 - [ ] No hard-coded host brand colours in shared components?
 - [ ] Strong colour blocks limited to selection, focus, status, navigation, grouping?
+- [ ] Any new solid-fill state (not just buttons) darkens on hover, matching the canonical rule?
+- [ ] `success` / `warning` used only as base text/border/icon roles, not as a solid fill?
 
 ## Typography And Spacing
 
@@ -43,19 +45,22 @@ Use this checklist for pull requests that touch Pathogen UI, styles, previews, o
 - [ ] Secondary/dismissive actions use `neutral` + `outline` or `ghost`?
 - [ ] `danger` + `solid` reserved for confirmed destructive steps?
 - [ ] Icon-only buttons have distinct accessible names?
-- [ ] Toolbar/grid actions use `small` without going below documented minimum targets?
+- [ ] Toolbar/grid actions use `small` without going below documented minimum targets, **and** keep at least 8px between adjacent `small` targets?
+- [ ] Solid-fill hover states darken, never lighten?
+- [ ] No solid-fill success/warning surfaces (unsupported until the token ladder lands — see [Tokens → Token Migration Roadmap](02-tokens))?
 
 ## Geometry And Layout
 
 - [ ] Controls, labels, data, and actions align to a clear grid?
 - [ ] Dividers and borders trace real structure?
 - [ ] Asymmetry tied to workflow priority, not decoration?
-- [ ] No Bauhaus ornamental shapes or poster-style offset blocks?
+- [ ] Any Bauhaus-derived shape, offset, or colour block encodes selection, focus, status, navigation, or workflow priority — not used as poster-style ornament? (See [Overview → Bauhaus](00-overview) for the conditional rule; this is not a blanket ban on geometric structure.)
 
 ## Focus And Accessibility
 
 - [ ] Visible `focus-visible` treatment in light and dark mode?
 - [ ] Prefer `--pvc-color-focus` for new/migrated focus rings?
+- [ ] Focus ring stays visually distinct from `--pvc-color-accent` in **both** modes (not just light)?
 - [ ] State not communicated by colour alone?
 - [ ] Semantic HTML, WCAG AA contrast, screen-reader names?
 - [ ] `prefers-reduced-motion` respected?
@@ -65,6 +70,7 @@ Use this checklist for pull requests that touch Pathogen UI, styles, previews, o
 
 - [ ] Canvas avoids default large `neutral-950` shells?
 - [ ] Borders, muted text, hover, selected, disabled, and focus still clear?
+- [ ] Focus ring does not collapse onto the same value as accent (fixed `primary-500`, not a mode-flipped shade)?
 - [ ] Dense grids use deeper inset only inside framed regions?
 - [ ] Same radius and spacing logic as light mode?
 

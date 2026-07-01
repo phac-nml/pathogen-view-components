@@ -48,21 +48,21 @@ Rams treated products as tools: useful, understandable, honest, thorough down to
 
 Ive’s craft philosophy — heavily shaped by Rams and his Bauhaus education — emphasises that **how something is made is part of what it is**. For a design system:
 
-- **Tokens and components are inseparable** — semantic roles live in CSS; components consume them. Documentation that disagrees with `pathogen.tailwind.css` is wrong.
+- **Tokens and components are inseparable** — semantic roles live in CSS; components consume them. Documentation that disagrees with `pathogen.tailwind.css` without an open [Token Migration Roadmap](02-tokens) entry is wrong; documentation that disagrees *with* a tracked roadmap entry is the deliberate target the CSS hasn't caught up to yet.
 - **Perceived inevitability** — a button, label, or grid row should feel like the obvious resolution of the problem, not a styled afterthought.
 - **Care in the invisible** — focus rings, forced-colours behaviour, screen-reader names, and disabled logic matter as much as hover colour.
 - **Focus on the product** — previews model real clinical workflows, not documentation theatre.
 
 ## System Architecture
 
-Pathogen is organised in layers. Build from the bottom up; do not skip layers.
+Pathogen is organised in **one** seven-layer hierarchy. Build from the bottom up; do not skip layers. This is the single canonical diagram for the system — every other doc, including the Design Contract's atomic breakdown, is detail nested inside one of these seven layers, not a competing structure.
 
 ```
 Intent (workflow, state, hierarchy)
     ↓
 Tokens (--pvc-*, --type-*, spacing rhythm)
     ↓
-Primitives (colour roles, type scale, radius, motion)
+Primitives (colour roles, typography, spacing, radius, elevation, motion)
     ↓
 Controls (button, link, form control, tab)
     ↓
@@ -75,13 +75,17 @@ Composition (page regions, asymmetric workflow layouts)
 
 | Layer | Examples | Contract doc |
 |-------|----------|--------------|
+| Intent | Primary action, secondary dismiss, status, navigation, metadata | [Design Contract §1](01-design-contract) |
 | Tokens | `--pvc-color-surface`, `--type-control`, `--pvc-radius-action` | [Tokens](02-tokens) |
+| Primitives | Colour roles, typography atoms, spacing atoms, radius atoms, elevation atoms, motion atoms | [Design Contract §2–7](01-design-contract) |
 | Controls | `Pathogen::Button`, `Pathogen::Link`, `Pathogen::Form::*` | [Design Contract](01-design-contract) |
 | Content | `Pathogen::Typography::*`, `Pathogen::CopyableValue` | [Design Contract](01-design-contract) |
 | Surfaces | `Pathogen::DataGridComponent`, fieldsets, preview panels | [Design Contract](01-design-contract), [Dark Mode](03-dark-mode) |
 | Composition | Host pages, Lookbook previews | [Preview Guidelines](04-preview-guidelines) |
 
-**Surface** is a contract term for a bounded work area: bordered region, grid frame, dialog body, or fieldset. Pathogen does not yet ship a generic `Card` component; surfaces are composed from tokens plus layout until a shared primitive exists.
+The Design Contract's "Atomic Hierarchy" section is this table's **Intent** and **Primitives** rows, expanded one atom at a time (colour, typography, spacing, radius, elevation, motion, in that order). Read this table first, then treat the Contract's numbered atoms as the zoomed-in view of rows one and three — not as a second, separate hierarchy to reconcile against this one.
+
+**Surface** is a contract term for a bounded work area: bordered region, grid frame, dialog body, or fieldset. Pathogen does not yet ship a generic `Card` component; surfaces are composed from tokens plus layout until a shared primitive exists. The `:card` variant on `Pathogen::Typography::HeadingGroup` predates this contract and names a compact heading-density preset usable inside any surface — it is not evidence of a Card component and should not be read as one. New variant names should say `compact` or `grouped`, matching surface vocabulary; renaming the existing `:card` variant is a deliberate, separately-tracked exception (see [Design Contract → Deliberate Exceptions](01-design-contract)), not a blocker for this doc set.
 
 ## Document Map
 
@@ -97,9 +101,11 @@ Read in this order when implementing UI:
 
 Priority when documents, previews, and code disagree:
 
-1. **Shipped component code** and `app/assets/stylesheets/pathogen.tailwind.css` for token values.
-2. **These Lookbook pages** for intent and rules not yet fully encoded in code.
+1. **These Lookbook pages** for intent, rules, and target token values — including cases where a specific token is explicitly listed as pending in [Tokens → Token Migration Roadmap](02-tokens). Tokens, primitives, and colours are not set in stone; the docs describe where the system is going, and code catches up.
+2. **Shipped component code** and `app/assets/stylesheets/pathogen.tailwind.css` for any token value *not* called out in the Migration Roadmap. Absent an open roadmap entry, a doc/code disagreement is a docs bug, not a signal to change the token.
 3. **Component previews** as living examples — fix drift rather than inventing one-off styles.
+
+This flips the old default (code always wins) for the specific, enumerated cases where the docs have deliberately gotten ahead of the CSS. It does not license quietly drifting docs and code apart elsewhere — every doc/code gap must show up as a row in the Migration Roadmap or it isn't a sanctioned target, it's an error to fix in the doc.
 
 `Button` and `CopyableValue` are the reference implementations for semantic token consumption. Other components are migrating toward the same pattern; new work should follow the reference, not the legacy palette shortcuts.
 
