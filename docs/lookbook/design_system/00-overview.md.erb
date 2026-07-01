@@ -5,33 +5,104 @@ landing: true
 
 # Pathogen Design System
 
-Pathogen is a clinical utility design system for healthcare, laboratory, and public-health data workflows.
+Pathogen is a clinical utility design system for healthcare, laboratory, and public-health data workflows. It is a **coded, versioned environment** — not a static style guide. Components, tokens, and Lookbook previews are the product.
 
-The system should feel quiet, precise, accessible, compact, and credible in data-heavy screens. Its strongest visual anchor is not decoration; it is the disciplined rendering of dense interactive data, forms, tabs, links, typography, and overlays in a consistent environment.
+The system should feel **quiet, precise, accessible, compact, and credible** on dense screens. Its identity comes from disciplined rendering of data, forms, controls, and navigation — not from decoration.
 
-Use these pages with the component previews:
+## What We Optimise For
 
-- **Design Contract** defines the rules shared by Pathogen components and host applications, including button tone/emphasis guidance.
-- **Tokens** defines the semantic colour, type, radius, elevation, and motion roles components should move toward.
-- **Dark Mode** defines how dark surfaces should be layered without making large areas too heavy.
-- **Preview Guidelines** defines how Lookbook examples should model real product surfaces.
-- **Review Checklist** gives reviewers a short UI contract checklist for pull requests.
+| Quality | Meaning in practice |
+|---------|---------------------|
+| **Quiet** | Surfaces recede; colour and weight appear only when they carry meaning |
+| **Precise** | Alignment, spacing, and type rhythm are consistent enough to feel inevitable |
+| **Accessible** | Focus, contrast, names, and state are designed in — not patched on |
+| **Compact** | Dense layouts preserve legibility for grids, forms, and toolbars |
+| **Credible** | Clinical data workflows need trust; polish must serve clarity, not marketing |
 
-## Direction
+## Design Lineage
 
-- Build for clinical utility, not marketing polish.
-- Let form follow workflow: every visual choice should clarify task structure, state, hierarchy, or navigation.
-- Prefer semantic tokens over raw palette utilities.
-- Keep product UI mostly flat; use borders and background layers before shadows.
-- Use geometric layout, visible alignment, and crisp component edges as the main visual language.
-- Reserve status colours for real status.
-- Make dark mode softer than a full `neutral-950` canvas.
-- Let data-grid density, keyboard access, and state clarity define the visual identity.
+Pathogen draws from three related traditions. None of them are applied as ornament.
 
-## Bauhaus Influence
+### Bauhaus — structure before expression
 
-Pathogen can borrow from Bauhaus through utility, proportion, and disciplined composition. Use simple shapes, visible structure, and deliberate asymmetry when they make dense workflows easier to scan. Do not use Bauhaus as a decorative poster style. Primary colours, circles, bars, and offset blocks should only appear when they carry product meaning such as selection, focus, grouping, status, or navigation.
+The Bauhaus unified craft, art, and technology around **form follows function**. For Pathogen that means:
+
+- **Grid and rhythm** — a 4px spacing base, visible alignment, and modular layout before decorative composition.
+- **Geometric primitives** — circles (pills, avatars), rectangles (controls, panels), and lines (borders, dividers) as the vocabulary of structure.
+- **Typography as hierarchy** — sans-serif type sized and weighted to clarify information, not to create display moments.
+- **Restrained palette** — neutrals for environment; accent and status colours only where meaning demands them.
+- **Workshop discipline** — master fundamentals (tokens), then build repeatable artefacts (components) from shared materials.
+
+Bauhaus primary colours, offset blocks, and poster-style asymmetry belong in Pathogen **only** when they encode selection, focus, status, navigation, or workflow priority — never as decoration.
+
+### Dieter Rams — less, but better
+
+Rams treated products as tools: useful, understandable, honest, thorough down to the last detail, and as little design as possible. Pathogen maps that to:
+
+- One clear primary action per surface where possible.
+- Borders and surface steps before shadows.
+- State communicated by more than colour alone.
+- Every interactive element earning its visual weight.
+
+### Jony Ive — inevitability and care
+
+Ive’s craft philosophy — heavily shaped by Rams and his Bauhaus education — emphasises that **how something is made is part of what it is**. For a design system:
+
+- **Tokens and components are inseparable** — semantic roles live in CSS; components consume them. Documentation that disagrees with `pathogen.tailwind.css` is wrong.
+- **Perceived inevitability** — a button, label, or grid row should feel like the obvious resolution of the problem, not a styled afterthought.
+- **Care in the invisible** — focus rings, forced-colours behaviour, screen-reader names, and disabled logic matter as much as hover colour.
+- **Focus on the product** — previews model real clinical workflows, not documentation theatre.
+
+## System Architecture
+
+Pathogen is organised in layers. Build from the bottom up; do not skip layers.
+
+```
+Intent (workflow, state, hierarchy)
+    ↓
+Tokens (--pvc-*, --type-*, spacing rhythm)
+    ↓
+Primitives (colour roles, type scale, radius, motion)
+    ↓
+Controls (button, link, form control, tab)
+    ↓
+Content (typography, code, copyable value, tooltip)
+    ↓
+Surfaces (panel, grid, grouped fieldset, overlay)
+    ↓
+Composition (page regions, asymmetric workflow layouts)
+```
+
+| Layer | Examples | Contract doc |
+|-------|----------|--------------|
+| Tokens | `--pvc-color-surface`, `--type-control`, `--pvc-radius-action` | [Tokens](02-tokens) |
+| Controls | `Pathogen::Button`, `Pathogen::Link`, `Pathogen::Form::*` | [Design Contract](01-design-contract) |
+| Content | `Pathogen::Typography::*`, `Pathogen::CopyableValue` | [Design Contract](01-design-contract) |
+| Surfaces | `Pathogen::DataGridComponent`, fieldsets, preview panels | [Design Contract](01-design-contract), [Dark Mode](03-dark-mode) |
+| Composition | Host pages, Lookbook previews | [Preview Guidelines](04-preview-guidelines) |
+
+**Surface** is a contract term for a bounded work area: bordered region, grid frame, dialog body, or fieldset. Pathogen does not yet ship a generic `Card` component; surfaces are composed from tokens plus layout until a shared primitive exists.
+
+## Document Map
+
+Read in this order when implementing UI:
+
+1. **[Design Contract](01-design-contract)** — behaviour, hierarchy, controls, accessibility, composition rules.
+2. **[Tokens](02-tokens)** — semantic colour, type, radius, elevation, motion; maps tokens to component tiers.
+3. **[Dark Mode](03-dark-mode)** — surface stacking and exceptions for dense data.
+4. **[Preview Guidelines](04-preview-guidelines)** — how Lookbook examples model host applications.
+5. **[Review Checklist](05-review-checklist)** — PR pass before merge.
 
 ## Source Of Truth
 
-These Lookbook pages are the durable design contract. Component previews are the living examples. If a preview disagrees with this contract, fix the preview or document a deliberate exception.
+Priority when documents, previews, and code disagree:
+
+1. **Shipped component code** and `app/assets/stylesheets/pathogen.tailwind.css` for token values.
+2. **These Lookbook pages** for intent and rules not yet fully encoded in code.
+3. **Component previews** as living examples — fix drift rather than inventing one-off styles.
+
+`Button` and `CopyableValue` are the reference implementations for semantic token consumption. Other components are migrating toward the same pattern; new work should follow the reference, not the legacy palette shortcuts.
+
+## Host Applications
+
+Pathogen owns semantic roles and component behaviour. Host applications own **brand mapping** via `--color-primary-*` overrides (IRIDA maps to green; Pathogen defaults to blue). Host-local components should conform to Pathogen tokens and accessibility rules when they remain in use.

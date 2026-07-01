@@ -6,54 +6,82 @@ title: Review Checklist
 
 Use this checklist for pull requests that touch Pathogen UI, styles, previews, or design-system documentation.
 
-## Contract
+## Intent And Contract
 
-- Does the change follow the Lookbook design contract?
-- If it introduces an exception, is the exception documented with a short rationale?
-- Should any local pattern become a shared Pathogen component or token?
-- Does the visual treatment serve workflow structure, state, hierarchy, or navigation?
+- [ ] Does every visual choice clarify workflow structure, state, hierarchy, or navigation?
+- [ ] Does the change follow the [Design Contract](01-design-contract)?
+- [ ] If it introduces an exception, is the rationale documented?
+- [ ] Should any local pattern become a shared Pathogen component or token?
+- [ ] Does the UI feel **inevitable** for the task — not decorated after the fact?
 
 ## Tokens And Colour
 
-- Does the change use semantic colour/surface roles where available?
-- Does it preserve the public `--color-primary-*` override contract?
-- Are status colours used only for status meaning?
-- Does the change avoid hard-coded host application brand colours?
-- Are strong colour blocks limited to meaningful states, grouping, focus, or navigation?
+- [ ] Semantic roles (`--pvc-color-*`) used where available?
+- [ ] No new raw `slate-*` utilities (use `neutral-*`)?
+- [ ] Public `--color-primary-*` override contract preserved?
+- [ ] Status colours used only for status meaning?
+- [ ] No hard-coded host brand colours in shared components?
+- [ ] Strong colour blocks limited to selection, focus, status, navigation, grouping?
+
+## Typography And Spacing
+
+- [ ] Product rhythm stays on 14px / 16px unless hierarchy requires more?
+- [ ] Labels use control scale + semibold where they identify settings/rows/controls?
+- [ ] Spacing uses 4px-base scale (`gap-1` … `gap-8`) without arbitrary values?
+- [ ] Page headings left to `Pathogen::Typography::Heading`?
+
+## Radius And Surfaces
+
+- [ ] Radius matches role: control (2–4px), action (6px), panel (8px)?
+- [ ] No `rounded-xl`+ on standard product surfaces?
+- [ ] Surfaces use border + background before shadow?
+- [ ] Overlay shadow only on tooltips, popovers, menus?
 
 ## Buttons
 
-- Does each action group have at most one `primary` + `solid` button?
-- Are secondary and dismissive actions using `neutral` + `outline` or `neutral` + `ghost` as appropriate?
-- Is `danger` + `solid` reserved for confirmed destructive steps, not ordinary delete affordances?
-- Do icon-only buttons have distinct accessible names?
-- Are toolbar and grid actions using `small` size without reducing target size below the documented minimums?
+- [ ] At most one `primary` + `solid` per action group?
+- [ ] Secondary/dismissive actions use `neutral` + `outline` or `ghost`?
+- [ ] `danger` + `solid` reserved for confirmed destructive steps?
+- [ ] Icon-only buttons have distinct accessible names?
+- [ ] Toolbar/grid actions use `small` without going below documented minimum targets?
 
 ## Geometry And Layout
 
-- Are controls, labels, data, and actions aligned to a clear grid?
-- Are radius, borders, and dividers crisp enough for dense product use?
-- Is any asymmetry tied to workflow priority rather than decoration?
-- Does the change avoid Bauhaus-style ornamental shapes or motifs?
+- [ ] Controls, labels, data, and actions align to a clear grid?
+- [ ] Dividers and borders trace real structure?
+- [ ] Asymmetry tied to workflow priority, not decoration?
+- [ ] No Bauhaus ornamental shapes or poster-style offset blocks?
+
+## Focus And Accessibility
+
+- [ ] Visible `focus-visible` treatment in light and dark mode?
+- [ ] Prefer `--pvc-color-focus` for new/migrated focus rings?
+- [ ] State not communicated by colour alone?
+- [ ] Semantic HTML, WCAG AA contrast, screen-reader names?
+- [ ] `prefers-reduced-motion` respected?
+- [ ] Forced-colours / high-contrast checked on custom controls?
 
 ## Dark Mode
 
-- Does dark mode avoid large default `neutral-950` surfaces?
-- Are dark borders, muted text, hover states, selected states, disabled states, and focus states still clear?
-- Are dense surfaces such as grids layered rather than flat?
+- [ ] Canvas avoids default large `neutral-950` shells?
+- [ ] Borders, muted text, hover, selected, disabled, and focus still clear?
+- [ ] Dense grids use deeper inset only inside framed regions?
+- [ ] Same radius and spacing logic as light mode?
 
 ## Previews
 
-- Does the preview demonstrate a realistic product context?
-- Does it avoid marketing-style gradients, oversized stats, decorative cards, and heavy shadows?
-- Does it use the same token language as shipped components?
-- Has the preview been checked in light and dark modes?
+- [ ] Realistic clinical/lab/public-health workflow context?
+- [ ] No marketing gradients, hero layouts, or heavy shadows?
+- [ ] Same token language as shipped components?
+- [ ] Checked in light **and** dark mode?
 
-## Validation
+## Validation Commands
 
-For implementation changes, run the checks that match the touched surface:
+Run checks that match the touched surface:
 
-- `pnpm run build:css:check` for CSS/token/utility changes.
-- `bin/test` for Ruby component changes.
-- `pnpm test` for JavaScript interaction changes.
-- Visual Lookbook review for changed components in light and dark modes.
+| Change type | Command |
+|-------------|---------|
+| CSS / tokens / utilities | `pnpm run build:css:check` |
+| Ruby components | `bin/test` |
+| JavaScript interaction | `pnpm test` |
+| Visible components | Lookbook review, light + dark |

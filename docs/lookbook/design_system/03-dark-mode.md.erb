@@ -4,20 +4,21 @@ title: Dark Mode
 
 # Dark Mode
 
-Dark mode should feel like a softer clinical workspace, not a black canvas. The common failure mode is using `neutral-950` for large surfaces and then layering `neutral-900` / `neutral-800` cards on top until the UI feels heavy, flat, and cold.
+Dark mode should feel like a **softer clinical workspace** — not a black canvas with floating cards. The failure mode is stacking `neutral-950` page backgrounds with `neutral-900` / `neutral-800` panels until the UI feels heavy, flat, and cold.
 
-## Rules
+## Principles
 
-- Avoid `neutral-950` as the default large-surface background.
-- Use layered dark surfaces with clear separation.
-- Keep borders visible enough for dense controls and tables.
-- Keep muted text readable, especially in grids, forms, and helper text.
-- Preserve strong focus rings. In dark mode, white or primary-400 focus treatment is acceptable if contrast is clear.
-- Do not use decorative gradients to make dark mode feel richer.
-- Preserve the same crisp geometry as light mode: visible dividers, controlled surface steps, and purposeful accent colour.
-- Do not compensate for low contrast with glow, blur, or oversized colour blocks.
+- **Canvas vs inset** — application canvas uses `--pvc-color-surface` (`neutral-900`). Deeper blacks are for **inset dense regions** (data grid body), not full-page shells.
+- **Layered surfaces** — each step (surface → muted → raised) must be distinguishable at a glance.
+- **Visible structure** — borders, dividers, and table rules stay crisp; do not compensate for low contrast with glow or blur.
+- **Readable muted text** — especially in grids, forms, and helper copy (`--pvc-color-text-muted` on `--pvc-color-surface-muted`).
+- **Confident accents** — foreground accents lighten; solid button fills stay saturated.
+- **Same geometry as light mode** — radius, grid alignment, and divider logic do not change between modes.
+- **No decorative gradients** — richness comes from structure, not atmosphere.
 
-## Recommended Surface Stack
+## Surface Stack
+
+Application-level dark tokens (from `pathogen.tailwind.css`):
 
 ```css
 .dark {
@@ -28,10 +29,60 @@ Dark mode should feel like a softer clinical workspace, not a black canvas. The 
   --pvc-color-border-strong: var(--color-neutral-600);
   --pvc-color-text: var(--color-neutral-100);
   --pvc-color-text-muted: var(--color-neutral-400);
+  --pvc-color-accent: var(--color-primary-400);
+  --pvc-color-accent-strong: var(--color-primary-300);
+  --pvc-color-accent-solid: var(--color-primary-700);
+  --pvc-color-accent-solid-hover: var(--color-primary-600);
   --pvc-color-focus: var(--color-primary-400);
 }
 ```
 
-## Component Checks
+### Reading the stack
 
-Check dark mode for data-grid surfaces, form states, button states, tabs, tooltips, code blocks, and preview backgrounds.
+| Layer | Token | Role |
+|-------|-------|------|
+| Canvas | `--pvc-color-surface` | Page background, default panel fill |
+| Recess | `--pvc-color-surface-muted` | Field groups, secondary regions |
+| Lift | `--pvc-color-surface-raised` | Subtle elevation within dark UI (mix, not shadow) |
+| Edge | `--pvc-color-border` | Standard dividers and control outlines |
+| Emphasis edge | `--pvc-color-border-strong` | Buttons, emphasized frames |
+
+Avoid `neutral-950` as the **default large-surface background** for application chrome.
+
+## Dense Data Exception
+
+`Pathogen::DataGridComponent` may use `--pvc-data-grid-body-bg: var(--color-neutral-950)` **inside the grid frame** to increase row contrast for tabular data. This is intentional and local to the grid — not permission to use `neutral-950` for page shells, sidebars, or preview wrappers.
+
+When adding new dense data surfaces, follow the same rule: deeper inset within a bordered frame, not a darker application canvas.
+
+## Focus In Dark Mode
+
+Default: `--pvc-color-focus` (`primary-400` in dark mode).
+
+Host applications (IRIDA) may map focus to white for brand reasons. If overriding, preserve:
+
+- `focus-visible` only (not mouse click rings).
+- 2px outline minimum with offset.
+- Distinction from selected and hover states.
+
+Converge new components on `--pvc-color-focus` rather than hard-coded black/white outlines.
+
+## Component Checklist
+
+Verify in dark mode:
+
+- [ ] Data grid — header, body, row hover, selection, sticky columns
+- [ ] Forms — labels, inputs, validation, disabled
+- [ ] Buttons — all tone/emphasis pairs, disabled, `aria-disabled`
+- [ ] Tabs — selected indicator, hover, keyboard focus
+- [ ] Tooltips and overlays — contrast on `neutral-950` fill
+- [ ] Typography — default, muted, inverse variants
+- [ ] Code blocks and `CopyableValue`
+- [ ] Preview backgrounds — neutral product shell, not gradient docs chrome
+
+## What Not To Do
+
+- Decorative gradients to “warm up” dark UI.
+- Glow, blur, or oversized colour blocks to fix contrast.
+- Removing borders because “dark mode is flat enough.”
+- Different radius or spacing logic than light mode without workflow reason.

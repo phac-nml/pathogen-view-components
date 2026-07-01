@@ -4,35 +4,79 @@ title: Preview Guidelines
 
 # Preview Guidelines
 
-Lookbook previews are part of the design system. They should model credible product screens, not a separate documentation aesthetic.
+Lookbook previews are part of the design system. They model **credible product screens** — the same environment host applications should ship. A preview that looks like documentation marketing undermines the contract.
 
-## Default Preview Feel
+## Purpose
 
-- Use neutral product surfaces.
-- Prefer borders and subtle background changes over shadows.
-- Keep spacing compact.
-- Use `rounded-sm` or `rounded-md` for controls and standard framed examples.
-- Use headings at product scale.
-- Show realistic clinical, lab, public-health, or data-workflow content.
-- Compose previews on visible grids with clear alignment, dividers, and task hierarchy.
-- Use purposeful asymmetry when one workflow area is clearly primary and another is supporting.
+Previews answer: “What should this component look like in a real clinical, lab, or public-health workflow?”
+
+They are not the place for expressive brand moments, gradient hero shells, or decorative Bauhaus poster composition.
+
+## Default Preview Environment
+
+### Surfaces
+
+- Neutral product background: `--pvc-color-surface` or `--pvc-color-surface-muted`.
+- Framed examples: 1px `--pvc-color-border`, `--pvc-radius-panel` where a boundary helps scanning.
+- Borders and surface steps before shadows.
+
+### Spacing and type
+
+- Compact but legible: `gap-4` for form-like examples, `gap-2` for toolbars.
+- Headings at **product scale** — not oversized demo typography.
+- Realistic domain copy: specimen IDs, run statuses, protocol names, public-health labels.
+
+### Layout
+
+- Visible grid: aligned columns, dividers, label → control → help rhythm.
+- Purposeful asymmetry when one workflow region is clearly primary.
+- Action groups that respect button hierarchy (one `primary` + `solid` per group).
+
+### Tokens
+
+- Prefer semantic roles and `neutral-*` over raw `slate-*`.
+- Match shipped component token language; do not introduce preview-only palette shortcuts.
+- Use `rounded-[var(--pvc-radius-panel)]` for framed examples when demonstrating surfaces.
 
 ## Avoid By Default
 
-- `bg-gradient-*` for preview shells or feature blocks.
-- Decorative `from-indigo-*`, `to-purple-*`, `violet-*`, or broad `purple-*`.
-- `shadow-lg` and `shadow-xl`.
-- `rounded-xl` and `rounded-2xl` for standard product panels.
-- Large marketing-style stats, hero layouts, or feature cards.
-- Decorative icons in headings when the icon does not carry meaning.
-- Bauhaus-style decorative shapes, offset colour blocks, or primary-colour motifs that do not carry product meaning.
+| Pattern | Why |
+|---------|-----|
+| `bg-gradient-*` shells | Marketing aesthetic; hides real surface behaviour |
+| `from-indigo-*`, `to-purple-*`, broad `violet-*` | Decorative; not semantic status |
+| `shadow-lg`, `shadow-xl` | Overlays only |
+| `rounded-xl`, `rounded-2xl` on standard panels | Breaks radius atom scale |
+| Hero stats, feature cards, oversized metrics | Documentation theatre |
+| Decorative heading icons | Noise without meaning |
+| Bauhaus poster motifs (offset primaries, arbitrary circles/bars) | Ornament without workflow role |
+| `slate-*` when `neutral-*` or `--pvc-color-*` applies | Contract drift |
 
 ## Preview Cleanup Priority
 
-1. Replace broad gradient page shells with neutral product backgrounds.
-2. Replace raw `slate-*` preview styling with semantic roles or `neutral-*`.
-3. Remove decorative purple/indigo feature blocks unless they become meaningful status roles.
-4. Reduce `rounded-xl` / `rounded-2xl` to `rounded-sm` / `rounded-md` for standard examples.
-5. Replace heavy shadows with borders and subtle surface layering.
-6. Strengthen visible layout structure with aligned columns, dividers, and compact control groups.
-7. Make examples look like application workflows, not marketing documentation.
+When auditing existing previews:
+
+1. Replace gradient page shells with neutral product backgrounds.
+2. Replace `slate-*` with `neutral-*` or semantic roles.
+3. Remove decorative purple/indigo blocks unless they encode real status.
+4. Reduce `rounded-xl` / `rounded-2xl` to `--pvc-radius-control` / `--pvc-radius-panel`.
+5. Replace heavy shadows with borders and muted surface steps.
+6. Strengthen grid structure: columns, dividers, compact control groups.
+7. Rewrite copy toward application workflows, not marketing documentation.
+8. Check light **and** dark mode before merge.
+
+## Relationship To Components
+
+If a preview disagrees with the design contract:
+
+1. Fix the preview to match the contract, **or**
+2. Document a deliberate exception with rationale and whether it should become a token or component.
+
+Previews must not become a second, looser design system.
+
+## Reference Previews
+
+Use these as token and hierarchy references when authoring new previews:
+
+- `Button` — Overview, Accessibility (tone/emphasis, focus, touch targets)
+- `CopyableValue` — semantic tokens end-to-end
+- `DataGridComponent` — dense surface, dark inset exception
