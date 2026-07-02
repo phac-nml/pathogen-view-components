@@ -21,11 +21,11 @@ import {
 import { computeVisibleColumnRange, measureRowHeight } from "pathogen_view_components/data_grid_controller/virtualizer";
 
 import {
-  buildPaginationMode,
   cachedVirtualCells,
   paginationContract,
   setPaginationBusy,
 } from "pathogen_view_components/data_grid_controller/pagination_mode";
+import { PaginatedVirtualRows } from "pathogen_view_components/data_grid_controller/paginated_virtual_rows";
 import { CenterColumnWindow } from "pathogen_view_components/data_grid_controller/virtual_columns";
 import {
   ensureVirtualCellVisible,
@@ -263,18 +263,19 @@ export default class extends Controller {
 
     let cells;
     if (this.#isPaginatedVirtual() && this.#pagination) {
-      const headerCells = this.hasGridTarget
-        ? Array.from(this.gridTarget.querySelectorAll(`${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"]`))
-        : [];
-      const cachedBodyCells = cachedVirtualCells({
-        grid: null,
-        rows: this.#pagination.getCachedRows(),
-        cellSelector: CELL_SELECTOR,
-      });
-      const renderedBodyCells = this.hasViewportTarget
+      const cachedCells = this.#virtualAllCells ? [...this.#virtualAllCells] : [];
+      const renderedCells = this.hasViewportTarget
         ? Array.from(this.viewportTarget.querySelectorAll(CELL_SELECTOR))
-        : [];
-      cells = [...headerCells, ...cachedBodyCells, ...renderedBodyCells];
+        : this.hasCellTarget
+          ? [...this.cellTargets]
+          : [];
+
+      if (cachedCells.length === 0) {
+        cells = renderedCells;
+      } else {
+        const cachedSet = new Set(cachedCells);
+        cells = [...cachedCells, ...renderedCells.filter((cell) => !cachedSet.has(cell))];
+      }
     } else if (this.#isVirtual() && this.#virtualAllCells) {
       // Virtual mode must use stable logical ordering (row-major across all rows),
       // not current DOM window ordering, so interactive traversal is deterministic.
@@ -667,7 +668,7 @@ export default class extends Controller {
     const contract = paginationContract(this.gridTarget, DEFAULT_VIRTUAL_PAGE_SIZE);
     this.#readVirtualColumnContract();
 
-    const mode = buildPaginationMode({
+    this.#pagination = new PaginatedVirtualRows({
       rows,
       contract,
       cellSelector: CELL_SELECTOR,
@@ -686,9 +687,8 @@ export default class extends Controller {
       setBusy: (isBusy) => this.#setPaginationBusy(isBusy),
       handleError: (error) => this.#handlePaginationError(error),
     });
-    this.#pagination = mode.pagination;
     this.#allRowElements = null;
-    this.#virtualRows = mode.virtualRows;
+    this.#virtualRows = this.#pagination;
 
     this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
     if (spacer) spacer.style.height = `${contract.totalRows * this.#rowHeight}px`;

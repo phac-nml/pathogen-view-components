@@ -137,8 +137,15 @@ module Pathogen
     # @yieldparam row [Hash, Array, Object] Row data for the current cell.
     # @yieldparam index [Integer] Column index.
     # @return [Pathogen::DataGrid::ColumnComponent]
-    renders_many :columns, lambda { |label, **system_arguments|
-      Pathogen::DataGrid::ColumnComponent.new(label: label, **system_arguments)
+    renders_many :columns, lambda { |label, renderer: nil, **system_arguments, &block|
+      column_renderer =
+        if renderer
+          renderer
+        elsif block
+          ->(row, index) { instance_exec(row, index, &block) }
+        end
+
+      Pathogen::DataGrid::ColumnComponent.new(label: label, renderer: column_renderer, **system_arguments)
     }
     DEFAULT_ARIA_LABEL = 'Data grid'
     DEFAULT_EMPTY_STATE_MESSAGE = 'No rows found. Try adjusting filters or refreshing the data.'
@@ -432,7 +439,6 @@ module Pathogen
       sticky_offset = 0
 
       columns.each_with_index do |column, index|
-        resolve_column_cell_renderer!(column)
         column.normalize_width!
 
         next unless sticky_column?(column, index)
@@ -446,19 +452,6 @@ module Pathogen
         column.sticky_left ||= sticky_offset
         sticky_offset += column.width_px if column.width_px
       end
-    end
-
-    def resolve_column_cell_renderer!(column)
-      return unless column.is_a?(ViewComponent::Slot)
-      return unless column.instance_variable_defined?(:@__vc_content_block)
-
-      content_block = column.instance_variable_get(:@__vc_content_block)
-      return if content_block.blank?
-
-      component = column.instance_variable_get(:@__vc_component_instance)
-      return if component.nil?
-
-      component.instance_variable_set(:@block, content_block)
     end
 
     def apply_fill_container_class!

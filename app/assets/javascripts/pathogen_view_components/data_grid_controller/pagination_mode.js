@@ -1,51 +1,12 @@
-import { PaginatedVirtualRows } from "pathogen_view_components/data_grid_controller/paginated_virtual_rows";
-
 export function paginationContract(grid, defaultPageSize) {
   const totalCount = Number.parseInt(grid.dataset.pvcDataGridTotalCount || "", 10);
   const rowsUrl = grid.dataset.pvcDataGridRowsUrl || null;
   const pageSize = Number.parseInt(grid.dataset.pvcDataGridPageSize || "", 10);
-  const rowOffset = Number.parseInt(grid.dataset.pvcDataGridRowOffset || "0", 10);
 
   return {
     totalRows: Number.isFinite(totalCount) && totalCount > 0 ? totalCount : 0,
     rowsUrl,
     pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : defaultPageSize,
-    rowOffset: Number.isFinite(rowOffset) && rowOffset >= 0 ? rowOffset : 0,
-  };
-}
-
-export function buildPaginationMode({
-  rows,
-  contract,
-  cellSelector,
-  rowHeight,
-  visibleRange,
-  onRowsChanged,
-  onVisibleRowsChanged,
-  setBusy,
-  handleError,
-}) {
-  const pagination = new PaginatedVirtualRows({
-    rows,
-    contract,
-    cellSelector,
-    rowHeight,
-    visibleRange,
-    onRowsChanged,
-    onVisibleRowsChanged,
-    setBusy,
-    handleError,
-  });
-
-  return {
-    pagination,
-    virtualRows: {
-      totalRows: contract.totalRows,
-      rowAt: (index) => pagination.rowAt(index),
-      afterRender: (startIndex, endIndex, bufferRows) => {
-        pagination.afterRender(startIndex, endIndex, bufferRows);
-      },
-    },
   };
 }
 
