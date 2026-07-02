@@ -1,0 +1,71 @@
+# frozen_string_literal: true
+
+module Pathogen
+  # Pathogen::Toaster renders an always-present toast host with polite and assertive live regions.
+  class Toaster < Pathogen::Component
+    DEFAULT_POSITION = :bottom_right
+    DEFAULT_STRATEGY = :fixed
+
+    POSITION_MAPPINGS = {
+      top_right: 'top-4 right-4 items-end',
+      top_center: 'top-4 left-1/2 -translate-x-1/2 items-center',
+      bottom_right: 'bottom-4 right-4 items-end',
+      bottom_center: 'bottom-4 left-1/2 -translate-x-1/2 items-center'
+    }.freeze
+    STRATEGY_MAPPINGS = {
+      fixed: 'fixed',
+      absolute: 'absolute'
+    }.freeze
+    TOASTER_ACTIONS = [
+      'mouseenter->pathogen--toaster#expand',
+      'mouseleave->pathogen--toaster#collapseIfIdle',
+      'focusin->pathogen--toaster#expand',
+      'focusout->pathogen--toaster#collapseIfIdle',
+      'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed',
+      'pathogen:toast:announce->pathogen--toaster#announce'
+    ].freeze
+
+    attr_reader :list_id, :max_visible, :region_label
+
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(position: DEFAULT_POSITION, strategy: DEFAULT_STRATEGY, list_id: 'flashes', max_visible: 3,
+                   aria_label: nil, turbo_permanent: true, **system_arguments)
+      @position = fetch_or_fallback(POSITION_MAPPINGS.keys, position, DEFAULT_POSITION)
+      @strategy = fetch_or_fallback(STRATEGY_MAPPINGS.keys, strategy, DEFAULT_STRATEGY)
+      @list_id = list_id
+      @max_visible = [max_visible.to_i, 1].max
+      @region_label = aria_label
+      @assertive_region_label = nil
+      @turbo_permanent = turbo_permanent
+
+      @system_arguments = system_arguments
+      apply_system_arguments
+    end
+    # rubocop:enable Metrics/ParameterLists
+
+    def before_render
+      @region_label ||= t('pathogen.toast.region_label')
+      @assertive_region_label = t('pathogen.toast.assertive_region_label')
+    end
+
+    private
+
+    def apply_system_arguments
+      @system_arguments[:class] = class_names(
+        STRATEGY_MAPPINGS[@strategy],
+        'z-50 flex w-full max-w-md flex-col px-4 sm:px-0',
+        POSITION_MAPPINGS[@position],
+        @system_arguments[:class]
+      )
+      @system_arguments[:'data-controller'] = class_names(@system_arguments[:'data-controller'], 'pathogen--toaster')
+      @system_arguments[:'data-pathogen--toaster-max-visible-value'] = @max_visible
+      @system_arguments[:'data-action'] = class_names(@system_arguments[:'data-action'], *TOASTER_ACTIONS)
+      return unless @turbo_permanent && @system_arguments[:'data-turbo-permanent'].nil?
+
+      @system_arguments[:'data-turbo-permanent'] = true
+      # Turbo only preserves permanent elements that carry a stable id on both the
+      # outgoing and incoming page, so derive one from the list id when none is given.
+      @system_arguments[:id] ||= "#{@list_id}-toaster"
+    end
+  end
+end

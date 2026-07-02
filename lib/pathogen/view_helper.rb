@@ -6,6 +6,8 @@ module Pathogen
     PATHOGEN_COMPONENT_HELPERS = {
       button: 'Pathogen::Button',
       link: 'Pathogen::Link',
+      toaster: 'Pathogen::Toaster',
+      toast: 'Pathogen::Toast',
       radio_button: 'Pathogen::Form::RadioButton',
       switch: 'Pathogen::Form::Switch',
       heading: 'Pathogen::Typography::Heading',

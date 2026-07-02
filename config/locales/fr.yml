@@ -26,6 +26,15 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    toast:
+      assertive_region_label: Notifications critiques
+      dismiss: Fermer la notification
+      region_label: Notifications
+      type:
+        error: Erreur
+        info: Information
+        success: Succès
+        warning: Avertissement
     tooltip:
       portal:
         aria_label: Info-bulles
