@@ -23,29 +23,24 @@ module Pathogen
     CONTAINER_CLASSES = [
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
-        group
-        inline-flex items-center align-middle
+        inline-flex items-center overflow-hidden align-middle
         py-1 pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
-        border border-transparent
-        interactive-hover:border-[var(--pvc-color-border-strong)]
-        transition-[border-color] duration-[var(--pvc-duration-fast)] ease-out
       ]
     ].flatten.join(' ').freeze
 
     BUTTON_CLASSES = %w[
       inline-flex shrink-0 items-center justify-center self-stretch
-      -my-1 min-h-6 min-w-6 p-0
-      rounded-r-[calc(var(--pvc-radius-action)-1px)]
-      cursor-pointer border-l border-l-[var(--pvc-color-border)]
+      min-h-6 min-w-6 px-1.5
+      cursor-pointer bg-transparent
+      border-l border-[var(--pvc-color-border)]
       text-[var(--pvc-color-text-muted)]
-      group-interactive-hover:bg-[var(--pvc-color-surface-raised)]
-      group-interactive-hover:text-[var(--pvc-color-text)]
-      group-interactive-hover:border-l-[var(--pvc-color-border-strong)]
+      interactive-hover:bg-[var(--pvc-color-surface-raised)]
+      interactive-hover:text-[var(--pvc-color-text)]
       focus-visible:outline focus-visible:outline-2
       focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
       focus-visible:z-10
-      transition-[color,background-color,border-color] duration-[var(--pvc-duration-fast)] ease-out
+      transition-[color,background-color] duration-[var(--pvc-duration-fast)] ease-out
     ].join(' ').freeze
 
     VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
