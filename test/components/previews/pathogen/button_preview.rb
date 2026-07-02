@@ -7,7 +7,7 @@ module Pathogen
     # @!group Pathogen Button
 
     # @label Overview
-    # Tone, emphasis, workflow placement, visuals, links, sizes, and enabled/disabled states
+    # Variant reference, workflow placement, visuals, links, sizes, and state comparison
     def overview; end
 
     # @label Standalone form actions
@@ -15,7 +15,7 @@ module Pathogen
     def button_to; end
 
     # @label Accessibility patterns
-    # Icon-only names, repeating labels, and focusable disabled states
+    # Keyboard focus, icon-only names, repeating labels, and focusable disabled states
     def accessibility; end
 
     # @!endgroup
