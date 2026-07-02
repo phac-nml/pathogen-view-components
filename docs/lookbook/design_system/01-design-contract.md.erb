@@ -195,7 +195,7 @@ Legacy `scheme` still maps: `default` -> neutral outline, `primary` -> primary s
 
 ### Hover On Solid Buttons
 
-Solid fills should darken on hover, like pressing further in. Danger already does this (`red-600` -> `red-700`). Primary currently lightens; that is listed as a token fix, not an intentional direction.
+Solid fills should darken on hover, like pressing further in. Danger uses `red-600` -> `red-700`. Primary uses `primary-700` -> `primary-800` through `--pvc-color-accent-solid-hover`.
 
 ### Size And State
 
@@ -235,7 +235,7 @@ Focus must show in light, dark, high-contrast, and forced-colours modes. It also
 
 **Target pattern:** `focus-visible:outline-2 outline-[var(--pvc-color-focus)] outline-offset-2`
 
-`--pvc-color-focus` should resolve to `primary-500` in both modes. Dark mode currently ships `primary-400`, which matches accent; that is on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
+`--pvc-color-focus` resolves to `primary-500` in both modes so focus stays distinct from accent colour.
 
 `Button` and `CopyableValue` use the target pattern. Link, Tabs, and Form may still use black/white outlines; converge on `--pvc-color-focus` when you touch them.
 
