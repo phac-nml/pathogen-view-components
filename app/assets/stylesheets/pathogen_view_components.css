@@ -477,9 +477,9 @@
     width: calc(var(--spacing) * 2);
     height: calc(var(--spacing) * 2);
   }
-  .size-3 {
-    width: calc(var(--spacing) * 3);
-    height: calc(var(--spacing) * 3);
+  .size-4 {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
   }
   .size-5 {
     width: calc(var(--spacing) * 5);
@@ -1015,6 +1015,9 @@
   .text-\[length\:var\(--pvc-data-grid-font-size\)\] {
     font-size: var(--pvc-data-grid-font-size);
   }
+  .text-\[length\:var\(--type-control\)\] {
+    font-size: var(--type-control);
+  }
   .text-\[length\:var\(--type-meta\)\] {
     font-size: var(--type-meta);
   }
@@ -1233,8 +1236,8 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .transition-\[color\,background-color\] {
-    transition-property: color, background-color;
+  .transition-\[color\,background-color\,border-color\] {
+    transition-property: color, background-color, border-color;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
@@ -1494,11 +1497,6 @@
   .focus-visible\:outline-offset-2 {
     &:focus-visible {
       outline-offset: 2px;
-    }
-  }
-  .focus-visible\:outline-offset-\[-2px\] {
-    &:focus-visible {
-      outline-offset: -2px;
     }
   }
   .focus-visible\:outline-\[var\(--pvc-color-focus\)\] {
@@ -1822,6 +1820,13 @@
       }
     }
   }
+  .interactive-hover\:border-\[var\(--pvc-color-border-strong\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        border-color: var(--pvc-color-border-strong);
+      }
+    }
+  }
   .interactive-hover\:border-\[var\(--pvc-color-danger\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -1904,10 +1909,24 @@
       }
     }
   }
+  .interactive-hover\:bg-\[var\(--pvc-color-surface-raised\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        background-color: var(--pvc-color-surface-raised);
+      }
+    }
+  }
   .interactive-hover\:bg-\[var\(--pvc-color-text-muted\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
         background-color: var(--pvc-color-text-muted);
+      }
+    }
+  }
+  .interactive-hover\:text-\[var\(--pvc-color-text\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        color: var(--pvc-color-text);
       }
     }
   }
@@ -2063,32 +2082,39 @@
 [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
 [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
-  transition:
-    opacity var(--pvc-duration-default) ease-out,
-    transform var(--pvc-duration-overlay) cubic-bezier(0.34, 1.4, 0.64, 1);
+  transition: opacity var(--pvc-duration-fast) ease-out;
 }
 [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
   opacity: 0;
-  transform: scale(0.6) rotate(-12deg);
   pointer-events: none;
 }
 [data-controller~="pathogen--copyable-value"][data-state="success"] [data-pathogen--copyable-value-target="icon"] {
   opacity: 0;
-  transform: scale(0.6) rotate(12deg);
   pointer-events: none;
 }
 [data-controller~="pathogen--copyable-value"][data-state="success"]
   [data-pathogen--copyable-value-target="successIcon"] {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
   pointer-events: auto;
+}
+[data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="icon"] {
+  color: var(--pvc-color-danger);
+}
+@media (forced-colors: active) {
+  [data-controller~="pathogen--copyable-value"][data-state="success"]
+    [data-pathogen--copyable-value-target="successIcon"] {
+    opacity: 1;
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+  [data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="icon"] {
+    color: LinkText;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
   [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
-    transform: none;
-    transition: opacity var(--pvc-duration-fast) ease-out;
+    transition: none;
   }
 }
 .pvc-data-grid {
