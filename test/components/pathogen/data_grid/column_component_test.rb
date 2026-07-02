@@ -89,8 +89,8 @@ module Pathogen
         assert_equal true, column.interactive?
       end
 
-      test 'render_value uses block when provided' do
-        column = ColumnComponent.new(label: 'Name') { |row, _index| row[:name].upcase }
+      test 'render_value uses renderer when provided' do
+        column = ColumnComponent.new(label: 'Name', renderer: ->(row, _index) { row[:name].upcase })
         result = column.render_value({ name: 'test' }, 0)
 
         assert_equal 'TEST', result
