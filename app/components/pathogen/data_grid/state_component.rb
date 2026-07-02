@@ -23,6 +23,7 @@ module Pathogen
           aria_column_index: aria_column_index,
           virtual_column_index: virtual_column_index
         )
+        attributes[:class] = class_names(attributes[:class], 'pvc-data-grid__cell--virtual-header') if @grid.virtual?
         attributes = { scope: scope }.merge(attributes) if scope
 
         tag.public_send(tag_name, **attributes) { render_header_content(column) }

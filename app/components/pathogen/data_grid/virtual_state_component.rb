@@ -18,6 +18,7 @@ module Pathogen
 
       VIRTUAL_HEADER_ROW_CLASSES = %w[
         sticky top-0 z-[var(--pvc-data-grid-header-z)] bg-[var(--pvc-data-grid-header-bg)]
+        items-stretch border-b border-[var(--pvc-data-grid-border-color)]
       ].freeze
 
       VIRTUAL_LANE_CLASSES = %w[
