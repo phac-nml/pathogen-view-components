@@ -26,7 +26,7 @@ This guide covers `Pathogen::*` components, Lookbook previews, and how host apps
 
 Pathogen UI is built from a small set of repeatable pieces. Reuse them; don't fork parallel styles.
 
-This section matches the **tokens → building blocks** layers in the [overview diagram](<%= page_path :design-system-overview %>). Start with intent, then work through colour, type, spacing, corners, elevation, and motion.
+This section matches the **tokens → building blocks** layers in the [overview diagram](<%= page_path("design-system-overview") %>). Start with intent, then work through colour, type, spacing, corners, elevation, and motion.
 
 ### 1. Intent
 
@@ -43,7 +43,7 @@ Use semantic roles (`--pvc-color-*`), not one-off palette stops (`primary-600`, 
 | Text / text-muted | Body and secondary copy |
 | Accent (+ strong, solid, solid-hover) | Brand actions, links, selection |
 | Danger (+ strong, solid, solid-hover) | Destructive actions and error state |
-| Success / warning | Status text, borders, icons (solid fills not ready yet — see [token list](<%= page_path :design-system-tokens %>#whats-on-our-list)) |
+| Success / warning | Status text, borders, icons (solid fills not ready yet — see [token list](<%= page_path("design-system-tokens") %>#whats-on-our-list)) |
 | Focus | Keyboard focus — fixed hue, separate from accent ([focus](#focus-and-keyboard)) |
 
 Accent and danger each have a full **four-step ladder**: foreground pair for text and outlines, solid pair for filled buttons. Success and warning are **base-only** for now — don't fake a solid success button with raw `emerald-700`; wait for the ladder on the token list.
@@ -107,7 +107,7 @@ Sharper corners suit dense clinical UI. Skip `rounded-xl` on everyday surfaces. 
 | Grouped | Muted surface or stronger border — still no shadow |
 | Overlay | `--pvc-shadow-overlay` for tooltips, popovers, menus |
 
-We only have two shadow tokens on purpose: product UI stays flat; only floating layers cast shadow. See [Rams in the overview](<%= page_path :design-system-overview %>) — borders before shadows.
+We only have two shadow tokens on purpose: product UI stays flat; only floating layers cast shadow. See [Rams in the overview](<%= page_path("design-system-overview") %>) — borders before shadows.
 
 No `shadow-lg` in product examples.
 
@@ -183,7 +183,7 @@ Read each tone as the same weight scale with different meaning:
 
 ### Hover on solid buttons
 
-Solid fills should **darken** on hover, not lighten — like pressing further in. Danger already does this (`red-600` → `red-700`). Primary currently lightens on hover; that's on the [token fix list](<%= page_path :design-system-tokens %>#whats-on-our-list), not intentional.
+Solid fills should **darken** on hover, not lighten — like pressing further in. Danger already does this (`red-600` → `red-700`). Primary currently lightens on hover; that's on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list), not intentional.
 
 ### Size and state
 
@@ -210,7 +210,7 @@ Use `Pathogen::Link` for inline navigation; button-styled links only inside butt
 
 ## Data grid
 
-Dense surface. Dark mode may use `neutral-950` **inside the grid frame** only — not as the app background. See [dark mode](<%= page_path :design-system-dark-mode %>).
+Dense surface. Dark mode may use `neutral-950` **inside the grid frame** only — not as the app background. See [dark mode](<%= page_path("design-system-dark-mode") %>).
 
 Keep hover, focus, selected, and disabled visibly different.
 
@@ -220,7 +220,7 @@ Keep hover, focus, selected, and disabled visibly different.
 
 Focus must show in light, dark, high-contrast, and forced-colours modes — and stay distinct from accent colour.
 
-`--pvc-color-focus` should stay **fixed** (`primary-500` in both modes) so rings don't blend into accent text. Dark mode currently ships `primary-400` (same as accent) — on the [token list](<%= page_path :design-system-tokens %>#whats-on-our-list) to fix.
+`--pvc-color-focus` should stay **fixed** (`primary-500` in both modes) so rings don't blend into accent text. Dark mode currently ships `primary-400` (same as accent) — on the [token list](<%= page_path("design-system-tokens") %>#whats-on-our-list) to fix.
 
 **Default pattern:** `focus-visible:outline-2 outline-[var(--pvc-color-focus)] outline-offset-2`
 

@@ -46,7 +46,7 @@ Tools should be understandable and honest:
 
 Good UI feels obvious once you see it. That comes from:
 
-- Tokens and components staying in sync — if the docs and `pathogen.tailwind.css` disagree, we fix the drift (see [what's on our token list](<%= page_path :design-system-tokens %>#whats-on-our-list)).
+- Tokens and components staying in sync — if the docs and `pathogen.tailwind.css` disagree, we fix the drift (see [what's on our token list](<%= page_path("design-system-tokens") %>#whats-on-our-list)).
 - Buttons and labels that look like they belong to the same family.
 - Focus rings, keyboard paths, and disabled behaviour treated with the same care as hover colour.
 
@@ -72,27 +72,27 @@ Pages (regions, previews, asymmetric layouts)
 
 | Layer | Examples | Read more |
 |-------|----------|-----------|
-| Tokens | `--pvc-color-surface`, `--type-control` | [Tokens](<%= page_path :design-system-tokens %>) |
-| Building blocks | Colour roles, type scale, spacing, radius | [Foundations](<%= page_path :design-system-design-contract %>) |
-| Controls | `Button`, `Link`, `Form::*` | [Foundations](<%= page_path :design-system-design-contract %>) |
-| Surfaces | `DataGridComponent`, fieldsets | [Foundations](<%= page_path :design-system-design-contract %>), [Dark mode](<%= page_path :design-system-dark-mode %>) |
-| Pages | Host apps, Lookbook previews | [Preview guidelines](<%= page_path :design-system-preview-guidelines %>) |
+| Tokens | `--pvc-color-surface`, `--type-control` | [Tokens](<%= page_path("design-system-tokens") %>) |
+| Building blocks | Colour roles, type scale, spacing, radius | [Foundations](<%= page_path("design-system-design-contract") %>) |
+| Controls | `Button`, `Link`, `Form::*` | [Foundations](<%= page_path("design-system-design-contract") %>) |
+| Surfaces | `DataGridComponent`, fieldsets | [Foundations](<%= page_path("design-system-design-contract") %>), [Dark mode](<%= page_path("design-system-dark-mode") %>) |
+| Pages | Host apps, Lookbook previews | [Preview guidelines](<%= page_path("design-system-preview-guidelines") %>) |
 
-The [Foundations](<%= page_path :design-system-design-contract %>) page zooms into the middle of this stack — colour, type, spacing, and the rest — in the same order as the diagram.
+The [Foundations](<%= page_path("design-system-design-contract") %>) page zooms into the middle of this stack — colour, type, spacing, and the rest — in the same order as the diagram.
 
 **Surface** means a bounded work area: a bordered panel, grid frame, dialog body, or fieldset. We don't ship a generic `Card` yet; you compose surfaces from tokens and layout. The `:card` preset on `Pathogen::Typography::HeadingGroup` is just a compact heading style — not a card component.
 
 ## Where to read next
 
-1. **[Foundations](<%= page_path :design-system-design-contract %>)** — how we use colour, type, spacing, buttons, forms, and accessibility.
-2. **[Tokens](<%= page_path :design-system-tokens %>)** — the variable reference and what's still migrating.
-3. **[Dark mode](<%= page_path :design-system-dark-mode %>)** — layering surfaces without a black hole canvas.
-4. **[Preview guidelines](<%= page_path :design-system-preview-guidelines %>)** — making Lookbook examples feel like real product.
-5. **[Review checklist](<%= page_path :design-system-review-checklist %>)** — a quick pass before merge.
+1. **[Foundations](<%= page_path("design-system-design-contract") %>)** — how we use colour, type, spacing, buttons, forms, and accessibility.
+2. **[Tokens](<%= page_path("design-system-tokens") %>)** — the variable reference and what's still migrating.
+3. **[Dark mode](<%= page_path("design-system-dark-mode") %>)** — layering surfaces without a black hole canvas.
+4. **[Preview guidelines](<%= page_path("design-system-preview-guidelines") %>)** — making Lookbook examples feel like real product.
+5. **[Review checklist](<%= page_path("design-system-review-checklist") %>)** — a quick pass before merge.
 
 ## When docs, code, and previews disagree
 
-1. **These pages** describe intent and where tokens are headed — including items on the [token list](<%= page_path :design-system-tokens %>#whats-on-our-list).
+1. **These pages** describe intent and where tokens are headed — including items on the [token list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
 2. **`pathogen.tailwind.css` and shipped components** are ground truth for anything *not* on that list.
 3. **Previews** should match both; fix drift instead of inventing one-off styles.
 
