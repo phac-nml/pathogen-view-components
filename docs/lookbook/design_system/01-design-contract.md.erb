@@ -4,239 +4,235 @@ title: Foundations
 
 # Foundations
 
-This guide covers `Pathogen::*` components, Lookbook previews, and how host apps should use them. Feature specs can link here and note any local exceptions in a sentence or two.
+This guide covers `Pathogen::*` components, Lookbook previews, and host-app usage. It turns the five Pathogen qualities into practical design decisions.
 
-## Who owns what
+## Ownership
 
-- **Pathogen** — shared components, tokens, and previews.
-- **Host apps** — brand mapping and product-specific layout; reusable UI should land in Pathogen when multiple apps need it.
-- **Previews** — should look like the product, not like a marketing site.
+- **Pathogen** owns shared components, tokens, previews, and interaction patterns.
+- **Host apps** own brand mapping and product-specific layout.
+- **Previews** show how components behave in product-like work, not a separate documentation style.
 
-## Principles we keep coming back to
+Reusable UI should move into Pathogen when more than one surface needs it. Host-local components should still use Pathogen tokens, keyboard behaviour, and accessibility patterns.
 
-**Form follows workflow.** If a visual choice doesn't help someone understand structure, state, or what to do next, drop it.
+## A Good Pathogen Surface
 
-**Less, but better.** One confident primary action, calm type, flat surfaces, and small hits of colour beat expressive layout.
+A good Pathogen surface is quiet, precise, accessible, compact, and trustworthy at the same time.
 
-**It should feel obvious.** A control ought to look like the natural answer to the task — not like decoration added at the end.
+**Quiet** means the surface does not compete with the work. Neutrals hold the room. Accent and status colour appear only when they explain action, selection, focus, navigation, or state.
 
-**Details matter even when hidden.** Focus rings, tab order, ARIA labels, and disabled behaviour are design work.
+**Precise** means the parts agree. Type follows role. Spacing follows the 4px rhythm. Corners match the scale of the object. Dividers describe real structure.
 
-## Building blocks
+**Accessible** means state can be perceived and operated. Focus is visible. Names match visible labels. Contrast, target size, reduced motion, and forced-colours support are design decisions.
 
-Pathogen UI is built from a small set of repeatable pieces. Reuse them; don't fork parallel styles.
+**Compact** means dense information remains usable. Smaller controls still need spacing between neighbours. Validation text, focus rings, and row states need room.
 
-This section matches the **tokens → building blocks** layers in the [overview diagram](<%= page_path("design-system-overview") %>). Start with intent, then work through colour, type, spacing, corners, elevation, and motion.
+**Trustworthy** means the interface feels stable and honest. Clinical workflows should not feel branded for its own sake. Clarity beats polish.
+
+## Building Blocks
+
+Start with the job an element performs, then choose the smallest visual treatment that makes that job clear.
 
 ### 1. Intent
 
-Before picking classes, name the job: primary action, cancel, status, navigation, metadata, destructive confirm. Intent picks tone, emphasis, colour role, and where the control sits.
+Name the job before choosing classes: primary action, cancel, status, navigation, metadata, destructive confirm, selected row, validation error. Intent determines tone, emphasis, colour role, and placement.
 
 ### 2. Colour
 
-Use semantic roles (`--pvc-color-*`), not one-off palette stops (`primary-600`, `slate-200`) in shared components.
+Use semantic roles (`--pvc-color-*`) in shared components. Palette stops such as `primary-600` and `neutral-200` are implementation details unless no role exists yet.
 
-| Family | For |
+| Family | Use |
 |--------|-----|
-| Surface / muted / raised | Backgrounds and layering |
-| Border / border-strong | Edges, dividers, table rules |
-| Text / text-muted | Body and secondary copy |
-| Accent (+ strong, solid, solid-hover) | Brand actions, links, selection |
-| Danger (+ strong, solid, solid-hover) | Destructive actions and error state |
-| Success / warning | Status text, borders, icons (solid fills not ready yet — see [token list](<%= page_path("design-system-tokens") %>#whats-on-our-list)) |
-| Focus | Keyboard focus — fixed hue, separate from accent ([focus](#focus-and-keyboard)) |
+| Surface / muted / raised | Canvas, grouped regions, subtle layer changes |
+| Border / border-strong | Edges, dividers, table rules, framed controls |
+| Text / text-muted | Body copy, labels, hints, secondary information |
+| Accent / accent-strong | Links, selected state, brand action, outline emphasis |
+| Accent solid / solid-hover | Filled primary action |
+| Danger / danger-strong | Error text, destructive outline and ghost actions |
+| Danger solid / solid-hover | Confirmed destructive action |
+| Success / warning | Status text, borders, icons |
+| Focus | Keyboard focus, separate from accent |
 
-Accent and danger each have a full **four-step ladder**: foreground pair for text and outlines, solid pair for filled buttons. Success and warning are **base-only** for now — don't fake a solid success button with raw `emerald-700`; wait for the ladder on the token list.
+Accent and danger have four-step ladders: foreground pair for text and outlines, solid pair for filled buttons. Success and warning are base-only for now. Do not create solid success or warning buttons with raw `emerald-*` or `amber-*`.
 
-Host apps theme accent via `--color-primary-*`. Shared components shouldn't hard-code IRIDA green or Pathogen blue.
+Host apps theme accent through `--color-primary-*`. Shared components should not hard-code IRIDA green, Pathogen blue, or any other host brand.
 
-**Still migrating:** `Button` and `CopyableValue` use semantic roles. Typography, Link, Tabs, Form, and Tooltip still mix in `neutral-*` / `primary-*` in places — touch those files toward `--pvc-color-*` when you can.
+**Current migration state:** `Button` and `CopyableValue` use semantic roles. Typography, Link, Tabs, Form, and Tooltip still mix semantic roles with `neutral-*` / `primary-*`. Move touched code toward `--pvc-color-*` when the role exists.
 
 ### 3. Typography
 
-| Role | Token / class | Typical use |
-|------|---------------|-------------|
+| Role | Token / class | Use |
+|------|---------------|-----|
 | Meta | `--type-meta` / `text-xs` | Hints, timestamps, grid footnotes |
 | Control | `--type-control` / `text-sm` | Labels, buttons, dense UI |
 | Body | `--type-body` / `text-base` | Paragraphs, descriptions |
 | Section | `--type-section` / `text-xl` | Section titles |
-| Page | `--type-page` / `text-3xl`+ | Page titles via `Heading` |
+| Page | `--type-page` / `text-3xl` | Page titles via `Heading` |
 
-**14px and 16px** do most of the work. Go larger only for real hierarchy.
+14px and 16px carry most product work. Larger type should mark real hierarchy, not create display moments.
 
 - Labels for settings and rows: `text-sm font-semibold`.
 - Muted copy: `--pvc-color-text-muted` or typography `muted`.
-- Weights stay calm: normal body, semibold labels — save extrabold for top-level headings.
-- Page titles live in `Pathogen::Typography::Heading`; hosts shouldn't override them.
-- `Eyebrow` is the one routine uppercase label; don't sprinkle display type elsewhere.
+- Body weight stays normal; labels and headings can use semibold.
+- Save extrabold for rare top-level emphasis.
+- Page titles live in `Pathogen::Typography::Heading`; hosts should not override them.
+- `Eyebrow` is the routine uppercase label. Avoid adding display-style uppercase elsewhere.
 
-Prefer `text-[length:var(--type-control)]` in new code. Existing `text-sm` is fine where it matches the token.
+Prefer `text-[length:var(--type-control)]` in new code. Existing `text-sm` is fine where it matches the role.
 
 ### 4. Spacing
 
-Base unit: **4px** (Tailwind default).
+Base unit: **4px**.
 
 | Step | Class | Good for |
 |------|-------|----------|
 | 4px | `gap-1`, `space-y-1` | Tight groups, icon padding |
-| 8px | `gap-2`, `space-y-2` | Inside controls, compact stacks |
-| 16px | `gap-4`, `space-y-4` | Forms, fieldsets |
-| 24px | `gap-6` | Between sections |
-| 32px | `gap-8` | Between major regions |
+| 8px | `gap-2`, `space-y-2` | Control internals, toolbar separation |
+| 16px | `gap-4`, `space-y-4` | Forms, fieldsets, ordinary stacks |
+| 24px | `gap-6` | Sections |
+| 32px | `gap-8` | Major regions |
 
-Line labels, columns, and action groups up to the same grid. Skip custom page spacing unless a component absorbs a repeated pattern.
+Line up labels, columns, and action groups to the same rhythm. Avoid custom page spacing unless a shared component absorbs the pattern.
 
-### 5. Corner radius
+### 5. Radius
 
-| Token | Size | Use on |
-|-------|------|--------|
-| `--pvc-radius-control-sm` | 2px | Checkboxes |
+| Token | Size | Use |
+|-------|------|-----|
+| `--pvc-radius-control-sm` | 2px | Checkboxes, tight primitives |
 | `--pvc-radius-control` | 4px | Inputs, inline code |
-| `--pvc-radius-action` | 6px | Buttons, tabs |
-| `--pvc-radius-panel` | 8px | Grids, grouped panels |
+| `--pvc-radius-action` | 6px | Buttons, tabs, grouped controls |
+| `--pvc-radius-panel` | 8px | Grids, fieldsets, larger framed surfaces |
 
-Sharper corners suit dense clinical UI. Skip `rounded-xl` on everyday surfaces. Pills (`rounded-full`) are for radios, switches, and avatars — not general panels.
+Sharper corners suit dense clinical UI. Avoid `rounded-xl` on everyday product surfaces. Pills (`rounded-full`) are for radios, switches, avatars, and true pill controls, not general panels.
 
 <span id="elevation"></span>
 
 ### 6. Elevation
 
-| Level | How |
-|-------|-----|
+| Level | Treatment |
+|-------|-----------|
 | Base | Border + surface colour, no shadow |
-| Grouped | Muted surface or stronger border — still no shadow |
+| Grouped | Muted surface or stronger border, still no shadow |
 | Overlay | `--pvc-shadow-overlay` for tooltips, popovers, menus |
 
-We only have two shadow tokens on purpose: product UI stays flat; only floating layers cast shadow. See [Rams in the overview](<%= page_path("design-system-overview") %>) — borders before shadows.
-
-No `shadow-lg` in product examples.
+Use borders and surface steps before shadow. Product UI stays mostly flat; floating layers cast the small shadow because they need to separate from the page.
 
 ### 7. Motion
 
 | Token | Duration | Use |
 |-------|----------|-----|
-| `--pvc-duration-fast` | 120ms | Control colour and border |
+| `--pvc-duration-fast` | 120ms | Control colour, border, background |
 | `--pvc-duration-default` | 160ms | General feedback |
-| `--pvc-duration-overlay` | 200ms | Tooltips, popovers |
+| `--pvc-duration-overlay` | 200ms | Tooltips, popovers, menus |
 
 Animate colour, border, background, and opacity before position. Respect `prefers-reduced-motion`.
 
 ## Surfaces
 
-A **surface** is a bounded region: panel, grid, fieldset, dialog body, preview frame.
+A surface is a bounded work area: a panel, grid, fieldset, dialog body, or preview frame.
 
-Recipe:
+Use this recipe unless the workflow needs something else:
 
 - Background: `--pvc-color-surface` or `--pvc-color-surface-muted`
 - Border: 1px `--pvc-color-border`
-- Radius: `--pvc-radius-panel` for large frames; `--pvc-radius-control` for fields
-- Shadow only if it's an overlay
+- Radius: `--pvc-radius-panel` for larger frames; `--pvc-radius-control` for fields
+- Shadow: only for overlays
 
-`DataGridComponent` is our main framed surface today. Hosts can compose the same recipe from tokens until we add a shared `Panel` component.
+`DataGridComponent` is the main framed surface today. Hosts can compose the same recipe from tokens until a shared `Panel` component exists.
 
 ## Layout
 
-- **Grid first** — columns and dividers show real structure.
-- **Asymmetry when the workflow is asymmetric** — primary column wider because the task demands it, not because it looks editorial.
-- **Room to breathe in dense UI** — leave space for focus rings and validation text.
-- **Structure before icons and colour blocks** — label → control → help → action often looks good enough on its own.
+- Build on a grid before adding emphasis.
+- Let dividers show real structure.
+- Use asymmetry only when the workflow is asymmetric.
+- Leave room for focus rings, validation text, and dense row states.
+- Let label, control, help, and action order do the work before adding icons or colour blocks.
 
-Think GitHub, Linear, public-sector data tools — not landing pages.
-
-## Using colour
-
-- Neutrals hold the room.
-- Accent moves work forward.
-- Status colours mean something (danger, warning, success) — not mood.
-- Big colour fields stay small: selected row, active tab, focus ring, badge.
-
-Skip gradient shells and violet feature blocks that don't encode state.
+Think product utility: GitHub, Linear, and public-sector data tools are closer references than landing pages.
 
 ## Buttons
 
-Two knobs: **tone** (meaning) and **emphasis** (visual weight).
+Buttons have two decisions: **tone** and **emphasis**.
 
-| | Values |
-|---|--------|
+| Decision | Values |
+|----------|--------|
 | `tone` | `neutral`, `primary`, `danger` |
-| `emphasis` | `solid`, `outline`, `ghost` (heaviest → lightest) |
+| `emphasis` | `solid`, `outline`, `ghost` |
 
-Legacy `scheme` still maps: `default` → neutral outline, `primary` → primary solid, `danger` → danger outline.
+Legacy `scheme` still maps: `default` -> neutral outline, `primary` -> primary solid, `danger` -> danger outline.
 
-See Button **Overview** and **Accessibility** previews for real examples.
+### Tone And Emphasis
 
-### Picking tone + emphasis
+**Primary** moves work forward: `solid` for the main action, `outline` for a secondary brand action, `ghost` for a quiet brand-linked action.
 
-Read each tone as the same weight scale with different meaning:
+**Neutral** supports the workflow: `outline` for cancel/close, `ghost` for tools and utilities, `solid` only when a strong neutral action is clearer than accent.
 
-**Primary** — `solid` main action · `outline` secondary brand action · `ghost` quiet tertiary
-
-**Neutral** — `solid` rare strong neutral · `outline` cancel/close · `ghost` toolbars and utilities
-
-**Danger** — `solid` confirmed delete only · `outline` destructive with confirm elsewhere · `ghost` dense destructive utility
+**Danger** marks destructive work: `solid` only after confirmation, `outline` when confirmation happens elsewhere, `ghost` for dense destructive utilities.
 
 ### Placement
 
 - One `primary` + `solid` per action group.
-- Form footers: primary action last; cancel secondary.
-- Toolbars: `small`, `ghost` or `outline`, named icon buttons.
+- Form footers place the main action last; cancel stays secondary.
+- Toolbars use `small`, `ghost` or `outline`, and named icon buttons.
+- Do not put two primary solid buttons beside each other unless they are genuinely equal choices.
 
-### Hover on solid buttons
+### Hover On Solid Buttons
 
-Solid fills should **darken** on hover, not lighten — like pressing further in. Danger already does this (`red-600` → `red-700`). Primary currently lightens on hover; that's on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list), not intentional.
+Solid fills should darken on hover, like pressing further in. Danger already does this (`red-600` -> `red-700`). Primary currently lightens; that is listed as a token fix, not an intentional direction.
 
-### Size and state
+### Size And State
 
-| Size | Where | Min target |
-|------|-------|------------|
-| `medium` | Forms, dialogs | 44px |
-| `small` | Toolbars, grids | 24px, **8px gap between neighbours** |
+| Size | Where | Minimum target |
+|------|-------|----------------|
+| `medium` | Forms, dialogs, page actions | 44px |
+| `small` | Toolbars, grids, dense tables | 24px, with 8px between neighbours |
 
-Short verb labels. Icon-only needs `aria-label` or visible text. Use `disabled` when unfocusable; `aria_disabled` when you still need focus for validation feedback.
+Use short verb labels. Icon-only buttons need `aria-label`, `aria-labelledby`, or visible text. Use `disabled` when unfocusable. Use `aria_disabled` when the control must remain focusable so validation feedback can be announced.
 
-Use `Pathogen::Link` for inline navigation; button-styled links only inside button groups.
+Use `Pathogen::Link` for inline navigation. Use button-styled links only inside button groups.
 
 ## Links
 
-`Pathogen::Link` — underlined inline navigation with accent on hover. Not for toolbar actions (use buttons).
+`Pathogen::Link` is for underlined inline navigation with accent on hover. Toolbar actions should be buttons.
 
 ## Forms
 
 - Native controls first.
 - Labels: `text-sm font-semibold`, `--pvc-color-text`.
 - Fieldsets: `gap-4`.
-- Checkboxes: `--pvc-radius-control-sm`. Radios/switches: `rounded-full`.
+- Checkboxes: `--pvc-radius-control-sm`.
+- Radios and switches: `rounded-full`.
 - Prefer `PathogenFormBuilder` and `Pathogen::Form::*`.
 
-## Data grid
+## Data Grid
 
-Dense surface. Dark mode may use `neutral-950` **inside the grid frame** only — not as the app background. See [dark mode](<%= page_path("design-system-dark-mode") %>).
+The data grid is dense by design. It can use `neutral-950` inside the grid frame in dark mode so rows read clearly. That exception does not apply to app backgrounds, sidebars, or preview shells.
 
-Keep hover, focus, selected, and disabled visibly different.
+Hover, focus, selected, disabled, and active states must remain visually distinct.
 
 <span id="focus-and-keyboard"></span>
 
-## Focus and keyboard
+## Focus And Keyboard
 
-Focus must show in light, dark, high-contrast, and forced-colours modes — and stay distinct from accent colour.
+Focus must show in light, dark, high-contrast, and forced-colours modes. It also needs to remain distinct from accent colour.
 
-`--pvc-color-focus` should stay **fixed** (`primary-500` in both modes) so rings don't blend into accent text. Dark mode currently ships `primary-400` (same as accent) — on the [token list](<%= page_path("design-system-tokens") %>#whats-on-our-list) to fix.
+**Target pattern:** `focus-visible:outline-2 outline-[var(--pvc-color-focus)] outline-offset-2`
 
-**Default pattern:** `focus-visible:outline-2 outline-[var(--pvc-color-focus)] outline-offset-2`
+`--pvc-color-focus` should resolve to `primary-500` in both modes. Dark mode currently ships `primary-400`, which matches accent; that is on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
 
-`Button` and `CopyableValue` use this. Link, Tabs, and Form may still use black/white outlines — fine for now; converge on `--pvc-color-focus` when you touch them.
+`Button` and `CopyableValue` use the target pattern. Link, Tabs, and Form may still use black/white outlines; converge on `--pvc-color-focus` when you touch them.
 
-Don't hide focus with transparent borders. Don't rely on colour alone for state.
+Do not hide focus with transparent borders. Do not rely on colour alone for state.
 
 ## Accessibility
 
 - Semantic HTML.
 - WCAG AA contrast.
 - Visible focus.
-- Screen-reader names that match what people see.
+- Screen-reader names that match visible labels.
+- State that does not depend on colour alone.
 - Reduced motion for non-essential animation.
 - Forced-colours support on custom controls.
 
-## When to bend the rules
+## Local Exceptions
 
-Sometimes the workflow genuinely needs a different pattern. Say what you broke, why, and whether it should become a shared component or token. Undocumented one-offs pile up fast.
+Sometimes a workflow needs a different pattern. Name the exception, why the workflow needs it, and whether it should become a shared component or token. Undocumented differences become a second design system.
