@@ -27,12 +27,21 @@ module Pathogen
       assert_selector 'button[type="button"][aria-label="Copy ABC123 to clipboard"]'
     end
 
-    test 'copy button meets small icon-only touch target and hover styles' do
+    test 'copy button meets small icon-only touch target and ghost-lane hover styles' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector 'button[class*="min-h-6"][class*="min-w-6"]'
+      assert_selector 'button[class*="border-l"][class*="border-[var(--pvc-color-border)]"]'
       assert_selector 'button[class*="interactive-hover:bg-[var(--pvc-color-surface-raised)]"]'
+      assert_selector 'button[class*="interactive-hover:text-[var(--pvc-color-text)]"]'
       assert_selector 'button[class*="focus-visible:outline-offset-2"]'
+      assert_no_selector 'button[class*="interactive-hover:border-"]'
+    end
+
+    test 'clips action lane to container radius' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[class*="overflow-hidden"][class*="rounded-[var(--pvc-radius-action)]"]'
     end
 
     test 'uses shared inline code surface tokens' do
