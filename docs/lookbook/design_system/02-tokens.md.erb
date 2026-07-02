@@ -133,14 +133,14 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
     ['Accent', '--pvc-color-accent', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-400)', '#60a5fa'],
     ['Strong accent', '--pvc-color-accent-strong', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-300)', '#93c5fd'],
     ['Solid accent fill', '--pvc-color-accent-solid', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-700)', '#1d4ed8'],
-    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-600)', '#2563eb'],
+    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-800)', '#1e40af', 'var(--color-primary-800)', '#1e40af'],
     ['Danger', '--pvc-color-danger', 'var(--color-red-600)', '#dc2626', 'var(--color-red-500)', '#ef4444'],
     ['Strong danger', '--pvc-color-danger-strong', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-300)', '#fca5a5'],
     ['Solid danger fill', '--pvc-color-danger-solid', 'var(--color-red-600)', '#dc2626', 'var(--color-red-600)', '#dc2626'],
     ['Solid danger hover', '--pvc-color-danger-solid-hover', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-700)', '#b91c1c'],
     ['Success', '--pvc-color-success', 'var(--color-emerald-600)', '#059669', 'var(--color-emerald-400)', '#34d399'],
     ['Warning', '--pvc-color-warning', 'var(--color-amber-600)', '#d97706', 'var(--color-amber-400)', '#fbbf24'],
-    ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-400)', '#60a5fa']
+    ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-500)', '#3b82f6']
   ].each do |label, token, light_fallback, light_swatch, dark_fallback, dark_swatch| %>
     <div role="cell"><%= label %><br><code><%= token %></code></div>
     <div class="pvc-token-table__swatch-cell" role="cell">
@@ -172,7 +172,7 @@ Live definitions today:
   --pvc-color-accent: var(--color-primary-600);
   --pvc-color-accent-strong: var(--color-primary-700);
   --pvc-color-accent-solid: var(--color-primary-700);
-  --pvc-color-accent-solid-hover: var(--color-primary-600);
+  --pvc-color-accent-solid-hover: var(--color-primary-800);
   --pvc-color-danger: var(--color-red-600);
   --pvc-color-danger-strong: var(--color-red-700);
   --pvc-color-danger-solid: var(--color-red-600);
@@ -193,14 +193,14 @@ Live definitions today:
   --pvc-color-accent: var(--color-primary-400);
   --pvc-color-accent-strong: var(--color-primary-300);
   --pvc-color-accent-solid: var(--color-primary-700);
-  --pvc-color-accent-solid-hover: var(--color-primary-600);
+  --pvc-color-accent-solid-hover: var(--color-primary-800);
   --pvc-color-danger: var(--color-red-500);
   --pvc-color-danger-strong: var(--color-red-300);
   --pvc-color-danger-solid: var(--color-red-600);
   --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-400);
   --pvc-color-warning: var(--color-amber-400);
-  --pvc-color-focus: var(--color-primary-400);
+  --pvc-color-focus: var(--color-primary-500);
 }
 ```
 
@@ -222,7 +222,7 @@ In dark mode, accent text and borders lighten for contrast. Solid button fills s
 --type-control: 0.875rem;  /* 14px */
 --type-body: 1rem;         /* 16px */
 --type-section: 1.25rem;   /* 20px */
---type-page: 2rem;         /* 32px target; shipped CSS still has 31px */
+--type-page: 2rem;         /* 32px */
 ```
 
 | Token | px | Tailwind | Used by |
@@ -231,7 +231,7 @@ In dark mode, accent text and borders lighten for contrast. Solid button fills s
 | `--type-control` | 14 | `text-sm` | Labels, buttons |
 | `--type-body` | 16 | `text-base` | Body text |
 | `--type-section` | 20 | `text-xl` | Section titles |
-| `--type-page` | 32 target | `text-3xl` | Page headings |
+| `--type-page` | 32 | `text-3xl` | Page headings |
 
 The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
@@ -307,9 +307,6 @@ These rows are known gaps between shipped CSS and the intended system direction.
 
 | # | Token | Shipped now | Target | Why |
 |---|-------|-------------|--------|-----|
-| 1 | `accent-solid-hover` | Lightens (`700` -> `600`) | Darken, such as `800` | Solid hover should press in, like danger already does |
-| 2 | `focus` in dark mode | `primary-400`, same as accent | `primary-500` in both modes | Focus must remain separate from accent |
-| 3 | `type-page` | 31px | 32px | Cleaner page title on the grid |
 | 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
 
 Until row 4 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
