@@ -775,6 +775,10 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 2px;
   }
+  .border-l {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 1px;
+  }
   .\!border-neutral-300 {
     border-color: var(--color-neutral-300) !important;
   }
@@ -828,6 +832,9 @@
   }
   .border-transparent {
     border-color: transparent;
+  }
+  .border-l-\[var\(--pvc-color-border\)\] {
+    border-left-color: var(--pvc-color-border);
   }
   .bg-\[color-mix\(in_oklab\,var\(--color-red-500\)_12\%\,transparent\)\] {
     background-color: color-mix(in srgb, oklch(63.7% 0.237 25.331) 12%, transparent);
@@ -1231,6 +1238,11 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
+  .transition-\[border-color\] {
+    transition-property: border-color;
+    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+    transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
   .transition-\[color\,background-color\,border-color\,box-shadow\,opacity\] {
     transition-property: color, background-color, border-color, box-shadow, opacity;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
@@ -1307,6 +1319,27 @@
   .select-none {
     -webkit-user-select: none;
     user-select: none;
+  }
+  .group-interactive-hover\:border-l-\[var\(--pvc-color-border-strong\)\] {
+    @media (hover: hover) {
+      &:is(:where(.group):hover:not(:disabled):not([aria-disabled="true"]) *) {
+        border-left-color: var(--pvc-color-border-strong);
+      }
+    }
+  }
+  .group-interactive-hover\:bg-\[var\(--pvc-color-surface-raised\)\] {
+    @media (hover: hover) {
+      &:is(:where(.group):hover:not(:disabled):not([aria-disabled="true"]) *) {
+        background-color: var(--pvc-color-surface-raised);
+      }
+    }
+  }
+  .group-interactive-hover\:text-\[var\(--pvc-color-text\)\] {
+    @media (hover: hover) {
+      &:is(:where(.group):hover:not(:disabled):not([aria-disabled="true"]) *) {
+        color: var(--pvc-color-text);
+      }
+    }
   }
   .peer-focus-visible\:outline {
     &:is(:where(.peer):focus-visible ~ *) {
@@ -1909,24 +1942,10 @@
       }
     }
   }
-  .interactive-hover\:bg-\[var\(--pvc-color-surface-raised\)\] {
-    @media (hover: hover) {
-      &:hover:not(:disabled):not([aria-disabled="true"]) {
-        background-color: var(--pvc-color-surface-raised);
-      }
-    }
-  }
   .interactive-hover\:bg-\[var\(--pvc-color-text-muted\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
         background-color: var(--pvc-color-text-muted);
-      }
-    }
-  }
-  .interactive-hover\:text-\[var\(--pvc-color-text\)\] {
-    @media (hover: hover) {
-      &:hover:not(:disabled):not([aria-disabled="true"]) {
-        color: var(--pvc-color-text);
       }
     }
   }
