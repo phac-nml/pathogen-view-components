@@ -128,11 +128,12 @@ describe("copyable_value_controller", () => {
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
     await controller.copy();
 
-    expect(container.dataset.state).toBe("idle");
+    expect(container.dataset.state).toBe("error");
     expect(announcement.textContent).toBe("Unable to copy to clipboard");
 
     vi.advanceTimersByTime(2000);
 
+    expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
   });
 
