@@ -262,6 +262,33 @@ describe("data_grid_controller focus restore", () => {
     }
   });
 
+  it("restores focus when arrowing past the horizontal column window", async () => {
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    try {
+      const { scrollContainer } = await mountGrid();
+      const columnTwoCell = document.querySelector(
+        '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="2"]',
+      );
+
+      columnTwoCell.focus();
+      dispatchKey(columnTwoCell, "ArrowRight");
+
+      const columnThreeCell = document.querySelector(
+        '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="3"]',
+      );
+      expect(columnThreeCell).not.toBeNull();
+      expect(document.activeElement).toBe(columnThreeCell);
+      expect(columnThreeCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+      expect(scrollContainer.scrollLeft).toBeGreaterThan(0);
+    } finally {
+      rafSpy.mockRestore();
+    }
+  });
+
   it("keeps row targeting stable while Home/End navigation anchors columns after PageDown", async () => {
     const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback();
@@ -288,6 +315,148 @@ describe("data_grid_controller focus restore", () => {
       expect(document.activeElement.getAttribute("data-pathogen--data-grid-row-index")).toBe("5");
       expect(document.activeElement.getAttribute("data-pathogen--data-grid-column-index")).toBe("0");
     } finally {
+      rafSpy.mockRestore();
+    }
+  });
+
+  it("restores focus after paginated rows load past the seeded window", async () => {
+    const rowTwentyOneHTML = `
+      <div role="row" aria-rowindex="22" data-pvc-data-grid-global-row-index="20" style="height: 40px;">
+        <div role="gridcell"
+          tabindex="-1"
+          data-pathogen--data-grid-target="cell"
+          data-pathogen--data-grid-row-index="21"
+          data-pathogen--data-grid-column-index="0"
+          data-pathogen--data-grid-has-interactive="false">
+          ID-021
+        </div>
+        <div role="gridcell"
+          tabindex="-1"
+          data-pathogen--data-grid-target="cell"
+          data-pathogen--data-grid-row-index="21"
+          data-pathogen--data-grid-column-index="1"
+          data-pathogen--data-grid-has-interactive="false">
+          Name 21
+        </div>
+      </div>`;
+
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => ({
+      ok: true,
+      async json() {
+        const requestUrl = new URL(url, window.location.origin);
+        if (requestUrl.searchParams.get("page") === "2") {
+          return { rows: [{ index: 20, html: rowTwentyOneHTML }] };
+        }
+
+        return { rows: [] };
+      },
+    }));
+
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
+
+    try {
+      document.body.innerHTML = `
+        <div data-controller="pathogen--data-grid" class="pvc-data-grid pvc-data-grid--virtual">
+          <div data-pathogen--data-grid-target="scrollContainer"
+               class="pvc-data-grid__scroll"
+               style="height: 200px; overflow: auto;">
+            <div role="grid" data-pathogen--data-grid-target="grid"
+                 aria-rowcount="41"
+                 aria-colcount="2"
+                 data-pvc-data-grid-total-count="40"
+                 data-pvc-data-grid-rows-url="/demo/samples/rows.json"
+                 data-pvc-data-grid-page-size="20"
+                 data-pvc-data-grid-row-offset="0"
+                 data-pvc-data-grid-row-height="40"
+                 data-pvc-data-grid-row-overscan="10"
+                 data-pvc-data-grid-column-overscan="2"
+                 data-pvc-data-grid-pinned-count="0"
+                 data-pvc-data-grid-column-widths="120,160">
+              <div class="pvc-data-grid__virtual-status"
+                   data-pathogen--data-grid-target="virtualStatus"
+                   data-loading-text="Loading rows…"
+                   data-loaded-text="Rows loaded."
+                   data-loading-more-text="Loading more rows…"
+                   data-fetch-error-text="Unable to load more rows."
+                   role="status"
+                   aria-live="polite">
+                Loading rows…
+              </div>
+              <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header" aria-rowindex="1">
+                <div role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="0"
+                  data-pathogen--data-grid-has-interactive="false">ID</div>
+                <div role="columnheader" tabindex="-1"
+                  data-pathogen--data-grid-target="cell"
+                  data-pathogen--data-grid-row-index="0"
+                  data-pathogen--data-grid-column-index="1"
+                  data-pathogen--data-grid-has-interactive="false">Name</div>
+              </div>
+              <div class="pvc-data-grid__viewport" data-pathogen--data-grid-target="viewport">
+                <div class="pvc-data-grid__spacer"></div>
+                ${Array.from({ length: 20 }, (_, index) => {
+                  const rowIndex = index + 1;
+                  const isLast = index === 19;
+                  return `
+                    <div role="row" aria-rowindex="${rowIndex + 1}" data-pvc-data-grid-global-row-index="${index}" style="height: 40px;">
+                      <div role="gridcell"
+                        tabindex="${isLast ? "0" : "-1"}"
+                        ${isLast ? 'data-pathogen--data-grid-active="true"' : ""}
+                        data-pathogen--data-grid-target="cell"
+                        data-pathogen--data-grid-row-index="${rowIndex}"
+                        data-pathogen--data-grid-column-index="0"
+                        data-pathogen--data-grid-has-interactive="false">
+                        ID-${String(rowIndex).padStart(3, "0")}
+                      </div>
+                      <div role="gridcell"
+                        tabindex="-1"
+                        data-pathogen--data-grid-target="cell"
+                        data-pathogen--data-grid-row-index="${rowIndex}"
+                        data-pathogen--data-grid-column-index="1"
+                        data-pathogen--data-grid-has-interactive="false">
+                        Name ${rowIndex}
+                      </div>
+                    </div>`;
+                }).join("\n")}
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+      Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 200 });
+      Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: 400 });
+
+      application = Application.start();
+      application.register("pathogen--data-grid", DataGridController);
+      await flush();
+
+      scrollContainer.scrollTop = 19 * 40;
+      scrollContainer.dispatchEvent(new Event("scroll"));
+      await flush();
+
+      const lastSeededCell = document.querySelector(
+        '[data-pathogen--data-grid-row-index="20"][data-pathogen--data-grid-column-index="0"]',
+      );
+      expect(lastSeededCell).not.toBeNull();
+      lastSeededCell.focus();
+      dispatchKey(lastSeededCell, "ArrowDown");
+      await flush();
+      await flush();
+
+      const nextRowCell = document.querySelector(
+        '[data-pathogen--data-grid-row-index="21"][data-pathogen--data-grid-column-index="0"]',
+      );
+      expect(nextRowCell).not.toBeNull();
+      expect(document.activeElement).toBe(nextRowCell);
+      expect(nextRowCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
+    } finally {
+      fetchSpy.mockRestore();
       rafSpy.mockRestore();
     }
   });

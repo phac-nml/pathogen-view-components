@@ -64,6 +64,35 @@ module Pathogen
       )
     end
 
+    test 'virtual contract exposes global row index on paginated seed rows' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      caption: 'Paginated virtual contract grid',
+                      virtual: true,
+                      sticky_columns: 1,
+                      virtual_pagination: {
+                        total_count: 5_000,
+                        rows_url: '/demo/samples/rows.json',
+                        page_size: 20,
+                        row_offset: 20
+                      },
+                      rows: [
+                        { id: 'S-021', name: 'Gamma', status: 'Ready' }
+                      ]
+                    )) do |grid|
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name, width: 220)
+        grid.with_column('Status', key: :status, width: 180)
+      end
+
+      assert_selector 'div[role="grid"][aria-rowcount="5001"]'
+      assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="20"][aria-rowindex="22"]'
+      assert_selector(
+        'div[role="row"][aria-rowindex="22"] ' \
+        'div[role="gridcell"][data-pathogen--data-grid-row-index="21"][data-pathogen--data-grid-column-index="0"]',
+        text: 'S-021'
+      )
+    end
+
     test 'virtual contract preserves lane-scoped data column indexes through row rendering' do
       render_virtual_grid
 
