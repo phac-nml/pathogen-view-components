@@ -223,15 +223,53 @@ Focus must show in light, dark, high-contrast, and forced-colours modes. It also
 
 Do not hide focus with transparent borders. Do not rely on colour alone for state.
 
+<span id="accessibility"></span>
+
 ## Accessibility
 
-- Semantic HTML.
-- WCAG AA contrast.
-- Visible focus.
-- Screen-reader names that match visible labels.
-- State that does not depend on colour alone.
-- Reduced motion for non-essential animation.
-- Forced-colours support on custom controls.
+Pathogen targets **WCAG 2.2 Level AA** for shared components and the host surfaces that use them. Accessibility is not a late audit pass. It is part of how quiet, precise, and trustworthy the product feels.
+
+### How to build
+
+1. **Native HTML first** — use the element that already matches the job (`button`, `a`, `input`, `fieldset`, `table`, `dialog` where supported).
+2. **Pathogen components next** — prefer `Pathogen::Button`, `Pathogen::Link`, `Pathogen::Form::*`, `Pathogen::Tabs`, `Pathogen::DataGridComponent`, and related primitives before inventing markup.
+3. **ARIA patterns when custom** — if the UI cannot be native, follow the matching pattern in the [ARIA Authoring Practices Guide (APG)](https://www.w3.org/WAI/ARIA/apg/patterns/) for roles, keyboard behaviour, focus management, and state.
+
+Fix accessibility in Pathogen primitives first. Host apps inherit those gains everywhere the primitive is used.
+
+### Pathogen requirements
+
+- **Semantic HTML** — correct element, label association, and document structure.
+- **Contrast** — WCAG AA for text and meaningful UI state (see [What is WCAG?](https://www.wcag.com/resource/what-is-wcag/) for an overview; [WCAG 2.2](https://www.w3.org/TR/WCAG22/) for success criteria).
+- **Visible focus** — `focus-visible` treatment in light, dark, high-contrast, and forced-colours modes ([Focus and keyboard](#focus-and-keyboard)).
+- **Names and labels** — visible labels, `aria-label`, or `aria-labelledby` where the visible UI does not speak for itself (especially icon-only controls).
+- **State beyond colour** — pair colour with text, icons, borders, position, or `aria-*` state so meaning survives without hue.
+- **Keyboard** — full operation without a pointer; logical tab order; no keyboard traps except in modal flows that manage escape.
+- **Touch targets** — respect documented minimum sizes; keep at least 8px between adjacent `small` toolbar controls.
+- **Motion** — honour `prefers-reduced-motion` for non-essential animation.
+- **Forced colours** — custom controls remain usable when system high-contrast themes override author styles.
+
+### Where to look by pattern
+
+| UI | Start here |
+|----|------------|
+| Buttons, links | [Button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/), Pathogen Button previews |
+| Tabs | [Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), `Pathogen::Tabs` |
+| Forms, switches, radios | [Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), [Radio](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), [Switch](https://www.w3.org/WAI/ARIA/apg/patterns/switch/), `Pathogen::Form::*` |
+| Tooltips | [Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/), `Pathogen::Tooltip` |
+| Data grids / tables | [Grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) and [Table](https://www.w3.org/WAI/ARIA/apg/patterns/table/), `Pathogen::DataGridComponent` |
+| Dialogs and disclosures | [Dialog modal](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) |
+
+When Pathogen and APG disagree, match Pathogen tokens and visual language while keeping APG keyboard and naming behaviour — or document a deliberate exception.
+
+### Further reading
+
+- [What is WCAG?](https://www.wcag.com/resource/what-is-wcag/) — plain-language introduction.
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/) — official success criteria.
+- [ARIA Authoring Practices (APG)](https://www.w3.org/WAI/ARIA/apg/patterns/) — patterns for custom widgets.
+- [WAI tutorials](https://www.w3.org/WAI/tutorials/) — forms, menus, tables, and more.
+
+Previews should show accessibility-relevant states when they matter: focus, disabled, validation, selected, expanded, and error. See [Preview guidelines](<%= page_path("design-system-preview-guidelines") %>).
 
 ## Local Exceptions
 

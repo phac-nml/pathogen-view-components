@@ -28,12 +28,16 @@ Use this pass for PRs that touch Pathogen UI, styles, previews, or these docs. T
 
 ## Accessible
 
+Full requirements and references: [Foundations → Accessibility](<%= page_path("design-system-design-contract") %>#accessibility).
+
 - Visible `focus-visible` in light and dark?
 - New or migrated code uses `--pvc-color-focus`?
 - Focus remains distinct from accent?
 - State is not colour-only?
 - Icon buttons have screen-reader names?
-- Semantic HTML and WCAG AA contrast?
+- Semantic HTML and WCAG 2.2 AA contrast?
+- Custom widget follows the matching [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/)?
+- Keyboard-only use still completes the task?
 - `prefers-reduced-motion` respected?
 - Forced-colours considered for custom controls?
 
