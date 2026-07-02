@@ -4,21 +4,29 @@ title: Dark Mode
 
 # Dark Mode
 
-Dark mode should feel like a **calm lab at night** — not a black hole with grey cards floating in it. The usual mistake is `neutral-950` everywhere, then `900` and `800` panels on top until everything feels flat and cold.
+Dark mode should feel like the same Pathogen product under lower light: quiet, precise, accessible, compact, and trustworthy. It should not become a black canvas with grey cards floating over it.
 
-## Keep in mind
+## The Dark Mode Principle
 
-- **Canvas vs inset** — the app background is `--pvc-color-surface` (`neutral-900`). Deeper black belongs **inside** dense regions (like a grid body), not behind the whole app.
-- **Layered surfaces** — canvas, muted, and raised should be easy to tell apart.
-- **Crisp structure** — borders and dividers do the work; skip glow and blur to fake depth.
-- **Readable muted text** — especially in grids and helper copy.
-- **Accents** — text/border accent lightens in dark mode; solid buttons stay bold. Focus stays fixed so it doesn't merge with accent ([focus](#focus-in-dark-mode)).
-- **Same geometry as light** — radius, spacing, and grid logic don't change with the theme.
-- **No gradient wallpaper** — richness comes from layout, not atmosphere.
+Use depth sparingly. The page canvas starts at `--pvc-color-surface` (`neutral-900`). Deeper black belongs inside dense framed regions where it helps rows and cells read clearly.
 
-## Surface stack
+The common failure mode is using `neutral-950` everywhere, then stacking `900` and `800` panels until the UI feels heavy and cold. Pathogen should feel calmer than that.
 
-From `pathogen.tailwind.css`:
+## The Five Qualities In Dark Mode
+
+**Quiet** — avoid gradient wallpaper, glow, and oversized colour blocks. Richness should come from useful layering.
+
+**Precise** — keep the same radius, spacing, and grid logic as light mode. Theme should not change geometry.
+
+**Accessible** — borders, muted text, focus, hover, selected, disabled, and validation states must stay visible.
+
+**Compact** — dense grids can use deeper inset surfaces, but only inside a border where the darker value has a structural reason.
+
+**Trustworthy** — dark mode should still feel clinical and stable. Do not compensate for weak contrast with decorative effects.
+
+## Surface Stack
+
+Current shipped values:
 
 ```css
 .dark {
@@ -39,46 +47,46 @@ From `pathogen.tailwind.css`:
 
 | Layer | Token | Role |
 |-------|-------|------|
-| Canvas | `surface` | Page background |
-| Recess | `surface-muted` | Field groups, secondary areas |
-| Lift | `surface-raised` | Subtle step up (mix, not shadow) |
-| Edge | `border` | Dividers, default outlines |
-| Strong edge | `border-strong` | Emphasized frames, buttons |
+| Canvas | `--pvc-color-surface` | Page background |
+| Recess | `--pvc-color-surface-muted` | Field groups, secondary areas |
+| Lift | `--pvc-color-surface-raised` | Subtle step up, using mix instead of shadow |
+| Edge | `--pvc-color-border` | Dividers and default outlines |
+| Strong edge | `--pvc-color-border-strong` | Emphasized frames and buttons |
 
-Don't use `neutral-950` as the default page chrome.
+Do not use `neutral-950` as default page chrome.
 
-## Dense data (the grid exception)
+## Dense Data
 
-`DataGridComponent` may use `neutral-950` **inside the grid frame** so rows read clearly. That's local to the grid — not permission for `950` on sidebars, previews, or page shells.
+`DataGridComponent` may use `neutral-950` inside the grid frame so rows read clearly. That is a local inset, not permission for darker app shells, sidebars, or previews.
 
-Same rule for future dense tables: deeper inset inside a border, not a darker whole app.
+Use the same rule for future dense tables: deeper black inside a bounded region, not across the whole product.
 
 <span id="focus-in-dark-mode"></span>
 
-## Focus in dark mode
+## Focus In Dark Mode
 
-Target: `--pvc-color-focus` at **`primary-500` in both modes** — focus doesn't follow the same lightening rules as accent text.
+Target: `--pvc-color-focus` should resolve to `primary-500` in both light and dark modes. Focus does not follow the same lightening rule as accent text because it needs to stay visually separate.
 
-Shipped dark focus is currently `primary-400`, which matches accent — that's on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
+Shipped dark focus is currently `primary-400`, which matches accent. That is on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
 
-IRIDA may use white focus for brand reasons. If you override, keep `focus-visible`, 2px + offset, and clear separation from hover, selection, and accent.
+IRIDA may use white focus for brand reasons. If a host overrides focus, keep `focus-visible`, a 2px outline, offset, and clear separation from hover, selection, and accent.
 
-New components: use `--pvc-color-focus`, not ad hoc black/white rings.
+New components should use `--pvc-color-focus`, not ad hoc black or white rings.
 
-## Quick check before merge
+## Check Before Merge
 
-- Data grid — header, body, hover, selection, sticky columns
-- Forms — labels, validation, disabled
-- Buttons — all tone/emphasis pairs
-- Tabs — selected, hover, focus
-- Tooltips on dark `950` fill
+- Data grid: header, body, hover, selection, sticky columns
+- Forms: labels, validation, disabled
+- Buttons: all tone and emphasis pairs
+- Tabs: selected, hover, focus
+- Tooltips on dark `neutral-950` fill
 - Typography variants
 - Code and `CopyableValue`
-- Preview shells — neutral product background, not gradient docs chrome
+- Preview shells: neutral product background, not gradient docs chrome
 
-## Please don't
+## Avoid
 
-- Gradient washes to "warm up" dark UI
+- Gradient washes to make dark UI feel richer
 - Glow or huge colour blocks to patch contrast
-- Drop borders because "it's dark enough"
-- Change radius or spacing rules without a workflow reason
+- Dropping borders because the surface is already dark
+- Changing radius or spacing without a workflow reason
