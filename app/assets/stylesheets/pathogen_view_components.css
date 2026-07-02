@@ -1973,6 +1973,23 @@
 .pvc-data-grid__row--header .pvc-data-grid__lane--pinned {
   z-index: calc(var(--pvc-data-grid-header-z) + 4);
 }
+.pvc-data-grid.pvc-data-grid--virtual .pvc-data-grid__row--header {
+  align-items: stretch;
+}
+.pvc-data-grid.pvc-data-grid--virtual .pvc-data-grid__row--header .pvc-data-grid__lane {
+  align-self: stretch;
+}
+.pvc-data-grid.pvc-data-grid--virtual .pvc-data-grid__cell--virtual-header {
+  position: relative;
+  top: auto;
+  left: auto;
+  align-self: stretch;
+  border-bottom-width: 0;
+  box-shadow: none;
+}
+.pvc-data-grid.pvc-data-grid--virtual .pvc-data-grid__cell--virtual-header[data-sticky-cell] {
+  box-shadow: 1px 0 0 var(--pvc-data-grid-border-color);
+}
 .pvc-data-grid__lane--center {
   position: relative;
   z-index: 0;
