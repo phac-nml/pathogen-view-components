@@ -1,6 +1,5 @@
 import { PaginatedRowSource } from "pathogen_view_components/data_grid_controller/page_source";
 
-const DEFAULT_PAGE_SIZE = 20;
 const SCROLL_SETTLE_MS = 150;
 
 export class PaginatedVirtualRows {
@@ -49,7 +48,7 @@ export class PaginatedVirtualRows {
   }
 
   get pageSize() {
-    return this.#source.pageSize || DEFAULT_PAGE_SIZE;
+    return this.#source.pageSize;
   }
 
   getCachedRows() {
