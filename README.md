@@ -50,7 +50,7 @@ Pathogen components are under the `Pathogen` namespace and follow the ViewCompon
 #### Button
 
 ```erb
-<%= render Pathogen::Button.new(scheme: :primary, text: "Save") %>
+<%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: "Save") %>
 ```
 
 Pass button text with `text:` in Lookbook preview templates and other ERB templates rendered outside a normal ViewComponent block context. Content blocks still work from Ruby preview methods and host app views.
@@ -60,7 +60,7 @@ button should stay focusable but not act yet, for example, a form submit that an
 activation ([focusable disabled pattern](https://www.atomica11y.com/accessible-design/button/)).
 
 ```erb
-<%= render Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: "Continue") %>
+<%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: "Continue") %>
 ```
 
 For icon-only actions, use `icon_only: true` with a required accessible name. Pass the icon through
@@ -78,7 +78,7 @@ distinct name:
 Navigation that looks like a button should use `tag: :a` with an `href`:
 
 ```erb
-<%= render Pathogen::Button.new(tag: :a, href: samples_path, scheme: :primary) { "View samples" } %>
+<%= render Pathogen::Button.new(tag: :a, href: samples_path, tone: :primary, emphasis: :solid) { "View samples" } %>
 ```
 
 #### DataGrid

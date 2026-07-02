@@ -81,7 +81,7 @@ module Pathogen
       # Renders a Pathogen-styled submit button for the current form.
       #
       # Accepts the same +value+ and +options+ as Rails +FormBuilder#submit+, plus
-      # Pathogen::Button kwargs such as +scheme+, +size+, and +block+.
+      # Pathogen::Button kwargs such as +tone+, +emphasis+, +size+, and +block+.
       #
       # @param value [String, nil] button label (defaults to Rails create/update copy)
       # @param options [Hash] submit and Pathogen button options

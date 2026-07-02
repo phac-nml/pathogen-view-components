@@ -11,7 +11,7 @@ module Pathogen
                       text: 'Click me'
     end
 
-    test 'default scheme maps to neutral outline semantic tokens' do
+    test 'default tone and emphasis map to neutral outline semantic tokens' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector "button[class*='border-[var(--pvc-color-border-strong)]']"
@@ -19,23 +19,23 @@ module Pathogen
       assert_selector "button[class*='text-[var(--pvc-color-text)]']"
     end
 
-    test 'primary scheme maps to primary solid without shadow' do
-      render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
+    test 'primary solid emits primary solid without shadow' do
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid)) { 'Submit' }
 
       assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
       assert_selector "button[class*='text-white']"
       assert_no_selector "button[class*='shadow-sm']"
     end
 
-    test 'danger scheme maps to danger outline semantic tokens' do
-      render_inline(Pathogen::Button.new(scheme: :danger)) { 'Delete' }
+    test 'danger outline emits danger outline semantic tokens' do
+      render_inline(Pathogen::Button.new(tone: :danger, emphasis: :outline)) { 'Delete' }
 
       assert_selector "button[class*='text-[var(--pvc-color-danger-strong)]']"
       assert_selector "button[class*='bg-[var(--pvc-color-surface)]']"
     end
 
-    test 'scheme primary maps to tone primary emphasis solid' do
-      render_inline(Pathogen::Button.new(scheme: :primary)) { 'Submit' }
+    test 'tone primary emphasis solid emits primary solid classes' do
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid)) { 'Submit' }
 
       assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
     end
@@ -54,8 +54,8 @@ module Pathogen
       assert_selector "button[class*='text-white']"
     end
 
-    test 'tone and emphasis override scheme when provided' do
-      render_inline(Pathogen::Button.new(scheme: :primary, tone: :neutral, emphasis: :ghost)) { 'Back' }
+    test 'tone and emphasis are applied independently' do
+      render_inline(Pathogen::Button.new(tone: :neutral, emphasis: :ghost)) { 'Back' }
 
       assert_selector "button[class*='bg-transparent']"
       assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
@@ -102,15 +102,15 @@ module Pathogen
     end
 
     test 'emits expected Tailwind utility classes for primary small' do
-      render_inline(Pathogen::Button.new(scheme: :primary, size: :small)) { 'Submit' }
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :small)) { 'Submit' }
 
       assert_selector "button[class*='text-white']"
       assert_selector 'button.text-xs'
     end
 
-    test 'all schemes emit token-backed focus outline classes' do
-      Pathogen::Button::SCHEME_OPTIONS.each do |scheme|
-        render_inline(Pathogen::Button.new(scheme: scheme)) { scheme.to_s.humanize }
+    test 'all tone and emphasis combinations emit token-backed focus outline classes' do
+      Pathogen::Button::TONE_OPTIONS.product(Pathogen::Button::EMPHASIS_OPTIONS).each do |tone, emphasis|
+        render_inline(Pathogen::Button.new(tone: tone, emphasis: emphasis)) { "#{tone} #{emphasis}" }
 
         assert_selector "button[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
         assert_no_selector "button[class*='focus-visible:outline-black']"
@@ -141,12 +141,10 @@ module Pathogen
       end
     end
 
-    test 'passes axe-core checks for all schemes' do
-      Pathogen::Button::SCHEME_OPTIONS.each do |scheme|
-        render_inline(Pathogen::Button.new(scheme: scheme)) { 'Submit' }
+    test 'passes axe-core checks when disabled' do
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid, disabled: true)) { 'Submit' }
 
-        assert_axe_structural_accessible rendered_content, context: scheme
-      end
+      assert_axe_structural_accessible rendered_content, context: 'disabled primary'
     end
 
     test 'passes axe-core checks for all tone and emphasis combinations' do
@@ -157,20 +155,15 @@ module Pathogen
       end
     end
 
-    test 'passes axe-core checks when disabled' do
-      render_inline(Pathogen::Button.new(scheme: :primary, disabled: true)) { 'Submit' }
-
-      assert_axe_structural_accessible rendered_content, context: 'disabled primary'
-    end
-
     test 'passes axe-core checks when aria_disabled' do
-      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true)) { 'Continue' }
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true)) { 'Continue' }
 
       assert_axe_structural_accessible rendered_content, context: 'aria-disabled primary'
     end
 
     test 'passes axe-core checks when rendered as a link' do
-      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', scheme: :primary, text: 'View samples'))
+      render_inline(Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid,
+                                         text: 'View samples'))
 
       assert_selector 'a[href="/samples"]', text: 'View samples'
       assert_axe_structural_accessible rendered_content, context: 'link button'
@@ -195,7 +188,7 @@ module Pathogen
     end
 
     test 'renders text option without a content block' do
-      render_inline(Pathogen::Button.new(scheme: :primary, aria_disabled: true, text: 'Continue'))
+      render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue'))
 
       assert_selector 'button[aria-disabled="true"]', text: 'Continue'
     end
@@ -244,7 +237,7 @@ module Pathogen
     end
 
     test 'icon_only passes axe-core structural checks' do
-      render_inline(Pathogen::Button.new(icon_only: true, text: 'Search', scheme: :primary)) do |button|
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Search', tone: :primary, emphasis: :solid)) do |button|
         button.with_leading_visual do
           '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
         end

@@ -6,7 +6,6 @@ module Pathogen
     BUTTON_TO_FORM_KEYS = %i[form form_class params remote authenticity_token].freeze
 
     PATHOGEN_BUTTON_KEYS = %i[
-      scheme
       size
       block
       icon_only

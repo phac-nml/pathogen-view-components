@@ -34,7 +34,7 @@
           <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-bold">0</p>
         </div>
 
-        <%= render Pathogen::Button.new(id: 'pv-tooltip-reset', scheme: :default, size: :small, text: 'Reset') %>
+        <%= render Pathogen::Button.new(id: 'pv-tooltip-reset', tone: :neutral, emphasis: :outline, size: :small, text: 'Reset') %>
       </div>
 
       <div>
@@ -46,7 +46,8 @@
               class="flex flex-col items-center"
             >
               <%= render Pathogen::Button.new(
-                    scheme: :primary,
+                    tone: :primary,
+                    emphasis: :solid,
                     size: :small,
                     text: 'Tooltip trigger',
                     aria: { describedby: 'pv-tooltip-1' },
@@ -60,7 +61,7 @@
               ) %>
             </div>
 
-            <%= render Pathogen::Button.new(id: 'pv-underlying-action', scheme: :primary, text: 'Underlying action') %>
+            <%= render Pathogen::Button.new(id: 'pv-underlying-action', tone: :primary, emphasis: :solid, text: 'Underlying action') %>
 
             <p class="max-w-xl text-center text-xs text-gray-600">
               Tooltip placement is <code>bottom</code>. While open, it should overlap the button above; after it hides,
