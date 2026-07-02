@@ -4,81 +4,56 @@ title: Preview Guidelines
 
 # Preview Guidelines
 
-Lookbook previews are part of the design system. They model **credible product screens** — the same environment host applications should ship. A preview that looks like documentation marketing undermines the contract.
+Lookbook previews are part of the design system. They should look like **something you'd ship** — a specimen list, a run detail, a protocol form — not like a Dribbble shot or a documentation landing page.
 
-## Purpose
+## The question every preview answers
 
-Previews answer: “What should this component look like in a real clinical, lab, or public-health workflow?”
+"What does this component look like in real clinical, lab, or public-health work?"
 
-They are not the place for expressive brand moments, gradient hero shells, or decorative Bauhaus poster composition.
+Expressive gradients, hero stats, and decorative Bauhaus blocks belong in posters, not here.
 
-## Default Preview Environment
+## Default look
 
-### Surfaces
+**Surfaces** — `--pvc-color-surface` or `surface-muted` backgrounds. Frame examples with a 1px border and `--pvc-radius-panel` when a boundary helps. Borders before shadows.
 
-- Neutral product background: `--pvc-color-surface` or `--pvc-color-surface-muted`.
-- Framed examples: 1px `--pvc-color-border`, `--pvc-radius-panel` where a boundary helps scanning.
-- Borders and surface steps before shadows.
+**Spacing and type** — `gap-4` for form-like layouts, `gap-2` for toolbars. Headings at product scale. Copy that sounds like the domain: specimen IDs, run status, protocol names.
 
-### Spacing and type
+**Layout** — aligned columns, dividers, label → control → help. Asymmetry only when one region is clearly primary. One `primary` + `solid` per action group.
 
-- Compact but legible: `gap-4` for form-like examples, `gap-2` for toolbars.
-- Headings at **product scale** — not oversized demo typography.
-- Realistic domain copy: specimen IDs, run statuses, protocol names, public-health labels.
+**Tokens** — semantic roles and `neutral-*`, not `slate-*` or preview-only shortcuts. `rounded-[var(--pvc-radius-panel)]` for framed examples.
 
-### Layout
-
-- Visible grid: aligned columns, dividers, label → control → help rhythm.
-- Purposeful asymmetry when one workflow region is clearly primary.
-- Action groups that respect button hierarchy (one `primary` + `solid` per group).
-
-### Tokens
-
-- Prefer semantic roles and `neutral-*` over raw `slate-*`.
-- Match shipped component token language; do not introduce preview-only palette shortcuts.
-- Use `rounded-[var(--pvc-radius-panel)]` for framed examples when demonstrating surfaces.
-
-## Avoid By Default
+## Skip by default
 
 | Pattern | Why |
 |---------|-----|
-| `bg-gradient-*` shells | Marketing aesthetic; hides real surface behaviour |
-| `from-indigo-*`, `to-purple-*`, broad `violet-*` | Decorative; not semantic status |
-| `shadow-lg`, `shadow-xl` | Overlays only |
-| `rounded-xl`, `rounded-2xl` on standard panels | Breaks radius atom scale |
-| Hero stats, feature cards, oversized metrics | Documentation theatre |
-| Decorative heading icons | Noise without meaning |
-| Bauhaus poster motifs (offset primaries, arbitrary circles/bars) | Ornament without workflow role |
-| `slate-*` when `neutral-*` or `--pvc-color-*` applies | Contract drift |
-| Solid-fill success/warning badges or buttons | No token ladder yet — see [Tokens → Token Migration Roadmap](02-tokens) |
-| Dense `small` icon-only toolbar clusters with no gap between buttons | Fails the 8px adjacent-target spacing rule |
+| `bg-gradient-*` shells | Hides how surfaces actually behave |
+| Purple/indigo feature blocks | Decoration, not status |
+| `shadow-lg` / `shadow-xl` | Overlays only |
+| `rounded-xl`+ on everyday panels | Off the radius scale |
+| Hero metrics and feature cards | Docs theatre |
+| Decorative heading icons | Noise |
+| Bauhaus poster shapes without meaning | Ornament |
+| `slate-*` when `neutral-*` works | Drift |
+| Solid success/warning buttons | No token ladder yet — [token list](02-tokens#whats-on-our-list) |
+| Tight toolbar icon clusters | Need 8px between `small` targets |
 
-## Preview Cleanup Priority
+## Cleaning up old previews
 
-When auditing existing previews:
+1. Neutral backgrounds instead of gradients.
+2. `slate-*` → `neutral-*` or semantic roles.
+3. Drop decorative purple unless it's real status.
+4. `rounded-xl` → control/panel radius tokens.
+5. Shadows → borders and muted surfaces.
+6. Stronger grid and dividers.
+7. Workflow copy, not marketing copy.
+8. Light **and** dark.
 
-1. Replace gradient page shells with neutral product backgrounds.
-2. Replace `slate-*` with `neutral-*` or semantic roles.
-3. Remove decorative purple/indigo blocks unless they encode real status.
-4. Reduce `rounded-xl` / `rounded-2xl` to `--pvc-radius-control` / `--pvc-radius-panel`.
-5. Replace heavy shadows with borders and muted surface steps.
-6. Strengthen grid structure: columns, dividers, compact control groups.
-7. Rewrite copy toward application workflows, not marketing documentation.
-8. Check light **and** dark mode before merge.
+## When preview and guide disagree
 
-## Relationship To Components
+Fix the preview, or document a short exception (what, why, should it become a shared pattern?). Don't let previews become a looser second design system.
 
-If a preview disagrees with the design contract:
+## Good examples to copy
 
-1. Fix the preview to match the contract, **or**
-2. Document a deliberate exception with rationale and whether it should become a token or component.
-
-Previews must not become a second, looser design system.
-
-## Reference Previews
-
-Use these as token and hierarchy references when authoring new previews:
-
-- `Button` — Overview, Accessibility (tone/emphasis, focus, touch targets)
-- `CopyableValue` — semantic tokens end-to-end
-- `DataGridComponent` — dense surface, dark inset exception
+- **Button** — Overview, Accessibility
+- **CopyableValue** — semantic tokens end-to-end
+- **DataGrid** — dense surface, dark inset exception

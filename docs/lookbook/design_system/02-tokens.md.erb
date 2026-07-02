@@ -4,36 +4,34 @@ title: Tokens
 
 # Tokens
 
-Tokens are the **manufacturing layer** of Pathogen: change a role once in `pathogen.tailwind.css`, and every component that consumes it inherits the update. Implementation code should describe **intent** (`--pvc-color-accent-solid`), not palette stops (`primary-700`).
+Tokens are how we keep Pathogen consistent: change `--pvc-color-accent-solid` once in CSS, and every button that uses it updates. Write components in terms of **roles** (`--pvc-color-accent-solid`), not palette stops (`primary-700`).
 
-## Theme Contract
+## Theme overrides for host apps
 
-Host applications may override brand colour after importing Pathogen CSS:
+| Variable | Default | Host apps |
+|----------|---------|-----------|
+| `--color-primary-*` | Blue | Your brand / action colour (IRIDA: green) |
+| `--color-neutral-*` | Slate (as `neutral-*`) | Leave as-is; use `neutral-*` in components |
+| `--font-sans` | Inter stack | Optional swap |
+| `--font-mono` | System mono | Code and IDs |
 
-| Variable | Default | Host use |
-|----------|---------|----------|
-| `--color-primary-*` | Tailwind blue scale | Brand / action scale (IRIDA: green) |
-| `--color-neutral-*` | Tailwind slate scale | Do not override; use `neutral-*` utilities, not `slate-*` |
-| `--font-sans` | Inter-first stack | Optional font swap |
-| `--font-mono` | System monospace | Code and identifiers |
+Use `neutral-*` in components, not raw `slate-*` — `neutral` is the public name; slate is an implementation detail in the theme file.
 
-**Naming rule:** `neutral-*` is the public API. It aliases slate in theme config. New code must not use raw `slate-*` utilities — they bypass the contract and drift from semantic roles.
-
-## Token Layers
+## Three layers
 
 ```
-Palette (--color-primary-*, --color-neutral-*, status hues)
+Palette (primary, neutral, status hues)
     ↓
-Semantic roles (--pvc-color-*, --type-*, --pvc-radius-*, motion, shadow)
+Semantic roles (--pvc-color-*, --type-*, --pvc-radius-*, motion)
     ↓
-Component-scoped (--pvc-data-grid-*, --pvc-tooltip-origin)
+Component-scoped (data grid, tooltip placement)
 ```
 
-Component-scoped tokens are internal layout hooks. Do not treat them as host theme overrides.
+Grid and tooltip tokens are internal — don't override them from host apps unless you're theming the whole grid.
 
-## Semantic Colour Roles
+## Colour roles
 
-Swatches show Pathogen default theme values. Host applications map the same roles to different brand values via `--color-primary-*`.
+Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
 
 <style>
   .pvc-token-table {
@@ -155,7 +153,7 @@ Swatches show Pathogen default theme values. Host applications map the same role
   <% end %>
 </div>
 
-Authoritative definitions live in `app/assets/stylesheets/pathogen.tailwind.css`:
+Live definitions: `app/assets/stylesheets/pathogen.tailwind.css`
 
 ```css
 :root {
@@ -201,55 +199,51 @@ Authoritative definitions live in `app/assets/stylesheets/pathogen.tailwind.css`
 }
 ```
 
-### Accent split (light and dark)
+### When to use which accent token
 
-| Context | Tokens |
-|---------|--------|
-| Text, borders, outline/ghost controls on a surface | `--pvc-color-accent`, `--pvc-color-accent-strong` |
-| Filled primary actions | `--pvc-color-accent-solid`, `--pvc-color-accent-solid-hover` |
-| Outline/ghost destructive | `--pvc-color-danger-strong`, `--pvc-color-danger` (borders via mix) |
-| Filled destructive | `--pvc-color-danger-solid`, `--pvc-color-danger-solid-hover` |
+| Situation | Tokens |
+|-----------|--------|
+| Text, borders, outline/ghost on a surface | `accent`, `accent-strong` |
+| Filled primary button | `accent-solid`, `accent-solid-hover` |
+| Outline/ghost destructive | `danger-strong`, `danger` |
+| Filled destructive | `danger-solid`, `danger-solid-hover` |
 
-In dark mode, **foreground** accents lighten for contrast on dark surfaces; **solid fills** stay saturated so primary and danger buttons remain confident on the canvas. `--pvc-color-focus` is exempt from the "foreground lightens" rule — it stays fixed at `--color-primary-500` in both modes precisely so it never converges with a lightened dark-mode accent (see [Design Contract → Focus and Keyboard Access](01-design-contract)).
+In dark mode, **text and borders** on accent lighten for contrast; **solid button fills** stay saturated. Focus is special — it stays at `primary-500` in both modes so it never matches accent ([foundations → focus](01-design-contract#focus-and-keyboard)).
 
-## Type Scale
+## Type scale
 
 ```css
---type-meta: 0.75rem;      /* 12px — metadata, hints, grid footnotes */
---type-control: 0.875rem;  /* 14px — labels, buttons, dense UI */
---type-body: 1rem;         /* 16px — body copy */
---type-section: 1.25rem;   /* 20px — section headings */
---type-page: 2rem;         /* 32px — page headings */
+--type-meta: 0.75rem;      /* 12px */
+--type-control: 0.875rem;  /* 14px */
+--type-body: 1rem;         /* 16px */
+--type-section: 1.25rem;   /* 20px */
+--type-page: 2rem;         /* 32px — target; CSS may still say 31px until fixed */
 ```
 
-| Token | px | Tailwind equivalent | Component mapping |
-|-------|-----|---------------------|-------------------|
-| `--type-meta` | 12 | `text-xs` | Eyebrow, hints, `CopyableValue` meta |
-| `--type-control` | 14 | `text-sm` | Labels, buttons, supporting text |
-| `--type-body` | 16 | `text-base` | `Pathogen::Typography::Text` |
-| `--type-section` | 20 | `text-xl` | `Lead`, section headings |
-| `--type-page` | 32 | `text-3xl` (approx.) | `Heading` h1 tier |
+| Token | px | Tailwind | Used by |
+|-------|-----|----------|---------|
+| `--type-meta` | 12 | `text-xs` | Hints, `CopyableValue` |
+| `--type-control` | 14 | `text-sm` | Labels, buttons |
+| `--type-body` | 16 | `text-base` | Body text |
+| `--type-section` | 20 | `text-xl` | Section titles |
+| `--type-page` | 32 | `text-3xl` | Page headings |
 
-**14px and 16px** are the product workhorses. Larger sizes are for hierarchy inside real workflows, not preview decoration.
+14px and 16px are the everyday sizes. The scale is **role-based**, not a strict mathematical ratio — each step is the smallest jump that still reads as a different level. Page size targets a clean **32px**; shipped CSS may still have 31px from an old rounding pass (on the fix list below).
 
-This is a **role-driven** scale, not a single mathematical ratio — each stop is the smallest step that gives its component role room to read as distinct from its neighbour, kept close to Tailwind's own `text-xs/sm/base/xl` defaults so utility classes and tokens rarely disagree. `--type-page` targets a clean, grid-aligned **32px (2rem)** rather than an unrounded value: page headings are rare enough per screen that there is no workflow reason for the size to be anything other than the nearest resolved number. Shipped CSS currently has `31px` (`1.9375rem`) — a rounding artifact from an earlier pass, not a deliberate choice — and needs updating to match; see [Token Migration Roadmap](#token-migration-roadmap).
+## Spacing
 
-Implementation preference: `text-[length:var(--type-control)]` in new components. Typography components may continue using Tailwind scale classes where values match exactly.
+4px base, Tailwind scale — not tokenised, just use it consistently:
 
-## Spacing Scale
-
-Pathogen uses Tailwind’s default **4px base**. Semantic spacing is not tokenised — use the scale consistently:
-
-| px | Tailwind | Typical role |
-|----|----------|--------------|
-| 4 | `1` | Icon padding, tight stacks |
+| px | Class | Good for |
+|----|-------|----------|
+| 4 | `1` | Tight padding |
 | 8 | `2` | Control internals |
-| 12 | `3` | Radio rows, inline groups |
-| 16 | `4` | Field gaps, fieldsets |
-| 24 | `6` | Section gaps |
-| 32 | `8` | Region separation |
+| 12 | `3` | Radio rows |
+| 16 | `4` | Form gaps |
+| 24 | `6` | Sections |
+| 32 | `8` | Major regions |
 
-## Radius Scale
+## Radius
 
 ```css
 --pvc-radius-control-sm: 0.125rem; /* 2px */
@@ -258,14 +252,7 @@ Pathogen uses Tailwind’s default **4px base**. Semantic spacing is not tokenis
 --pvc-radius-panel: 0.5rem;        /* 8px */
 ```
 
-| Token | px | Components |
-|-------|-----|------------|
-| `--pvc-radius-control-sm` | 2 | Checkboxes |
-| `--pvc-radius-control` | 4 | Inputs, inline code focus |
-| `--pvc-radius-action` | 6 | `Button`, `CopyableValue`, tabs |
-| `--pvc-radius-panel` | 8 | Data grid frame, preview panels |
-
-Use `rounded-[var(--pvc-radius-*)]` in component class strings rather than hard-coded `rounded-md` / `rounded-lg` when the role is known.
+Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when you know the role.
 
 ## Elevation
 
@@ -274,13 +261,7 @@ Use `rounded-[var(--pvc-radius-*)]` in component class strings rather than hard-
 --pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 / 0.2);
 ```
 
-| Level | Rule |
-|-------|------|
-| Product surfaces | No shadow |
-| Grouped regions | Border + surface step (composed from surface/border tokens, not a shadow token) |
-| Overlays | `--pvc-shadow-overlay` |
-
-Two tokens, not three, by design: only overlays detach visually from the canvas and need shadow. See [Design Contract → Elevation atoms](01-design-contract) for the full rationale.
+Flat UI + borders; shadow only on floating layers. [Foundations → elevation](01-design-contract#6-elevation) explains why we stopped at two shadow tokens.
 
 ## Motion
 
@@ -290,50 +271,36 @@ Two tokens, not three, by design: only overlays detach visually from the canvas 
 --pvc-duration-overlay: 200ms;
 ```
 
-Prefer colour, border, background, and opacity transitions. Reserve movement for overlays. Honour `prefers-reduced-motion`.
+Colour and opacity first; movement for overlays. Honour `prefers-reduced-motion`.
 
-## Geometry And Composition
+## Component-specific tokens
 
-Geometry is expressed through **layout**, not decoration:
+**Data grid** — `--pvc-data-grid-*` for borders, cell padding, body background. Internal to the grid.
 
-- Vertical and horizontal alignment to a shared grid.
-- Gutters between primary and secondary work areas.
-- Dividers, table rules, and borders that trace real structure.
-- Small accent bars or blocks only for navigation, selection, focus, status, or grouping.
-- Asymmetric layouts only when workflow priority is genuinely uneven.
+**Tooltip** — `--pvc-tooltip-origin` for placement. Tooltip fill uses `neutral-950`; that's overlay territory, not page canvas.
 
-## Component-Scoped Tokens
+## Where components are today
 
-### Data grid (`pvc_datagrid_layer.css`)
+| Component | Semantic colour | Radius tokens | Type tokens |
+|-----------|-----------------|---------------|-------------|
+| `Button` | ✓ | `--pvc-radius-action` | via `text-sm` |
+| `CopyableValue` | ✓ | `--pvc-radius-action` | `--type-meta` |
+| `Typography` | partial | Tailwind | Tailwind |
+| `Link`, `Tabs`, `Form` | partial | mixed | `text-sm` labels |
+| `DataGrid` | grid-scoped | `rounded-lg` ≈ panel | — |
+| `Tooltip` | hard-coded | `rounded-lg` | — |
 
-Internal tokens such as `--pvc-data-grid-border-color`, `--pvc-data-grid-body-bg`, and cell padding. These reference neutral/primary palette for grid-specific contrast needs. Do not override from host apps unless integrating the grid as a whole.
+New work: follow `Button`.
 
-### Tooltip
+## What's on our list
 
-`--pvc-tooltip-origin` — placement-based transform origin. Tooltip surface uses `neutral-950` fill with overlay shadow; treat as overlay tier, not canvas surface.
+These docs describe where we're headed; CSS describes what's shipped. Four known gaps — close each in CSS and delete the row:
 
-## Migration Status
+| # | Token | Shipped now | Target | Why |
+|---|-------|-------------|--------|-----|
+| 1 | `accent-solid-hover` | Lightens (`700` → `600`) | Darken (e.g. `800`) | Solid hover should press in, like danger already does |
+| 2 | `focus` (dark) | `primary-400` (= accent) | `primary-500` both modes | Focus must stay separate from accent |
+| 3 | `type-page` | 31px | 32px | Clean grid-aligned page title |
+| 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons aren't supported yet |
 
-| Component | Semantic colour | Semantic radius | Type tokens |
-|-----------|-----------------|-----------------|-------------|
-| `Button` | Yes | `--pvc-radius-action` | via `text-sm` / `text-xs` |
-| `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
-| `Typography::*` | Partial (`neutral-*`) | Tailwind utilities | Tailwind scale |
-| `Link`, `Tabs`, `Form::*` | Partial | Mixed | `text-sm` labels |
-| `DataGridComponent` | Scoped grid tokens | `rounded-lg` ≈ panel | — |
-| `Tooltip` | Hard-coded overlay | `rounded-lg` | — |
-
-New and touched components should move toward the `Button` reference pattern.
-
-## Token Migration Roadmap
-
-This doc set is the source of truth for where tokens are *going*; `pathogen.tailwind.css` is the source of truth for what's *shipped* today. The two disagree in four places as of this rewrite. Each is a deliberate target documented here, not yet a documented exception — someone should close each row and delete it, not leave it open indefinitely:
-
-| # | Token(s) | Shipped today | Target | Why |
-|---|----------|----------------|--------|-----|
-| 1 | `--pvc-color-accent-solid-hover` | `primary-600` (lighter than base `primary-700`) | Darker than base, e.g. `primary-800` | Hover on a solid fill must always darken, matching `danger`'s already-correct direction — see [Design Contract → Hover And Active State](01-design-contract) |
-| 2 | `--pvc-color-focus` (dark mode) | `primary-400` (identical to dark `accent`) | `primary-500`, fixed across both modes | Focus must stay visually distinct from accent in dark mode the way it already is in light mode |
-| 3 | `--type-page` | `1.9375rem` / 31px | `2rem` / 32px | Resolves to the nearest clean, grid-aligned value; no workflow needs the unrounded number |
-| 4 | `--pvc-color-success-strong` / `-solid` / `-solid-hover`, `--pvc-color-warning-strong` / `-solid` / `-solid-hover` | Not defined — only base `success`/`warning` exist | Full four-step ladder matching `accent`/`danger` | Status roles should be complete materials; today a solid success/warning surface has no token to reach for |
-
-Until row 4 ships, treat solid-fill success/warning as unsupported rather than approximating it with raw `emerald-*` / `amber-*` utilities.
+Until row 4 lands, don't build solid success/warning surfaces with hand-rolled `emerald-*` / `amber-*`.

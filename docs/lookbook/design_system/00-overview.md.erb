@@ -5,110 +5,99 @@ landing: true
 
 # Pathogen Design System
 
-Pathogen is a clinical utility design system for healthcare, laboratory, and public-health data workflows. It is a **coded, versioned environment** — not a static style guide. Components, tokens, and Lookbook previews are the product.
+Pathogen is the shared visual language for healthcare, laboratory, and public-health tools. It lives in real components and CSS — not in a PDF on a shelf.
 
-The system should feel **quiet, precise, accessible, compact, and credible** on dense screens. Its identity comes from disciplined rendering of data, forms, controls, and navigation — not from decoration.
+On a busy screen, the UI should feel **quiet, precise, accessible, compact, and trustworthy**. You notice the work, not the chrome: the specimen row, the form field, the save action — not gradients, hero cards, or decorative colour.
 
-## What We Optimise For
+## What we're aiming for
 
-| Quality | Meaning in practice |
-|---------|---------------------|
-| **Quiet** | Surfaces recede; colour and weight appear only when they carry meaning |
-| **Precise** | Alignment, spacing, and type rhythm are consistent enough to feel inevitable |
-| **Accessible** | Focus, contrast, names, and state are designed in — not patched on |
-| **Compact** | Dense layouts preserve legibility for grids, forms, and toolbars |
-| **Credible** | Clinical data workflows need trust; polish must serve clarity, not marketing |
+| Quality | What it feels like |
+|---------|-------------------|
+| **Quiet** | Surfaces stay back; colour and weight show up only when they mean something |
+| **Precise** | Type, spacing, and alignment line up often enough that nothing looks accidental |
+| **Accessible** | Focus, contrast, and screen-reader names are part of the design from the start |
+| **Compact** | Dense grids and toolbars still leave room to read state and errors |
+| **Trustworthy** | Clinical workflows need credibility — clarity beats polish |
 
-## Design Lineage
+## Influences (function, not decoration)
 
-Pathogen draws from three related traditions. None of them are applied as ornament.
+We borrow ideas from Bauhaus, Dieter Rams, and the craft tradition behind products like Apple's — always applied to **workflow**, never as poster art.
 
-### Bauhaus — structure before expression
+**Bauhaus — structure first**
 
-The Bauhaus unified craft, art, and technology around **form follows function**. For Pathogen that means:
+Form follows function. For us that means:
 
-- **Grid and rhythm** — a 4px spacing base, visible alignment, and modular layout before decorative composition.
-- **Geometric primitives** — circles (pills, avatars), rectangles (controls, panels), and lines (borders, dividers) as the vocabulary of structure.
-- **Typography as hierarchy** — sans-serif type sized and weighted to clarify information, not to create display moments.
-- **Restrained palette** — neutrals for environment; accent and status colours only where meaning demands them.
-- **Workshop discipline** — master fundamentals (tokens), then build repeatable artefacts (components) from shared materials.
+- A **4px spacing rhythm** and visible alignment before decorative layout.
+- Simple shapes — rectangles for controls, lines for dividers, pills for toggles — as the visual vocabulary.
+- **Type that explains hierarchy**, not type that performs.
+- **Neutrals for the room**; accent and status colour only when something is happening.
 
-Bauhaus primary colours, offset blocks, and poster-style asymmetry belong in Pathogen **only** when they encode selection, focus, status, navigation, or workflow priority — never as decoration.
+Bright primaries, offset blocks, and playful asymmetry are welcome when they signal selection, focus, status, or where the eye should go — not when they dress up an empty panel.
 
-### Dieter Rams — less, but better
+**Rams — less, but better**
 
-Rams treated products as tools: useful, understandable, honest, thorough down to the last detail, and as little design as possible. Pathogen maps that to:
+Tools should be understandable and honest:
 
-- One clear primary action per surface where possible.
+- One clear primary action per surface when you can.
 - Borders and surface steps before shadows.
-- State communicated by more than colour alone.
-- Every interactive element earning its visual weight.
+- State you can read without relying on colour alone.
 
-### Jony Ive — inevitability and care
+**Craft — care in the details**
 
-Ive’s craft philosophy — heavily shaped by Rams and his Bauhaus education — emphasises that **how something is made is part of what it is**. For a design system:
+Good UI feels obvious once you see it. That comes from:
 
-- **Tokens and components are inseparable** — semantic roles live in CSS; components consume them. Documentation that disagrees with `pathogen.tailwind.css` without an open [Token Migration Roadmap](02-tokens) entry is wrong; documentation that disagrees *with* a tracked roadmap entry is the deliberate target the CSS hasn't caught up to yet.
-- **Perceived inevitability** — a button, label, or grid row should feel like the obvious resolution of the problem, not a styled afterthought.
-- **Care in the invisible** — focus rings, forced-colours behaviour, screen-reader names, and disabled logic matter as much as hover colour.
-- **Focus on the product** — previews model real clinical workflows, not documentation theatre.
+- Tokens and components staying in sync — if the docs and `pathogen.tailwind.css` disagree, we fix the drift (see [what's on our token list](02-tokens#whats-on-our-list)).
+- Buttons and labels that look like they belong to the same family.
+- Focus rings, keyboard paths, and disabled behaviour treated with the same care as hover colour.
 
-## System Architecture
+## How the system fits together
 
-Pathogen is organised in **one** seven-layer hierarchy. Build from the bottom up; do not skip layers. This is the single canonical diagram for the system — every other doc, including the Design Contract's atomic breakdown, is detail nested inside one of these seven layers, not a competing structure.
+Build from the bottom up:
 
 ```
-Intent (workflow, state, hierarchy)
+What is this for? (workflow, state, hierarchy)
     ↓
-Tokens (--pvc-*, --type-*, spacing rhythm)
+Tokens (colours, type, radius, motion)
     ↓
-Primitives (colour roles, typography, spacing, radius, elevation, motion)
+Building blocks (roles, scale, spacing, corners, shadow, motion)
     ↓
-Controls (button, link, form control, tab)
+Controls (button, link, form field, tab)
     ↓
-Content (typography, code, copyable value, tooltip)
+Content (typography, code, copyable values, tooltips)
     ↓
-Surfaces (panel, grid, grouped fieldset, overlay)
+Surfaces (panels, grids, fieldsets, overlays)
     ↓
-Composition (page regions, asymmetric workflow layouts)
+Pages (regions, previews, asymmetric layouts)
 ```
 
-| Layer | Examples | Contract doc |
-|-------|----------|--------------|
-| Intent | Primary action, secondary dismiss, status, navigation, metadata | [Design Contract §1](01-design-contract) |
-| Tokens | `--pvc-color-surface`, `--type-control`, `--pvc-radius-action` | [Tokens](02-tokens) |
-| Primitives | Colour roles, typography atoms, spacing atoms, radius atoms, elevation atoms, motion atoms | [Design Contract §2–7](01-design-contract) |
-| Controls | `Pathogen::Button`, `Pathogen::Link`, `Pathogen::Form::*` | [Design Contract](01-design-contract) |
-| Content | `Pathogen::Typography::*`, `Pathogen::CopyableValue` | [Design Contract](01-design-contract) |
-| Surfaces | `Pathogen::DataGridComponent`, fieldsets, preview panels | [Design Contract](01-design-contract), [Dark Mode](03-dark-mode) |
-| Composition | Host pages, Lookbook previews | [Preview Guidelines](04-preview-guidelines) |
+| Layer | Examples | Read more |
+|-------|----------|-----------|
+| Tokens | `--pvc-color-surface`, `--type-control` | [Tokens](02-tokens) |
+| Building blocks | Colour roles, type scale, spacing, radius | [Foundations](01-design-contract) |
+| Controls | `Button`, `Link`, `Form::*` | [Foundations](01-design-contract) |
+| Surfaces | `DataGridComponent`, fieldsets | [Foundations](01-design-contract), [Dark mode](03-dark-mode) |
+| Pages | Host apps, Lookbook previews | [Preview guidelines](04-preview-guidelines) |
 
-The Design Contract's "Atomic Hierarchy" section is this table's **Intent** and **Primitives** rows, expanded one atom at a time (colour, typography, spacing, radius, elevation, motion, in that order). Read this table first, then treat the Contract's numbered atoms as the zoomed-in view of rows one and three — not as a second, separate hierarchy to reconcile against this one.
+The [Foundations](01-design-contract) page zooms into the middle of this stack — colour, type, spacing, and the rest — in the same order as the diagram.
 
-**Surface** is a contract term for a bounded work area: bordered region, grid frame, dialog body, or fieldset. Pathogen does not yet ship a generic `Card` component; surfaces are composed from tokens plus layout until a shared primitive exists. The `:card` variant on `Pathogen::Typography::HeadingGroup` predates this contract and names a compact heading-density preset usable inside any surface — it is not evidence of a Card component and should not be read as one. New variant names should say `compact` or `grouped`, matching surface vocabulary; renaming the existing `:card` variant is a deliberate, separately-tracked exception (see [Design Contract → Deliberate Exceptions](01-design-contract)), not a blocker for this doc set.
+**Surface** means a bounded work area: a bordered panel, grid frame, dialog body, or fieldset. We don't ship a generic `Card` yet; you compose surfaces from tokens and layout. The `:card` preset on `Pathogen::Typography::HeadingGroup` is just a compact heading style — not a card component.
 
-## Document Map
+## Where to read next
 
-Read in this order when implementing UI:
+1. **[Foundations](01-design-contract)** — how we use colour, type, spacing, buttons, forms, and accessibility.
+2. **[Tokens](02-tokens)** — the variable reference and what's still migrating.
+3. **[Dark mode](03-dark-mode)** — layering surfaces without a black hole canvas.
+4. **[Preview guidelines](04-preview-guidelines)** — making Lookbook examples feel like real product.
+5. **[Review checklist](05-review-checklist)** — a quick pass before merge.
 
-1. **[Design Contract](01-design-contract)** — behaviour, hierarchy, controls, accessibility, composition rules.
-2. **[Tokens](02-tokens)** — semantic colour, type, radius, elevation, motion; maps tokens to component tiers.
-3. **[Dark Mode](03-dark-mode)** — surface stacking and exceptions for dense data.
-4. **[Preview Guidelines](04-preview-guidelines)** — how Lookbook examples model host applications.
-5. **[Review Checklist](05-review-checklist)** — PR pass before merge.
+## When docs, code, and previews disagree
 
-## Source Of Truth
+1. **These pages** describe intent and where tokens are headed — including items on the [token list](02-tokens#whats-on-our-list).
+2. **`pathogen.tailwind.css` and shipped components** are ground truth for anything *not* on that list.
+3. **Previews** should match both; fix drift instead of inventing one-off styles.
 
-Priority when documents, previews, and code disagree:
+`Button` and `CopyableValue` are our best examples of semantic tokens today. New work should follow them, not legacy `neutral-600` shortcuts.
 
-1. **These Lookbook pages** for intent, rules, and target token values — including cases where a specific token is explicitly listed as pending in [Tokens → Token Migration Roadmap](02-tokens). Tokens, primitives, and colours are not set in stone; the docs describe where the system is going, and code catches up.
-2. **Shipped component code** and `app/assets/stylesheets/pathogen.tailwind.css` for any token value *not* called out in the Migration Roadmap. Absent an open roadmap entry, a doc/code disagreement is a docs bug, not a signal to change the token.
-3. **Component previews** as living examples — fix drift rather than inventing one-off styles.
+## Host applications
 
-This flips the old default (code always wins) for the specific, enumerated cases where the docs have deliberately gotten ahead of the CSS. It does not license quietly drifting docs and code apart elsewhere — every doc/code gap must show up as a row in the Migration Roadmap or it isn't a sanctioned target, it's an error to fix in the doc.
-
-`Button` and `CopyableValue` are the reference implementations for semantic token consumption. Other components are migrating toward the same pattern; new work should follow the reference, not the legacy palette shortcuts.
-
-## Host Applications
-
-Pathogen owns semantic roles and component behaviour. Host applications own **brand mapping** via `--color-primary-*` overrides (IRIDA maps to green; Pathogen defaults to blue). Host-local components should conform to Pathogen tokens and accessibility rules when they remain in use.
+Pathogen owns roles and component behaviour. Host apps own **brand colour** through `--color-primary-*` (Pathogen defaults to blue; IRIDA uses green). Local host components should still use Pathogen tokens and accessibility patterns while they're in play.
