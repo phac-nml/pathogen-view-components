@@ -4,80 +4,77 @@ title: Review Checklist
 
 # Review Checklist
 
-A quick pass for PRs that touch Pathogen UI, styles, previews, or these docs.
+Use this pass for PRs that touch Pathogen UI, styles, previews, or these docs. The goal is not visual sameness. The goal is a product that feels quiet, precise, accessible, compact, and trustworthy from the smallest token to the full page.
 
-## Does it fit?
+## Quiet
 
-- [ ] Visual choices help workflow, state, or hierarchy — not decoration?
-- [ ] Matches [Foundations](<%= page_path("design-system-design-contract") %>)
-- [ ] Exception documented if you bent a rule?
-- [ ] Local pattern worth promoting to Pathogen?
-- [ ] Feels natural for the task?
+- Visual choices clarify workflow, state, hierarchy, or navigation?
+- Colour appears only when it carries meaning?
+- No marketing gradients, hero layouts, decorative poster shapes, or broad feature blocks?
+- Shadows reserved for overlays?
+- Status colour used only for status?
 
-## Colour and tokens
+## Precise
 
-- [ ] `--pvc-color-*` where available?
-- [ ] No new `slate-*` (use `neutral-*`)?
-- [ ] Host can still override `--color-primary-*`?
-- [ ] Status colour only for status?
-- [ ] No hard-coded host brand in shared components?
-- [ ] Big colour fields only for selection, focus, status, nav?
-- [ ] Solid hover darkens, not lightens?
-- [ ] Success/warning as text/border/icon only (no solid fill yet)?
+- Uses `--pvc-color-*` where a semantic role exists?
+- No new `slate-*` when `neutral-*` works?
+- Host apps can still override `--color-primary-*`?
+- Radius matches role: 2px, 4px, 6px, or 8px?
+- No `rounded-xl` on everyday product UI?
+- Mostly 14px / 16px unless hierarchy needs more?
+- Labels are semibold at control scale?
+- Spacing follows the 4px rhythm?
+- Page titles use `Heading`?
 
-## Type and spacing
+## Accessible
 
-- [ ] Mostly 14px / 16px unless hierarchy needs more?
-- [ ] Labels semibold at control scale?
-- [ ] 4px spacing scale, no odd gaps?
-- [ ] Page titles via `Heading` component?
+- Visible `focus-visible` in light and dark?
+- New or migrated code uses `--pvc-color-focus`?
+- Focus remains distinct from accent?
+- State is not colour-only?
+- Icon buttons have screen-reader names?
+- Semantic HTML and WCAG AA contrast?
+- `prefers-reduced-motion` respected?
+- Forced-colours considered for custom controls?
 
-## Surfaces and radius
+## Compact
 
-- [ ] Radius matches role (2–4 / 6 / 8px)?
-- [ ] No `rounded-xl` on everyday UI?
-- [ ] Border + background before shadow?
-- [ ] Shadow only on overlays?
+- Dense UI still leaves room for focus rings and validation text?
+- Small toolbar controls keep 24px targets and 8px between neighbours?
+- Aligned grids and real dividers support scanning?
+- Asymmetry reflects workflow priority, not layout fashion?
+- Data-heavy previews use realistic density?
+
+## Trustworthy
+
+- Matches [Foundations](<%= page_path("design-system-design-contract") %>)?
+- Any exception is named with a workflow reason?
+- Local pattern worth promoting to Pathogen?
+- No hard-coded host brand in shared components?
+- Interaction states feel stable and honest?
+- Copy sounds like clinical, laboratory, or public-health work?
 
 ## Buttons
 
-- [ ] One `primary` + `solid` per group?
-- [ ] Cancel/secondary on `neutral` outline or ghost?
-- [ ] `danger` + `solid` only on confirm?
-- [ ] Icon buttons named for screen readers?
-- [ ] `small` toolbars: 24px targets, 8px between neighbours?
-- [ ] No solid success/warning until tokens land?
+- One `primary` + `solid` per action group?
+- Cancel and secondary actions use `neutral` outline or ghost?
+- `danger` + `solid` reserved for confirmed destructive steps?
+- Solid hover darkens, or the mismatch is already a known token gap?
+- No solid success/warning until tokens land?
 
-## Layout
+## Dark Mode
 
-- [ ] Aligned grid, real dividers?
-- [ ] Asymmetry tied to workflow, not layout fashion?
-- [ ] Geometric accents encode selection/focus/status/nav — not poster art?
-
-## Focus and accessibility
-
-- [ ] Visible `focus-visible` light and dark?
-- [ ] `--pvc-color-focus` on new/migrated code?
-- [ ] Focus distinct from accent in **both** modes?
-- [ ] State not colour-only?
-- [ ] Semantic HTML, AA contrast, SR names?
-- [ ] `prefers-reduced-motion`?
-- [ ] Forced-colours on custom controls?
-
-## Dark mode
-
-- [ ] No `neutral-950` page shells?
-- [ ] Borders, muted text, states still clear?
-- [ ] Focus not same as accent?
-- [ ] Deeper black only inside framed dense regions?
-- [ ] Same radius/spacing as light?
+- No `neutral-950` page shells?
+- Deeper black only inside framed dense regions?
+- Borders, muted text, hover, selected, disabled, and validation states remain clear?
+- Same radius, spacing, and grid logic as light mode?
 
 ## Previews
 
-- [ ] Realistic workflow context?
-- [ ] No marketing gradients or hero layouts?
-- [ ] Same tokens as shipped components?
-- [ ] Checked light and dark?
+- Shows a realistic workflow context?
+- Uses the same tokens as shipped components?
+- Avoids a separate documentation aesthetic?
+- Checked in light and dark?
 
 ## Commands
 
