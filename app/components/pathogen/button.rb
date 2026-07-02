@@ -12,13 +12,13 @@ module Pathogen
     renders_one :trailing_visual
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
-    def initialize(base_button_class: Pathogen::BaseButton, scheme: DEFAULT_SCHEME, tone: nil, emphasis: nil,
+    def initialize(base_button_class: Pathogen::BaseButton, tone: nil, emphasis: nil,
                    size: DEFAULT_SIZE, block: false, icon_only: false, text: nil, disabled: false,
                    aria_disabled: false, **system_arguments)
       raise ArgumentError, 'Cannot set both disabled and aria_disabled on a button' if disabled && aria_disabled
 
       @base_button_class = base_button_class
-      @tone, @emphasis = resolve_tone_and_emphasis(scheme, tone, emphasis)
+      @tone, @emphasis = resolve_tone_and_emphasis(tone, emphasis)
       @size = size
       @block = block
       @icon_only = icon_only
@@ -60,20 +60,15 @@ module Pathogen
 
     private
 
-    def resolve_tone_and_emphasis(scheme, tone, emphasis)
-      if tone || emphasis
-        resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
-        resolved_emphasis = if emphasis.nil?
-                              DEFAULT_EMPHASIS
-                            else
-                              fetch_or_fallback(EMPHASIS_OPTIONS, emphasis,
-                                                DEFAULT_EMPHASIS)
-                            end
+    def resolve_tone_and_emphasis(tone, emphasis)
+      resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
+      resolved_emphasis = if emphasis.nil?
+                            DEFAULT_EMPHASIS
+                          else
+                            fetch_or_fallback(EMPHASIS_OPTIONS, emphasis, DEFAULT_EMPHASIS)
+                          end
 
-        [resolved_tone, resolved_emphasis]
-      else
-        SCHEME_PRESETS.fetch(fetch_or_fallback(SCHEME_OPTIONS, scheme, DEFAULT_SCHEME))
-      end
+      [resolved_tone, resolved_emphasis]
     end
 
     def validate_icon_only_accessible_name!

@@ -4,9 +4,8 @@
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       <%= pathogen_code { "pathogen_button_to" } %> mirrors Rails <%= pathogen_code { "button_to" } %> but renders
-      <%= pathogen_code { "Pathogen::Button" } %> so form actions match the design system. Prefer
-      <%= pathogen_code { "tone" } %> + <%= pathogen_code { "emphasis" } %>; legacy <%= pathogen_code { "scheme" } %>
-      remains supported.
+      <%= pathogen_code { "Pathogen::Button" } %> so form actions match the design system. Use
+      <%= pathogen_code { "tone" } %> + <%= pathogen_code { "emphasis" } %> to style submit actions.
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">

@@ -9,7 +9,7 @@ module Pathogen
     end
 
     test 'renders a form with a Pathogen submit button' do
-      html = @view.pathogen_button_to('Delete', '/posts/1', method: :delete, scheme: :danger)
+      html = @view.pathogen_button_to('Delete', '/posts/1', method: :delete, tone: :danger, emphasis: :outline)
 
       assert_includes html, '<form'
       assert_includes html, 'action="/posts/1"'
@@ -19,14 +19,14 @@ module Pathogen
       assert_includes html, 'value="delete"'
     end
 
-    test 'forwards Pathogen scheme to the button component' do
-      html = @view.pathogen_button_to('Remove', '/items/2', scheme: :danger)
+    test 'forwards Pathogen tone and emphasis to the button component' do
+      html = @view.pathogen_button_to('Remove', '/items/2', tone: :danger, emphasis: :outline)
 
       assert_includes html, 'text-[var(--pvc-color-danger-strong)]'
     end
 
     test 'renders block content inside the Pathogen button' do
-      html = @view.pathogen_button_to('/retry', method: :post, scheme: :primary) do
+      html = @view.pathogen_button_to('/retry', method: :post, tone: :primary, emphasis: :solid) do
         'Retry now'
       end
 

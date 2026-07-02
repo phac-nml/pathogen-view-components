@@ -16,7 +16,7 @@ module Pathogen
     # @return [ActiveSupport::SafeBuffer]
     #
     # @example Delete action
-    #   pathogen_button_to "Delete", post_path(@post), method: :delete, scheme: :danger
+    #   pathogen_button_to "Delete", post_path(@post), method: :delete, tone: :danger, emphasis: :outline
     def pathogen_button_to(name = nil, options = nil, html_options = nil, &block)
       name, options, html_options = normalize_button_to_args(name, options, html_options, block)
 
