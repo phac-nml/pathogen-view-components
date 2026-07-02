@@ -3,9 +3,8 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Tone and emphasis" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Use <%= pathogen_code { "tone" } %> for meaning and <%= pathogen_code { "emphasis" } %> for hierarchy. Existing
-      <%= pathogen_code { "scheme" } %> values map to presets. Pick one combination per action group using the reference
-      table below.
+      Use <%= pathogen_code { "tone" } %> for meaning and <%= pathogen_code { "emphasis" } %> for hierarchy. Pick one
+      combination per action group using the reference table below.
     <% end %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
@@ -60,19 +59,6 @@
           <% end %>
         </tbody>
       </table>
-    </div>
-
-    <%= pathogen_heading(level: 5, class: "mb-2 mt-6 font-semibold") { "Legacy scheme mapping" } %>
-
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      <%= pathogen_code { "default" } %> maps to neutral outline, <%= pathogen_code { "primary" } %> to primary solid,
-      and <%= pathogen_code { "danger" } %> to danger outline.
-    <% end %>
-
-    <div class="flex flex-wrap items-center gap-2">
-      <%= render Pathogen::Button.new(scheme: :default, text: 'scheme: default') %>
-      <%= render Pathogen::Button.new(scheme: :primary, text: 'scheme: primary') %>
-      <%= render Pathogen::Button.new(scheme: :danger, text: 'scheme: danger') %>
     </div>
   </section>
 

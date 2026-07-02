@@ -121,8 +121,8 @@
         <%= pathogen_text(variant: :muted, class: "mt-4") { "Are you sure you want to delete this sample? This action cannot be undone." } %>
 
         <div class="mt-6 flex gap-3">
-          <%= render Pathogen::Button.new(scheme: :danger, text: 'Delete') %>
-          <%= render Pathogen::Button.new(scheme: :default, text: 'Cancel') %>
+          <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Delete') %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
         </div>
       </div>
 

@@ -39,7 +39,7 @@ module Pathogen
         view = ActionView::Base.empty
         builder = PathogenFormBuilder.new(:sample, nil, view, {})
 
-        html = builder.submit('Save changes', scheme: :primary)
+        html = builder.submit('Save changes', tone: :primary, emphasis: :solid)
 
         assert_includes html, 'type="submit"'
         assert_includes html, 'Save changes'
