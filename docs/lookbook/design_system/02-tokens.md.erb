@@ -4,32 +4,37 @@ title: Tokens
 
 # Tokens
 
-Tokens are how we keep Pathogen consistent: change `--pvc-color-accent-solid` once in CSS, and every button that uses it updates. Write components in terms of **roles** (`--pvc-color-accent-solid`), not palette stops (`primary-700`).
+Tokens are the material of Pathogen. They keep small decisions consistent enough that the interface feels quiet, precise, accessible, compact, and trustworthy across components and host apps.
 
-## Theme overrides for host apps
+Write shared components in terms of **roles** (`--pvc-color-accent-solid`), not palette stops (`primary-700`). Palette stops can change. Roles describe intent.
 
-| Variable | Default | Host apps |
-|----------|---------|-----------|
-| `--color-primary-*` | Blue | Your brand / action colour (IRIDA: green) |
-| `--color-neutral-*` | Slate (as `neutral-*`) | Leave as-is; use `neutral-*` in components |
-| `--font-sans` | Inter stack | Optional swap |
+## Host Theme Overrides
+
+| Variable | Pathogen default | Host apps |
+|----------|------------------|-----------|
+| `--color-primary-*` | Blue | Brand / action colour (IRIDA: green) |
+| `--color-neutral-*` | Slate, exposed as `neutral-*` | Leave as-is unless theming the whole neutral system |
+| `--font-sans` | Inter stack | Optional product font |
 | `--font-mono` | System mono | Code and IDs |
 
-Use `neutral-*` in components, not raw `slate-*` — `neutral` is the public name; slate is an implementation detail in the theme file.
+Use `neutral-*` in components, not raw `slate-*`. `neutral` is the public name; slate is the implementation.
 
-## Three layers
+## Token Layers
 
-```
-Palette (primary, neutral, status hues)
+```text
+Palette
+  primary, neutral, status hues
     ↓
-Semantic roles (--pvc-color-*, --type-*, --pvc-radius-*, motion)
+Semantic roles
+  --pvc-color-*, --type-*, --pvc-radius-*, motion
     ↓
-Component-scoped (data grid, tooltip placement)
+Component-scoped tokens
+  data grid internals, tooltip placement
 ```
 
-Grid and tooltip tokens are internal — don't override them from host apps unless you're theming the whole grid.
+Grid and tooltip tokens are internal. Do not override them from host apps unless the host is intentionally theming the whole component.
 
-## Colour roles
+## Colour Roles
 
 Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
 
@@ -153,7 +158,7 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
   <% end %>
 </div>
 
-Live definitions: `app/assets/stylesheets/pathogen.tailwind.css`
+Live definitions today:
 
 ```css
 :root {
@@ -199,7 +204,7 @@ Live definitions: `app/assets/stylesheets/pathogen.tailwind.css`
 }
 ```
 
-### When to use which accent token
+### Choosing Accent And Danger Tokens
 
 | Situation | Tokens |
 |-----------|--------|
@@ -208,31 +213,31 @@ Live definitions: `app/assets/stylesheets/pathogen.tailwind.css`
 | Outline/ghost destructive | `danger-strong`, `danger` |
 | Filled destructive | `danger-solid`, `danger-solid-hover` |
 
-In dark mode, **text and borders** on accent lighten for contrast; **solid button fills** stay saturated. Focus is special — it stays at `primary-500` in both modes so it never matches accent ([foundations → focus](<%= page_path("design-system-design-contract") %>#focus-and-keyboard)).
+In dark mode, accent text and borders lighten for contrast. Solid button fills stay saturated so action colour still feels deliberate. Focus is a separate role; the target is `primary-500` in both modes so focus does not collapse into accent.
 
-## Type scale
+## Type Scale
 
 ```css
 --type-meta: 0.75rem;      /* 12px */
 --type-control: 0.875rem;  /* 14px */
 --type-body: 1rem;         /* 16px */
 --type-section: 1.25rem;   /* 20px */
---type-page: 2rem;         /* 32px — target; CSS may still say 31px until fixed */
+--type-page: 2rem;         /* 32px target; shipped CSS still has 31px */
 ```
 
 | Token | px | Tailwind | Used by |
-|-------|-----|----------|---------|
+|-------|----|----------|---------|
 | `--type-meta` | 12 | `text-xs` | Hints, `CopyableValue` |
 | `--type-control` | 14 | `text-sm` | Labels, buttons |
 | `--type-body` | 16 | `text-base` | Body text |
 | `--type-section` | 20 | `text-xl` | Section titles |
-| `--type-page` | 32 | `text-3xl` | Page headings |
+| `--type-page` | 32 target | `text-3xl` | Page headings |
 
-14px and 16px are the everyday sizes. The scale is **role-based**, not a strict mathematical ratio — each step is the smallest jump that still reads as a different level. Page size targets a clean **32px**; shipped CSS may still have 31px from an old rounding pass (on the fix list below).
+The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
 ## Spacing
 
-4px base, Tailwind scale — not tokenised, just use it consistently:
+Spacing uses the 4px Tailwind rhythm.
 
 | px | Class | Good for |
 |----|-------|----------|
@@ -243,6 +248,8 @@ In dark mode, **text and borders** on accent lighten for contrast; **solid butto
 | 24 | `6` | Sections |
 | 32 | `8` | Major regions |
 
+Do not tokenise spacing unless a repeated component pattern needs a named value.
+
 ## Radius
 
 ```css
@@ -252,7 +259,7 @@ In dark mode, **text and borders** on accent lighten for contrast; **solid butto
 --pvc-radius-panel: 0.5rem;        /* 8px */
 ```
 
-Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when you know the role.
+Use the radius that matches the role. Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when the component job is known.
 
 ## Elevation
 
@@ -261,7 +268,7 @@ Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when you 
 --pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 / 0.2);
 ```
 
-Flat UI + borders; shadow only on floating layers. [Foundations → elevation](<%= page_path("design-system-design-contract") %>#elevation) explains why we stopped at two shadow tokens.
+Base product surfaces stay flat. Overlays get the small shadow because they float above the work.
 
 ## Motion
 
@@ -271,38 +278,38 @@ Flat UI + borders; shadow only on floating layers. [Foundations → elevation](<
 --pvc-duration-overlay: 200ms;
 ```
 
-Colour and opacity first; movement for overlays. Honour `prefers-reduced-motion`.
+Use colour, border, background, and opacity transitions before movement. Honour `prefers-reduced-motion`.
 
-## Component-specific tokens
+## Component-Specific Tokens
 
-**Data grid** — `--pvc-data-grid-*` for borders, cell padding, body background. Internal to the grid.
+**Data grid** — `--pvc-data-grid-*` controls grid borders, cell padding, and body background. These tokens are internal to the grid.
 
-**Tooltip** — `--pvc-tooltip-origin` for placement. Tooltip fill uses `neutral-950`; that's overlay territory, not page canvas.
+**Tooltip** — `--pvc-tooltip-origin` controls placement. Tooltip fill uses `neutral-950`; that is overlay territory, not page canvas.
 
-## Where components are today
+## Where Components Are Today
 
 | Component | Semantic colour | Radius tokens | Type tokens |
 |-----------|-----------------|---------------|-------------|
-| `Button` | ✓ | `--pvc-radius-action` | via `text-sm` |
-| `CopyableValue` | ✓ | `--pvc-radius-action` | `--type-meta` |
-| `Typography` | partial | Tailwind | Tailwind |
-| `Link`, `Tabs`, `Form` | partial | mixed | `text-sm` labels |
-| `DataGrid` | grid-scoped | `rounded-lg` ≈ panel | — |
-| `Tooltip` | hard-coded | `rounded-lg` | — |
+| `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
+| `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
+| `Typography` | Partial | Tailwind | Tailwind |
+| `Link`, `Tabs`, `Form` | Partial | Mixed | `text-sm` labels |
+| `DataGrid` | Grid-scoped | `rounded-lg` ~= panel | - |
+| `Tooltip` | Hard-coded | `rounded-lg` | - |
 
-New work: follow `Button`.
+New work should follow `Button`.
 
 <span id="whats-on-our-list"></span>
 
-## What's on our list
+## What's On Our List
 
-These docs describe where we're headed; CSS describes what's shipped. Four known gaps — close each in CSS and delete the row:
+These rows are known gaps between shipped CSS and the intended system direction. Close each gap in CSS, then delete its row.
 
 | # | Token | Shipped now | Target | Why |
 |---|-------|-------------|--------|-----|
-| 1 | `accent-solid-hover` | Lightens (`700` → `600`) | Darken (e.g. `800`) | Solid hover should press in, like danger already does |
-| 2 | `focus` (dark) | `primary-400` (= accent) | `primary-500` both modes | Focus must stay separate from accent |
-| 3 | `type-page` | 31px | 32px | Clean grid-aligned page title |
-| 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons aren't supported yet |
+| 1 | `accent-solid-hover` | Lightens (`700` -> `600`) | Darken, such as `800` | Solid hover should press in, like danger already does |
+| 2 | `focus` in dark mode | `primary-400`, same as accent | `primary-500` in both modes | Focus must remain separate from accent |
+| 3 | `type-page` | 31px | 32px | Cleaner page title on the grid |
+| 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
 
-Until row 4 lands, don't build solid success/warning surfaces with hand-rolled `emerald-*` / `amber-*`.
+Until row 4 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
