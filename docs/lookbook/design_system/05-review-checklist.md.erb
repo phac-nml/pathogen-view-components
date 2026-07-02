@@ -4,56 +4,87 @@ title: Review Checklist
 
 # Review Checklist
 
-Use this checklist for pull requests that touch Pathogen UI, styles, previews, or design-system documentation.
+Use this pass for PRs that touch Pathogen UI, styles, previews, or these docs. The goal is not visual sameness. The goal is a product that feels quiet, precise, accessible, compact, and trustworthy from the smallest token to the full page.
 
-## Contract
+## Quiet
 
-- Does the change follow the Lookbook design contract?
-- If it introduces an exception, is the exception documented with a short rationale?
-- Should any local pattern become a shared Pathogen component or token?
-- Does the visual treatment serve workflow structure, state, hierarchy, or navigation?
+- Visual choices clarify workflow, state, hierarchy, or navigation?
+- Colour appears only when it carries meaning?
+- No marketing gradients, hero layouts, decorative poster shapes, or broad feature blocks?
+- Shadows reserved for overlays?
+- Status colour used only for status?
 
-## Tokens And Colour
+## Precise
 
-- Does the change use semantic colour/surface roles where available?
-- Does it preserve the public `--color-primary-*` override contract?
-- Are status colours used only for status meaning?
-- Does the change avoid hard-coded host application brand colours?
-- Are strong colour blocks limited to meaningful states, grouping, focus, or navigation?
+- Uses `--pvc-color-*` where a semantic role exists?
+- No new `slate-*` when `neutral-*` works?
+- Host apps can still override `--color-primary-*`?
+- Radius matches role: 2px, 4px, 6px, or 8px?
+- No `rounded-xl` on everyday product UI?
+- Mostly 14px / 16px unless hierarchy needs more?
+- Labels are semibold at control scale?
+- Spacing follows the 4px rhythm?
+- Page titles use `Heading`?
+
+## Accessible
+
+Full requirements and references: [Foundations → Accessibility](<%= page_path("design-system-design-contract") %>#accessibility).
+
+- Visible `focus-visible` in light and dark?
+- New or migrated code uses `--pvc-color-focus`?
+- Focus remains distinct from accent?
+- State is not colour-only?
+- Icon buttons have screen-reader names?
+- Semantic HTML and WCAG 2.2 AA contrast?
+- Custom widget follows the matching [APG pattern](https://www.w3.org/WAI/ARIA/apg/patterns/)?
+- Keyboard-only use still completes the task?
+- `prefers-reduced-motion` respected?
+- Forced-colours considered for custom controls?
+
+## Compact
+
+- Dense UI still leaves room for focus rings and validation text?
+- Small toolbar controls keep 24px targets and 8px between neighbours?
+- Aligned grids and real dividers support scanning?
+- Asymmetry reflects workflow priority, not layout fashion?
+- Data-heavy previews use realistic density?
+
+## Trustworthy
+
+- Matches [Foundations](<%= page_path("design-system-design-contract") %>)?
+- Any exception is named with a workflow reason?
+- Local pattern worth promoting to Pathogen?
+- No hard-coded host brand in shared components?
+- Interaction states feel stable and honest?
+- Copy sounds like clinical, laboratory, or public-health work?
 
 ## Buttons
 
-- Does each action group have at most one `primary` + `solid` button?
-- Are secondary and dismissive actions using `neutral` + `outline` or `neutral` + `ghost` as appropriate?
-- Is `danger` + `solid` reserved for confirmed destructive steps, not ordinary delete affordances?
-- Do icon-only buttons have distinct accessible names?
-- Are toolbar and grid actions using `small` size without reducing target size below the documented minimums?
-
-## Geometry And Layout
-
-- Are controls, labels, data, and actions aligned to a clear grid?
-- Are radius, borders, and dividers crisp enough for dense product use?
-- Is any asymmetry tied to workflow priority rather than decoration?
-- Does the change avoid Bauhaus-style ornamental shapes or motifs?
+- One `primary` + `solid` per action group?
+- Cancel and secondary actions use `neutral` outline or ghost?
+- `danger` + `solid` reserved for confirmed destructive steps?
+- Solid hover darkens, or the mismatch is already a known token gap?
+- No solid success/warning until tokens land?
 
 ## Dark Mode
 
-- Does dark mode avoid large default `neutral-950` surfaces?
-- Are dark borders, muted text, hover states, selected states, disabled states, and focus states still clear?
-- Are dense surfaces such as grids layered rather than flat?
+- No `neutral-950` page shells?
+- Deeper black only inside framed dense regions?
+- Borders, muted text, hover, selected, disabled, and validation states remain clear?
+- Same radius, spacing, and grid logic as light mode?
 
 ## Previews
 
-- Does the preview demonstrate a realistic product context?
-- Does it avoid marketing-style gradients, oversized stats, decorative cards, and heavy shadows?
-- Does it use the same token language as shipped components?
-- Has the preview been checked in light and dark modes?
+- Shows a realistic workflow context?
+- Uses the same tokens as shipped components?
+- Avoids a separate documentation aesthetic?
+- Checked in light and dark?
 
-## Validation
+## Commands
 
-For implementation changes, run the checks that match the touched surface:
-
-- `pnpm run build:css:check` for CSS/token/utility changes.
-- `bin/test` for Ruby component changes.
-- `pnpm test` for JavaScript interaction changes.
-- Visual Lookbook review for changed components in light and dark modes.
+| You changed | Run |
+|-------------|-----|
+| CSS / tokens | `pnpm run build:css:check` |
+| Ruby components | `bin/test` |
+| JavaScript | `pnpm test` |
+| Visible UI | Lookbook, light + dark |

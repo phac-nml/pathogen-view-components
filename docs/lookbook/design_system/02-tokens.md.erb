@@ -4,19 +4,39 @@ title: Tokens
 
 # Tokens
 
-Pathogen currently exposes Tailwind-compatible `primary-*` and `neutral-*` colour aliases. Components should move toward semantic roles on top of those aliases so implementation code describes intent instead of choosing raw colour stops.
+Tokens are the material of Pathogen. They keep small decisions consistent enough that the interface feels quiet, precise, accessible, compact, and trustworthy across components and host apps.
 
-## Existing Theme Contract
+Write shared components in terms of **roles** (`--pvc-color-accent-solid`), not palette stops (`primary-700`). Palette stops can change. Roles describe intent.
 
-- `--font-sans` is Inter-first: `"Inter", "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif`.
-- `--font-mono` is a standard UI monospace stack.
-- `--color-primary-*` defaults to Tailwind blue.
-- `--color-neutral-*` defaults to Tailwind slate.
-- Host apps may override `--color-primary-*`.
+## Host Theme Overrides
 
-## Recommended Semantic Colour Roles
+| Variable | Pathogen default | Host apps |
+|----------|------------------|-----------|
+| `--color-primary-*` | Blue | Brand / action colour (IRIDA: green) |
+| `--color-neutral-*` | Slate, exposed as `neutral-*` | Leave as-is unless theming the whole neutral system |
+| `--font-sans` | Inter stack | Optional product font |
+| `--font-mono` | System mono | Code and IDs |
 
-These roles should become the preferred language for components and previews. The swatches show Pathogen's current default theme values; host applications may map the same roles to different brand values.
+Use `neutral-*` in components, not raw `slate-*`. `neutral` is the public name; slate is the implementation.
+
+## Token Layers
+
+```text
+Palette
+  primary, neutral, status hues
+    ↓
+Semantic roles
+  --pvc-color-*, --type-*, --pvc-radius-*, motion
+    ↓
+Component-scoped tokens
+  data grid internals, tooltip placement
+```
+
+Grid and tooltip tokens are internal. Do not override them from host apps unless the host is intentionally theming the whole component.
+
+## Colour Roles
+
+Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
 
 <style>
   .pvc-token-table {
@@ -96,11 +116,11 @@ These roles should become the preferred language for components and previews. Th
   }
 </style>
 
-<div class="pvc-token-table" role="table" aria-label="Recommended semantic colour roles">
+<div class="pvc-token-table" role="table" aria-label="Semantic colour roles">
   <div class="pvc-token-table__header" role="columnheader">Role</div>
   <div class="pvc-token-table__header" role="columnheader">Light swatch</div>
   <div class="pvc-token-table__header" role="columnheader">Dark swatch</div>
-  <div class="pvc-token-table__header" role="columnheader">Default values</div>
+  <div class="pvc-token-table__header" role="columnheader">Resolves to</div>
 
   <% [
     ['Surface', '--pvc-color-surface', 'var(--color-white)', '#ffffff', 'var(--color-neutral-900)', '#0f172a'],
@@ -112,8 +132,8 @@ These roles should become the preferred language for components and previews. Th
     ['Muted text', '--pvc-color-text-muted', 'var(--color-neutral-600)', '#475569', 'var(--color-neutral-400)', '#94a3b8'],
     ['Accent', '--pvc-color-accent', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-400)', '#60a5fa'],
     ['Strong accent', '--pvc-color-accent-strong', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-300)', '#93c5fd'],
-    ['Solid accent fill', '--pvc-color-accent-solid', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-600)', '#2563eb'],
-    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-500)', '#3b82f6'],
+    ['Solid accent fill', '--pvc-color-accent-solid', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-700)', '#1d4ed8'],
+    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-600)', '#2563eb'],
     ['Danger', '--pvc-color-danger', 'var(--color-red-600)', '#dc2626', 'var(--color-red-500)', '#ef4444'],
     ['Strong danger', '--pvc-color-danger-strong', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-300)', '#fca5a5'],
     ['Solid danger fill', '--pvc-color-danger-solid', 'var(--color-red-600)', '#dc2626', 'var(--color-red-600)', '#dc2626'],
@@ -138,6 +158,8 @@ These roles should become the preferred language for components and previews. Th
   <% end %>
 </div>
 
+Live definitions today:
+
 ```css
 :root {
   --pvc-color-surface: var(--color-white);
@@ -159,9 +181,7 @@ These roles should become the preferred language for components and previews. Th
   --pvc-color-warning: var(--color-amber-600);
   --pvc-color-focus: var(--color-primary-500);
 }
-```
 
-```css
 .dark {
   --pvc-color-surface: var(--color-neutral-900);
   --pvc-color-surface-muted: var(--color-neutral-800);
@@ -172,8 +192,8 @@ These roles should become the preferred language for components and previews. Th
   --pvc-color-text-muted: var(--color-neutral-400);
   --pvc-color-accent: var(--color-primary-400);
   --pvc-color-accent-strong: var(--color-primary-300);
-  --pvc-color-accent-solid: var(--color-primary-600);
-  --pvc-color-accent-solid-hover: var(--color-primary-500);
+  --pvc-color-accent-solid: var(--color-primary-700);
+  --pvc-color-accent-solid-hover: var(--color-primary-600);
   --pvc-color-danger: var(--color-red-500);
   --pvc-color-danger-strong: var(--color-red-300);
   --pvc-color-danger-solid: var(--color-red-600);
@@ -184,43 +204,62 @@ These roles should become the preferred language for components and previews. Th
 }
 ```
 
-Use `--pvc-color-accent` and `--pvc-color-accent-strong` for text, borders, and outline controls on a surface. Use `--pvc-color-accent-solid` and `--pvc-color-accent-solid-hover` for filled primary actions. Apply the same split for danger: `--pvc-color-danger-strong` for outline and ghost labels, `--pvc-color-danger` for borders and mixes, and `--pvc-color-danger-solid` / `--pvc-color-danger-solid-hover` for filled destructive actions. In dark mode, foreground accents stay lighter for contrast on dark surfaces; solid fills stay saturated so primary and danger buttons remain confident.
+### Choosing Accent And Danger Tokens
 
-## Type Scale Use
+| Situation | Tokens |
+|-----------|--------|
+| Text, borders, outline/ghost on a surface | `accent`, `accent-strong` |
+| Filled primary button | `accent-solid`, `accent-solid-hover` |
+| Outline/ghost destructive | `danger-strong`, `danger` |
+| Filled destructive | `danger-solid`, `danger-solid-hover` |
+
+In dark mode, accent text and borders lighten for contrast. Solid button fills stay saturated so action colour still feels deliberate. Focus is a separate role; the target is `primary-500` in both modes so focus does not collapse into accent.
+
+## Type Scale
 
 ```css
---type-meta: 0.75rem;      /* 12px: metadata, hints */
---type-control: 0.875rem;  /* 14px: controls, labels, dense UI */
---type-body: 1rem;         /* 16px: body copy */
---type-section: 1.25rem;   /* 20px: section headings */
---type-page: 1.9375rem;    /* 31px: page headings */
+--type-meta: 0.75rem;      /* 12px */
+--type-control: 0.875rem;  /* 14px */
+--type-body: 1rem;         /* 16px */
+--type-section: 1.25rem;   /* 20px */
+--type-page: 2rem;         /* 32px target; shipped CSS still has 31px */
 ```
 
-Use `14px` and `16px` as the product workhorses. Use larger sizes sparingly in real application surfaces.
+| Token | px | Tailwind | Used by |
+|-------|----|----------|---------|
+| `--type-meta` | 12 | `text-xs` | Hints, `CopyableValue` |
+| `--type-control` | 14 | `text-sm` | Labels, buttons |
+| `--type-body` | 16 | `text-base` | Body text |
+| `--type-section` | 20 | `text-xl` | Section titles |
+| `--type-page` | 32 target | `text-3xl` | Page headings |
 
-Guidance:
+The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
-- Treat `12px`, `14px`, and `16px` as the default product system.
-- Use `20px` for section-level hierarchy when it improves scanning.
-- Reserve the page heading size for true page ownership, not preview decoration.
-- Keep typography geometric and direct: short labels, consistent alignment, and restrained weights.
+## Spacing
+
+Spacing uses the 4px Tailwind rhythm.
+
+| px | Class | Good for |
+|----|-------|----------|
+| 4 | `1` | Tight padding |
+| 8 | `2` | Control internals |
+| 12 | `3` | Radio rows |
+| 16 | `4` | Form gaps |
+| 24 | `6` | Sections |
+| 32 | `8` | Major regions |
+
+Do not tokenise spacing unless a repeated component pattern needs a named value.
 
 ## Radius
 
 ```css
---pvc-radius-control-sm: 0.125rem; /* tight form primitives */
---pvc-radius-control: 0.25rem;     /* compact controls */
---pvc-radius-action: 0.375rem;     /* buttons, tabs, grouped controls */
---pvc-radius-panel: 0.5rem;        /* data grids and larger panels */
+--pvc-radius-control-sm: 0.125rem; /* 2px */
+--pvc-radius-control: 0.25rem;     /* 4px */
+--pvc-radius-action: 0.375rem;     /* 6px */
+--pvc-radius-panel: 0.5rem;        /* 8px */
 ```
 
-Guidance:
-
-- Form primitives: `2px` to `4px`.
-- Buttons, tabs, links focus shapes, and inputs: `4px` to `6px`.
-- Data grids and grouped component frames: `6px` to `8px`.
-- Prefer sharper corners for dense clinical workflows; use softer corners only when grouping a larger surface.
-- Large preview and docs containers should avoid `xl` and `2xl`.
+Use the radius that matches the role. Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when the component job is known.
 
 ## Elevation
 
@@ -229,22 +268,7 @@ Guidance:
 --pvc-shadow-overlay: 0 1px 3px oklch(0 0 0 / 0.2);
 ```
 
-Guidance:
-
-- Base product surfaces: no shadow.
-- Grouped surfaces: border plus subtle background difference.
-- Overlays, tooltips, popovers, and menus: small shadow.
-- Avoid `shadow-lg` in product examples.
-
-## Geometry And Composition
-
-Use geometry through layout before decoration:
-
-- Strong vertical and horizontal alignment.
-- Clear gutters between primary and secondary work areas.
-- Dividers, table rules, and borders that describe real structure.
-- Small accent bars or blocks only for navigation, selection, focus, status, or meaningful grouping.
-- Asymmetric compositions only when the workflow has asymmetric priority.
+Base product surfaces stay flat. Overlays get the small shadow because they float above the work.
 
 ## Motion
 
@@ -254,4 +278,38 @@ Use geometry through layout before decoration:
 --pvc-duration-overlay: 200ms;
 ```
 
-Use colour, border, background, and opacity transitions before movement. Reserve scale/fade for overlays.
+Use colour, border, background, and opacity transitions before movement. Honour `prefers-reduced-motion`.
+
+## Component-Specific Tokens
+
+**Data grid** — `--pvc-data-grid-*` controls grid borders, cell padding, and body background. These tokens are internal to the grid.
+
+**Tooltip** — `--pvc-tooltip-origin` controls placement. Tooltip fill uses `neutral-950`; that is overlay territory, not page canvas.
+
+## Where Components Are Today
+
+| Component | Semantic colour | Radius tokens | Type tokens |
+|-----------|-----------------|---------------|-------------|
+| `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
+| `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
+| `Typography` | Partial | Tailwind | Tailwind |
+| `Link`, `Tabs`, `Form` | Partial | Mixed | `text-sm` labels |
+| `DataGrid` | Grid-scoped | `rounded-lg` ~= panel | - |
+| `Tooltip` | Hard-coded | `rounded-lg` | - |
+
+New work should follow `Button`.
+
+<span id="whats-on-our-list"></span>
+
+## What's On Our List
+
+These rows are known gaps between shipped CSS and the intended system direction. Close each gap in CSS, then delete its row.
+
+| # | Token | Shipped now | Target | Why |
+|---|-------|-------------|--------|-----|
+| 1 | `accent-solid-hover` | Lightens (`700` -> `600`) | Darken, such as `800` | Solid hover should press in, like danger already does |
+| 2 | `focus` in dark mode | `primary-400`, same as accent | `primary-500` in both modes | Focus must remain separate from accent |
+| 3 | `type-page` | 31px | 32px | Cleaner page title on the grid |
+| 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
+
+Until row 4 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
