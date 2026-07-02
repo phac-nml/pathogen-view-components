@@ -6,6 +6,7 @@ linter:
   exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
+    - "docs/lookbook/**/*.md.erb"
 
 formatter:
   enabled: true
@@ -17,3 +18,4 @@ formatter:
   exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
+    - "docs/lookbook/**/*.md.erb"
