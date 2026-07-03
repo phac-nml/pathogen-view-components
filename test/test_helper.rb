@@ -12,6 +12,7 @@ require 'turbo-rails'
 require 'view_component/test_helpers'
 require 'view_component/test_case'
 require_relative 'support/axe_assertions'
+require_relative 'support/typography_assertions'
 
 class PathogenTestApplication < Rails::Application
   config.root = Pathname.new(File.expand_path('..', __dir__))
@@ -34,5 +35,6 @@ PathogenTestApplication.initialize!
 module ActiveSupport
   class TestCase
     include AxeAssertions
+    include TypographyAssertions
   end
 end

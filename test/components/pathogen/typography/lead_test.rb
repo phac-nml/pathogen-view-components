@@ -22,7 +22,7 @@ module Pathogen
       test 'applies larger text size' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p[class*="--type-section"]'
+        assert_type_role 'p', :section
       end
 
       test 'applies relaxed leading for better readability' do
@@ -34,19 +34,19 @@ module Pathogen
       test 'applies default variant color classes' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-900"]'
+        assert_selector 'p[class*="--pvc-color-text"]'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Lead.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Lead.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600/80"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies inverse variant color classes' do

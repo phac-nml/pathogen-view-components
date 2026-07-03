@@ -19,10 +19,16 @@ module Pathogen
         assert_no_selector 'p'
       end
 
-      test 'applies small text size' do
+      test 'applies control scale by default' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p[class*="--type-control"]'
+        assert_type_role 'p', :control
+      end
+
+      test 'applies meta scale when requested' do
+        render_inline(Supporting.new(size: :meta)) { 'Test' }
+
+        assert_type_role 'p', :meta
       end
 
       test 'applies normal leading' do
@@ -34,19 +40,19 @@ module Pathogen
       test 'applies default variant color classes' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-900"]'
+        assert_selector 'p[class*="--pvc-color-text"]'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Supporting.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Supporting.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600/80"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies inverse variant color classes' do
@@ -70,6 +76,12 @@ module Pathogen
       test 'raises error for invalid variant in development' do
         assert_raises(Pathogen::FetchOrFallbackHelper::InvalidValueError) do
           Supporting.new(variant: :invalid)
+        end
+      end
+
+      test 'raises error for invalid size in development' do
+        assert_raises(Pathogen::FetchOrFallbackHelper::InvalidValueError) do
+          Supporting.new(size: :invalid)
         end
       end
 
