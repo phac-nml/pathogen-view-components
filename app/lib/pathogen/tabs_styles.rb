@@ -4,7 +4,8 @@ module Pathogen
   # Semantic class recipes for Pathogen::Tabs controls and panels.
   module TabsStyles
     TAB_BASE = %w[
-      appearance-none cursor-pointer bg-transparent font-sans text-sm font-semibold
+      appearance-none cursor-pointer bg-transparent font-sans
+      text-[length:var(--type-control)] font-medium
       transition-[color,background-color,border-color]
       duration-[var(--pvc-duration-fast)] ease-out
       focus-visible:outline focus-visible:outline-2
@@ -18,28 +19,32 @@ module Pathogen
       interactive-hover:text-[var(--pvc-color-text)]
     ].freeze
 
-    TAB_ACTIVE_STATE_HORIZONTAL = %w[
+    TAB_ACTIVE_STATE_BASE = %w[
+      aria-selected:font-semibold
+      data-[state=active]:font-semibold
       aria-selected:text-[var(--pvc-color-text)]
-      aria-selected:border-[var(--pvc-color-accent)]
       data-[state=active]:text-[var(--pvc-color-text)]
+    ].freeze
+
+    TAB_ACTIVE_STATE_HORIZONTAL = %w[
+      aria-selected:border-[var(--pvc-color-accent)]
       data-[state=active]:border-[var(--pvc-color-accent)]
     ].freeze
 
     TAB_ACTIVE_STATE_VERTICAL = %w[
-      aria-selected:text-[var(--pvc-color-text)]
       aria-selected:bg-[var(--pvc-color-surface-muted)]
       aria-selected:border-[var(--pvc-color-accent)]
-      data-[state=active]:text-[var(--pvc-color-text)]
       data-[state=active]:bg-[var(--pvc-color-surface-muted)]
       data-[state=active]:border-[var(--pvc-color-accent)]
     ].freeze
 
     TAB_HORIZONTAL = %w[
-      -mb-px rounded-none px-3 py-2 min-h-9 border-b-2 border-transparent
+      -mb-px rounded-t-[var(--pvc-radius-action)] px-3 py-2 min-h-9 border-b-2 border-transparent
     ].freeze
 
     TAB_VERTICAL = %w[
-      mb-0 w-full truncate rounded-none px-3 py-2 min-h-9 text-left border-l-2 border-transparent
+      mb-0 w-full truncate rounded-[var(--pvc-radius-action)] px-3 py-2 min-h-9 text-left
+      border-l-2 border-transparent
     ].freeze
 
     TABLIST_HORIZONTAL = %w[
@@ -57,7 +62,7 @@ module Pathogen
     ].freeze
 
     PANEL_BASE = %w[
-      text-[var(--pvc-color-text)] leading-[1.45]
+      text-[length:var(--type-body)] text-[var(--pvc-color-text)] leading-[1.45]
       focus-visible:rounded-[var(--pvc-radius-action)]
       focus-visible:outline focus-visible:outline-2
       focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
@@ -80,6 +85,7 @@ module Pathogen
       [
         TAB_BASE,
         TAB_INACTIVE,
+        TAB_ACTIVE_STATE_BASE,
         orientation == :vertical ? TAB_VERTICAL : TAB_HORIZONTAL,
         orientation == :vertical ? TAB_ACTIVE_STATE_VERTICAL : TAB_ACTIVE_STATE_HORIZONTAL
       ].flatten.join(' ')

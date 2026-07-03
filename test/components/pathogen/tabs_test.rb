@@ -19,9 +19,12 @@ module Pathogen
       assert_selector(
         'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'
       )
+      assert_includes rendered_content, 'text-[length:var(--type-control)]'
       assert_includes rendered_content, 'text-[var(--pvc-color-text-muted)]'
       assert_includes rendered_content, 'interactive-hover:bg-[var(--pvc-color-surface-muted)]'
       assert_includes rendered_content, 'focus-visible:outline-[var(--pvc-color-focus)]'
+      assert_includes rendered_content, 'aria-selected:font-semibold'
+      assert_includes rendered_content, 'rounded-t-[var(--pvc-radius-action)]'
       assert_includes rendered_content, 'aria-selected:border-[var(--pvc-color-accent)]'
       assert_includes rendered_content, 'data-[state=active]:border-[var(--pvc-color-accent)]'
       assert_selector(
@@ -59,6 +62,7 @@ module Pathogen
       assert_selector 'button#tab-general[aria-selected="false"][data-state="inactive"][tabindex="-1"]'
       assert_selector 'button#tab-security[aria-selected="true"][data-state="active"][tabindex="0"][title="Security"]'
       assert_includes rendered_content, 'border-l-2'
+      assert_includes rendered_content, 'rounded-[var(--pvc-radius-action)]'
       assert_includes rendered_content, 'data-[state=active]:bg-[var(--pvc-color-surface-muted)]'
       assert_not_includes rendered_content, 'border-r-2'
 
