@@ -1,423 +1,125 @@
 <%# herb:formatter ignore %>
 
-<div class="min-h-screen bg-gradient-to-br from-indigo-50 to-cyan-50 p-8 dark:from-slate-900 dark:to-indigo-950">
-  <!-- Header -->
-  <div class="mb-12 text-center">
-    <h1 class="mb-4 text-4xl font-bold text-slate-900 dark:text-slate-100">
-      Advanced Features
-    </h1>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Custom default tab</h2>
 
-    <p class="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-400">
-      Explore custom default selection, edge cases, and lazy loading patterns.
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Use <code class="font-mono">default_index</code> to open a specific tab on first render. This review workflow
+      starts on the QC step.
     </p>
-  </div>
 
-  <!-- Default Index Selection -->
-  <div class="mb-12">
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Custom Default Tab Selection
-    </h2>
-
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
-      <div
-        class="
-          border-b border-slate-200 bg-gradient-to-r from-indigo-50 to-cyan-50 p-6 dark:border-slate-600
-          dark:from-indigo-900/20 dark:to-cyan-900/20
-        "
-      >
-        <p class="text-slate-700 dark:text-slate-300">
-          Use <code class="rounded bg-slate-100 px-2 py-0.5 dark:bg-slate-700">default_index</code> to select which tab
-          is initially active. This demo starts on the third tab (index 2).
-        </p>
-      </div>
-
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
         id: 'tabs-custom-default',
-        label: 'Tabs with custom default',
+        label: 'Submission review steps',
         default_index: 2
       )) do |tabs| %>
-        <% tabs.with_tab(id: 'tab-step1', label: 'Step 1: Setup') %>
-        <% tabs.with_tab(id: 'tab-step2', label: 'Step 2: Configure') %>
-        <% tabs.with_tab(id: 'tab-step3', label: 'Step 3: Review') %>
-        <% tabs.with_tab(id: 'tab-step4', label: 'Step 4: Complete') %>
+        <% tabs.with_tab(id: 'tab-intake', label: 'Intake') %>
+        <% tabs.with_tab(id: 'tab-prep', label: 'Preparation') %>
+        <% tabs.with_tab(id: 'tab-qc', label: 'QC review') %>
+        <% tabs.with_tab(id: 'tab-release', label: 'Release') %>
 
-        <% tabs.with_panel(id: 'panel-step1', tab_id: 'tab-step1') do %>
-          <div class="p-6">
-            <h3 class="mb-3 text-xl font-semibold text-slate-900 dark:text-white">Step 1: Initial Setup</h3>
-            <p class="text-slate-600 dark:text-slate-400">Configure your basic settings here.</p>
-          </div>
+        <% tabs.with_panel(id: 'panel-intake', tab_id: 'tab-intake') do %>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">48 specimens received from SITE-042.</p>
         <% end %>
 
-        <% tabs.with_panel(id: 'panel-step2', tab_id: 'tab-step2') do %>
-          <div class="p-6">
-            <h3 class="mb-3 text-xl font-semibold text-slate-900 dark:text-white">Step 2: Advanced Configuration</h3>
-            <p class="text-slate-600 dark:text-slate-400">Set up advanced options.</p>
-          </div>
+        <% tabs.with_panel(id: 'panel-prep', tab_id: 'tab-prep') do %>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">Library prep complete for 46 specimens.</p>
         <% end %>
 
-        <% tabs.with_panel(id: 'panel-step3', tab_id: 'tab-step3') do %>
-          <div class="p-6">
-            <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-              Step 3: Review (You start here!)
-            </h3>
-
-            <p class="text-slate-600 dark:text-slate-400">
-              This tab opens by default because
-              <code class="rounded bg-slate-100 px-2 py-0.5 dark:bg-slate-700">default_index: 2</code> was set.
-            </p>
-
-            <div class="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-              <p class="text-sm text-green-800 dark:text-green-200">
-                <strong>Use Case:</strong> Perfect for multi-step forms where the user may need to jump back to review
-                or edit previous steps.
-              </p>
-            </div>
-          </div>
+        <% tabs.with_panel(id: 'panel-qc', tab_id: 'tab-qc') do %>
+          <p class="text-sm text-[var(--pvc-color-text)]">
+            Two specimens flagged for low coverage. Review before release.
+          </p>
         <% end %>
 
-        <% tabs.with_panel(id: 'panel-step4', tab_id: 'tab-step4') do %>
-          <div class="p-6">
-            <h3 class="mb-3 text-xl font-semibold text-slate-900 dark:text-white">Step 4: Complete</h3>
-            <p class="text-slate-600 dark:text-slate-400">Finalize and submit your configuration.</p>
-          </div>
+        <% tabs.with_panel(id: 'panel-release', tab_id: 'tab-release') do %>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">Release blocked until QC review is complete.</p>
         <% end %>
       <% end %>
-
-      <div class="border-t border-slate-200 bg-slate-50 p-6 dark:border-slate-600 dark:bg-slate-700/50">
-        <div
-          class="
-            overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700
-            dark:bg-slate-900
-          "
-        >
-          <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Multi-step form", default_index: 2 # &lt;-- Start on third tab (zero-based) )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Step 1") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Step 2") %&gt; &lt;% tabs.with_tab(id: "tab-3", label: "Step 3") %&gt; ... &lt;% end %&gt;
-</code></pre>
-        </div>
-      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Edge Cases -->
-  <div class="mb-12">
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Edge Cases &amp; Limits
-    </h2>
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Edge cases</h2>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <!-- Single Tab -->
-      <div
-        class="
-          overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700
-          dark:bg-slate-800
-        "
-      >
-        <div
-          class="
-            border-b border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50 p-4 dark:border-slate-600
-            dark:from-blue-900/20 dark:to-cyan-900/20
-          "
-        >
-          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-            Single Tab
-          </h3>
-        </div>
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Single tab</h3>
 
-        <%= render(Pathogen::Tabs.new(id: 'single-tab', label: 'Single tab example')) do |tabs| %>
-          <% tabs.with_tab(id: 'tab-only', label: 'Only Tab') %>
+        <%= render(Pathogen::Tabs.new(id: 'single-tab', label: 'Run status')) do |tabs| %>
+          <% tabs.with_tab(id: 'tab-only', label: 'Status') %>
 
           <% tabs.with_panel(id: 'panel-only', tab_id: 'tab-only') do %>
-            <div class="p-4">
-              <p class="text-sm text-slate-600 dark:text-slate-400">
-                The component works fine with a single tab, though you might question if tabs are the right UI choice
-                here!
-              </p>
-            </div>
+            <p class="text-sm text-[var(--pvc-color-text-muted)]">
+              Valid, but consider a plain heading when only one view exists.
+            </p>
           <% end %>
         <% end %>
       </div>
 
-      <!-- Many Tabs -->
-      <div
-        class="
-          overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700
-          dark:bg-slate-800
-        "
-      >
-        <div
-          class="
-            border-b border-slate-200 bg-gradient-to-r from-purple-50 to-pink-50 p-4 dark:border-slate-600
-            dark:from-purple-900/20 dark:to-pink-900/20
-          "
-        >
-          <h3 class="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-white">
-            Many Tabs (8+)
-          </h3>
-        </div>
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Many tabs</h3>
 
-        <%= render(Pathogen::Tabs.new(id: 'many-tabs', label: 'Many tabs example')) do |tabs| %>
-          <% (1..10).each do |i| %>
-            <% tabs.with_tab(id: "tab-#{i}", label: "Tab #{i}", selected: i == 1) %>
+        <%= render(Pathogen::Tabs.new(id: 'many-tabs', label: 'Batch lanes')) do |tabs| %>
+          <% (1..8).each do |i| %>
+            <% tabs.with_tab(id: "tab-lane-#{i}", label: "Lane #{i}", selected: i == 1) %>
           <% end %>
 
-          <% (1..10).each do |i| %>
-            <% tabs.with_panel(id: "panel-#{i}", tab_id: "tab-#{i}") do %>
-              <div class="p-4">
-                <p class="text-sm text-slate-600 dark:text-slate-400">Content for tab <%= i %></p>
-              </div>
+          <% (1..8).each do |i| %>
+            <% tabs.with_panel(id: "panel-lane-#{i}", tab_id: "tab-lane-#{i}") do %>
+              <p class="text-sm text-[var(--pvc-color-text-muted)]">Metrics for lane <%= i %>.</p>
             <% end %>
           <% end %>
         <% end %>
 
-        <div class="border-t border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-900/20">
-          <p class="text-xs text-amber-800 dark:text-amber-200">
-            <strong>Note:</strong> With many tabs, horizontal scrolling may occur. Consider vertical orientation or a
-            different UI pattern for 10+ tabs.
-          </p>
-        </div>
+        <p class="mt-3 text-xs text-[var(--pvc-color-text-muted)]">
+          Horizontal tabs wrap. For long lists, prefer vertical orientation.
+        </p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Lazy Loading Documentation -->
-  <div>
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Turbo Frame Lazy Loading
-    </h2>
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Turbo Frame lazy loading</h2>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
-      <div
-        class="
-          border-b border-slate-200 bg-gradient-to-r from-amber-50 to-orange-50 p-6 dark:border-slate-600
-          dark:from-amber-900/20 dark:to-orange-900/20
-        "
-      >
-        <div class="flex items-start gap-3">
-          <div>
-            <p class="mb-2 text-slate-700 dark:text-slate-300">
-              <strong>Note:</strong> Lazy loading cannot be demonstrated in this preview because it requires actual
-              backend routes and Turbo Frame endpoints.
-            </p>
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Pair inactive panels with <code class="font-mono">loading: :lazy</code> turbo frames, or use
+      <code class="font-mono">with_lazy_panel</code> for conditional eager/lazy rendering. The skeleton below matches
+      the loading shell shipped with lazy panels.
+    </p>
 
-            <p class="text-sm text-slate-600 dark:text-slate-400">
-              Below is documentation on how to implement lazy loading with Turbo Frames in your application.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-6 p-6">
-        <!-- How It Works -->
-        <div>
-          <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            How Lazy Loading Works
-          </h3>
-
-          <p class="mb-4 text-slate-700 dark:text-slate-300">
-            The Pathogen::Tabs component integrates seamlessly with Hotwire Turbo Frames to support lazy-loaded content:
-          </p>
-
-          <div class="space-y-3">
-            <div class="flex items-start gap-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <div
-                class="
-                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold
-                  text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300
-                "
-              >
-                1
-              </div>
-
-              <div>
-                <div class="mb-1 font-semibold text-slate-900 dark:text-white">Initial Page Load</div>
-
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                  Only the active tab's content loads immediately. Other tabs contain empty Turbo Frames with
-                  <code class="rounded bg-slate-100 px-1 dark:bg-slate-600">loading="lazy"</code>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <div
-                class="
-                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold
-                  text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300
-                "
-              >
-                2
-              </div>
-
-              <div>
-                <div class="mb-1 font-semibold text-slate-900 dark:text-white">User Clicks Tab</div>
-
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                  Tab becomes visible → Stimulus controller removes
-                  <code class="rounded bg-slate-100 px-1 dark:bg-slate-600">hidden</code> class from panel
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <div
-                class="
-                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold
-                  text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300
-                "
-              >
-                3
-              </div>
-
-              <div>
-                <div class="mb-1 font-semibold text-slate-900 dark:text-white">Turbo Frame Loads</div>
-
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                  Panel becomes visible → Turbo automatically fetches content from
-                  <code class="rounded bg-slate-100 px-1 dark:bg-slate-600">src</code> attribute
-                </div>
-              </div>
-            </div>
-
-            <div class="flex items-start gap-3 rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <div
-                class="
-                  flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-indigo-100 font-semibold
-                  text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300
-                "
-              >
-                4
-              </div>
-
-              <div>
-                <div class="mb-1 font-semibold text-slate-900 dark:text-white">Content Rendered</div>
-
-                <div class="text-sm text-slate-600 dark:text-slate-400">
-                  Turbo replaces frame content with server response → User sees loaded content
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Implementation Example -->
-        <div>
-          <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            Implementation Example
-          </h3>
-
-          <div
-            class="
-              mb-4 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm
-              dark:border-slate-700 dark:bg-slate-900
-            "
-          >
-            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new(id: "lazy-tabs", label: "Lazy loaded tabs")) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-overview", label: "Overview", selected: true) %&gt; &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt; &lt;% tabs.with_tab(id: "tab-reports", label: "Reports") %&gt; &lt;!-- First panel: eager loaded (no turbo_frame) --&gt; &lt;% tabs.with_panel(id: "panel-overview", tab_id: "tab-overview") do %&gt; &lt;div class="p-6"&gt; &lt;h3&gt;Overview Content&lt;/h3&gt; &lt;p&gt;This loads immediately on page load.&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;!-- Second panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-analytics", tab_id: "tab-analytics") do %&gt; &lt;%= turbo_frame_tag "analytics-content", src: analytics_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading analytics...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;!-- Third panel: lazy loaded with Turbo Frame --&gt; &lt;% tabs.with_panel(id: "panel-reports", tab_id: "tab-reports") do %&gt; &lt;%= turbo_frame_tag "reports-content", src: reports_project_path(@project), loading: :lazy do %&gt; &lt;div class="p-6 text-center"&gt; &lt;div class="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"&gt;&lt;/div&gt; &lt;p class="mt-2 text-slate-600"&gt;Loading reports...&lt;/p&gt; &lt;/div&gt; &lt;% end %&gt; &lt;% end %&gt; &lt;% end %&gt;
-</code></pre>
-          </div>
-
-          <div class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-            <p class="text-sm text-blue-800 dark:text-blue-200">
-              <strong>Key:</strong> The <code class="rounded bg-blue-100 px-1 dark:bg-blue-900">loading: :lazy</code>
-              attribute tells Turbo to wait until the frame is visible before fetching content.
-            </p>
-          </div>
-        </div>
-
-        <!-- Backend Routes -->
-        <div>
-          <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            Backend Requirements
-          </h3>
-
-          <p class="mb-4 text-slate-700 dark:text-slate-300">
-            Your backend needs to return partial HTML wrapped in a matching Turbo Frame:
-          </p>
-
-          <div
-            class="
-              overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700
-              dark:bg-slate-900
-            "
-          >
-            <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-# routes.rb resources :projects do member do get :analytics get :reports end end # projects_controller.rb def analytics @project = Project.find(params[:id]) # Heavy computation here @analytics_data = AnalyticsService.new(@project).compute render turbo_frame: "analytics-content" end # views/projects/analytics.html.erb &lt;%= turbo_frame_tag "analytics-content" do %&gt;<div class="p-6"><h3 class="text-xl font-semibold">Analytics</h3>                <!-- Render complex analytics charts/data -->&lt;%= render "analytics_charts", data: @analytics_data %&gt;                                                              </div>&lt;% end %&gt;
-</code></pre>
-          </div>
-        </div>
-
-        <!-- Benefits -->
-        <div>
-          <h3 class="mb-3 flex items-center gap-2 text-xl font-semibold text-slate-900 dark:text-white">
-            Benefits of Lazy Loading
-          </h3>
-
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-              <div class="flex items-start gap-3">
-                <div>
-                  <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Faster Initial Load</h4>
-
-                  <p class="text-sm text-green-800 dark:text-green-200">
-                    Only load what the user sees first, reducing initial page weight by 70-90%
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-              <div class="flex items-start gap-3">
-                <div>
-                  <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Reduced Server Load</h4>
-
-                  <p class="text-sm text-green-800 dark:text-green-200">
-                    Only execute expensive queries when tabs are actually viewed
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-              <div class="flex items-start gap-3">
-                <div>
-                  <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Better Performance</h4>
-
-                  <p class="text-sm text-green-800 dark:text-green-200">
-                    Improved Core Web Vitals (LCP, TBT) by deferring heavy content
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div class="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
-              <div class="flex items-start gap-3">
-                <div>
-                  <h4 class="mb-1 font-semibold text-green-900 dark:text-green-100">Seamless UX</h4>
-
-                  <p class="text-sm text-green-800 dark:text-green-200">
-                    Loading states provide feedback while content fetches in the background
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Testing Reference -->
-        <div class="rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-900/20">
-          <div class="flex items-start gap-3">
-            <div class="text-sm">
-              <strong class="text-violet-900 dark:text-violet-100">Testing:</strong>
-
-              <span class="text-violet-800 dark:text-violet-200">
-                See
-                <code class="rounded bg-violet-100 px-1 dark:bg-violet-900">test/components/pathogen/system/tabs_lazy_loading_test.rb</code>
-                for comprehensive test patterns and implementation guides for lazy loading integration.
-              </span>
-            </div>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+      <div class="<%= Pathogen::TabsStyles::LAZY_PANEL_SKELETON %>">
+        <div class="grid gap-3">
+          <div class="h-3.5 w-[32%] <%= Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR %>"></div>
+          <div class="grid gap-2">
+            <div class="h-2.5 w-full <%= Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR %>"></div>
+            <div class="h-2.5 w-[92%] <%= Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR %>"></div>
+            <div class="h-2.5 w-[84%] <%= Pathogen::TabsStyles::LAZY_PANEL_SKELETON_BAR %>"></div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <pre class="mt-4 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-xs"><code>&lt;%= render Pathogen::Tabs.new(id: "run-tabs", label: "Run sections") do |tabs| %&gt;
+  &lt;% tabs.with_tab(id: "tab-summary", label: "Summary", selected: true) %&gt;
+  &lt;% tabs.with_tab(id: "tab-analytics", label: "Analytics") %&gt;
+
+  &lt;% tabs.with_panel(id: "panel-summary", tab_id: "tab-summary") do %&gt;
+    &lt;%= render "runs/summary" %&gt;
+  &lt;% end %&gt;
+
+  &lt;% tabs.with_lazy_panel(
+    id: "panel-analytics",
+    tab_id: "tab-analytics",
+    frame_id: "run-analytics",
+    src_path: analytics_run_path(@run),
+    selected: false
+  ) do %&gt;
+    &lt;%= render "runs/analytics" %&gt;
+  &lt;% end %&gt;
+&lt;% end %&gt;</code></pre>
+  </section>
 </div>

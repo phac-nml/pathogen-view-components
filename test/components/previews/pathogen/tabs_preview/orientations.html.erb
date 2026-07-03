@@ -1,385 +1,140 @@
 <%# herb:formatter ignore %>
 
-<div class="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 p-8 dark:from-slate-900 dark:to-emerald-950">
-  <!-- Header -->
-  <div class="mb-12 text-center">
-    <h1 class="mb-4 text-4xl font-bold text-slate-900 dark:text-slate-100">
-      Tab Orientations &amp; Layouts
-    </h1>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Horizontal orientation</h2>
 
-    <p class="mx-auto max-w-3xl text-lg text-slate-600 dark:text-slate-400">
-      Tabs support both horizontal and vertical orientations with adaptive keyboard navigation.
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Default layout for section navigation across a run or specimen record. Use
+      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">←</kbd>
+      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">→</kbd>
+      to move between tabs; selection activates immediately.
     </p>
-  </div>
 
-  <!-- Horizontal Orientation (Default) -->
-  <div class="mb-12">
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Horizontal Orientation (Default)
-    </h2>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= render(Pathogen::Tabs.new(id: 'horizontal-tabs', label: 'Sequencing run sections', orientation: :horizontal)) do |tabs| %>
+        <% tabs.with_tab(id: 'h-tab-summary', label: 'Summary', selected: true) %>
+        <% tabs.with_tab(id: 'h-tab-qc', label: 'QC') %>
+        <% tabs.with_tab(id: 'h-tab-reads', label: 'Reads') %>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
-      <div class="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700">
-        <p class="text-sm text-slate-700 dark:text-slate-300">
-          <strong>Keyboard:</strong> Use
-          <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">←</kbd> and
-          <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">→</kbd> to navigate
-        </p>
-      </div>
+        <% tabs.with_panel(id: 'h-panel-summary', tab_id: 'h-tab-summary') do %>
+          <dl class="grid gap-3 text-sm sm:grid-cols-2">
+            <div>
+              <dt class="font-semibold text-[var(--pvc-color-text)]">Run ID</dt>
+              <dd class="font-mono text-[var(--pvc-color-text-muted)]">RUN-2026-0142</dd>
+            </div>
+            <div>
+              <dt class="font-semibold text-[var(--pvc-color-text)]">Instrument</dt>
+              <dd class="text-[var(--pvc-color-text-muted)]">NovaSeq X Plus</dd>
+            </div>
+          </dl>
+        <% end %>
 
-      <%= render(Pathogen::Tabs.new(id: 'horizontal-tabs', label: 'Horizontal tab example', orientation: :horizontal)) do |tabs| %>
-        <% tabs.with_tab(id: 'h-tab-overview', label: 'Overview', selected: true) %>
-        <% tabs.with_tab(id: 'h-tab-features', label: 'Features') %>
-        <% tabs.with_tab(id: 'h-tab-documentation', label: 'Documentation') %>
-        <% tabs.with_tab(id: 'h-tab-examples', label: 'Examples') %>
-
-        <% tabs.with_panel(id: 'h-panel-overview', tab_id: 'h-tab-overview') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Horizontal Layout</h3>
-
-            <p class="text-slate-700 dark:text-slate-300">
-              This is the default orientation. Tabs are displayed horizontally across the top, perfect for desktop
-              layouts and wide screens.
-            </p>
-
-            <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <code class="text-sm">orientation: :horizontal</code>
-              <span class="text-slate-600 dark:text-slate-400">(default, can be omitted)</span>
+        <% tabs.with_panel(id: 'h-panel-qc', tab_id: 'h-tab-qc') do %>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] pb-2">
+              <span class="font-semibold text-[var(--pvc-color-text)]">Mean Q30</span>
+              <span>92.4%</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-[var(--pvc-color-text)]">Clusters passing filter</span>
+              <span>89.1%</span>
             </div>
           </div>
         <% end %>
 
-        <% tabs.with_panel(id: 'h-panel-features', tab_id: 'h-tab-features') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Horizontal Features</h3>
-
-            <ul class="list-inside list-disc space-y-2 text-slate-700 dark:text-slate-300">
-              <li>Tabs stretch across the full width</li>
-              <li>Left/Right arrow keys for navigation</li>
-              <li>ARIA orientation attribute set to "horizontal"</li>
-              <li>Ideal for desktop and tablet layouts</li>
-              <li>Responsive: wraps on smaller screens</li>
-            </ul>
-          </div>
-        <% end %>
-
-        <% tabs.with_panel(id: 'h-panel-documentation', tab_id: 'h-tab-documentation') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Usage</h3>
-
-            <div
-              class="
-                overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700
-                dark:bg-slate-900
-              "
-            >
-              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "my-tabs", label: "Content sections", orientation: :horizontal # Default, can be omitted )) do |tabs| %&gt; &lt;!-- tabs and panels here --&gt; &lt;% end %&gt;
-</code></pre>
-            </div>
-          </div>
-        <% end %>
-
-        <% tabs.with_panel(id: 'h-panel-examples', tab_id: 'h-tab-examples') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Best Used For</h3>
-
-            <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div
-                class="
-                  flex items-start gap-2 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <span class="text-sm text-green-800 dark:text-green-200">Desktop applications</span>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-2 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <span class="text-sm text-green-800 dark:text-green-200">Wide content areas</span>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-2 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <span class="text-sm text-green-800 dark:text-green-200">Short tab labels</span>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-2 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <span class="text-sm text-green-800 dark:text-green-200">Traditional tab interface</span>
-              </div>
-            </div>
-          </div>
+        <% tabs.with_panel(id: 'h-panel-reads', tab_id: 'h-tab-reads') do %>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+            1.84B paired-end reads generated. Open the reads table from the run workspace for per-lane metrics.
+          </p>
         <% end %>
       <% end %>
     </div>
-  </div>
+  </section>
 
-  <!-- Vertical Orientation -->
-  <div class="mb-12">
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Vertical Orientation
-    </h2>
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Vertical orientation</h2>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-800">
-      <div class="border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-600 dark:bg-slate-700">
-        <p class="text-sm text-slate-700 dark:text-slate-300">
-          <strong>Keyboard:</strong> Use
-          <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">↑</kbd> and
-          <kbd class="rounded border bg-white px-2 py-0.5 text-xs dark:bg-slate-800">↓</kbd> to navigate
-        </p>
-      </div>
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Side navigation for settings or long tab lists. Use
+      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">↑</kbd>
+      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">↓</kbd>
+      to navigate.
+    </p>
 
-      <%= render(Pathogen::Tabs.new(id: 'vertical-tabs', label: 'Vertical tab example', orientation: :vertical)) do |tabs| %>
-        <% tabs.with_tab(id: 'v-tab-dashboard', label: 'Dashboard', selected: true) %>
-        <% tabs.with_tab(id: 'v-tab-settings', label: 'Settings') %>
-        <% tabs.with_tab(id: 'v-tab-profile', label: 'Profile') %>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= render(Pathogen::Tabs.new(id: 'vertical-tabs', label: 'Protocol configuration', orientation: :vertical)) do |tabs| %>
+        <% tabs.with_tab(id: 'v-tab-general', label: 'General', selected: true) %>
+        <% tabs.with_tab(id: 'v-tab-samples', label: 'Sample handling') %>
+        <% tabs.with_tab(id: 'v-tab-qc-thresholds', label: 'QC thresholds') %>
         <% tabs.with_tab(id: 'v-tab-notifications', label: 'Notifications') %>
 
-        <% tabs.with_panel(id: 'v-panel-dashboard', tab_id: 'v-tab-dashboard') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Vertical Layout</h3>
-
-            <p class="text-slate-700 dark:text-slate-300">
-              In vertical mode, tabs stack vertically along the side. This is ideal for sidebars, narrow layouts, or
-              when you have many tabs.
-            </p>
-
-            <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-              <code class="text-sm">orientation: :vertical</code>
+        <% tabs.with_panel(id: 'v-panel-general', tab_id: 'v-tab-general') do %>
+          <dl class="space-y-2 text-sm">
+            <div class="flex gap-2">
+              <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Protocol</dt>
+              <dd class="text-[var(--pvc-color-text-muted)]">WGS bacterial v3.2</dd>
             </div>
-
-            <div class="rounded border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/20">
-              <p class="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Note:</strong> Keyboard navigation automatically adapts! Up/Down arrows work instead of
-                Left/Right.
-              </p>
+            <div class="flex gap-2">
+              <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Owner</dt>
+              <dd class="text-[var(--pvc-color-text-muted)]">lab-seq-review</dd>
             </div>
-          </div>
+          </dl>
         <% end %>
 
-        <% tabs.with_panel(id: 'v-panel-settings', tab_id: 'v-tab-settings') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Adaptive Keyboard Navigation</h3>
-
-            <p class="mb-3 text-slate-700 dark:text-slate-300">
-              The component automatically detects the orientation and adjusts keyboard behavior:
-            </p>
-
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div class="rounded-lg bg-slate-50 p-4 dark:bg-slate-700">
-                <h4 class="mb-2 font-semibold text-slate-900 dark:text-white">Horizontal</h4>
-
-                <ul class="space-y-1 text-sm text-slate-600 dark:text-slate-400">
-                  <li><kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">←</kbd> Previous tab</li>
-                  <li><kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">→</kbd> Next tab</li>
-
-                  <li>
-                    <kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">↑</kbd>
-                    <kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">↓</kbd> No effect
-                  </li>
-                </ul>
-              </div>
-
-              <div
-                class="
-                  rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800
-                  dark:bg-emerald-900/20
-                "
-              >
-                <h4 class="mb-2 font-semibold text-emerald-900 dark:text-emerald-100">Vertical</h4>
-
-                <ul class="space-y-1 text-sm text-emerald-800 dark:text-emerald-200">
-                  <li><kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">↑</kbd> Previous tab</li>
-                  <li><kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">↓</kbd> Next tab</li>
-
-                  <li>
-                    <kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">←</kbd>
-                    <kbd class="rounded border bg-white px-1 text-xs dark:bg-slate-800">→</kbd> No effect
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+        <% tabs.with_panel(id: 'v-panel-samples', tab_id: 'v-tab-samples') do %>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+            Minimum input DNA 1 ng. Paired-end 150 bp reads. Barcode mismatch tolerance: 1.
+          </p>
         <% end %>
 
-        <% tabs.with_panel(id: 'v-panel-profile', tab_id: 'v-tab-profile') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Usage Example</h3>
-
-            <div
-              class="
-                overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm dark:border-slate-700
-                dark:bg-slate-900
-              "
-            >
-              <pre class="text-sm"><code class="text-slate-800 dark:text-slate-200">
-&lt;%= render(Pathogen::Tabs.new( id: "sidebar-tabs", label: "Sidebar navigation", orientation: :vertical )) do |tabs| %&gt; &lt;% tabs.with_tab(id: "tab-1", label: "Dashboard") %&gt; &lt;% tabs.with_tab(id: "tab-2", label: "Settings") %&gt; &lt;% tabs.with_panel(id: "panel-1", tab_id: "tab-1") do %&gt; Dashboard content &lt;% end %&gt; &lt;% tabs.with_panel(id: "panel-2", tab_id: "tab-2") do %&gt; Settings content &lt;% end %&gt; &lt;% end %&gt;
-</code></pre>
-            </div>
-          </div>
+        <% tabs.with_panel(id: 'v-panel-qc-thresholds', tab_id: 'v-tab-qc-thresholds') do %>
+          <ul class="list-inside list-disc space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
+            <li>Mean Q30 ≥ 90%</li>
+            <li>PhiX alignment rate ≤ 1.0%</li>
+            <li>Undetermined index reads ≤ 0.5%</li>
+          </ul>
         <% end %>
 
         <% tabs.with_panel(id: 'v-panel-notifications', tab_id: 'v-tab-notifications') do %>
-          <div class="space-y-4 p-6">
-            <h3 class="text-xl font-semibold text-slate-900 dark:text-white">Best Used For</h3>
-
-            <div class="space-y-3">
-              <div
-                class="
-                  flex items-start gap-3 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <div>
-                  <div class="font-semibold text-green-900 dark:text-green-100">Sidebar Navigation</div>
-
-                  <div class="text-sm text-green-800 dark:text-green-200">
-                    Settings panels, admin dashboards, app sidebars
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-3 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <div>
-                  <div class="font-semibold text-green-900 dark:text-green-100">Many Tabs</div>
-
-                  <div class="text-sm text-green-800 dark:text-green-200">
-                    When you have 6+ tabs that would wrap horizontally
-                  </div>
-                </div>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-3 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <div>
-                  <div class="font-semibold text-green-900 dark:text-green-100">Narrow Layouts</div>
-                  <div class="text-sm text-green-800 dark:text-green-200">Mobile or constrained width containers</div>
-                </div>
-              </div>
-
-              <div
-                class="
-                  flex items-start gap-3 rounded border border-green-200 bg-green-50 p-3 dark:border-green-800
-                  dark:bg-green-900/20
-                "
-              >
-                <div>
-                  <div class="font-semibold text-green-900 dark:text-green-100">Long Tab Labels</div>
-
-                  <div class="text-sm text-green-800 dark:text-green-200">
-                    When tab names don't fit well horizontally
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+            Email lab-seq-review when a run fails QC or remains in review for more than 24 hours.
+          </p>
         <% end %>
       <% end %>
     </div>
-  </div>
+  </section>
 
-  <!-- Comparison Chart -->
-  <div>
-    <h2 class="mb-6 flex items-center text-2xl font-semibold text-slate-900 dark:text-slate-100">
-      Quick Comparison
-    </h2>
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Orientation comparison</h2>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-slate-50 dark:bg-slate-700">
-            <tr>
-              <th class="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100">Feature</th>
-              <th class="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100">Horizontal</th>
-              <th class="px-6 py-4 text-left font-semibold text-slate-900 dark:text-slate-100">Vertical</th>
-            </tr>
-          </thead>
-
-          <tbody class="text-sm">
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Keyboard Keys</td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <kbd class="rounded bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-700">←</kbd>
-                <kbd class="rounded bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-700">→</kbd>
-              </td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <kbd class="rounded bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-700">↑</kbd>
-                <kbd class="rounded bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-700">↓</kbd>
-              </td>
-            </tr>
-
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">ARIA Orientation</td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <code class="rounded bg-slate-100 px-2 py-1 text-xs dark:bg-slate-700">horizontal</code>
-              </td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                <code class="rounded bg-slate-100 px-2 py-1 text-xs dark:bg-slate-700">vertical</code>
-              </td>
-            </tr>
-
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Default Value</td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                Yes
-              </td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Must specify</td>
-            </tr>
-
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Ideal For</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Wide layouts, 3-5 tabs</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Sidebars, 6+ tabs</td>
-            </tr>
-
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Responsive Behavior</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Wraps on mobile</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">Stacks naturally</td>
-            </tr>
-
-            <tr class="border-t border-slate-200 dark:border-slate-700">
-              <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">Accessibility</td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                Full
-              </td>
-
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-                Full
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+      <table class="w-full text-sm">
+        <thead class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+          <tr>
+            <th class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Feature</th>
+            <th class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Horizontal</th>
+            <th class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Vertical</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-[var(--pvc-color-border)]">
+          <tr>
+            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Arrow keys</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">← →</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">↑ ↓</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Active marker</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Bottom accent border</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Left accent border + muted fill</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Typical use</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Run detail, record sections</td>
+            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Settings, long tab lists</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-  </div>
+  </section>
 </div>
