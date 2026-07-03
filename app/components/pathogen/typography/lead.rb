@@ -5,10 +5,9 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering lead paragraphs (20px)
+    # Component for rendering lead paragraphs at the section type scale (`--type-section`).
     #
-    # Larger introductory paragraphs used at the start of sections to draw attention
-    # and provide context. Has a comfortable line-height for optimal readability.
+    # Introductory paragraphs at the start of sections. Uses relaxed line-height.
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.

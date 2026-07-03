@@ -5,10 +5,7 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering body text paragraphs (16px)
-    #
-    # Standard body text component for paragraphs and main content with consistent
-    # sizing and optimal readability.
+    # Component for rendering body text at the body type scale (`--type-body`).
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.

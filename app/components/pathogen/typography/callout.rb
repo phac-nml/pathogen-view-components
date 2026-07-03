@@ -5,7 +5,7 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Callout component for Pathogen Typography System
+    # Emphasised text at the callout type scale (`--type-callout`).
     class Callout < Component
       include Shared
 

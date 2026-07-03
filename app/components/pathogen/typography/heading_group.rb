@@ -43,8 +43,8 @@ module Pathogen
         Heading.new(level: @level, variant: @heading_variant, **system_arguments)
       }
 
-      renders_one :metadata, lambda { |variant: :muted, **system_arguments|
-        Supporting.new(variant: variant, **system_arguments)
+      renders_one :metadata, lambda { |variant: :muted, size: :meta, **system_arguments|
+        Supporting.new(variant: variant, size: size, **system_arguments)
       }
 
       attr_reader :level, :heading_variant, :spacing

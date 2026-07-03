@@ -34,10 +34,7 @@ module Pathogen
 
       LETTER_SPACING = {
         tight: '-tracking-tight',
-        normal: 'tracking-normal',
-        wide: 'tracking-wide',
-        wider: 'tracking-wider',
-        widest: 'tracking-widest'
+        normal: 'tracking-normal'
       }.freeze
 
       SPACING_CLASSES = {
@@ -56,8 +53,8 @@ module Pathogen
         2 => :title,
         3 => :section,
         4 => :callout,
-        5 => :body,
-        6 => :control
+        5 => :callout,
+        6 => :body
       }.freeze
 
       # Heading level → font weight. Deliberate, restrained weight contrast:
@@ -73,9 +70,9 @@ module Pathogen
       }.freeze
 
       COLOR_VARIANTS = {
-        default: 'text-neutral-900 dark:text-neutral-100',
-        muted: 'text-neutral-500 dark:text-neutral-400',
-        subdued: 'text-neutral-600/80 dark:text-neutral-400/80',
+        default: 'text-[var(--pvc-color-text)]',
+        muted: 'text-[var(--pvc-color-text-muted)]',
+        subdued: 'text-[var(--pvc-color-text-muted)]/80',
         inverse: 'text-white'
       }.freeze
 
