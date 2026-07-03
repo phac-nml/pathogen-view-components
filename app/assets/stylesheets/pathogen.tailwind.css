@@ -17,7 +17,7 @@
 @source "../../assets/javascripts/**/*.js";
 @source "../../../lib/**/*.rb";
 /* Anchor utilities so full @theme primary scale and `text-primary` emit for host overrides. */
-@source inline("text-primary bg-primary-950 text-red-300 text-red-700");
+@source inline("text-primary bg-primary-950 text-red-300 text-red-700 text-[length:var(--type-meta)] text-[length:var(--type-section)]");
 
 /*
  * Theme contract (host apps may override after @import):
