@@ -511,6 +511,28 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(two);
   });
 
+  it("moves focus across controls wrapped in layout groups", async () => {
+    await startToolbar(`
+      <div class="flex items-center gap-2">
+        <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      </div>
+      <div role="presentation" aria-hidden="true" data-pathogen--toolbar-spacer></div>
+      <div class="flex items-center gap-2">
+        <button id="item-three" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Three</button>
+      </div>
+    `);
+
+    const two = document.querySelector("#item-two");
+    const three = document.querySelector("#item-three");
+
+    two.focus();
+    dispatchKey(two, "ArrowRight");
+
+    expect(document.activeElement).toBe(three);
+    expect(three.tabIndex).toBe(0);
+  });
+
   it("re-syncs the roving tab stop on the pathogen--toolbar:sync event", async () => {
     await startController(toolbarMarkup());
 
