@@ -2,7 +2,7 @@
 <% leading_slot = leading_visual if leading_visual %>
 <% trailing_slot = trailing_visual if trailing_visual %>
 
-<%= render Pathogen::Button.new(scheme: @scheme, size: @size, **@system_arguments) do |button| %>
+<%= render Pathogen::Button.new(tone: @tone, emphasis: @emphasis, size: @size, **@system_arguments) do |button| %>
   <% button.with_leading_visual { leading_slot } if leading_slot %>
   <% button.with_trailing_visual { trailing_slot } if trailing_slot %>
 

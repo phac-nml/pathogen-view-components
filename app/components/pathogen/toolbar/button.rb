@@ -11,13 +11,14 @@ module Pathogen
     renders_one :trailing_visual
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(label: nil, pressed: nil, disabled: false, tag: :button, scheme: :default, size: :small,
-                   **system_arguments)
+    def initialize(label: nil, pressed: nil, disabled: false, tag: :button, tone: :neutral, emphasis: :outline,
+                   size: :small, **system_arguments)
       @label = label
       @pressed = pressed
       @disabled = disabled
       @tag = tag
-      @scheme = scheme
+      @tone = tone
+      @emphasis = emphasis
       @size = size
       @system_arguments = system_arguments
 
