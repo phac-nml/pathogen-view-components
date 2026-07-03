@@ -66,13 +66,13 @@
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
     <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
     <p class="mt-2">
       Pass <code class="font-mono">with_heading</code> and optional <code class="font-mono">with_metadata</code> to the
       preset block. Override level or spacing via helper arguments when a preset is close but not exact.
     </p>
-    <pre class="mt-2 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-3 text-xs text-[var(--pvc-color-text)]"><code>&lt;%= pathogen_typography_preset(:card) do |group| %&gt;
+    <pre class="mt-2 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-3 text-xs text-[var(--pvc-color-text)]"><code>&lt;%= pathogen_typography_preset(:card) do |group| %&gt;
   &lt;%= group.with_heading { "Card title" } %&gt;
   &lt;%= group.with_metadata { "Metadata" } %&gt;
 &lt;% end %&gt;</code></pre>
