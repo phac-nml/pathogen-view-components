@@ -2,36 +2,33 @@
 
 module Pathogen
   # ViewComponent preview for demonstrating Pathogen::Tabs usage
-  # Showcases accessibility features, keyboard navigation, and various configurations
   class TabsPreview < ViewComponent::Preview
+    include Pathogen::ViewHelper
+
     # @!group Pathogen Tabs Component
 
-    # @label Basic Usage & Getting Started
-    # Simple examples showing basic tab functionality with default settings
+    # @label Overview
+    # Horizontal tabs with run detail content, default selection, and edge cases
     def basic_usage; end
 
-    # @label Keyboard Navigation & Accessibility
-    # Demonstrates keyboard controls, ARIA patterns, and accessibility features
-    def keyboard_and_accessibility; end
-
-    # @label Orientations & Layouts
-    # Shows horizontal and vertical tab orientations with different layouts
+    # @label Orientations
+    # Vertical layout, tab overflow, and orientation comparison
     def orientations; end
 
-    # @label URL Synchronization
-    # Bookmarkable tabs with URL hash syncing and browser navigation
+    # @label Accessibility
+    # Keyboard navigation and ARIA wiring reference
+    def keyboard_and_accessibility; end
+
+    # @label URL Sync
+    # Bookmarkable tabs with hash synchronization
     def url_sync; end
 
-    # @label Advanced Features
-    # Default selection, edge cases, and lazy loading patterns
-    def advanced_features; end
-
-    # @label Turbo Frame Lazy Load
-    # Demonstrates lazy-loaded tab panels using Turbo Frames and demo-only request mocks
+    # @label Lazy Loading
+    # Turbo Frame lazy panels with demo request mocks
     def turbo_frame_lazy_load; end
 
-    # @label Integration Examples
-    # Real-world usage patterns with forms, navigation, and content organization
+    # @label Integration
+    # Settings layout and form footer patterns
     def integration_examples; end
 
     # @!endgroup

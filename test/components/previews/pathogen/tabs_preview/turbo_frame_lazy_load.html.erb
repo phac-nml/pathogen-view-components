@@ -1,77 +1,74 @@
-<div class="mx-auto max-w-5xl space-y-6">
-  <div>
-    <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Turbo Frame Lazy Load</h1>
+<%# herb:formatter ignore %>
 
-    <p class="mt-2 text-slate-600 dark:text-slate-300">
-      The first panel is rendered with the page. The other panels use
-      <code class="rounded bg-slate-100 px-1.5 py-0.5 text-sm dark:bg-slate-800">with_lazy_panel</code> and load mocked
-      Turbo Frame responses when their tabs become visible.
-    </p>
-  </div>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Lazy-loaded panels" } %>
 
-  <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <%= render(Pathogen::Tabs.new(id: 'lazy-load-preview-tabs', label: 'Lazy-loaded preview data')) do |tabs| %>
-      <% tabs.with_tab(id: 'preview-tab-summary', label: 'Summary', selected: true) %>
-      <% tabs.with_tab(id: 'preview-tab-metrics', label: 'Metrics') %>
-      <% tabs.with_tab(id: 'preview-tab-timeline', label: 'Timeline') %>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      The first panel renders with the page. Inactive panels use
+      <%= pathogen_code { "with_lazy_panel" } %> to defer content until their tab is selected. Switching to
+      Metrics or Timeline reveals the hidden panel, shows a loading skeleton while the Turbo Frame request is in
+      flight, then replaces it with the fetched content.
+    <% end %>
 
-      <% tabs.with_panel(id: 'preview-panel-summary', tab_id: 'preview-tab-summary') do %>
-        <section class="rounded-lg border border-neutral-200 bg-neutral-50 p-5 dark:border-neutral-700 dark:bg-neutral-950">
-          <h3 class="text-lg font-semibold text-neutral-950 dark:text-neutral-50">Run Summary</h3>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= render(Pathogen::Tabs.new(id: 'lazy-load-preview-tabs', label: 'Lazy-loaded run sections')) do |tabs| %>
+        <% tabs.with_tab(id: 'preview-tab-summary', label: 'Summary', selected: true) %>
+        <% tabs.with_tab(id: 'preview-tab-metrics', label: 'Metrics') %>
+        <% tabs.with_tab(id: 'preview-tab-timeline', label: 'Timeline') %>
 
-          <p class="mt-2 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
-            This content is available immediately because the selected tab renders a normal panel. Switching to the
-            other tabs reveals a hidden panel, which lets Turbo fetch that panel's lazy frame.
-          </p>
-
-          <dl class="mt-5 grid gap-4 sm:grid-cols-3">
+        <% tabs.with_panel(id: 'preview-panel-summary', tab_id: 'preview-tab-summary') do %>
+          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-3">
             <div>
-              <dt class="text-sm text-neutral-500 dark:text-neutral-400">Batch</dt>
-              <dd class="mt-1 font-medium text-neutral-950 dark:text-neutral-50">PV-2026-06-08</dd>
+              <dt class="font-semibold text-[var(--pvc-color-text)]">Batch</dt>
+              <dd class="font-mono text-[var(--pvc-color-text-muted)]">PV-2026-06-08</dd>
             </div>
-
             <div>
-              <dt class="text-sm text-neutral-500 dark:text-neutral-400">Status</dt>
-              <dd class="mt-1 font-medium text-neutral-950 dark:text-neutral-50">Ready for review</dd>
+              <dt class="font-semibold text-[var(--pvc-color-text)]">Status</dt>
+              <dd class="text-[var(--pvc-color-success)]">Ready for review</dd>
             </div>
-
             <div>
-              <dt class="text-sm text-neutral-500 dark:text-neutral-400">Updated</dt>
-              <dd class="mt-1 font-medium text-neutral-950 dark:text-neutral-50">10:45 AM</dd>
+              <dt class="font-semibold text-[var(--pvc-color-text)]">Updated</dt>
+              <dd class="text-[var(--pvc-color-text-muted)]">10:45 UTC</dd>
             </div>
           </dl>
-        </section>
-      <% end %>
+        <% end %>
 
-      <% tabs.with_lazy_panel(
-        id: 'preview-panel-metrics',
-        tab_id: 'preview-tab-metrics',
-        frame_id: 'preview-metrics-frame',
-        src_path: '/lookbook-mocks/tabs/lazy-load/metrics',
-        selected: false,
-      ) do %>
-        Metrics content loads from the mocked Turbo Frame endpoint.
-      <% end %>
+        <% tabs.with_lazy_panel(
+          id: 'preview-panel-metrics',
+          tab_id: 'preview-tab-metrics',
+          frame_id: 'preview-metrics-frame',
+          src_path: '/lookbook-mocks/tabs/lazy-load/metrics',
+          selected: false,
+        ) do %>
+          <%= pathogen_text(variant: :muted) { "Metrics content loads from the mocked Turbo Frame endpoint." } %>
+        <% end %>
 
-      <% tabs.with_lazy_panel(
-        id: 'preview-panel-timeline',
-        tab_id: 'preview-tab-timeline',
-        frame_id: 'preview-timeline-frame',
-        src_path: '/lookbook-mocks/tabs/lazy-load/timeline',
-        selected: false,
-      ) do %>
-        Timeline content loads from the mocked Turbo Frame endpoint.
+        <% tabs.with_lazy_panel(
+          id: 'preview-panel-timeline',
+          tab_id: 'preview-tab-timeline',
+          frame_id: 'preview-timeline-frame',
+          src_path: '/lookbook-mocks/tabs/lazy-load/timeline',
+          selected: false,
+        ) do %>
+          <%= pathogen_text(variant: :muted) { "Timeline content loads from the mocked Turbo Frame endpoint." } %>
+        <% end %>
       <% end %>
+    </div>
+  </section>
+
+  <section>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Usage" } %>
+
+    <%= pathogen_supporting(variant: :muted) do %>
+      Use <%= pathogen_code { "with_lazy_panel" } %> for inactive tabs. Pass
+      <%= pathogen_code { "frame_id" } %>, <%= pathogen_code { "src_path" } %>, and
+      <%= pathogen_code { "selected: false" } %> so Turbo fetches panel content when the tab is selected.
     <% end %>
-  </div>
 
-  <div
-    class="
-      rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800
-      dark:bg-blue-950/30 dark:text-blue-100
-    "
-  >
-    The Lookbook demo starts MSW before Turbo boots, so the lazy frame requests are intercepted in the browser without
-    adding demo-only Rails routes.
-  </div>
+    <%= pathogen_supporting(variant: :muted, class: "mt-4") do %>
+      The Lookbook demo starts MSW before Turbo boots, so lazy frame requests are intercepted in the browser without
+      adding demo-only Rails routes.
+    <% end %>
+  </section>
 </div>
