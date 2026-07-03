@@ -213,7 +213,8 @@ module Pathogen
     test 'renders separator semantics without toolbar item target' do
       render_inline(Pathogen::Toolbar::Separator.new)
 
-      assert_selector 'div[role="separator"][aria-orientation="vertical"][aria-hidden="true"]'
+      assert_selector 'div[role="separator"][aria-orientation="vertical"]'
+      assert_no_selector 'div[role="separator"][aria-hidden]'
       assert_selector 'div[role="separator"][class*="bg-[var(--pvc-color-border-strong)]"]'
       assert_no_selector 'div[role="separator"][data-pathogen--toolbar-target]'
     end
