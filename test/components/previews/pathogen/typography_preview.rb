@@ -2,50 +2,49 @@
 
 module Pathogen
   # ViewComponent preview for demonstrating Pathogen Typography System
-  # Showcases all typography components with examples, variants, and best practices
   class TypographyPreview < ViewComponent::Preview
     include Pathogen::ViewHelper
 
     # @!group Typography System
 
     # @label Overview
-    # Complete overview of the typography system with all component types
+    # Run detail header and type-scale reference in product context
     def overview; end
 
     # @label Headings
-    # Semantic headings (h1-h6) with baseline sizing and color variants
+    # Specimen record heading hierarchy and colour variants
     def headings; end
 
     # @label Body Text
-    # Standard body text components for paragraphs and main content
+    # Lead, body, and callout copy on a QC review surface
     def body_text; end
 
     # @label Supporting Text
-    # Captions, labels, and supporting text components
+    # Labels, help text, and metadata at control and meta scale
     def supporting_text; end
 
     # @label Special Components
-    # Lead paragraphs, code snippets, heading groups, and lists
+    # Lists, code, sections, and heading groups in a setup flow
     def special_components; end
 
     # @label Dark Mode
-    # Typography components in light and dark mode with color variants
+    # Semantic text roles on an operator account surface
     def dark_mode; end
 
     # @label Accessibility
-    # Semantic HTML, ARIA patterns, and accessibility best practices
+    # Semantic heading order and label association
     def accessibility; end
 
     # @label Do's and Don'ts
-    # Best practices and common mistakes when using typography components
+    # Preferred patterns beside common mistakes
     def dos_and_donts; end
 
     # @label In Context
-    # Real-world examples showing typography components in actual page layouts
+    # Presets on specimen, project, and dialog surfaces
     def in_context; end
 
     # @label Presets
-    # Pre-configured typography patterns for common UI scenarios (article, card, section, dialog, form)
+    # HeadingGroup presets for article, card, section, dialog, and form
     def presets; end
   end
 end

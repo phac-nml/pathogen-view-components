@@ -1,92 +1,61 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
-  <div class="mx-auto max-w-6xl space-y-12">
-    <!-- Header -->
-    <div>
-      <%= pathogen_heading_group(level: 1) do |group| %>
-        <%= group.with_heading { "Supporting Text" } %>
-        <%= group.with_metadata { "Captions, labels, and metadata with baseline sizing" } %>
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sample intake form</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Control scale for labels and help text; meta scale for timestamps and record metadata lines.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= pathogen_heading(level: 2) { "Register specimen" } %>
+
+      <%= pathogen_supporting(variant: :muted, size: :meta, class: "mt-1") do %>
+        Required fields marked below · Draft saved 2026-06-10 09:14 UTC
+      <% end %>
+
+      <div class="mt-6 space-y-4">
+        <div>
+          <%= pathogen_supporting(tag: :label, for: "specimen-id", class: "mb-1 block font-semibold") { "Specimen ID" } %>
+          <%= pathogen_supporting(variant: :muted) { "Use the barcode from the accession label." } %>
+        </div>
+
+        <div>
+          <%= pathogen_supporting(tag: :label, for: "collection-date", class: "mb-1 block font-semibold") { "Collection date" } %>
+          <%= pathogen_supporting(variant: :muted) { "Local date at the collection site." } %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Grid footnote</h2>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <dl class="grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Specimen ID</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]">SPEC-2026-00891</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Collected</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">2026-06-09</dd>
+        </div>
+      </dl>
+
+      <%= pathogen_supporting(variant: :muted, size: :meta, class: "mt-3") do %>
+        Figure 1: Specimen metadata as shown on the intake review grid.
       <% end %>
     </div>
+  </section>
 
-    <!-- Component Grid -->
-    <div class="grid grid-cols-1 gap-6">
-      <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-        <%= pathogen_heading(level: 3, class: "mb-4") { "Supporting (14px)" } %>
-        <%= pathogen_supporting { "Captions, labels, and secondary information at 14px" } %>
-        <%= pathogen_code(class: "mt-4") { "pathogen_supporting" } %>
-      </div>
-    </div>
-
-    <!-- Color Variants -->
-    <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-      <%= pathogen_heading(level: 2, class: "mb-6") { "Color Variants" } %>
-
-      <div class="space-y-4">
-        <%= pathogen_supporting(variant: :default) { "Default variant - Standard supporting text color" } %>
-        <%= pathogen_supporting(variant: :muted) { "Muted variant - Most common for captions and metadata" } %>
-        <%= pathogen_supporting(variant: :subdued) { "Subdued variant - Medium emphasis supporting information" } %>
-
-        <div class="rounded-lg bg-slate-900 p-4 dark:bg-slate-50">
-          <%= pathogen_supporting(variant: :inverse) { "Inverse variant - Light text for dark backgrounds" } %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Use Cases -->
-    <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-      <%= pathogen_heading(level: 2, class: "mb-6") { "Common Use Cases" } %>
-
-      <div class="space-y-8">
-        <!-- Image caption -->
-        <div>
-          <div
-            class="
-              mb-2 h-48 rounded-lg bg-gradient-to-r from-primary-100 to-primary-200 dark:from-primary-900/40
-              dark:to-primary-800/40
-            "
-          ></div>
-
-          <%= pathogen_supporting(variant: :muted) { "Figure 1: Genomic analysis workflow showing sample intake through final report generation" } %>
-        </div>
-
-        <!-- Metadata -->
-        <div>
-          <%= pathogen_heading(level: 3, class: "mb-2") { "Research Article" } %>
-          <%= pathogen_supporting(variant: :muted) { "Published January 15, 2024 · 12 min read · Research Team" } %>
-        </div>
-
-        <!-- Form label helper -->
-        <div>
-          <label class="mb-1 block text-sm font-medium">Sample Name</label>
-          <%= pathogen_supporting(variant: :muted) { "Enter a unique identifier for this sample" } %>
-        </div>
-
-        <!-- Card metadata -->
-        <div class="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-          <%= pathogen_heading(level: 4) { "COVID-19 Analysis" } %>
-          <%= pathogen_supporting(variant: :muted, class: "mt-2") { "Last run 2 hours ago · 45 samples processed" } %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Usage Example -->
-    <div
-      class="
-        rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 p-8 dark:from-primary-900/20
-        dark:to-primary-800/20
-      "
-    >
-      <%= pathogen_heading(level: 3, class: "mb-4") { "Usage Example" } %>
-
-      <%= pathogen_code_block(language: "erb") do %>
-        <%%= pathogen_heading(level: 2) do %>
-          Article Title
-        <%% end %>
-
-        <%%= pathogen_supporting(variant: :muted) do %>
-          Published Jan 15, 2024
-        <%% end %>
-      <% end %>
-    </div>
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      Default <code class="font-mono">pathogen_supporting</code> uses control scale. Pass
+      <code class="font-mono">size: :meta</code> for timestamps and footnotes. HeadingGroup metadata defaults to meta
+      scale.
+    </p>
   </div>
 </div>

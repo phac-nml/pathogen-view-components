@@ -1,283 +1,75 @@
-<div class="p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-  <!-- Header -->
-  <div class="mb-12">
-    <%= pathogen_heading(level: 1, class: "mb-4") do %>
-      <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Do's and
-      Don'ts
-    <% end %>
+<%# herb:formatter ignore %>
 
-    <%= pathogen_text(variant: :muted, class: "text-lg max-w-3xl") do %>
-      Best practices and common mistakes when using typography components.
-    <% end %>
-  </div>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Heading hierarchy</h2>
 
-  <!-- Heading Hierarchy -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('list-numbers', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Heading
-        Hierarchy
-      <% end %>
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Use sequential levels inside a page region. Skipping levels breaks screen-reader outline and document structure.
+    </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Do -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-            <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
-          </div>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Preferred</p>
 
-          <div class="space-y-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Use Sequential Levels
-            <% end %>
+        <%= pathogen_heading(level: 2) { "Run review" } %>
+        <%= pathogen_heading(level: 3, class: "mt-4") { "QC summary" } %>
+        <%= pathogen_heading(level: 4, class: "mt-4") { "Lane metrics" } %>
+      </div>
 
-            <%= pathogen_heading(level: 1) do %>
-              Main Title
-            <% end %>
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+        <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Avoid</p>
 
-            <%= pathogen_heading(level: 2) do %>
-              Section
-            <% end %>
+        <%= pathogen_heading(level: 2) { "Run review" } %>
+        <%= pathogen_heading(level: 4, class: "mt-4") { "Skipped h3" } %>
 
-            <%= pathogen_heading(level: 3) do %>
-              Subsection
-            <% end %>
-
-            <%= pathogen_text(variant: :muted, class: "text-sm mt-3") do %>
-              Use headings in order (h1 → h2 → h3) without skipping levels
-            <% end %>
-          </div>
-        </div>
-
-        <!-- Don't -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('x-circle', class: "w-5 h-5 flex-shrink-0 text-red-500 dark:text-red-400") %>
-            <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
-          </div>
-
-          <div class="space-y-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Skip Heading Levels
-            <% end %>
-
-            <%= pathogen_heading(level: 1) do %>
-              Main Title
-            <% end %>
-
-            <%= pathogen_heading(level: 3) do %>
-              Skipped H2
-            <% end %>
-
-            <%= pathogen_text(variant: :muted, class: "text-sm mt-3") do %>
-              Never skip heading levels - it breaks accessibility and SEO
-            <% end %>
-          </div>
-        </div>
+        <p class="mt-4 text-sm text-[var(--pvc-color-text-muted)]">
+          Level 4 follows level 2 with no intervening section.
+        </p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Color Usage -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('palette', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Color Variants
-      <% end %>
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sizing and emphasis</h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Do -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-            <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
-          </div>
+    <div class="grid gap-4 md:grid-cols-2">
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Preferred</p>
 
-          <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Use Variants Appropriately
-            <% end %>
+        <%= pathogen_heading(level: 1) { "RUN-2026-0142" } %>
+        <%= pathogen_text(variant: :muted, class: "mt-2") { "Use component levels for hierarchy." } %>
+      </div>
 
-            <%= pathogen_text(variant: :default) do %>
-              Default for primary content
-            <% end %>
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+        <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Avoid</p>
 
-            <%= pathogen_text(variant: :muted) do %>
-              Muted for secondary information
-            <% end %>
-          </div>
-        </div>
+        <%= pathogen_heading(level: 1, class: "text-sm") { "Shrunken page title" } %>
 
-        <!-- Don't -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('x-circle', class: "w-5 h-5 flex-shrink-0 text-red-500 dark:text-red-400") %>
-            <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
-          </div>
-
-          <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Overuse Muted Text
-            <% end %>
-
-            <%= pathogen_text(variant: :muted) do %>
-              Don't make everything muted - it reduces readability
-            <% end %>
-
-            <%= pathogen_text(variant: :muted) do %>
-              Use muted sparingly for less important content
-            <% end %>
-          </div>
-        </div>
+        <p class="mt-4 text-sm text-[var(--pvc-color-text-muted)]">
+          Custom size classes defeat the shared type scale.
+        </p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Code Usage -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('code', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Code Component Usage
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Code in copy</h2>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= pathogen_text do %>
+        Call <%= pathogen_code { "pathogen_heading" } %> for titles and <%= pathogen_code { "pathogen_code" } %> for
+        identifiers such as <%= pathogen_code { "RUN-2026-0142" } %>.
       <% end %>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Do -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-            <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
-          </div>
-
-          <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Use Appropriate Component
-            <% end %>
-
-            <%= pathogen_text do %>
-              Use
-              <%= pathogen_code do %>
-                inline code
-              <% end %>
-              for short snippets
-            <% end %>
-
-            <%= pathogen_code_block(language: "ruby") do %>
-              def example # Use code_block for multi-line code end
-            <% end %>
-          </div>
-        </div>
-
-        <!-- Don't -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('x-circle', class: "w-5 h-5 flex-shrink-0 text-red-500 dark:text-red-400") %>
-            <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
-          </div>
-
-          <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Mix Inline and Block
-            <% end %>
-
-            <%= pathogen_text do %>
-              Don't use code_block for single words - use inline code instead
-            <% end %>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Baseline Sizing -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('device-mobile', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Responsive
-        Behavior
-      <% end %>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Do -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-            <span class="font-semibold text-green-700 dark:text-green-400">Do</span>
-          </div>
-
-          <div class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Use Baseline Heading Sizes
-            <% end %>
-
-            <%= pathogen_text(variant: :muted, class: "text-sm") do %>
-              Use the semantic heading level that matches the content hierarchy
-            <% end %>
-          </div>
-        </div>
-
-        <!-- Don't -->
-        <div>
-          <div class="flex items-center gap-3 mb-4">
-            <%= icon('x-circle', class: "w-5 h-5 flex-shrink-0 text-red-500 dark:text-red-400") %>
-            <span class="font-semibold text-red-700 dark:text-red-400">Don't</span>
-          </div>
-
-          <div class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <%= pathogen_heading(level: 3) do %>
-              Override Sizes Unnecessarily
-            <% end %>
-
-            <%= pathogen_heading(level: 1, class: "text-sm") do %>
-              Fixed Size Heading
-            <% end %>
-
-            <%= pathogen_text(variant: :muted, class: "text-sm mt-3") do %>
-              Avoid forcing heading sizes away from the typography scale
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Best Practices Summary -->
-  <div>
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('star', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 mr-3") %> Best Practices
-        Summary
-      <% end %>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <div class="font-semibold text-green-700 dark:text-green-400 mb-3 flex items-center">
-            <%= icon('check-circle', class: "text-green-500 dark:text-green-400 w-5 h-5 flex-shrink-0 mr-2") %> Do's
-          </div>
-
-          <%= pathogen_list do |list| %>
-            <%= list.with_item { 'Maintain proper heading hierarchy (h1 → h2 → h3)' } %>
-            <%= list.with_item { 'Choose appropriate components for content type' } %>
-            <%= list.with_item { 'Use the baseline typography scale consistently' } %>
-            <%= list.with_item { 'Use semantic HTML elements' } %>
-            <%= list.with_item { 'Test with screen readers' } %>
-          <% end %>
-        </div>
-
-        <div>
-          <div class="font-semibold text-red-700 dark:text-red-400 mb-3 flex items-center">
-            <%= icon('x-circle', class: "text-red-500 dark:text-red-400 w-5 h-5 flex-shrink-0 mr-2") %> Don'ts
-          </div>
-
-          <%= pathogen_list do |list| %>
-            <%= list.with_item { "Don't skip heading levels" } %>
-            <%= list.with_item { "Don't overuse muted text variants" } %>
-            <%= list.with_item { "Don't override typography sizes unnecessarily" } %>
-            <%= list.with_item { "Don't use divs instead of semantic elements" } %>
-            <%= list.with_item { "Don't ignore accessibility requirements" } %>
-          <% end %>
-        </div>
-      </div>
-    </div>
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      One page title per view. Muted variants for secondary copy. No decorative uppercase labels — use
+      <code class="font-mono">pathogen_supporting</code> with <code class="font-mono">size: :meta</code> for metadata
+      lines.
+    </p>
   </div>
 </div>
