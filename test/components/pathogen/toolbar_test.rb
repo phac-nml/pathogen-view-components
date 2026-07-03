@@ -121,7 +121,7 @@ module Pathogen
     test 'uses small Pathogen::Button sizing defaults in toolbar context' do
       render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
 
-      assert_selector "button[class*='text-xs'][class*='px-2.5'][class*='py-1.5']"
+      assert_selector "button[class*='text-xs'][class*='px-2'][class*='py-1']"
     end
 
     test 'supports aria-label on toolbar buttons for icon-only usage' do
@@ -144,10 +144,77 @@ module Pathogen
       assert_no_selector 'button[aria-pressed]', text: 'Underline'
     end
 
+    test 'renders table variant classes by default' do
+      render_inline(Pathogen::Toolbar.new(label: 'Grid actions')) do
+        ActionController::Base.helpers.tag.button(
+          'Filter',
+          type: 'button',
+          tabindex: -1,
+          data: { 'pathogen--toolbar-target': 'item' }
+        )
+      end
+
+      assert_selector 'div[role="toolbar"][class*="w-full"][data-pathogen--toolbar-variant="table"]'
+      assert_no_selector 'div[role="toolbar"][class*="border"]'
+    end
+
+    test 'renders chip variant classes when requested' do
+      render_inline(Pathogen::Toolbar.new(label: 'Compact actions', variant: :chip)) do
+        ActionController::Base.helpers.tag.button(
+          'Filter',
+          type: 'button',
+          tabindex: -1,
+          data: { 'pathogen--toolbar-target': 'item' }
+        )
+      end
+
+      assert_selector(
+        'div[role="toolbar"][class*="inline-flex"][class*="border-[var(--pvc-color-border)]"]' \
+        '[class*="bg-[var(--pvc-color-surface-muted)]"]'
+      )
+    end
+
+    test 'fails fast when variant is invalid' do
+      assert_raises(ArgumentError) { Pathogen::Toolbar.new(label: 'Actions', variant: :banner) }
+    end
+
+    test 'renders group layout wrapper without toolbar item target' do
+      render_inline(Pathogen::Toolbar::Group.new) { 'Grouped controls' }
+
+      assert_selector 'div[data-pathogen--toolbar-group][data-reflow="group"]', text: 'Grouped controls'
+      assert_no_selector 'div[data-pathogen--toolbar-target]'
+    end
+
+    test 'renders alone reflow group data attribute' do
+      render_inline(Pathogen::Toolbar::Group.new(reflow: :alone)) { 'Search' }
+
+      assert_selector 'div[data-pathogen--toolbar-group][data-reflow="alone"]', text: 'Search'
+    end
+
+    test 'fails fast when group reflow is invalid' do
+      assert_raises(ArgumentError) { Pathogen::Toolbar::Group.new(reflow: :stacked) }
+    end
+
+    test 'renders spacer without toolbar item target' do
+      render_inline(Pathogen::Toolbar::Spacer.new)
+
+      assert_selector 'div[role="presentation"][aria-hidden="true"][data-pathogen--toolbar-spacer]'
+      assert_no_selector 'div[data-pathogen--toolbar-target]'
+    end
+
+    test 'supports detached form submit buttons' do
+      render_inline(Pathogen::Toolbar::Button.new(form: 'select-all-form', label: 'Select all samples')) do
+        'Select all'
+      end
+
+      assert_selector 'button[form="select-all-form"][aria-label="Select all samples"]', text: 'Select all'
+    end
+
     test 'renders separator semantics without toolbar item target' do
       render_inline(Pathogen::Toolbar::Separator.new)
 
-      assert_selector 'div[role="separator"][aria-orientation="vertical"]'
+      assert_selector 'div[role="separator"][aria-orientation="vertical"][aria-hidden="true"]'
+      assert_selector 'div[role="separator"][class*="bg-[var(--pvc-color-border-strong)]"]'
       assert_no_selector 'div[role="separator"][data-pathogen--toolbar-target]'
     end
 
