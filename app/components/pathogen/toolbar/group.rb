@@ -25,7 +25,7 @@ module Pathogen
     def apply_group_data!
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:'pathogen--toolbar-group'] = true
-      @system_arguments[:data][:reflow] = @reflow
+      @system_arguments[:data][:'pathogen--toolbar-reflow'] = @reflow
     end
   end
 end
