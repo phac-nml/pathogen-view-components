@@ -19,13 +19,14 @@ module Pathogen
       assert_selector(
         'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'
       )
-      assert_includes rendered_content, 'dark:text-neutral-300'
-      assert_includes rendered_content, 'focus-visible:outline-black'
-      assert_includes rendered_content, 'dark:focus-visible:outline-white'
-      assert_includes rendered_content, 'dark:aria-selected:border-primary-400'
-      assert_includes rendered_content, 'dark:aria-selected:text-white'
-      assert_includes rendered_content, 'dark:data-[state=active]:border-primary-400'
-      assert_includes rendered_content, 'dark:data-[state=active]:text-white'
+      assert_includes rendered_content, 'text-[length:var(--type-control)]'
+      assert_includes rendered_content, 'text-[var(--pvc-color-text-muted)]'
+      assert_includes rendered_content, 'interactive-hover:bg-[var(--pvc-color-surface-muted)]'
+      assert_includes rendered_content, 'focus-visible:outline-[var(--pvc-color-focus)]'
+      assert_includes rendered_content, 'aria-selected:font-semibold'
+      assert_includes rendered_content, 'rounded-t-[var(--pvc-radius-action)]'
+      assert_includes rendered_content, 'aria-selected:border-[var(--pvc-color-accent)]'
+      assert_includes rendered_content, 'data-[state=active]:border-[var(--pvc-color-accent)]'
       assert_selector(
         'button#tab-api[role="tab"][aria-selected="false"][data-state="inactive"][tabindex="-1"]'
       )
@@ -56,8 +57,14 @@ module Pathogen
       end
 
       assert_selector 'div#settings-tabs-container.flex.items-start.gap-6'
+      assert_includes rendered_content, 'min-w-[11rem]'
+      assert_selector 'nav#settings-tabs.border-r'
       assert_selector 'button#tab-general[aria-selected="false"][data-state="inactive"][tabindex="-1"]'
-      assert_selector 'button#tab-security[aria-selected="true"][data-state="active"][tabindex="0"]'
+      assert_selector 'button#tab-security[aria-selected="true"][data-state="active"][tabindex="0"][title="Security"]'
+      assert_includes rendered_content, 'border-l-2'
+      assert_includes rendered_content, 'rounded-[var(--pvc-radius-action)]'
+      assert_includes rendered_content, 'data-[state=active]:bg-[var(--pvc-color-surface-muted)]'
+      assert_not_includes rendered_content, 'border-r-2'
 
       assert_selector 'div#panel-general[aria-hidden="true"][data-state="inactive"][hidden]', visible: :all
       assert_selector 'div#panel-security[aria-hidden="false"][data-state="active"]'
@@ -98,7 +105,9 @@ module Pathogen
       assert_selector 'div#panel-history[role="tabpanel"][aria-hidden="true"][data-state="inactive"][hidden]',
                       visible: :all
       assert_selector 'turbo-frame#history-frame[src="/history"][loading="lazy"]', visible: :all
-      assert_selector '.animate-pulse.rounded-lg.border', visible: :all
+      assert_includes rendered_content, 'motion-reduce:animate-none'
+      assert_includes rendered_content, 'rounded-[var(--pvc-radius-panel)]'
+      assert_includes rendered_content, 'border-[var(--pvc-color-border)]'
     end
   end
 end
