@@ -1,0 +1,223 @@
+<% rows = [
+  { sample_id: 'SAM-0001', name: 'Northern basin isolate', status: 'Active' },
+  { sample_id: 'SAM-0002', name: 'Coastal sediment sample', status: 'Pending' }
+] %>
+
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sample grid toolbar</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Default <code class="font-mono">variant: :table</code> for full-width action rows above a data grid. Group related
+      controls with <code class="font-mono">Toolbar::Group</code>, push end groups with
+      <code class="font-mono">Toolbar::Spacer</code>, and place text-entry controls last in DOM order per the
+      <a class="text-[var(--pvc-color-accent)] underline" href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/">APG toolbar pattern</a>.
+      Detached submit buttons follow the
+      <a class="text-[var(--pvc-color-accent)] underline" href="https://github.com/phac-nml/irida-next/pull/2035">IRIDA selection-buttons pattern</a>.
+    </p>
+
+    <%# Hidden forms keep screen readers from announcing a form boundary before each button. %>
+    <%= form_tag '#', method: :get, id: 'toolbar-preview-select-all', class: 'hidden', data: { turbo_frame: 'selected' } do %>
+      <%= hidden_field_tag :select, 'on' %>
+    <% end %>
+
+    <%= form_tag '#', method: :get, id: 'toolbar-preview-deselect-all', class: 'hidden', data: { turbo_frame: 'selected' } %>
+
+    <div
+      class="
+        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)]
+      "
+      data-pathogen--toolbar-surface
+    >
+      <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-4 py-3">
+        <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-preview-grid') do %>
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new(
+              form: 'toolbar-preview-select-all',
+              label: 'Select all samples in this project'
+            ) do %>
+              Select all
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(
+              form: 'toolbar-preview-deselect-all',
+              label: 'Deselect all samples in this project'
+            ) do %>
+              Deselect all
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Spacer.new %>
+
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new do %>
+              Columns
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(disabled: true, label: 'Export selected samples') do %>
+              Export
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
+            <input
+              id="toolbar-preview-search"
+              type="search"
+              autocomplete="off"
+              tabindex="-1"
+              data-pathogen--toolbar-target="item"
+              value="SAM-"
+              aria-label="Search samples by ID or name"
+              placeholder="Search by sample ID"
+              class="
+                w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+                bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)]
+                text-[var(--pvc-color-text)]
+              "
+            >
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render Pathogen::DataGridComponent.new(
+        id: 'toolbar-preview-grid',
+        caption: 'Sample inventory',
+        rows: rows
+      ) do |grid| %>
+        <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+        <% grid.with_column('Name', key: :name) %>
+        <% grid.with_column('Status', key: :status, width: 140) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Chip toolbar</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Use <code class="font-mono">variant: :chip</code> for compact bordered toolbars in dialogs, panels, or inline
+      editor contexts. Use a toolbar only when grouping three or more controls.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] bg-[var(--pvc-color-surface-muted)] p-4">
+      <%= render Pathogen::Toolbar.new(label: 'Sample actions', variant: :chip) do %>
+        <%= render Pathogen::Toolbar::Button.new do %>
+          Edit
+        <% end %>
+
+        <%= render Pathogen::Toolbar::Button.new do %>
+          Duplicate
+        <% end %>
+
+        <%= render Pathogen::Toolbar::Separator.new %>
+
+        <%= render Pathogen::Toolbar::Button.new do %>
+          Archive
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Toggle and disabled states</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Pressed state is consumer-owned; the toolbar reflects it through <code class="font-mono">aria-pressed</code>.
+      Unavailable actions use <code class="font-mono">aria-disabled</code> so they stay focusable and discoverable.
+    </p>
+
+    <div class="flex flex-wrap gap-4">
+      <div class="rounded-[var(--pvc-radius-panel)] bg-[var(--pvc-color-surface-muted)] p-4">
+        <%= render Pathogen::Toolbar.new(label: 'Display options', variant: :chip) do %>
+          <%= render Pathogen::Toolbar::Button.new(pressed: true) do %>
+            Compact rows
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Button.new(pressed: false) do %>
+            Group by status
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Button.new do %>
+            Export
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="rounded-[var(--pvc-radius-panel)] bg-[var(--pvc-color-surface-muted)] p-4">
+        <%= render Pathogen::Toolbar.new(label: 'Sync actions', variant: :chip) do %>
+          <%= render Pathogen::Toolbar::Button.new do %>
+            Refresh data
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+            Sync all
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="toolbar-preview-a11y-title" class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">
+      Keyboard and custom controls
+    </h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Tab into the toolbar once, then use arrow keys, Home, and End to move between items. Custom controls join roving
+      focus when they expose <code class="font-mono">data-pathogen--toolbar-target="item"</code>.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] bg-[var(--pvc-color-surface-muted)] p-4">
+      <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title', variant: :chip) do %>
+        <%= render Pathogen::Toolbar::Button.new do %>
+          Refresh data
+        <% end %>
+
+        <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+          Sync all
+        <% end %>
+
+        <%= render Pathogen::Toolbar::Separator.new %>
+
+        <button
+          type="button"
+          tabindex="-1"
+          data-pathogen--toolbar-target="item"
+          class="
+            rounded-[var(--pvc-radius-action)] px-2 py-1 text-[length:var(--type-control)]
+            text-[var(--pvc-color-text)]
+          "
+        >
+          Custom control
+        </button>
+      <% end %>
+    </div>
+  </section>
+
+  <section
+    class="
+      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]
+      p-4 text-sm text-[var(--pvc-color-text-muted)]
+    "
+  >
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Usage notes</h2>
+
+    <ul class="list-disc space-y-2 pl-5">
+      <li>
+        Link the toolbar to its grid with <code class="font-mono">controls:</code> when actions operate on table
+        content.
+      </li>
+
+      <li>
+        Host-local dropdown menus stay consumer-managed in v1: only the closed trigger is a toolbar item; open menus
+        must own their own keyboard model.
+      </li>
+
+      <li>
+        After Turbo morphs or wholesale DOM swaps, dispatch <code class="font-mono">pathogen--toolbar:sync</code> on the
+        toolbar element.
+      </li>
+    </ul>
+  </section>
+</div>

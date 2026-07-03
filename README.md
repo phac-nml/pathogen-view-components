@@ -122,23 +122,50 @@ Sticky columns:
 
 #### Toolbar
 
-```erb
-<%= render Pathogen::Toolbar.new(label: "Grid actions", controls: "samples-grid") do %>
-  <%= render Pathogen::Toolbar::Button.new do %>
-    Filter
-  <% end %>
-  <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") do %>
-    Dense
-  <% end %>
-  <%= render Pathogen::Toolbar::Separator.new %>
+Table action row (default `variant: :table`):
 
-  <%# Custom controls (e.g. a consumer-managed dropdown trigger) join roving focus
-      by exposing the toolbar item target explicitly. %>
+```erb
+<%# Hidden forms + detached submit buttons (see IRIDA shared/selection_buttons). %>
+<form id="select-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get">
+  <input type="hidden" name="select" value="on">
+</form>
+<form id="deselect-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get"></form>
+
+<%= render Pathogen::Toolbar.new(label: "Sample grid actions", controls: "samples-grid") do %>
+  <%= render Pathogen::Toolbar::Group.new do %>
+    <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
+    <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
+  <% end %>
+
+  <%= render Pathogen::Toolbar::Spacer.new %>
+
+  <%= render Pathogen::Toolbar::Group.new do %>
+    <%= render Pathogen::Toolbar::Button.new { "Columns" } %>
+    <%= render Pathogen::Toolbar::Button.new(disabled: true, label: "Export selected samples") { "Export" } %>
+  <% end %>
+
+  <%# Text-entry controls last in DOM order per the APG toolbar pattern. %>
+  <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
+    <input type="search" tabindex="-1" data-pathogen--toolbar-target="item" aria-label="Search samples">
+  <% end %>
+<% end %>
+```
+
+Compact inline toolbar (`variant: :chip`):
+
+```erb
+<%= render Pathogen::Toolbar.new(label: "Editor actions", variant: :chip) do %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") { "Dense" } %>
+  <%= render Pathogen::Toolbar::Separator.new %>
   <button type="button" tabindex="-1" data-pathogen--toolbar-target="item">More</button>
 <% end %>
 ```
 
+- Use `Toolbar::Group` so related controls reflow together. Use `reflow: :alone` when a control (typically search) should wrap independently.
+- Use `Toolbar::Spacer` between start and end groups on wide viewports; it collapses on narrow screens.
+- When composing a toolbar above a data grid, wrap both in one framed surface (`data-pathogen--toolbar-surface`) so the grid omits its outer border; separate the toolbar band with a single `border-b`.
 - Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
+- Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
 - The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
 - Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 

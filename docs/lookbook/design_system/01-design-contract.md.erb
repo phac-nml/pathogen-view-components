@@ -189,6 +189,7 @@ Buttons have two decisions: **tone** and **emphasis**.
 - One `primary` + `solid` per action group.
 - Form footers place the main action last; cancel stays secondary.
 - Toolbars use `small`, `ghost` or `outline`, and named icon buttons.
+- Table toolbars default to full-width reflow (`variant: :table`). Group related controls with `Pathogen::Toolbar::Group`, push end groups with `Toolbar::Spacer`, and place text-entry controls last in DOM order.
 - Do not put two primary solid buttons beside each other unless they are genuinely equal choices.
 
 ### Hover On Solid Buttons
@@ -273,6 +274,7 @@ Fix accessibility in Pathogen primitives first. Host apps inherit those gains ev
 | Tabs | [Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), `Pathogen::Tabs` |
 | Forms, switches, radios | [Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), [Radio](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), [Switch](https://www.w3.org/WAI/ARIA/apg/patterns/switch/), `Pathogen::Form::*` |
 | Tooltips | [Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/), `Pathogen::Tooltip` |
+| Toolbars | [Toolbar pattern](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/), `Pathogen::Toolbar` |
 | Data grids / tables | [Grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) and [Table](https://www.w3.org/WAI/ARIA/apg/patterns/table/), `Pathogen::DataGridComponent` |
 | Dialogs and disclosures | [Dialog modal](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) |
 
