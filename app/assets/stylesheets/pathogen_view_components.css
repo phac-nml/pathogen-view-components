@@ -777,9 +777,6 @@
   .border-\[var\(--pvc-data-grid-row-border\)\] {
     border-color: var(--pvc-data-grid-row-border);
   }
-  .border-neutral-200 {
-    border-color: var(--color-neutral-200);
-  }
   .border-neutral-300 {
     border-color: var(--color-neutral-300);
   }
@@ -824,9 +821,6 @@
   }
   .bg-\[var\(--pvc-data-grid-header-bg\)\] {
     background-color: var(--pvc-data-grid-header-bg);
-  }
-  .bg-neutral-50 {
-    background-color: var(--color-neutral-50);
   }
   .bg-neutral-200 {
     background-color: var(--color-neutral-200);
@@ -1533,11 +1527,6 @@
       border-color: var(--color-neutral-600);
     }
   }
-  .dark\:border-neutral-700 {
-    &:where(.dark, .dark *) {
-      border-color: var(--color-neutral-700);
-    }
-  }
   .dark\:border-red-800 {
     &:where(.dark, .dark *) {
       border-color: var(--color-red-800);
@@ -1546,11 +1535,6 @@
   .dark\:bg-neutral-700 {
     &:where(.dark, .dark *) {
       background-color: var(--color-neutral-700);
-    }
-  }
-  .dark\:bg-neutral-900 {
-    &:where(.dark, .dark *) {
-      background-color: var(--color-neutral-900);
     }
   }
   .dark\:bg-neutral-950 {
