@@ -181,14 +181,17 @@ module Pathogen
     test 'renders group layout wrapper without toolbar item target' do
       render_inline(Pathogen::Toolbar::Group.new) { 'Grouped controls' }
 
-      assert_selector 'div[data-pathogen--toolbar-group][data-reflow="group"]', text: 'Grouped controls'
+      assert_selector(
+        'div[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="group"]',
+        text: 'Grouped controls'
+      )
       assert_no_selector 'div[data-pathogen--toolbar-target]'
     end
 
     test 'renders alone reflow group data attribute' do
       render_inline(Pathogen::Toolbar::Group.new(reflow: :alone)) { 'Search' }
 
-      assert_selector 'div[data-pathogen--toolbar-group][data-reflow="alone"]', text: 'Search'
+      assert_selector 'div[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="alone"]', text: 'Search'
     end
 
     test 'fails fast when group reflow is invalid' do

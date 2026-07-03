@@ -1671,23 +1671,23 @@
   gap: 0.5rem;
   min-width: 0;
 }
-[data-pathogen--toolbar-group][data-reflow="group"] {
+[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="group"] {
   flex: 0 0 auto;
   width: auto;
 }
 @media (max-width: 639px) {
-  [data-pathogen--toolbar-group][data-reflow="group"] {
+  [data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="group"] {
     flex: 1 1 100%;
     width: 100%;
   }
 }
-[data-pathogen--toolbar-group][data-reflow="alone"] {
+[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="alone"] {
   flex: 1 1 100%;
   width: 100%;
   max-width: none;
 }
 @media (min-width: 640px) {
-  [data-pathogen--toolbar-group][data-reflow="alone"] {
+  [data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="alone"] {
     flex: 0 1 16rem;
     width: auto;
     max-width: 16rem;
