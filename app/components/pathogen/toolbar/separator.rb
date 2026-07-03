@@ -8,7 +8,6 @@ module Pathogen
       @system_arguments[:role] = 'separator'
       @system_arguments[:aria] ||= {}
       @system_arguments[:aria][:orientation] = 'vertical'
-      @system_arguments[:aria][:hidden] = true
       @system_arguments[:class] = class_names(Pathogen::ToolbarStyles::SEPARATOR, @system_arguments[:class])
     end
 
