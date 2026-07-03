@@ -1,0 +1,85 @@
+<% rows = [
+  { sample_id: 'SAM-0001', name: 'Northern basin isolate', status: 'Active' },
+  { sample_id: 'SAM-0002', name: 'Coastal sediment sample', status: 'Pending' },
+  { sample_id: 'SAM-0003', name: 'Estuary water column', status: 'Active' }
+] %>
+
+<div class="w-full p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Full-width table toolbar</h2>
+
+    <p class="mb-4 max-w-3xl text-sm text-[var(--pvc-color-text-muted)]">
+      A <code class="font-mono">variant: :table</code> toolbar spans the full width of its grid. The selection
+      <code class="font-mono">Toolbar::Group</code> stays on the left, a <code class="font-mono">Toolbar::Spacer</code>
+      pushes the actions and search field to the right, and the text field is last in DOM order per the
+      <a class="text-[var(--pvc-color-accent)] underline" href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/">APG toolbar pattern</a>.
+      Drag the Lookbook preview narrower than the <code class="font-mono">sm</code> breakpoint (640px) to watch the
+      groups reflow: the spacer collapses, each group takes a full row, and the search field expands to fill the width.
+    </p>
+
+    <div
+      class="
+        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)]
+      "
+      data-pathogen--toolbar-surface
+    >
+      <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-4 py-3">
+        <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-fullwidth-grid') do %>
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new(label: 'Select all samples in this project') do %>
+              Select all
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Deselect all samples in this project') do %>
+              Deselect all
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Spacer.new %>
+
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new(label: 'Filter samples') do %>
+              Filter
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Choose visible columns') do %>
+              Columns
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Export selected samples') do %>
+              Export
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
+            <input
+              id="toolbar-fullwidth-search"
+              type="search"
+              autocomplete="off"
+              tabindex="-1"
+              data-pathogen--toolbar-target="item"
+              aria-label="Search samples by ID or name"
+              placeholder="Search samples by ID or name"
+              class="
+                w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+                bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)]
+                text-[var(--pvc-color-text)]
+              "
+            >
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render Pathogen::DataGridComponent.new(
+        id: 'toolbar-fullwidth-grid',
+        caption: 'Sample inventory',
+        rows: rows
+      ) do |grid| %>
+        <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+        <% grid.with_column('Name', key: :name) %>
+        <% grid.with_column('Status', key: :status, width: 140) %>
+      <% end %>
+    </div>
+  </section>
+</div>
