@@ -11,17 +11,15 @@ module Pathogen
 
       DEFAULT_TAG = :p
 
-      attr_reader :tag, :variant, :responsive
+      attr_reader :tag, :variant
 
-      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, responsive: false, **system_arguments)
+      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, **system_arguments)
         @tag = tag
         @variant = variant
-        @responsive = responsive
         @system_arguments = system_arguments
 
         @system_arguments[:class] = class_names(
           system_arguments[:class],
-          'font-sans',
           size_classes,
           color_classes_for_variant(@variant),
           Constants::LINE_HEIGHTS[:body],
@@ -31,7 +29,7 @@ module Pathogen
 
       private
 
-      def size_classes = Constants::TYPOGRAPHY_SCALE[18]
+      def size_classes = Constants::TYPE_SIZES[:callout]
     end
   end
 end

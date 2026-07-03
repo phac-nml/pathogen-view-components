@@ -31,18 +31,16 @@ module Pathogen
 
       DEFAULT_LEVEL = 1
 
-      attr_reader :level, :variant, :responsive
+      attr_reader :level, :variant
 
       # Initialize a new Heading component
       #
       # @param level [Integer] Heading level (1-6)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param system_arguments [Hash] Additional HTML attributes
-      def initialize(level:, variant: Shared::DEFAULT_VARIANT, responsive: true, **system_arguments)
+      def initialize(level:, variant: Shared::DEFAULT_VARIANT, **system_arguments)
         @level = normalize_level(level)
         @variant = variant
-        @responsive = responsive
         @system_arguments = system_arguments
 
         @system_arguments[:class] = class_names(
@@ -71,16 +69,11 @@ module Pathogen
       end
 
       def size_classes
-        Constants::RESPONSIVE_SIZES[@level][:mobile]
+        Constants::TYPE_SIZES[Constants::HEADING_SIZE_ROLES[@level]]
       end
 
       def font_weight_class
-        case @level
-        when 1, 2
-          'font-extrabold'
-        else
-          'font-bold'
-        end
+        Constants::HEADING_WEIGHTS[@level]
       end
 
       def letter_spacing_class

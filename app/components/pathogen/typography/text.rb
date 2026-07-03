@@ -32,18 +32,16 @@ module Pathogen
 
       DEFAULT_TAG = :p
 
-      attr_reader :tag, :variant, :responsive
+      attr_reader :tag, :variant
 
       # Initialize a new Text component
       #
       # @param tag [Symbol] HTML tag to use (default: :p)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param system_arguments [Hash] Additional HTML attributes
-      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, responsive: false, **system_arguments)
+      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, **system_arguments)
         @tag = tag
         @variant = variant
-        @responsive = responsive
         @system_arguments = system_arguments
 
         @system_arguments[:class] = class_names(
@@ -58,7 +56,7 @@ module Pathogen
       private
 
       def size_classes
-        Constants::TYPOGRAPHY_SCALE[16]
+        Constants::TYPE_SIZES[:body]
       end
     end
   end
