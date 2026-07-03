@@ -229,10 +229,10 @@ In dark mode, accent text and borders lighten for contrast. Solid button fills s
 
 | Token | px | Used by |
 |-------|----|---------|
-| `--type-meta` | 12 | Hints, `CopyableValue` |
-| `--type-control` | 14 | Labels, buttons, `Supporting`, inline code |
-| `--type-body` | 16 | Body text, lists |
-| `--type-callout` | 18 | `Callout`, `Heading` level 4 |
+| `--type-meta` | 12 | Hints, `Supporting` (`size: :meta`), heading-group metadata |
+| `--type-control` | 14 | Labels, buttons, `Supporting` (default), inline code |
+| `--type-body` | 16 | Body text, lists, `Heading` level 6 |
+| `--type-callout` | 18 | `Callout`, `Heading` levels 4–5 |
 | `--type-section` | 20 | Section titles, `Lead`, `Heading` level 3 |
 | `--type-title` | 24 | `Heading` level 2 |
 | `--type-page` | 32 | Page titles, `Heading` level 1 |
@@ -296,7 +296,7 @@ Use colour, border, background, and opacity transitions before movement. Honour 
 |-----------|-----------------|---------------|-------------|
 | `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
 | `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
-| `Typography` | Partial | Tailwind | `--type-*` |
+| `Typography` | Yes | Tailwind | `--type-*` |
 | `Link`, `Tabs`, `Form` | Partial | Mixed | `text-sm` labels |
 | `DataGrid` | Grid-scoped | `rounded-lg` ~= panel | - |
 | `Tooltip` | Hard-coded | `rounded-lg` | - |
@@ -313,7 +313,6 @@ These rows are known gaps between shipped CSS and the intended system direction.
 |---|-------|-------------|--------|-----|
 | 1 | `accent-solid-hover` | Lightens (`700` -> `600`) | Darken, such as `800` | Solid hover should press in, like danger already does |
 | 2 | `focus` in dark mode | `primary-400`, same as accent | `primary-500` in both modes | Focus must remain separate from accent |
-| 3 | `type-page` | 31px | 32px | Cleaner page title on the grid |
-| 4 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
+| 3 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
 
-Until row 4 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
+Until row 3 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
