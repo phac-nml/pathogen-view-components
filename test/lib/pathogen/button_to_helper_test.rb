@@ -54,6 +54,7 @@ module Pathogen
       assert_not_nil button
       assert_equal '/posts/1', form['action']
       assert_equal 'post', form['method']
+      assert_includes form['class'], 'button_to'
       assert_includes form['class'], 'hidden'
       assert_equal 'delete', form.at_css('input[name="_method"]')['value']
 
@@ -62,6 +63,21 @@ module Pathogen
       assert_equal 'submit', button['type']
       assert_equal form['id'], button['form']
       assert form['id'].present?
+    end
+
+    test 'detached accepts string-keyed helper options' do
+      html = @view.pathogen_button_to('Delete', '/posts/1', { 'method' => :delete, 'detached' => true })
+      fragment = Nokogiri::HTML::DocumentFragment.parse(html)
+
+      form = fragment.at_css('form')
+      button = fragment.at_css('button')
+
+      assert_not_nil form
+      assert_not_nil button
+      assert_includes form['class'], 'button_to'
+      assert_includes form['class'], 'hidden'
+      assert_equal form['id'], button['form']
+      assert_nil button['detached']
     end
 
     test 'detached honours a custom form id and class' do

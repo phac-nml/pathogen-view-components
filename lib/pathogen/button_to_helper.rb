@@ -11,12 +11,12 @@ module Pathogen
     # Mirrors +ActionView::Helpers::UrlHelper#button_to+ but renders +Pathogen::Button+
     # instead of a raw +<button>+ so standalone form actions match the design system.
     #
-    # Pass +detached: true+ to render the submit control outside of its form. The
-    # helper then emits a hidden +<form>+ (carrying the method override, CSRF token,
-    # and any params) plus a standalone +Pathogen::Button+ that is linked back to the
-    # form through the HTML +form+ attribute. This is useful where a +<form>+ cannot be
-    # nested, such as table rows, list items, menus, or existing forms, while keeping
-    # full Rails form semantics.
+    # Pass +detached: true+ to render the submit control outside of its generated
+    # form. The helper then emits a hidden sibling +<form>+ (carrying the method
+    # override, CSRF token, and any params) plus a standalone +Pathogen::Button+
+    # that is linked back to the form through the HTML +form+ attribute. This is
+    # useful where the button must sit outside its form, such as table rows, list
+    # items, or menus, while keeping full Rails form semantics.
     #
     # @param name [String, nil] button label when no block is given
     # @param options [String, Hash] URL or route options
@@ -32,7 +32,7 @@ module Pathogen
     #   pathogen_button_to "Delete", post_path(@post), method: :delete, detached: true, tone: :danger, emphasis: :outline
     def pathogen_button_to(name = nil, options = nil, html_options = nil, &block)
       name, options, html_options = normalize_button_to_args(name, options, html_options, block)
-      detached = html_options.delete(:detached)
+      detached = detached_option(html_options)
 
       pathogen_options, form_extra, method_override, button_options =
         ButtonHelperOptions.split_button_to_options(html_options)
@@ -60,6 +60,10 @@ module Pathogen
       [name, options, html_options || {}]
     end
 
+    def detached_option(options)
+      options.delete(:detached) || options.delete('detached')
+    end
+
     # Mirrors Rails button_to form assembly.
     # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
     def build_button_to_context(url_options, form_extra, method_override, button_options, detached: false)
@@ -75,7 +79,7 @@ module Pathogen
 
       form_options = form_extra[:form] || button_options.delete('form') || {}
       form_options = form_options.stringify_keys
-      default_form_class = detached ? 'hidden' : 'button_to'
+      default_form_class = detached ? 'button_to hidden' : 'button_to'
       form_options['class'] ||= form_extra[:form_class] || button_options.delete('form_class') || default_form_class
       form_options['method'] = form_method
       form_options['action'] = url
@@ -116,7 +120,7 @@ module Pathogen
       )
     end
 
-    # Emits the hidden form and the linked standalone button for +detached: true+.
+    # Emits the hidden sibling form and linked standalone button for +detached: true+.
     def render_detached_button_to(pathogen_options, context, url_options, &)
       form_options = context.fetch(:form_options)
       form_id = form_options['id']
