@@ -2,13 +2,15 @@
 
 module Pathogen
   # Accessible toolbar primitive following the horizontal APG toolbar pattern.
+  #
+  # Use +variant: :table+ (default) for full-width table action rows with reflow.
+  # Use +variant: :chip+ for compact bordered inline toolbars.
+  #
+  # Group related controls with {Pathogen::Toolbar::Group} so they reflow together.
+  # Place {Pathogen::Toolbar::Spacer} between start and end groups on wide layouts.
+  # Put text-entry controls last in DOM order per the APG toolbar pattern.
   class Toolbar < Pathogen::Component
     include Pathogen::StimulusDataMerge
-
-    TOOLBAR_CLASSES = %w[
-      inline-flex items-center gap-1 rounded-md border border-neutral-200 bg-neutral-50 px-1 py-1
-      dark:border-neutral-700 dark:bg-neutral-900
-    ].freeze
 
     TOOLBAR_ACTIONS = %w[
       keydown->pathogen--toolbar#handleKeyDown
@@ -16,13 +18,16 @@ module Pathogen
       click->pathogen--toolbar#handleClick:capture
     ].freeze
 
-    def initialize(label: nil, labelled_by: nil, controls: nil, **system_arguments)
+    def initialize(label: nil, labelled_by: nil, controls: nil, variant: Pathogen::ToolbarStyles::DEFAULT_VARIANT,
+                   **system_arguments)
       @label = label
       @labelled_by = labelled_by
       @controls = controls
+      @variant = variant
       @system_arguments = system_arguments
 
       validate_accessible_name!
+      validate_variant!
       build_toolbar_arguments!
     end
 
@@ -35,10 +40,20 @@ module Pathogen
       raise ArgumentError, 'Provide exactly one of label: or labelled_by:'
     end
 
+    def validate_variant!
+      return if Pathogen::ToolbarStyles::VARIANTS.key?(@variant)
+
+      raise ArgumentError, "variant: must be one of #{Pathogen::ToolbarStyles::VARIANTS.keys.join(', ')}"
+    end
+
     def build_toolbar_arguments!
       apply_toolbar_aria!
       apply_toolbar_stimulus!
-      @system_arguments[:class] = class_names(TOOLBAR_CLASSES, @system_arguments[:class])
+      @system_arguments[:class] = class_names(variant_classes, @system_arguments[:class])
+    end
+
+    def variant_classes
+      Pathogen::ToolbarStyles::VARIANTS.fetch(@variant)
     end
 
     def apply_toolbar_aria!
@@ -51,6 +66,7 @@ module Pathogen
 
     def apply_toolbar_stimulus!
       @system_arguments[:data] ||= {}
+      @system_arguments[:data][:'pathogen--toolbar-variant'] = @variant
       merge_stimulus_data!(@system_arguments[:data], :controller, 'pathogen--toolbar')
       merge_stimulus_data!(@system_arguments[:data], :action, *TOOLBAR_ACTIONS)
     end
