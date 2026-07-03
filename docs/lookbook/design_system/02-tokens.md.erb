@@ -221,19 +221,23 @@ In dark mode, accent text and borders lighten for contrast. Solid button fills s
 --type-meta: 0.75rem;      /* 12px */
 --type-control: 0.875rem;  /* 14px */
 --type-body: 1rem;         /* 16px */
+--type-callout: 1.125rem;  /* 18px */
 --type-section: 1.25rem;   /* 20px */
---type-page: 2rem;         /* 32px target; shipped CSS still has 31px */
+--type-title: 1.5rem;      /* 24px */
+--type-page: 2rem;         /* 32px */
 ```
 
-| Token | px | Tailwind | Used by |
-|-------|----|----------|---------|
-| `--type-meta` | 12 | `text-xs` | Hints, `CopyableValue` |
-| `--type-control` | 14 | `text-sm` | Labels, buttons |
-| `--type-body` | 16 | `text-base` | Body text |
-| `--type-section` | 20 | `text-xl` | Section titles |
-| `--type-page` | 32 target | `text-3xl` | Page headings |
+| Token | px | Used by |
+|-------|----|---------|
+| `--type-meta` | 12 | Hints, `CopyableValue` |
+| `--type-control` | 14 | Labels, buttons, `Supporting`, inline code |
+| `--type-body` | 16 | Body text, lists |
+| `--type-callout` | 18 | `Callout`, `Heading` level 4 |
+| `--type-section` | 20 | Section titles, `Lead`, `Heading` level 3 |
+| `--type-title` | 24 | `Heading` level 2 |
+| `--type-page` | 32 | Page titles, `Heading` level 1 |
 
-The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
+Components consume these through `text-[length:var(--type-*)]` utilities. The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
 ## Spacing
 
@@ -292,7 +296,7 @@ Use colour, border, background, and opacity transitions before movement. Honour 
 |-----------|-----------------|---------------|-------------|
 | `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
 | `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
-| `Typography` | Partial | Tailwind | Tailwind |
+| `Typography` | Partial | Tailwind | `--type-*` |
 | `Link`, `Tabs`, `Form` | Partial | Mixed | `text-sm` labels |
 | `DataGrid` | Grid-scoped | `rounded-lg` ~= panel | - |
 | `Tooltip` | Hard-coded | `rounded-lg` | - |

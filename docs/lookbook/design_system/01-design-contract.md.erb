@@ -60,22 +60,29 @@ Host apps theme accent through `--color-primary-*`. Shared components should not
 
 ### 3. Typography
 
-| Role | Token / class | Use |
-|------|---------------|-----|
-| Meta | `--type-meta` / `text-xs` | Hints, timestamps, grid footnotes |
-| Control | `--type-control` / `text-sm` | Labels, buttons, dense UI |
-| Body | `--type-body` / `text-base` | Paragraphs, descriptions |
-| Section | `--type-section` / `text-xl` | Section titles |
-| Page | `--type-page` / `text-3xl` | Page titles via `Heading` |
+Sizes are role tokens (`--type-*`) consumed through Tailwind arbitrary-length utilities such as
+`text-[length:var(--type-body)]`. Components and these docs share one scale.
+
+| Role | Token | Size | Use |
+|------|-------|------|-----|
+| Meta | `--type-meta` | 12px | Hints, timestamps, grid footnotes |
+| Control | `--type-control` | 14px | Labels, buttons, dense UI, inline code |
+| Body | `--type-body` | 16px | Paragraphs, descriptions |
+| Callout | `--type-callout` | 18px | Emphasised lead-ins |
+| Section | `--type-section` | 20px | Section titles, lead paragraphs |
+| Title | `--type-title` | 24px | Sub-page headings |
+| Page | `--type-page` | 32px | Page titles via `Heading` |
 
 14px and 16px carry most product work. Larger type should mark real hierarchy, not create display moments.
 
-- Labels for settings and rows: `text-sm font-semibold`.
+- Labels for settings and rows: `text-[length:var(--type-control)] font-semibold`.
 - Muted copy: `--pvc-color-text-muted` or typography `muted`.
-- Body weight stays normal; labels and headings can use semibold.
-- Save extrabold for rare top-level emphasis.
+- Body weight stays normal. Heading weight steps deliberately: `Heading` levels 1–6 map to
+  extrabold (page title), bold, then semibold. Extrabold is reserved for the single page title.
 - Page titles live in `Pathogen::Typography::Heading`; hosts should not override them.
-- `Eyebrow` is the routine uppercase label. Avoid adding display-style uppercase elsewhere.
+- Set type left-aligned. Following the New Typography, hierarchy comes from size, weight, and
+  asymmetric placement — not centring or decorative uppercase. There is no uppercase display label
+  component; use `Supporting` for metadata labels.
 
 Prefer `text-[length:var(--type-control)]` in new code. Existing `text-sm` is fine where it matches the role.
 
