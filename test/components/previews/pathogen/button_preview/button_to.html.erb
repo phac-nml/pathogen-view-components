@@ -47,4 +47,35 @@
       </div>
     </div>
   </section>
+
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Detached actions" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Pass <%= pathogen_code { "detached: true" } %> where a <%= pathogen_code { "<form>" } %> cannot be nested, such
+      as table rows or menus. The helper renders a hidden form plus a standalone button linked back to it through the
+      HTML <%= pathogen_code { "form" } %> attribute, keeping full Rails form semantics.
+    <% end %>
+
+    <div class="overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+      <table class="w-full text-left text-sm">
+        <tbody>
+          <% ["specimen-001", "specimen-002"].each do |sample| %>
+            <tr class="border-b border-[var(--pvc-color-border)] last:border-0">
+              <td class="px-4 py-3"><%= sample %></td>
+
+              <td class="px-4 py-3">
+                <div class="flex justify-end gap-2">
+                  <%= pathogen_button_to "Edit", "#", method: :get, detached: true, tone: :neutral, emphasis: :ghost %>
+
+                  <%= pathogen_button_to "Delete", "#", method: :delete, detached: true, tone: :danger,
+                        emphasis: :outline, data: { turbo_confirm: "Delete #{sample}?" } %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
