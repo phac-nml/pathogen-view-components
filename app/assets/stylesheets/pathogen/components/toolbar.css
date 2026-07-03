@@ -5,12 +5,68 @@
 
 [data-controller~="pathogen--toolbar"]
   [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
-  outline: 2px solid var(--color-neutral-600);
+  outline: 2px solid var(--pvc-color-focus);
   outline-offset: 2px;
 }
 
-.dark
-  [data-controller~="pathogen--toolbar"]
-  [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
-  outline-color: var(--color-neutral-300);
+/* Composite toolbar + grid surface: one outer frame, grid omits its own border */
+[data-pathogen--toolbar-surface] > .pvc-data-grid {
+  border-radius: 0;
+  border-width: 0;
+}
+
+[role="toolbar"][data-pathogen--toolbar-variant="table"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+[data-pathogen--toolbar-group] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Related controls stay on one row; full width only when the toolbar wraps */
+[data-pathogen--toolbar-group][data-reflow="group"] {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+@media (max-width: 639px) {
+  [data-pathogen--toolbar-group][data-reflow="group"] {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* Search and other standalone fields reflow independently */
+[data-pathogen--toolbar-group][data-reflow="alone"] {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: none;
+}
+
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-group][data-reflow="alone"] {
+    flex: 0 1 16rem;
+    width: auto;
+    max-width: 16rem;
+  }
+}
+
+/* Push trailing groups to the end on wide viewports; omit on narrow screens */
+[data-pathogen--toolbar-spacer] {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-spacer] {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0.5rem;
+  }
 }
