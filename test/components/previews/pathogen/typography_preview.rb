@@ -25,7 +25,7 @@ module Pathogen
     def supporting_text; end
 
     # @label Special Components
-    # Lead paragraphs, eyebrow text, code snippets, and lists
+    # Lead paragraphs, code snippets, heading groups, and lists
     def special_components; end
 
     # @label Dark Mode

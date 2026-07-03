@@ -1,9 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
   <div class="mx-auto max-w-6xl space-y-12">
     <!-- Header -->
-    <div class="text-center">
+    <div>
       <%= pathogen_heading_group(level: 1) do |group| %>
-        <%= group.with_eyebrow { "Typography Components" } %>
         <%= group.with_heading { "Special Components" } %>
         <%= group.with_metadata { "Code, lists, heading groups, and sections" } %>
       <% end %>
@@ -12,11 +11,10 @@
     <!-- HeadingGroup Component -->
     <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
       <%= pathogen_heading(level: 2, class: "mb-6") { "HeadingGroup Component" } %>
-      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Compound component coordinating eyebrow, heading, and metadata" } %>
+      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Compound component coordinating heading and metadata" } %>
 
       <div class="space-y-8">
         <%= pathogen_heading_group(level: 2) do |group| %>
-          <%= group.with_eyebrow { "Tutorial" } %>
           <%= group.with_heading { "Getting Started" } %>
           <%= group.with_metadata { "Last updated January 15, 2024" } %>
         <% end %>
@@ -27,7 +25,6 @@
         <% end %>
 
         <%= pathogen_code_block(language: "erb", class: "mt-6") do %><%%= pathogen_heading_group(level: 2) do |group| %>
-  <%%= group.with_eyebrow { "Category" } %>
   <%%= group.with_heading { "Title" } %>
   <%%= group.with_metadata { "Metadata" } %>
 <%% end %>

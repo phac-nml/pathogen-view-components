@@ -1,9 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
   <div class="mx-auto max-w-7xl space-y-12">
     <!-- Header -->
-    <div class="text-center">
+    <div>
       <%= pathogen_heading_group(level: 1) do |group| %>
-        <%= group.with_eyebrow { "Typography System" } %>
         <%= group.with_heading { "In Context" } %>
         <%= group.with_metadata { "Real-world examples of typography in page layouts" } %>
       <% end %>
@@ -15,7 +14,6 @@
 
       <div class="mx-auto max-w-3xl">
         <%= pathogen_typography_preset(:article) do |group| %>
-          <%= group.with_eyebrow { "Research" } %>
           <%= group.with_heading { "Genomic Surveillance in Public Health" } %>
           <%= group.with_metadata { "Published January 15, 2024 · 12 min read · Dr. Sarah Johnson" } %>
         <% end %>
@@ -69,7 +67,6 @@
       <div class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <%= pathogen_typography_preset(:card) do |group| %>
-            <%= group.with_eyebrow { "Workflow" } %>
             <%= group.with_heading { "COVID-19 Analysis" } %>
             <%= group.with_metadata { "45 samples · Running" } %>
           <% end %>
@@ -77,7 +74,6 @@
 
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <%= pathogen_typography_preset(:card) do |group| %>
-            <%= group.with_eyebrow { "Project" } %>
             <%= group.with_heading { "Influenza Study" } %>
             <%= group.with_metadata { "128 samples · Active" } %>
           <% end %>
@@ -85,7 +81,6 @@
 
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <%= pathogen_typography_preset(:card) do |group| %>
-            <%= group.with_eyebrow { "Analysis" } %>
             <%= group.with_heading { "Pathogen Typing" } %>
             <%= group.with_metadata { "Completed 1h ago" } %>
           <% end %>

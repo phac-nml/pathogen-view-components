@@ -1,9 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
   <div class="mx-auto max-w-7xl space-y-12">
     <!-- Header -->
-    <div class="text-center">
+    <div>
       <%= pathogen_heading_group(level: 1) do |group| %>
-        <%= group.with_eyebrow { "Typography System" } %>
         <%= group.with_heading { "Typography Presets" } %>
         <%= group.with_metadata { "Pre-configured patterns for common UI scenarios" } %>
       <% end %>
@@ -11,23 +10,23 @@
 
     <!-- Presets Overview -->
     <div class="grid grid-cols-1 gap-6 md:grid-cols-5">
-      <div class="rounded-xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <%= pathogen_heading(level: 4, class: "mb-2") { "Article" } %>
-        <%= pathogen_supporting(variant: :muted) { "h1, responsive" } %>
+        <%= pathogen_supporting(variant: :muted) { "h1" } %>
       </div>
-      <div class="rounded-xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <%= pathogen_heading(level: 4, class: "mb-2") { "Card" } %>
         <%= pathogen_supporting(variant: :muted) { "h3, compact" } %>
       </div>
-      <div class="rounded-xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <%= pathogen_heading(level: 4, class: "mb-2") { "Section" } %>
-        <%= pathogen_supporting(variant: :muted) { "h2, responsive" } %>
+        <%= pathogen_supporting(variant: :muted) { "h2" } %>
       </div>
-      <div class="rounded-xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <%= pathogen_heading(level: 4, class: "mb-2") { "Dialog" } %>
         <%= pathogen_supporting(variant: :muted) { "h2, compact" } %>
       </div>
-      <div class="rounded-xl bg-white p-4 text-center shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         <%= pathogen_heading(level: 4, class: "mb-2") { "Form" } %>
         <%= pathogen_supporting(variant: :muted) { "h3, compact" } %>
       </div>
@@ -39,13 +38,11 @@
       <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Blog posts, documentation, and long-form content" } %>
 
       <%= pathogen_typography_preset(:article) do |group| %>
-        <%= group.with_eyebrow { "Tutorial" } %>
         <%= group.with_heading { "Getting Started with IRIDA Next" } %>
         <%= group.with_metadata { "Published January 15, 2024 · 8 min read · Bioinformatics Team" } %>
       <% end %>
 
       <%= pathogen_code_block(language: "erb", class: "mt-8") do %><%%= pathogen_typography_preset(:article) do |group| %>
-  <%%= group.with_eyebrow { "Category" } %>
   <%%= group.with_heading { "Article Title" } %>
   <%%= group.with_metadata { "Date · Read time" } %>
 <%% end %>
@@ -55,7 +52,7 @@
     <!-- Card Preset -->
     <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
       <%= pathogen_heading(level: 2, class: "mb-6") { "Card Preset" } %>
-      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Cards, compact headers with eyebrow and metadata" } %>
+      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Cards, compact headers with metadata" } %>
 
       <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
@@ -67,7 +64,6 @@
 
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <%= pathogen_typography_preset(:card) do |group| %>
-            <%= group.with_eyebrow { "Workflow" } %>
             <%= group.with_heading { "COVID-19 Analysis" } %>
             <%= group.with_metadata { "Completed 2h ago" } %>
           <% end %>
@@ -75,7 +71,6 @@
 
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <%= pathogen_typography_preset(:card) do |group| %>
-            <%= group.with_eyebrow { "Project" } %>
             <%= group.with_heading { "Research Study" } %>
             <%= group.with_metadata { "12 members" } %>
           <% end %>

@@ -1,9 +1,8 @@
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 dark:from-slate-900 dark:to-slate-800">
   <div class="mx-auto max-w-7xl space-y-12">
     <!-- Header -->
-    <div class="text-center">
+    <div>
       <%= pathogen_typography_preset(:article) do |group| %>
-        <%= group.with_eyebrow { "Pathogen Design System" } %>
         <%= group.with_heading { "Typography System" } %>
         <%= group.with_metadata { "A comprehensive, accessible typography system built on Tailwind CSS 4.0" } %>
       <% end %>
@@ -12,7 +11,7 @@
     <!-- Quick Stats -->
     <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
       <div class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-        <div class="text-4xl font-bold text-primary-600 dark:text-primary-400">11</div>
+        <div class="text-4xl font-bold text-primary-600 dark:text-primary-400">10</div>
         <%= pathogen_supporting(variant: :muted) { "Components" } %>
       </div>
 
@@ -35,17 +34,17 @@
     <!-- Typography Scale -->
     <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
       <%= pathogen_heading(level: 2, class: "mb-2") { "Typography Scale" } %>
-      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Modular scale with ~1.25 ratio, optimized for readability" } %>
+      <%= pathogen_supporting(variant: :muted, class: "mb-8") { "Role-based scale mapped to --type-* tokens" } %>
 
       <div class="space-y-6">
         <div class="flex items-baseline gap-6 border-b border-slate-200 pb-4 dark:border-slate-700">
           <%= pathogen_heading(level: 1) { "Heading 1" } %>
-          <%= pathogen_supporting(variant: :muted) { "31px" } %>
+          <%= pathogen_supporting(variant: :muted) { "32px" } %>
         </div>
 
         <div class="flex items-baseline gap-6 border-b border-slate-200 pb-4 dark:border-slate-700">
           <%= pathogen_heading(level: 2) { "Heading 2" } %>
-          <%= pathogen_supporting(variant: :muted) { "25px" } %>
+          <%= pathogen_supporting(variant: :muted) { "24px" } %>
         </div>
 
         <div class="flex items-baseline gap-6 border-b border-slate-200 pb-4 dark:border-slate-700">
@@ -81,19 +80,19 @@
 
       <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div class="space-y-3">
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
             <%= pathogen_text(variant: :default) { "Default variant" } %>
             <%= pathogen_code(class: "mt-2") { "variant: :default" } %>
           </div>
 
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
             <%= pathogen_text(variant: :muted) { "Muted variant" } %>
             <%= pathogen_code(class: "mt-2") { "variant: :muted" } %>
           </div>
         </div>
 
         <div class="space-y-3">
-          <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+          <div class="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
             <%= pathogen_text(variant: :subdued) { "Subdued variant" } %>
             <%= pathogen_code(class: "mt-2") { "variant: :subdued" } %>
           </div>
@@ -121,7 +120,6 @@
           <div class="mb-2 font-mono text-sm text-primary-600 dark:text-primary-400">HeadingGroup</div>
 
           <%= pathogen_heading_group(level: 3, spacing: :compact) do |group| %>
-            <%= group.with_eyebrow { "Component" } %>
             <%= group.with_heading { "Compound Component" } %>
           <% end %>
         </div>
@@ -156,12 +154,6 @@
         </div>
 
         <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
-          <div class="mb-2 font-mono text-sm text-primary-600 dark:text-primary-400">Eyebrow</div>
-          <%= pathogen_eyebrow { "Category Label" } %>
-          <%= pathogen_supporting(variant: :muted, class: "mt-2") { "Uppercase, wide tracking" } %>
-        </div>
-
-        <div class="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
           <div class="mb-2 font-mono text-sm text-primary-600 dark:text-primary-400">List</div>
 
           <%= pathogen_list do |list| %>
@@ -181,8 +173,8 @@
           dark:to-primary-800/20
         "
       >
-        <%= pathogen_heading(level: 3, class: "mb-3") { "Responsive Sizing" } %>
-        <%= pathogen_text { "All components support optional responsive sizing with mobile-first approach." } %>
+        <%= pathogen_heading(level: 3, class: "mb-3") { "Role-Based Scale" } %>
+        <%= pathogen_text { "Sizes map to semantic --type-* tokens shared with the design system." } %>
       </div>
 
       <div class="rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 p-8 dark:from-blue-900/20 dark:to-blue-800/20">
