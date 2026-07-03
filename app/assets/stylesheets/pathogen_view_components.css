@@ -399,8 +399,8 @@
   .m-0 {
     margin: 0px;
   }
-  .mx-1 {
-    margin-inline: var(--spacing);
+  .mx-0\.5 {
+    margin-inline: calc(var(--spacing) * 0.5);
   }
   .mx-\[var\(--pvc-data-grid-cell-padding-x\)\] {
     margin-inline: var(--pvc-data-grid-cell-padding-x);
@@ -455,6 +455,9 @@
   }
   .inline-flex {
     display: inline-flex;
+  }
+  .table {
+    display: table;
   }
   .aspect-square {
     aspect-ratio: 1 / 1;
@@ -822,9 +825,6 @@
   .border-\[var\(--pvc-data-grid-row-border\)\] {
     border-color: var(--pvc-data-grid-row-border);
   }
-  .border-neutral-200 {
-    border-color: var(--color-neutral-200);
-  }
   .border-red-200 {
     border-color: var(--color-red-200);
   }
@@ -864,6 +864,9 @@
   .bg-\[var\(--pvc-color-accent-solid\)\] {
     background-color: var(--pvc-color-accent-solid);
   }
+  .bg-\[var\(--pvc-color-border-strong\)\] {
+    background-color: var(--pvc-color-border-strong);
+  }
   .bg-\[var\(--pvc-color-danger-solid\)\] {
     background-color: var(--pvc-color-danger-solid);
   }
@@ -884,12 +887,6 @@
   }
   .bg-\[var\(--pvc-data-grid-header-bg\)\] {
     background-color: var(--pvc-data-grid-header-bg);
-  }
-  .bg-neutral-50 {
-    background-color: var(--color-neutral-50);
-  }
-  .bg-neutral-300 {
-    background-color: var(--color-neutral-300);
   }
   .bg-neutral-950 {
     background-color: var(--color-neutral-950);
@@ -1131,9 +1128,6 @@
   }
   .text-inherit {
     color: inherit;
-  }
-  .text-neutral-900 {
-    color: var(--color-neutral-900);
   }
   .text-primary {
     color: var(--color-primary);
@@ -1450,26 +1444,14 @@
       gap: calc(var(--spacing) * 4);
     }
   }
-  .dark\:border-neutral-700:where(.dark, .dark *) {
-    border-color: var(--color-neutral-700);
-  }
   .dark\:border-red-800:where(.dark, .dark *) {
     border-color: var(--color-red-800);
-  }
-  .dark\:bg-neutral-600:where(.dark, .dark *) {
-    background-color: var(--color-neutral-600);
-  }
-  .dark\:bg-neutral-900:where(.dark, .dark *) {
-    background-color: var(--color-neutral-900);
   }
   .dark\:bg-red-950\/40:where(.dark, .dark *) {
     background-color: color-mix(in srgb, oklch(25.8% 0.092 26.042) 40%, transparent);
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--color-red-950) 40%, transparent);
     }
-  }
-  .dark\:text-neutral-100:where(.dark, .dark *) {
-    color: var(--color-neutral-100);
   }
   .dark\:text-red-100:where(.dark, .dark *) {
     color: var(--color-red-100);
@@ -1669,13 +1651,57 @@
 }
 [data-controller~="pathogen--toolbar"]
   [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
-  outline: 2px solid var(--color-neutral-600);
+  outline: 2px solid var(--pvc-color-focus);
   outline-offset: 2px;
 }
-.dark
-  [data-controller~="pathogen--toolbar"]
-  [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
-  outline-color: var(--color-neutral-300);
+[data-pathogen--toolbar-surface] > .pvc-data-grid {
+  border-radius: 0;
+  border-width: 0;
+}
+[role="toolbar"][data-pathogen--toolbar-variant="table"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+[data-pathogen--toolbar-group] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+[data-pathogen--toolbar-group][data-reflow="group"] {
+  flex: 0 0 auto;
+  width: auto;
+}
+@media (max-width: 639px) {
+  [data-pathogen--toolbar-group][data-reflow="group"] {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+[data-pathogen--toolbar-group][data-reflow="alone"] {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: none;
+}
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-group][data-reflow="alone"] {
+    flex: 0 1 16rem;
+    width: auto;
+    max-width: 16rem;
+  }
+}
+[data-pathogen--toolbar-spacer] {
+  display: none;
+}
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-spacer] {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0.5rem;
+  }
 }
 .pvc-data-grid {
   --pvc-data-grid-border-color: var(--pvc-color-border);
