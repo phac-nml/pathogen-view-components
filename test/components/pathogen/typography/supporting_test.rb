@@ -22,7 +22,7 @@ module Pathogen
       test 'applies small text size' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p.text-sm'
+        assert_selector 'p[class*="--type-control"]'
       end
 
       test 'applies normal leading' do
@@ -58,7 +58,7 @@ module Pathogen
       test 'merges custom classes' do
         render_inline(Supporting.new(class: 'mt-1')) { 'Test' }
 
-        assert_selector 'p.mt-1.text-sm'
+        assert_selector 'p.mt-1[class*="--type-control"]'
       end
 
       test 'accepts additional HTML attributes' do
@@ -76,13 +76,13 @@ module Pathogen
       test 'supports label tag for form labels' do
         render_inline(Supporting.new(tag: :label, for: 'email')) { 'Email address' }
 
-        assert_selector 'label[for="email"].text-sm', text: 'Email address'
+        assert_selector 'label[for="email"][class*="--type-control"]', text: 'Email address'
       end
 
       test 'supports div tag for captions' do
         render_inline(Supporting.new(tag: :div)) { 'Image caption' }
 
-        assert_selector 'div.text-sm', text: 'Image caption'
+        assert_selector 'div[class*="--type-control"]', text: 'Image caption'
       end
     end
   end

@@ -42,7 +42,7 @@ module Pathogen
         render_inline(List.new) do |list|
           list.with_item { 'Test' }
         end
-        assert_selector 'ul.text-base.leading-normal.list-disc.pl-6.space-y-2'
+        assert_selector 'ul.leading-normal.list-disc.pl-6.space-y-2[class*="--type-body"]'
 
         render_inline(List.new(ordered: true)) do |list|
           list.with_item { 'Test' }

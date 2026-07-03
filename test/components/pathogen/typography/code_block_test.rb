@@ -21,7 +21,7 @@ module Pathogen
       test 'applies pre typography classes' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'pre.overflow-x-auto.font-mono.text-sm'
+        assert_selector 'pre.overflow-x-auto.font-mono[class*="--type-control"]'
       end
 
       test 'applies code element classes' do

@@ -20,18 +20,11 @@ module Pathogen
         end
       end
 
-      test 'applies baseline sizing classes by default' do
+      test 'applies role token sizing by default' do
         render_inline(Heading.new(level: 1)) { 'Test' }
 
-        assert_selector 'h1.text-3xl'
-        assert_no_selector 'h1.sm\\:text-5xl'
-      end
-
-      test 'keeps baseline sizing when responsive is true' do
-        render_inline(Heading.new(level: 1, responsive: true)) { 'Test' }
-
-        assert_selector 'h1.text-3xl'
-        assert_no_selector 'h1.sm\\:text-5xl'
+        assert_selector 'h1[class*="--type-page"]'
+        assert_selector 'h1[class*="font-extrabold"]'
       end
 
       test 'applies variant color classes' do
@@ -60,7 +53,7 @@ module Pathogen
       test 'merges custom classes with component classes' do
         render_inline(Heading.new(level: 1, class: 'custom-class mb-4')) { 'Test' }
 
-        assert_selector 'h1.custom-class.mb-4.text-3xl'
+        assert_selector 'h1.custom-class.mb-4[class*="--type-page"]'
       end
 
       test 'accepts additional HTML attributes' do
@@ -80,18 +73,24 @@ module Pathogen
         assert_selector 'h2', text: 'Test'
       end
 
-      test 'applies baseline sizing correctly' do
+      test 'maps each level to its role token and weight' do
         render_inline(Heading.new(level: 1)) { 'Test' }
-        assert_selector 'h1.text-3xl'
-        assert_no_selector 'h1.sm\\:text-5xl'
+        assert_selector 'h1[class*="--type-page"][class*="font-extrabold"]'
 
         render_inline(Heading.new(level: 2)) { 'Test' }
-        assert_selector 'h2.text-2xl'
-        assert_no_selector 'h2.sm\\:text-4xl'
+        assert_selector 'h2[class*="--type-title"][class*="font-bold"]'
 
-        render_inline(Heading.new(level: 3, responsive: false)) { 'Test' }
-        assert_selector 'h3.text-xl'
-        assert_no_selector 'h3.sm\\:text-3xl'
+        render_inline(Heading.new(level: 3)) { 'Test' }
+        assert_selector 'h3[class*="--type-section"][class*="font-semibold"]'
+
+        render_inline(Heading.new(level: 4)) { 'Test' }
+        assert_selector 'h4[class*="--type-callout"][class*="font-semibold"]'
+
+        render_inline(Heading.new(level: 5)) { 'Test' }
+        assert_selector 'h5[class*="--type-body"][class*="font-semibold"]'
+
+        render_inline(Heading.new(level: 6)) { 'Test' }
+        assert_selector 'h6[class*="--type-control"][class*="font-semibold"]'
       end
     end
   end

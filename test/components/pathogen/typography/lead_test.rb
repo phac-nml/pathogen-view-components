@@ -22,7 +22,7 @@ module Pathogen
       test 'applies larger text size' do
         render_inline(Lead.new) { 'Test' }
 
-        assert_selector 'p.text-xl'
+        assert_selector 'p[class*="--type-section"]'
       end
 
       test 'applies relaxed leading for better readability' do
@@ -58,7 +58,7 @@ module Pathogen
       test 'merges custom classes' do
         render_inline(Lead.new(class: 'mb-6')) { 'Test' }
 
-        assert_selector 'p.mb-6.text-xl'
+        assert_selector 'p.mb-6[class*="--type-section"]'
       end
 
       test 'accepts additional HTML attributes' do

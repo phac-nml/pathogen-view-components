@@ -16,7 +16,7 @@ module Pathogen
         render_inline(Callout.new) { 'Test' }
 
         assert_selector 'p.font-sans'
-        assert_selector 'p.text-lg'
+        assert_selector 'p[class*="--type-callout"]'
       end
 
       test 'applies default color class' do

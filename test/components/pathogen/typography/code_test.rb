@@ -14,7 +14,7 @@ module Pathogen
       test 'applies inline code Tailwind classes' do
         render_inline(Code.new) { 'Test' }
 
-        assert_selector 'code.inline-flex.items-center.font-mono.text-sm'
+        assert_selector 'code.inline-flex.items-center.font-mono[class*="--type-control"]'
       end
 
       test 'merges custom classes' do
