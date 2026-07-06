@@ -11,9 +11,5 @@
   font-family: var(--font-sans, sans-serif);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-neutral-600);
-}
-
-html.dark .lookbook-scenario__label {
-  color: var(--color-neutral-300);
+  color: var(--pvc-color-text-muted);
 }

@@ -49,7 +49,7 @@ module Pathogen
 
         @system_arguments[:class] = class_names(
           system_arguments[:class],
-          Constants::TYPOGRAPHY_SCALE[16],
+          Constants::TYPE_SIZES[:body],
           color_classes_for_variant(@variant),
           Constants::LINE_HEIGHTS[:body],
           Constants::FONT_FAMILIES[:ui],

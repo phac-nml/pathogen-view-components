@@ -15,7 +15,6 @@ module Pathogen
       supporting: 'Pathogen::Typography::Supporting',
       lead: 'Pathogen::Typography::Lead',
       callout: 'Pathogen::Typography::Callout',
-      eyebrow: 'Pathogen::Typography::Eyebrow',
       code: 'Pathogen::Typography::Code',
       code_block: 'Pathogen::Typography::CodeBlock',
       list: 'Pathogen::Typography::List'
@@ -36,7 +35,6 @@ module Pathogen
     #
     # @example Article header
     #   <%= pathogen_typography_preset(:article) do |group| %>
-    #     <%= group.with_eyebrow { "Blog Post" } %>
     #     <%= group.with_heading { "Introduction to Typography" } %>
     #     <%= group.with_metadata { "Published January 15, 2024" } %>
     #   <% end %>

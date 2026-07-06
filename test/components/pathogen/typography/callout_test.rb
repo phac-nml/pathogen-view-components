@@ -16,19 +16,19 @@ module Pathogen
         render_inline(Callout.new) { 'Test' }
 
         assert_selector 'p.font-sans'
-        assert_selector 'p.text-lg'
+        assert_type_role 'p', :callout
       end
 
       test 'applies default color class' do
         render_inline(Callout.new) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-900"]'
+        assert_selector 'p[class*="--pvc-color-text"]'
       end
 
       test 'applies muted color variant' do
         render_inline(Callout.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies leading and font classes' do

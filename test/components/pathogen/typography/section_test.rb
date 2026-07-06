@@ -96,7 +96,7 @@ module Pathogen
           section.with_heading(variant: :muted) { 'Muted Title' }
         end
 
-        assert_selector 'h3[class*="text-neutral-500"]', text: 'Muted Title'
+        assert_selector 'h3[class*="--pvc-color-text-muted"]', text: 'Muted Title'
       end
 
       test 'renders without heading' do

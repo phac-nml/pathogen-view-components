@@ -22,7 +22,7 @@ module Pathogen
       test 'applies base text size' do
         render_inline(Text.new) { 'Test' }
 
-        assert_selector 'p.text-base'
+        assert_type_role 'p', :body
       end
 
       test 'applies normal leading' do
@@ -34,19 +34,19 @@ module Pathogen
       test 'applies default variant color classes' do
         render_inline(Text.new) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-900"]'
+        assert_selector 'p[class*="--pvc-color-text"]'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Text.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Text.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600/80"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies inverse variant color classes' do
@@ -58,7 +58,7 @@ module Pathogen
       test 'merges custom classes' do
         render_inline(Text.new(class: 'custom-text mb-4')) { 'Test' }
 
-        assert_selector 'p.custom-text.mb-4.text-base'
+        assert_selector 'p.custom-text.mb-4[class*="--type-body"]'
       end
 
       test 'accepts additional HTML attributes' do
@@ -76,13 +76,13 @@ module Pathogen
       test 'supports span tag for inline text' do
         render_inline(Text.new(tag: :span)) { 'Inline text' }
 
-        assert_selector 'span.text-base', text: 'Inline text'
+        assert_selector 'span[class*="--type-body"]', text: 'Inline text'
       end
 
       test 'supports article tag for semantic markup' do
         render_inline(Text.new(tag: :article)) { 'Article content' }
 
-        assert_selector 'article.text-base', text: 'Article content'
+        assert_selector 'article[class*="--type-body"]', text: 'Article content'
       end
     end
   end

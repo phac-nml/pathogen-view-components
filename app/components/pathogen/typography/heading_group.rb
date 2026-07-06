@@ -4,13 +4,13 @@ require_relative 'constants'
 
 module Pathogen
   module Typography
-    # Component for rendering coordinated heading groups with eyebrow and metadata
+    # Component for rendering coordinated heading groups with a heading and metadata
     #
     # Automatically manages spacing and hierarchy for common patterns like article headers,
     # card titles, and section headings with supporting information.
     #
     # Presets are available in Constants::PRESETS for common UI patterns:
-    # - :article - Large headings with eyebrow and metadata (H1, default spacing)
+    # - :article - Large headings with metadata (H1, default spacing)
     # - :card - Compact card headers (H3, compact spacing)
     # - :section - Section headers (H2, default spacing)
     # - :dialog - Dialog/modal headers (H2, compact spacing)
@@ -18,7 +18,6 @@ module Pathogen
     #
     # @example Article header
     #   <%= render Pathogen::Typography::HeadingGroup.new(level: 1) do |group| %>
-    #     <%= group.with_eyebrow { "Blog Post" } %>
     #     <%= group.with_heading { "Introduction to Typography" } %>
     #     <%= group.with_metadata { "Published January 15, 2024" } %>
     #   <% end %>
@@ -31,7 +30,6 @@ module Pathogen
     #
     # @example Section header with all slots
     #   <%= render Pathogen::Typography::HeadingGroup.new(level: 2, spacing: :spacious) do |group| %>
-    #     <%= group.with_eyebrow(variant: :muted) { "Chapter 3" } %>
     #     <%= group.with_heading { "Advanced Typography" } %>
     #     <%= group.with_metadata { "Last updated: March 2025" } %>
     #   <% end %>
@@ -41,31 +39,25 @@ module Pathogen
     #     <%= group.with_heading { "Confirm Action" } %>
     #   <% end %>
     class HeadingGroup < Component
-      renders_one :eyebrow, lambda { |variant: :muted, **system_arguments|
-        Eyebrow.new(variant: variant, **system_arguments)
-      }
-
       renders_one :heading, lambda { |**system_arguments|
-        Heading.new(level: @level, variant: @heading_variant, responsive: @responsive, **system_arguments)
+        Heading.new(level: @level, variant: @heading_variant, **system_arguments)
       }
 
-      renders_one :metadata, lambda { |variant: :muted, **system_arguments|
-        Supporting.new(variant: variant, **system_arguments)
+      renders_one :metadata, lambda { |variant: :muted, size: :meta, **system_arguments|
+        Supporting.new(variant: variant, size: size, **system_arguments)
       }
 
-      attr_reader :level, :heading_variant, :responsive, :spacing
+      attr_reader :level, :heading_variant, :spacing
 
       # Initialize a new HeadingGroup component
       #
       # @param level [Integer] Heading level (1-6)
       # @param heading_variant [Symbol] Color variant for heading
-      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param spacing [Symbol] Spacing style (:default, :compact, :spacious)
       # @param system_arguments [Hash] Additional HTML attributes for wrapper
-      def initialize(level: 1, heading_variant: :default, responsive: true, spacing: :default, **system_arguments)
+      def initialize(level: 1, heading_variant: :default, spacing: :default, **system_arguments)
         @level = level
         @heading_variant = heading_variant
-        @responsive = responsive
         @spacing = spacing
         @system_arguments = system_arguments
 

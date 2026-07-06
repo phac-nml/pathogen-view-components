@@ -5,9 +5,10 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering supporting text (14px) - captions, labels, metadata
+    # Component for rendering supporting text at the control or meta type scale.
     #
-    # Smaller than body text, used for captions, labels, and secondary information.
+    # Use control scale for captions and labels. Use meta scale for timestamps,
+    # footnotes, and heading-group metadata lines.
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.
@@ -17,27 +18,29 @@ module Pathogen
     #     Image caption text
     #   <% end %>
     #
-    # @example With I18n (required for user-facing content)
-    #   <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
-    #     <%= t('.metadata_label') %>
+    # @example Metadata at meta scale
+    #   <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta) do %>
+    #     <%= t('.published_at') %>
     #   <% end %>
     class Supporting < Component
       include Shared
 
       DEFAULT_TAG = :p
+      SIZE_OPTIONS = %i[control meta].freeze
+      DEFAULT_SIZE = :control
 
-      attr_reader :tag, :variant, :responsive
+      attr_reader :tag, :variant, :size
 
       # Initialize a new Supporting component
       #
       # @param tag [Symbol] HTML tag to use (default: :p)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
+      # @param size [Symbol] Type scale (:control for labels/captions, :meta for metadata)
       # @param system_arguments [Hash] Additional HTML attributes
-      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, responsive: false, **system_arguments)
+      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, size: DEFAULT_SIZE, **system_arguments)
         @tag = tag
         @variant = variant
-        @responsive = responsive
+        @size = fetch_or_fallback(SIZE_OPTIONS, size, DEFAULT_SIZE)
         @system_arguments = system_arguments
 
         @system_arguments[:class] = class_names(
@@ -52,7 +55,7 @@ module Pathogen
       private
 
       def size_classes
-        Constants::TYPOGRAPHY_SCALE[14]
+        Constants::TYPE_SIZES[@size]
       end
     end
   end

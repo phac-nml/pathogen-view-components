@@ -19,10 +19,16 @@ module Pathogen
         assert_no_selector 'p'
       end
 
-      test 'applies small text size' do
+      test 'applies control scale by default' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p.text-sm'
+        assert_type_role 'p', :control
+      end
+
+      test 'applies meta scale when requested' do
+        render_inline(Supporting.new(size: :meta)) { 'Test' }
+
+        assert_type_role 'p', :meta
       end
 
       test 'applies normal leading' do
@@ -34,19 +40,19 @@ module Pathogen
       test 'applies default variant color classes' do
         render_inline(Supporting.new) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-900"]'
+        assert_selector 'p[class*="--pvc-color-text"]'
       end
 
       test 'applies muted variant color classes' do
         render_inline(Supporting.new(variant: :muted)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-500"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies subdued variant color classes' do
         render_inline(Supporting.new(variant: :subdued)) { 'Test' }
 
-        assert_selector 'p[class*="text-neutral-600/80"]'
+        assert_selector 'p[class*="--pvc-color-text-muted"]'
       end
 
       test 'applies inverse variant color classes' do
@@ -58,7 +64,7 @@ module Pathogen
       test 'merges custom classes' do
         render_inline(Supporting.new(class: 'mt-1')) { 'Test' }
 
-        assert_selector 'p.mt-1.text-sm'
+        assert_selector 'p.mt-1[class*="--type-control"]'
       end
 
       test 'accepts additional HTML attributes' do
@@ -73,16 +79,22 @@ module Pathogen
         end
       end
 
+      test 'raises error for invalid size in development' do
+        assert_raises(Pathogen::FetchOrFallbackHelper::InvalidValueError) do
+          Supporting.new(size: :invalid)
+        end
+      end
+
       test 'supports label tag for form labels' do
         render_inline(Supporting.new(tag: :label, for: 'email')) { 'Email address' }
 
-        assert_selector 'label[for="email"].text-sm', text: 'Email address'
+        assert_selector 'label[for="email"][class*="--type-control"]', text: 'Email address'
       end
 
       test 'supports div tag for captions' do
         render_inline(Supporting.new(tag: :div)) { 'Image caption' }
 
-        assert_selector 'div.text-sm', text: 'Image caption'
+        assert_selector 'div[class*="--type-control"]', text: 'Image caption'
       end
     end
   end

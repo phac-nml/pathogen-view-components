@@ -19,7 +19,7 @@ module Pathogen
 
       assert_equal 1, preset[:heading_level]
       assert_equal :default, preset[:heading_variant]
-      assert_equal :muted, preset[:eyebrow_variant]
+      assert_equal :muted, preset[:metadata_variant]
       assert_equal :default, preset[:spacing]
     end
 

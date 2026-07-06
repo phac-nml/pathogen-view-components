@@ -5,10 +5,9 @@ require_relative 'shared'
 
 module Pathogen
   module Typography
-    # Component for rendering lead paragraphs (20px)
+    # Component for rendering lead paragraphs at the section type scale (`--type-section`).
     #
-    # Larger introductory paragraphs used at the start of sections to draw attention
-    # and provide context. Has a comfortable line-height for optimal readability.
+    # Introductory paragraphs at the start of sections. Uses relaxed line-height.
     #
     # **I18n Note:** For user-facing content, always pass I18n-translated strings.
     # Lookbook previews may use hardcoded text for demonstration purposes only.
@@ -27,18 +26,16 @@ module Pathogen
 
       DEFAULT_TAG = :p
 
-      attr_reader :tag, :variant, :responsive
+      attr_reader :tag, :variant
 
       # Initialize a new Lead component
       #
       # @param tag [Symbol] HTML tag to use (default: :p)
       # @param variant [Symbol] Color variant (:default, :muted, :subdued, :inverse)
-      # @param responsive [Boolean] Deprecated no-op; typography uses baseline sizing
       # @param system_arguments [Hash] Additional HTML attributes
-      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, responsive: false, **system_arguments)
+      def initialize(tag: DEFAULT_TAG, variant: Shared::DEFAULT_VARIANT, **system_arguments)
         @tag = tag
         @variant = variant
-        @responsive = responsive
         @system_arguments = system_arguments
 
         @system_arguments[:class] = class_names(
@@ -53,7 +50,7 @@ module Pathogen
       private
 
       def size_classes
-        Constants::TYPOGRAPHY_SCALE[20]
+        Constants::TYPE_SIZES[:section]
       end
     end
   end

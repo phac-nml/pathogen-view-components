@@ -1,197 +1,57 @@
-<div class="p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-  <!-- Header -->
-  <div class="mb-12 text-center">
-    <%= pathogen_heading(level: 1, class: "mb-4") do %>
-      <%= icon('moon', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Dark Mode
-      Typography
-    <% end %>
+<%# herb:formatter ignore %>
 
-    <%= pathogen_text(variant: :muted, class: "text-lg max-w-3xl mx-auto") do %>
-      All typography components automatically adapt to light and dark modes with proper contrast ratios and readable
-      colors.
-    <% end %>
-  </div>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Light and dark surfaces</h2>
 
-  <!-- Side-by-Side Comparison -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('squares-four', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Light vs
-        Dark Mode
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Typography colour variants use semantic text roles and adapt with the host theme. Toggle Lookbook dark mode to
+      inspect contrast on the same markup.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= pathogen_heading(level: 2) { "Operator account" } %>
+
+      <%= pathogen_supporting(variant: :muted, size: :meta, class: "mt-1") do %>
+        lab-seq-review · Provincial public health lab
       <% end %>
 
-      <%= pathogen_text(variant: :muted, class: "mb-8") do %>
-        Toggle your system's dark mode preference to see how components adapt. All components maintain WCAG AA contrast
-        ratios in both themes.
+      <dl class="mt-4 space-y-3 text-sm">
+        <div class="flex gap-2 border-b border-[var(--pvc-color-border)] pb-2">
+          <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Display name</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">lab-seq-review</dd>
+        </div>
+        <div class="flex gap-2">
+          <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Email</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">seq.review@example.ca</dd>
+        </div>
+      </dl>
+
+      <%= pathogen_text(variant: :muted, class: "mt-4") do %>
+        Notification preferences apply to QC failure alerts and run completion events.
       <% end %>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="p-6 bg-white border border-slate-200 rounded-lg">
-          <div class="flex items-center gap-2 mb-4">
-            <%= icon('sun', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
-            <span class="font-semibold text-slate-900">Light Mode</span>
-          </div>
-
-          <%= pathogen_heading(level: 3) do %>
-            Heading in Light Mode
-          <% end %>
-
-          <%= pathogen_text do %>
-            Body text automatically adjusts to dark slate-900 in light mode for optimal readability.
-          <% end %>
-        </div>
-
-        <div class="p-6 bg-slate-900 border border-slate-700 rounded-lg">
-          <div class="flex items-center gap-2 mb-4">
-            <%= icon('moon', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
-            <span class="font-semibold text-white">Dark Mode</span>
-          </div>
-
-          <%= pathogen_heading(level: 3, variant: :inverse) do %>
-            Heading in Dark Mode
-          <% end %>
-
-          <%= pathogen_text(variant: :inverse) do %>
-            Body text automatically adjusts to white in dark mode for optimal readability.
-          <% end %>
-        </div>
-      </div>
+      <%= pathogen_callout(class: "mt-4") do %>
+        Inverse variant is reserved for text on inverted or overlay surfaces — not everyday page copy.
+      <% end %>
     </div>
-  </div>
+  </section>
 
-  <!-- Color Variants in Dark Mode -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('palette', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Color Variants
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Inline code on surface</h2>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= pathogen_text do %>
+        Run ID <%= pathogen_code { "RUN-2026-0142" } %> is referenced by the QC panel and export jobs.
       <% end %>
-
-      <div class="space-y-6">
-        <div>
-          <%= pathogen_heading(level: 3, variant: :default) do %>
-            Default Variant
-          <% end %>
-
-          <%= pathogen_text(variant: :default) do %>
-            Primary text color - slate-900 in light mode, white in dark mode
-          <% end %>
-        </div>
-
-        <div>
-          <%= pathogen_heading(level: 3, variant: :muted) do %>
-            Muted Variant
-          <% end %>
-
-          <%= pathogen_text(variant: :muted) do %>
-            Secondary text color - slate-500 in light mode, slate-400 in dark mode
-          <% end %>
-        </div>
-
-        <div>
-          <%= pathogen_heading(level: 3, variant: :subdued) do %>
-            Subdued Variant
-          <% end %>
-
-          <%= pathogen_text(variant: :subdued) do %>
-            Medium contrast - slate-700 in light mode, slate-300 in dark mode
-          <% end %>
-        </div>
-
-        <div class="p-6 bg-slate-900 dark:bg-slate-100 rounded-lg">
-          <%= pathogen_heading(level: 3, variant: :inverse) do %>
-            Inverse Variant
-          <% end %>
-
-          <%= pathogen_text(variant: :inverse) do %>
-            Light text for dark backgrounds - white in light mode, slate-900 in dark mode
-          <% end %>
-        </div>
-      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Code Components -->
-  <div class="mb-12">
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('code', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Code Components
-      <% end %>
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <%= pathogen_heading(level: 3, class: "mb-4") do %>
-            Inline Code
-          <% end %>
-
-          <%= pathogen_text do %>
-            Use
-            <%= pathogen_code do %>
-              pathogen_code
-            <% end %>
-            for inline code snippets. The background adapts to both themes.
-          <% end %>
-        </div>
-
-        <div>
-          <%= pathogen_heading(level: 3, class: "mb-4") do %>
-            Code Blocks
-          <% end %>
-
-          <%= pathogen_code_block(language: "ruby") do %>
-            def example puts "Code blocks have dark backgrounds" puts "that work in both light and dark mode" end
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Contrast Ratios -->
-  <div>
-    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
-      <%= pathogen_heading(level: 2, class: "mb-6 flex items-center") do %>
-        <%= icon('check-circle', class: "text-green-500 dark:text-green-400 w-5 h-5 flex-shrink-0 mr-3") %> WCAG AA
-        Compliance
-      <% end %>
-
-      <%= pathogen_text(variant: :muted, class: "mb-6") do %>
-        All typography components meet WCAG AA contrast requirements in both light and dark modes.
-      <% end %>
-
-      <div class="space-y-4">
-        <div
-          class="
-            flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-lg
-          "
-        >
-          <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-
-          <div>
-            <div class="font-semibold text-green-900 dark:text-green-100">Body Text</div>
-
-            <div class="text-sm text-green-800 dark:text-green-200">
-              Minimum 4.5:1 contrast ratio for normal text (16px)
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="
-            flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-lg
-          "
-        >
-          <%= icon('check-circle', class: "w-5 h-5 flex-shrink-0 text-green-500 dark:text-green-400") %>
-
-          <div>
-            <div class="font-semibold text-green-900 dark:text-green-100">Headings</div>
-
-            <div class="text-sm text-green-800 dark:text-green-200">
-              Minimum 3:1 contrast ratio for headings and large text (18px+)
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      Prefer <code class="font-mono">variant: :muted</code> for secondary copy. Validate WCAG AA contrast in both themes
+      before shipping new surfaces.
+    </p>
   </div>
 </div>

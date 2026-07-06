@@ -14,7 +14,7 @@ module Pathogen
       test 'applies inline code Tailwind classes' do
         render_inline(Code.new) { 'Test' }
 
-        assert_selector 'code.inline-flex.items-center.font-mono.text-sm'
+        assert_selector 'code.inline-flex.items-center.font-mono[class*="--type-control"]'
       end
 
       test 'merges custom classes' do
@@ -38,7 +38,7 @@ module Pathogen
       test 'emits token-based background utility' do
         render_inline(Code.new) { 'test' }
 
-        assert_selector "code[class*='bg-neutral-50']"
+        assert_selector "code[class*='--pvc-color-surface-muted']"
       end
     end
   end

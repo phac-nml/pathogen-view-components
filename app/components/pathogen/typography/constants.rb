@@ -2,18 +2,23 @@
 
 module Pathogen
   module Typography
-    # Constants for the Pathogen Typography System (Tailwind utility classes).
+    # Constants for the Pathogen Typography System.
+    #
+    # Sizes are expressed as semantic role tokens (`--type-*`) consumed through
+    # Tailwind arbitrary-length utilities so the components and the design-system
+    # documentation share a single source of truth. See the Foundations and
+    # Tokens design-system docs for the role-based scale.
     module Constants
-      TYPOGRAPHY_SCALE = {
-        12 => 'text-xs',
-        14 => 'text-sm',
-        16 => 'text-base',
-        18 => 'text-lg',
-        20 => 'text-xl',
-        25 => 'text-2xl',
-        31 => 'text-3xl',
-        39 => 'text-4xl',
-        49 => 'text-5xl'
+      # Role-based type scale. Each entry maps a role to the Tailwind utility that
+      # resolves the matching `--type-*` custom property.
+      TYPE_SIZES = {
+        meta: 'text-[length:var(--type-meta)]',       # 12px — hints, timestamps
+        control: 'text-[length:var(--type-control)]', # 14px — labels, dense UI
+        body: 'text-[length:var(--type-body)]',       # 16px — body copy
+        callout: 'text-[length:var(--type-callout)]', # 18px — emphasised lead-ins
+        section: 'text-[length:var(--type-section)]', # 20px — section titles
+        title: 'text-[length:var(--type-title)]',     # 24px — sub-page headings
+        page: 'text-[length:var(--type-page)]'        # 32px — page titles
       }.freeze
 
       FONT_FAMILIES = {
@@ -29,10 +34,7 @@ module Pathogen
 
       LETTER_SPACING = {
         tight: '-tracking-tight',
-        normal: 'tracking-normal',
-        wide: 'tracking-wide',
-        wider: 'tracking-wider',
-        widest: 'tracking-widest'
+        normal: 'tracking-normal'
       }.freeze
 
       SPACING_CLASSES = {
@@ -44,19 +46,33 @@ module Pathogen
         section_spacious: 'space-y-6'
       }.freeze
 
-      RESPONSIVE_SIZES = {
-        1 => { mobile: 'text-3xl', desktop: 'text-5xl' },
-        2 => { mobile: 'text-2xl', desktop: 'text-4xl' },
-        3 => { mobile: 'text-xl', desktop: 'text-3xl' },
-        4 => { mobile: 'text-lg', desktop: 'text-2xl' },
-        5 => { mobile: 'text-base', desktop: 'text-xl' },
-        6 => { mobile: 'text-sm', desktop: 'text-lg' }
+      # Heading level → type-scale role. Each step is the smallest jump that still
+      # reads as a clear change in hierarchy.
+      HEADING_SIZE_ROLES = {
+        1 => :page,
+        2 => :title,
+        3 => :section,
+        4 => :callout,
+        5 => :callout,
+        6 => :body
+      }.freeze
+
+      # Heading level → font weight. Deliberate, restrained weight contrast:
+      # extrabold is reserved for the single page title, bold marks the next
+      # level, and everything below settles on semibold.
+      HEADING_WEIGHTS = {
+        1 => 'font-extrabold',
+        2 => 'font-bold',
+        3 => 'font-semibold',
+        4 => 'font-semibold',
+        5 => 'font-semibold',
+        6 => 'font-semibold'
       }.freeze
 
       COLOR_VARIANTS = {
-        default: 'text-neutral-900 dark:text-neutral-100',
-        muted: 'text-neutral-500 dark:text-neutral-400',
-        subdued: 'text-neutral-600/80 dark:text-neutral-400/80',
+        default: 'text-[var(--pvc-color-text)]',
+        muted: 'text-[var(--pvc-color-text-muted)]',
+        subdued: 'text-[var(--pvc-color-text-muted)]/80',
         inverse: 'text-white'
       }.freeze
 
@@ -64,14 +80,12 @@ module Pathogen
         article: {
           heading_level: 1,
           heading_variant: :default,
-          eyebrow_variant: :muted,
           metadata_variant: :muted,
           spacing: :default
         },
         card: {
           heading_level: 3,
           heading_variant: :default,
-          eyebrow_variant: :muted,
           metadata_variant: :muted,
           spacing: :compact
         },
