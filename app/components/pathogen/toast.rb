@@ -45,7 +45,7 @@ module Pathogen
     # rubocop:disable Metrics/ParameterLists
     def initialize(message:, type: TYPE_DEFAULT, description: nil, timeout: DEFAULT_TIMEOUT, dismissible: true,
                    **system_arguments)
-      @type = TYPE_MAPPINGS[type.to_sym] || TYPE_DEFAULT
+      @type = fetch_or_fallback(TYPE_MAPPINGS.values.uniq, normalized_type(type), TYPE_DEFAULT)
       @message = message
       @description = description
       @dismissible = dismissible
@@ -61,6 +61,7 @@ module Pathogen
 
       @timeout = 0 if action?
       @system_arguments[:'data-pathogen--toast-timeout-value'] = @timeout
+      @system_arguments[:'data-pathogen--toast-type-label-value'] = icon_label
     end
 
     def icon_label
@@ -81,6 +82,11 @@ module Pathogen
     end
 
     private
+
+    def normalized_type(type)
+      candidate = type.respond_to?(:to_sym) ? type.to_sym : type
+      TYPE_MAPPINGS.fetch(candidate, candidate)
+    end
 
     def apply_system_arguments
       @system_arguments[:class] = class_names(base_classes, @system_arguments[:class])
