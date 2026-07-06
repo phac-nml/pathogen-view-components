@@ -12,6 +12,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const buildToast = ({
   timeout = 1000,
   type = "info",
+  typeLabel = { success: "Success", info: "Information", warning: "Warning", error: "Error" }[type] || "Information",
   dismissible = true,
   message = "Saved",
   description = "",
@@ -25,6 +26,7 @@ const buildToast = ({
   toast.setAttribute("data-controller", "pathogen--toast");
   toast.setAttribute("data-pathogen--toast-timeout-value", String(timeout));
   toast.setAttribute("data-pathogen--toast-type-value", type);
+  toast.setAttribute("data-pathogen--toast-type-label-value", typeLabel);
   toast.setAttribute("data-pathogen--toast-dismissible-value", String(dismissible));
   toast.setAttribute("data-pathogen--toast-dismiss-duration-value", "160");
 
@@ -128,7 +130,7 @@ describe("toast_controller", () => {
     expect(listener).toHaveBeenCalledTimes(1);
     const { detail } = listener.mock.calls[0][0];
     expect(detail.politeness).toBe("assertive");
-    expect(detail.message).toBe("Upload failed. The file is too large.");
+    expect(detail.message).toBe("Error: Upload failed. The file is too large.");
   });
 
   it("emits a polite announcement for non-error toasts", async () => {
@@ -140,7 +142,17 @@ describe("toast_controller", () => {
     expect(listener).toHaveBeenCalledTimes(1);
     const { detail } = listener.mock.calls[0][0];
     expect(detail.politeness).toBe("polite");
-    expect(detail.message).toBe("Saved");
+    expect(detail.message).toBe("Success: Saved");
+  });
+
+  it("does not duplicate the type label when message already includes it", async () => {
+    buildToast({ timeout: 0, type: "error", typeLabel: "Error", message: "Error: Upload failed" });
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:announce", listener);
+
+    await waitForController();
+    const { detail } = listener.mock.calls[0][0];
+    expect(detail.message).toBe("Error: Upload failed");
   });
 
   it("restores focus to the prior element when dismissed via the close button", async () => {
@@ -162,5 +174,32 @@ describe("toast_controller", () => {
     await waitForController();
     expect(document.body.contains(toast)).toBe(false);
     expect(document.activeElement).toBe(previous);
+  });
+
+  it("restores focus to the most recent entry target", async () => {
+    vi.useFakeTimers();
+    const first = document.createElement("button");
+    first.textContent = "first";
+    const second = document.createElement("button");
+    second.textContent = "second";
+    document.body.appendChild(first);
+    document.body.appendChild(second);
+
+    const { toast } = buildToast({ timeout: 0, type: "info" });
+    await waitForController();
+
+    first.focus();
+    toast.focus();
+    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: first }));
+
+    second.focus();
+    toast.focus();
+    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: second }));
+    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+
+    vi.advanceTimersByTime(160);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(false);
+    expect(document.activeElement).toBe(second);
   });
 });
