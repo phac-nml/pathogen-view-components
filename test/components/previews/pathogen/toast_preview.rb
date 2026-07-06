@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Pathogen
+  # ViewComponent preview for demonstrating Pathogen::Toast and Pathogen::Toaster usage
   class ToastPreview < ViewComponent::Preview
     include Pathogen::ViewHelper
 
@@ -17,7 +18,6 @@ module Pathogen
                              type: type.to_sym,
                              timeout: timeout.to_i,
                              dismissible:,
-                             shell_class: 'relative min-h-[20rem] bg-[var(--pvc-color-surface-muted)] p-6',
                              toaster_args: {
                                position: position.to_sym,
                                strategy: :absolute,
@@ -28,15 +28,15 @@ module Pathogen
     end
 
     # @label Overview
-    # Status variants with semantic colours and reduced visual noise.
+    # Status variants in a sample-processing workflow with semantic colour reference.
     def overview; end
 
     # @label Stacking & accessibility
-    # Hidden overflow, assertive error announcements, and actionable toasts.
+    # Overflow collapse, live-region routing, and actionable toasts.
     def stacking_and_accessibility; end
 
     # @label Positions
-    # Position presets for host-app layout constraints.
+    # Anchor presets for host-app layout constraints.
     def positions; end
 
     # @!endgroup
