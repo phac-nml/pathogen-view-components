@@ -1,17 +1,16 @@
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Standalone form actions</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Standalone form actions" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      <code class="font-mono">pathogen_button_to</code> mirrors Rails <code class="font-mono">button_to</code> but
-      renders <code class="font-mono">Pathogen::Button</code> so form actions match the design system. Prefer
-      <code class="font-mono">tone</code> + <code class="font-mono">emphasis</code>; legacy
-      <code class="font-mono">scheme</code> remains supported.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      <%= pathogen_code { "pathogen_button_to" } %> mirrors Rails <%= pathogen_code { "button_to" } %> but renders
+      <%= pathogen_code { "Pathogen::Button" } %> so form actions match the design system. Use
+      <%= pathogen_code { "tone" } %> + <%= pathogen_code { "emphasis" } %> to style submit actions.
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
-        <%= pathogen_button_to "Retry", "#", method: :post, tone: :primary, emphasis: :solid %>
+        <%= pathogen_button_to "Retry analysis", "#", method: :post, tone: :primary, emphasis: :solid %>
         <%= pathogen_button_to "Cancel", "#", method: :post, tone: :neutral, emphasis: :outline %>
         <%= pathogen_button_to "Reset", "#", method: :post, tone: :neutral, emphasis: :ghost %>
       </div>
@@ -19,12 +18,12 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Destructive actions</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Destructive actions" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Use <code class="font-mono">danger + outline</code> for available destructive actions, and reserve
-      <code class="font-mono">danger + solid</code> for explicit confirmation steps.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Use <%= pathogen_code { "danger + outline" } %> for available destructive actions, and reserve
+      <%= pathogen_code { "danger + solid" } %> for explicit confirmation steps.
+    <% end %>
 
     <div class="flex flex-col gap-4">
       <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
@@ -37,7 +36,7 @@
       </div>
 
       <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-        <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Confirm delete</p>
+        <%= pathogen_heading(level: 5, class: "mb-3 font-semibold") { "Confirm delete" } %>
 
         <div class="flex flex-wrap items-center gap-2">
           <%= pathogen_button_to "Delete permanently", "#", method: :delete, tone: :danger, emphasis: :solid,
@@ -46,16 +45,6 @@
           <%= pathogen_button_to "Keep record", "#", method: :post, tone: :neutral, emphasis: :outline %>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Legacy scheme mapping</h2>
-
-    <div class="flex flex-wrap items-center gap-2">
-      <%= pathogen_button_to "scheme: default", "#", method: :post, scheme: :default %>
-      <%= pathogen_button_to "scheme: primary", "#", method: :post, scheme: :primary %>
-      <%= pathogen_button_to "scheme: danger", "#", method: :delete, scheme: :danger %>
     </div>
   </section>
 </div>

@@ -40,8 +40,8 @@ Current shipped values:
   --pvc-color-accent: var(--color-primary-400);
   --pvc-color-accent-strong: var(--color-primary-300);
   --pvc-color-accent-solid: var(--color-primary-700);
-  --pvc-color-accent-solid-hover: var(--color-primary-600);
-  --pvc-color-focus: var(--color-primary-400);
+  --pvc-color-accent-solid-hover: var(--color-primary-800);
+  --pvc-color-focus: var(--color-primary-500);
 }
 ```
 
@@ -65,9 +65,7 @@ Use the same rule for future dense tables: deeper black inside a bounded region,
 
 ## Focus In Dark Mode
 
-Target: `--pvc-color-focus` should resolve to `primary-500` in both light and dark modes. Focus does not follow the same lightening rule as accent text because it needs to stay visually separate.
-
-Shipped dark focus is currently `primary-400`, which matches accent. That is on the [token fix list](<%= page_path("design-system-tokens") %>#whats-on-our-list).
+`--pvc-color-focus` resolves to `primary-500` in both light and dark modes. Focus does not follow the same lightening rule as accent text because it needs to stay visually separate.
 
 IRIDA may use white focus for brand reasons. If a host overrides focus, keep `focus-visible`, a 2px outline, offset, and clear separation from hover, selection, and accent.
 

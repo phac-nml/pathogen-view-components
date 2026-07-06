@@ -1,53 +1,83 @@
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Tone and emphasis</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Tone and emphasis" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Use <code class="font-mono">tone</code> for meaning and <code class="font-mono">emphasis</code> for hierarchy.
-      Existing <code class="font-mono">scheme</code> values map to presets. The row below is a variant catalog — not
-      guidance for placing every style in one action group.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Use <%= pathogen_code { "tone" } %> for meaning and <%= pathogen_code { "emphasis" } %> for hierarchy. Pick one
+      combination per action group using the reference table below.
+    <% end %>
 
-    <div
-      class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
-      "
-    >
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Submit run') %>
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Save draft') %>
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :ghost, text: 'View protocol') %>
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :ghost, text: 'Skip') %>
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Discard') %>
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Delete permanently') %>
-    </div>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Solid primary and danger fills darken on hover through <%= pathogen_code { "--pvc-color-accent-solid-hover" } %>
+      and <%= pathogen_code { "--pvc-color-danger-solid-hover" } %>. Hover a solid button to inspect the pressed-in
+      effect.
+    <% end %>
 
-    <h3 class="mb-2 mt-6 text-sm font-semibold text-[var(--pvc-color-text)]">Legacy scheme mapping</h3>
+    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+      <table class="w-full min-w-[40rem] border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Variant" } %>
+            </th>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <%= render Pathogen::Button.new(scheme: :default, text: 'scheme: default') %>
-      <%= render Pathogen::Button.new(scheme: :primary, text: 'scheme: primary') %>
-      <%= render Pathogen::Button.new(scheme: :danger, text: 'scheme: danger') %>
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "When to use" } %>
+            </th>
+
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Example" } %>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+          <% [
+            [:primary, :solid, 'Submit run', 'Main forward action per surface'],
+            [:primary, :outline, 'Save draft', 'Secondary brand action'],
+            [:primary, :ghost, 'View protocol', 'Quiet brand-linked action'],
+            [:neutral, :outline, 'Cancel', 'Cancel, close, or secondary step'],
+            [:neutral, :solid, 'Archive', 'Strong neutral action when clearer than accent'],
+            [:neutral, :ghost, 'Skip', 'Tools, utilities, and low-emphasis actions'],
+            [:danger, :outline, 'Discard', 'Destructive action when confirmation happens elsewhere'],
+            [:danger, :solid, 'Delete permanently', 'Confirmed destructive step only'],
+            [:danger, :ghost, 'Remove tag', 'Dense destructive utility in tight layouts']
+          ].each do |tone, emphasis, label, guidance| %>
+            <tr>
+              <td class="px-4 py-3 align-middle">
+                <%= pathogen_code(class: "text-xs") { "tone: #{tone}, emphasis: #{emphasis}" } %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= pathogen_supporting(tag: :span, variant: :muted) { guidance } %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, text: label) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Form footer</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Form footer" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      One <code class="font-mono">primary + solid</code> forward action per surface. Keep cancel and reset secondary.
-      Place destructive outline actions away from the main forward step.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      One <%= pathogen_code { "primary + solid" } %> forward action per surface. Keep cancel and reset secondary. Place
+      destructive outline actions away from the main forward step.
+    <% end %>
 
     <form class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="border-b border-[var(--pvc-color-border)] px-4 py-3">
-        <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Update specimen metadata</h3>
-        <p class="mt-1 text-sm text-[var(--pvc-color-text-muted)]">Changes apply to the selected isolate record.</p>
+        <%= pathogen_heading(level: 5, class: "font-semibold") { "Update specimen metadata" } %>
+        <%= pathogen_supporting(variant: :muted, class: "mt-1") { "Changes apply to the selected isolate record." } %>
       </div>
 
-      <div class="space-y-4 px-4 py-4 text-sm text-[var(--pvc-color-text-muted)]">
-        <p>Form fields would appear here.</p>
+      <div class="px-4 py-4">
+        <%= pathogen_supporting(variant: :muted) { "Form fields would appear here." } %>
       </div>
 
       <div class="flex items-center justify-between gap-3 border-t border-[var(--pvc-color-border)] px-4 py-3">
@@ -63,18 +93,18 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Grid toolbar</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Grid toolbar" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Toolbar actions stay compact: <code class="font-mono">size: :small</code>, ghost or outline emphasis, and
-      icon-only controls with distinct accessible names.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Toolbar actions stay compact: <%= pathogen_code { "size: :small" } %>, ghost or outline emphasis, and icon-only
+      controls with distinct accessible names. Keep 8px between neighbours.
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
-        <h3 class="text-sm font-semibold text-[var(--pvc-color-text)]">Sequencing submissions</h3>
+        <%= pathogen_heading(level: 5, class: "font-semibold") { "Sequencing submissions" } %>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-2">
           <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Refresh list') do |button| %>
             <% button.with_leading_visual do %>
               <%= icon('arrow-clockwise', class: 'size-4') %>
@@ -87,27 +117,28 @@
             <% end %>
           <% end %>
 
+          <%= render Pathogen::Button.new(size: :small, tone: :danger, emphasis: :ghost, text: 'Clear filters') %>
           <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Columns') %>
           <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'New submission') %>
         </div>
       </div>
 
-      <div class="px-4 py-6 text-sm text-[var(--pvc-color-text-muted)]">
-        Grid content would appear here.
+      <div class="px-4 py-6">
+        <%= pathogen_supporting(variant: :muted) { "Grid content would appear here." } %>
       </div>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Action groups</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Action groups" } %>
 
     <div class="flex flex-col gap-6">
       <div>
-        <h3 class="mb-2 text-sm font-semibold text-[var(--pvc-color-text)]">Adjacent actions</h3>
+        <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Adjacent actions" } %>
 
-        <p class="mb-3 text-sm text-[var(--pvc-color-text-muted)]">
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
           Group related actions with consistent spacing. One primary solid when a single option needs emphasis.
-        </p>
+        <% end %>
 
         <div
           class="
@@ -122,109 +153,108 @@
       </div>
 
       <div>
-        <h3 class="mb-2 text-sm font-semibold text-[var(--pvc-color-text)]">Confirmation cluster</h3>
+        <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Confirmation cluster" } %>
 
-        <p class="mb-3 text-sm text-[var(--pvc-color-text-muted)]">
-          Pair <code class="font-mono">danger + solid</code> with a neutral secondary action in explicit confirmation
-          steps.
-        </p>
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          Pair <%= pathogen_code { "danger + solid" } %> with a neutral secondary action in explicit confirmation steps.
+        <% end %>
 
         <div class="flex items-center gap-2">
           <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Delete run') %>
           <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Keep run') %>
         </div>
       </div>
+
+      <div>
+        <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Dense destructive utility" } %>
+
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          Use <%= pathogen_code { "danger + ghost" } %> for low-emphasis destructive tools in tight table or list rows.
+        <% end %>
+
+        <div
+          class="
+            flex items-center justify-between gap-4 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+            bg-[var(--pvc-color-surface-muted)] px-3 py-2
+          "
+        >
+          <%= pathogen_supporting(tag: :span, variant: :muted) { "Filter: pending review" } %>
+          <%= render Pathogen::Button.new(size: :small, tone: :danger, emphasis: :ghost, text: 'Remove filter') %>
+        </div>
+      </div>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Leading and trailing visuals</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Leading and trailing visuals" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Icons are decorative. The visible label carries the accessible name. Inline SVGs need
-      <code class="font-mono">aria-hidden="true"</code>.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Icons are decorative. The visible label carries the accessible name. Show one primary solid per action group.
+    <% end %>
 
-    <div class="flex flex-wrap items-center gap-2">
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :medium, text: 'Search samples') do |button| %>
-        <% button.with_leading_visual do %>
-          <%= icon('magnifying-glass', class: 'size-4') %>
-        <% end %>
-      <% end %>
+    <div class="flex flex-col gap-6">
+      <div>
+        <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Leading visual" } %>
 
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, size: :medium, text: 'View alerts') do |button| %>
-        <% button.with_leading_visual do %>
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-          >
-            <path d="M8 16a2 2 0 001.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 008 16z"></path>
+        <div class="flex flex-wrap items-center gap-2">
+          <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Search samples') do |button| %>
+            <% button.with_leading_visual do %>
+              <%= icon('magnifying-glass', class: 'size-4') %>
+            <% end %>
+          <% end %>
 
-            <path
-              fill-rule="evenodd"
-              d="M8 1.5A3.5 3.5 0 004.5 5v2.947c0 .346-.102.683-.294.97l-1.703 2.556a.018.018 0 00-.003.01l.001.006c0 .002.002.004.004.006a.017.017 0 00.006.004l.007.001h10.964l.007-.001a.016.016 0 00.006-.004.016.016 0 00.004-.006l.001-.007a.017.017 0 00-.003-.01l-1.703-2.554a1.75 1.75 0 01-.294-.97V5A3.5 3.5 0 008 1.5zM3 5a5 5 0 0110 0v2.947c0 .05.015.098.042.139l1.703 2.555A1.518 1.518 0 0113.482 13H2.518a1.518 1.518 0 01-1.263-2.36l1.703-2.554A.25.25 0 003 7.947V5z"
-            ></path>
-          </svg>
-        <% end %>
-      <% end %>
+          <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'View alerts') do |button| %>
+            <% button.with_leading_visual do %>
+              <%= icon('bell', class: 'size-4') %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
 
-      <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :medium, text: 'Continue to review') do |button| %>
-        <% button.with_trailing_visual do %>
-          <%= icon('arrow-right', class: 'size-4') %>
-        <% end %>
-      <% end %>
+      <div>
+        <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Trailing visual" } %>
 
-      <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, size: :medium, text: 'Open run details') do |button| %>
-        <% button.with_trailing_visual do %>
-          <svg
-            aria-hidden="true"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-          >
-            <path d="M8 16a2 2 0 001.985-1.75c.017-.137-.097-.25-.235-.25h-3.5c-.138 0-.252.113-.235.25A2 2 0 008 16z"></path>
+        <div class="flex flex-wrap items-center gap-2">
+          <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Continue to review') do |button| %>
+            <% button.with_trailing_visual do %>
+              <%= icon('arrow-right', class: 'size-4') %>
+            <% end %>
+          <% end %>
 
-            <path
-              fill-rule="evenodd"
-              d="M8 1.5A3.5 3.5 0 004.5 5v2.947c0 .346-.102.683-.294.97l-1.703 2.556a.018.018 0 00-.003.01l.001.006c0 .002.002.004.004.006a.017.017 0 00.006.004l.007.001h10.964l.007-.001a.016.016 0 00.006-.004.016.016 0 00.004-.006l.001-.007a.017.017 0 00-.003-.01l-1.703-2.554a1.75 1.75 0 01-.294-.97V5A3.5 3.5 0 008 1.5zM3 5a5 5 0 0110 0v2.947c0 .05.015.098.042.139l1.703 2.555A1.518 1.518 0 0113.482 13H2.518a1.518 1.518 0 01-1.263-2.36l1.703-2.554A.25.25 0 003 7.947V5z"
-            ></path>
-          </svg>
-        <% end %>
-      <% end %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Open run details') do |button| %>
+            <% button.with_trailing_visual do %>
+              <%= icon('arrow-square-out', class: 'size-4') %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Link as a button</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Link as a button" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Use <code class="font-mono">tag: :a</code> with <code class="font-mono">href</code> when navigation should match a
-      button cluster. Prefer <code class="font-mono">Pathogen::Link</code> for inline text navigation.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Use <%= pathogen_code { "tag: :a" } %> with <%= pathogen_code { "href" } %> when navigation should match a button
+      cluster. Prefer <%= pathogen_code { "Pathogen::Link" } %> for inline text navigation.
+    <% end %>
 
-    <div
-      class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
-      "
-    >
-      <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
-      <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+      </div>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sizes and full width</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Sizes and full width" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Medium targets forms and dialogs (44px minimum). Small targets toolbars and dense tables (24px minimum).
-    </p>
+    <% end %>
 
     <div class="flex flex-wrap items-center gap-2">
       <%= render Pathogen::Button.new(size: :medium, tone: :primary, emphasis: :solid, text: 'Medium') %>
@@ -233,6 +263,120 @@
 
     <div class="mt-4 max-w-sm">
       <%= render Pathogen::Button.new(block: true, tone: :primary, emphasis: :solid, text: 'Full width action') %>
+    </div>
+  </section>
+
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Enabled, disabled, and aria-disabled states" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Use <%= pathogen_code { "disabled: true" } %> when the control should not be focusable. Disabled buttons use
+      reduced opacity and a not-allowed cursor. Use <%= pathogen_code { "aria_disabled: true" } %> when the control
+      should stay focusable so validation feedback can be announced after activation.
+    <% end %>
+
+    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+      <table class="w-full min-w-[48rem] border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Variant" } %>
+            </th>
+
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Enabled" } %>
+            </th>
+
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Disabled" } %>
+            </th>
+
+            <th scope="col" class="px-4 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "aria-disabled" } %>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+          <% [
+            [:primary, :solid, 'Submit run'],
+            [:primary, :outline, 'Save draft'],
+            [:primary, :ghost, 'View protocol'],
+            [:neutral, :outline, 'Cancel'],
+            [:neutral, :solid, 'Archive'],
+            [:neutral, :ghost, 'Skip'],
+            [:danger, :outline, 'Discard'],
+            [:danger, :solid, 'Delete permanently'],
+            [:danger, :ghost, 'Remove tag']
+          ].each do |tone, emphasis, label| %>
+            <tr>
+              <td class="px-4 py-3 align-middle">
+                <%= pathogen_code(class: "text-xs") { "tone: #{tone}, emphasis: #{emphasis}" } %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, text: label) %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, disabled: true, text: label) %>
+              </td>
+
+              <td class="px-4 py-3 align-middle">
+                <%= render Pathogen::Button.new(tone:, emphasis:, aria_disabled: true, text: label) %>
+              </td>
+            </tr>
+          <% end %>
+
+          <tr>
+            <td class="px-4 py-3 align-middle">
+              <%= pathogen_code(class: "text-xs") { "size: :small" } %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'New submission') %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, disabled: true, text: 'New submission') %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, aria_disabled: true, text: 'New submission') %>
+            </td>
+          </tr>
+
+          <tr>
+            <td class="px-4 py-3 align-middle">
+              <%= pathogen_code(class: "text-xs") { "icon_only: true" } %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Refresh list') do |button| %>
+                <% button.with_leading_visual do %>
+                  <%= icon('arrow-clockwise', class: 'size-4') %>
+                <% end %>
+              <% end %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, disabled: true, text: 'Refresh list') do |button| %>
+                <% button.with_leading_visual do %>
+                  <%= icon('arrow-clockwise', class: 'size-4') %>
+                <% end %>
+              <% end %>
+            </td>
+
+            <td class="px-4 py-3 align-middle">
+              <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, aria_disabled: true, text: 'Refresh list') do |button| %>
+                <% button.with_leading_visual do %>
+                  <%= icon('arrow-clockwise', class: 'size-4') %>
+                <% end %>
+              <% end %>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 </div>

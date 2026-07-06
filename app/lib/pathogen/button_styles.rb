@@ -9,15 +9,6 @@ module Pathogen
     EMPHASIS_OPTIONS = %i[outline solid ghost].freeze
     DEFAULT_EMPHASIS = :outline
 
-    SCHEME_OPTIONS = %i[primary default danger].freeze
-    DEFAULT_SCHEME = :default
-
-    SCHEME_PRESETS = {
-      default: %i[neutral outline],
-      primary: %i[primary solid],
-      danger: %i[danger outline]
-    }.freeze
-
     BASE_CLASSES = %w[
       relative inline-flex items-center justify-center cursor-pointer select-none
       rounded-[var(--pvc-radius-action)] font-sans font-medium no-underline border

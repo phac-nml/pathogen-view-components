@@ -133,14 +133,14 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
     ['Accent', '--pvc-color-accent', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-400)', '#60a5fa'],
     ['Strong accent', '--pvc-color-accent-strong', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-300)', '#93c5fd'],
     ['Solid accent fill', '--pvc-color-accent-solid', 'var(--color-primary-700)', '#1d4ed8', 'var(--color-primary-700)', '#1d4ed8'],
-    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-600)', '#2563eb', 'var(--color-primary-600)', '#2563eb'],
+    ['Solid accent hover', '--pvc-color-accent-solid-hover', 'var(--color-primary-800)', '#1e40af', 'var(--color-primary-800)', '#1e40af'],
     ['Danger', '--pvc-color-danger', 'var(--color-red-600)', '#dc2626', 'var(--color-red-500)', '#ef4444'],
     ['Strong danger', '--pvc-color-danger-strong', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-300)', '#fca5a5'],
     ['Solid danger fill', '--pvc-color-danger-solid', 'var(--color-red-600)', '#dc2626', 'var(--color-red-600)', '#dc2626'],
     ['Solid danger hover', '--pvc-color-danger-solid-hover', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-700)', '#b91c1c'],
     ['Success', '--pvc-color-success', 'var(--color-emerald-600)', '#059669', 'var(--color-emerald-400)', '#34d399'],
     ['Warning', '--pvc-color-warning', 'var(--color-amber-600)', '#d97706', 'var(--color-amber-400)', '#fbbf24'],
-    ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-400)', '#60a5fa']
+    ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-500)', '#3b82f6']
   ].each do |label, token, light_fallback, light_swatch, dark_fallback, dark_swatch| %>
     <div role="cell"><%= label %><br><code><%= token %></code></div>
     <div class="pvc-token-table__swatch-cell" role="cell">
@@ -172,7 +172,7 @@ Live definitions today:
   --pvc-color-accent: var(--color-primary-600);
   --pvc-color-accent-strong: var(--color-primary-700);
   --pvc-color-accent-solid: var(--color-primary-700);
-  --pvc-color-accent-solid-hover: var(--color-primary-600);
+  --pvc-color-accent-solid-hover: var(--color-primary-800);
   --pvc-color-danger: var(--color-red-600);
   --pvc-color-danger-strong: var(--color-red-700);
   --pvc-color-danger-solid: var(--color-red-600);
@@ -193,14 +193,14 @@ Live definitions today:
   --pvc-color-accent: var(--color-primary-400);
   --pvc-color-accent-strong: var(--color-primary-300);
   --pvc-color-accent-solid: var(--color-primary-700);
-  --pvc-color-accent-solid-hover: var(--color-primary-600);
+  --pvc-color-accent-solid-hover: var(--color-primary-800);
   --pvc-color-danger: var(--color-red-500);
   --pvc-color-danger-strong: var(--color-red-300);
   --pvc-color-danger-solid: var(--color-red-600);
   --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-400);
   --pvc-color-warning: var(--color-amber-400);
-  --pvc-color-focus: var(--color-primary-400);
+  --pvc-color-focus: var(--color-primary-500);
 }
 ```
 
@@ -311,8 +311,6 @@ These rows are known gaps between shipped CSS and the intended system direction.
 
 | # | Token | Shipped now | Target | Why |
 |---|-------|-------------|--------|-----|
-| 1 | `accent-solid-hover` | Lightens (`700` -> `600`) | Darken, such as `800` | Solid hover should press in, like danger already does |
-| 2 | `focus` in dark mode | `primary-400`, same as accent | `primary-500` in both modes | Focus must remain separate from accent |
-| 3 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
+| 1 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
 
-Until row 3 lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
+Until this lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
