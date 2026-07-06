@@ -1,11 +1,55 @@
-<div class="<%= shell_class %>">
-  <%= render Pathogen::Toaster.new(**toaster_args, list_id: 'flash-preview') do %>
-    <%= render Pathogen::Toast.new(
-      type: type,
-      message: 'Genome metadata saved.',
-      description: 'Sample QC annotations are now visible to all collaborators.',
-      timeout: timeout,
-      dismissible: dismissible
-    ) %>
-  <% end %>
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Interactive preview</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Adjust type, timeout, dismiss control, and anchor position. Errors and action toasts ignore the timeout control.
+    </p>
+
+    <div
+      class="
+        relative min-h-[20rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
+        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <dl class="grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Type</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= type %></dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Timeout</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= timeout %> ms</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Dismissible</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]"><%= dismissible ? 'Yes' : 'No' %></dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Position</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= toaster_args[:position] %></dd>
+        </div>
+      </dl>
+
+      <%= render Pathogen::Toaster.new(**toaster_args, list_id: 'flash-preview') do %>
+        <%= render Pathogen::Toast.new(
+          type: type,
+          message: 'Genome metadata saved.',
+          description: 'Sample QC annotations are now visible to all collaborators.',
+          timeout: timeout,
+          dismissible: dismissible
+        ) %>
+      <% end %>
+    </div>
+  </section>
+
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      Use Lookbook params to exercise Rails flash aliases (<code class="font-mono">notice</code>,
+      <code class="font-mono">alert</code>) and host-specific anchor positions before wiring the toaster in the layout.
+    </p>
+  </div>
 </div>
