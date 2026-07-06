@@ -72,16 +72,7 @@ module Pathogen
       when :success then 'text-[var(--pvc-color-success)]'
       when :warning then 'text-[var(--pvc-color-warning)]'
       when :error then 'text-[var(--pvc-color-danger)]'
-      else 'text-[var(--pvc-color-accent)]'
-      end
-    end
-
-    def accent_bar_class
-      case type
-      when :success then 'bg-[var(--pvc-color-success)]'
-      when :warning then 'bg-[var(--pvc-color-warning)]'
-      when :error then 'bg-[var(--pvc-color-danger)]'
-      else 'bg-[var(--pvc-color-accent)]'
+      else 'text-[var(--pvc-color-text-muted)]'
       end
     end
 
@@ -103,12 +94,11 @@ module Pathogen
 
     def base_classes
       class_names(
-        'group relative pointer-events-auto overflow-hidden rounded-[var(--pvc-radius-panel)] border',
+        'group relative pointer-events-auto rounded-[var(--pvc-radius-panel)] border',
         'border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] text-[var(--pvc-color-text)]',
-        'shadow-[var(--pvc-shadow-overlay)] transition-[opacity,transform] duration-[var(--pvc-duration-default)]',
-        'ease-out data-[state=closing]:translate-y-1 data-[state=closing]:opacity-0',
-        'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ' \
-        'focus-visible:outline-[var(--pvc-color-focus)]'
+        'shadow-[var(--pvc-shadow-overlay)] transition-opacity duration-[var(--pvc-duration-default)]',
+        'ease-out data-[state=closing]:opacity-0',
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]'
       )
     end
 
