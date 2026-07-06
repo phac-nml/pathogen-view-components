@@ -210,6 +210,16 @@ Use `Pathogen::Link` for inline navigation. Use button-styled links only inside 
 
 `Pathogen::Link` is for underlined inline navigation with accent on hover. Toolbar actions should be buttons.
 
+## Toasts
+
+`Pathogen::Toast` confirms background work, sync status, and recoverable errors without blocking the page. Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and stream toasts into it.
+
+- **Surface** — raised overlay: `--pvc-color-surface-raised`, `--pvc-color-border`, `--pvc-radius-panel`, `--pvc-shadow-overlay`.
+- **Status** — pair a semantic icon with the message. Use `--pvc-color-success`, `--pvc-color-warning`, and `--pvc-color-danger` for those types. Keep `info` quiet with `--pvc-color-text-muted` on the icon; reserve accent for real brand actions inside the toast action slot.
+- **Type** — message at control scale, semibold; description at control scale, muted. No decorative accent bars or colour blocks beyond the icon.
+- **Dismiss** — `Pathogen::Button` `small` + `neutral` + `ghost`, icon-only, with a translated `aria-label`. Errors and actionable toasts stay until dismissed.
+- **Motion** — fade opacity on dismiss (`--pvc-duration-default`); honour `prefers-reduced-motion` in the Stimulus controller.
+
 ## Forms
 
 - Native controls first.
@@ -273,6 +283,7 @@ Fix accessibility in Pathogen primitives first. Host apps inherit those gains ev
 | Tabs | [Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), `Pathogen::Tabs` |
 | Forms, switches, radios | [Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), [Radio](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), [Switch](https://www.w3.org/WAI/ARIA/apg/patterns/switch/), `Pathogen::Form::*` |
 | Tooltips | [Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/), `Pathogen::Tooltip` |
+| Toasts | `Pathogen::Toast` inside `Pathogen::Toaster` — overlay surface, status icon + text, polite/assertive live regions |
 | Data grids / tables | [Grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) and [Table](https://www.w3.org/WAI/ARIA/apg/patterns/table/), `Pathogen::DataGridComponent` |
 | Dialogs and disclosures | [Dialog modal](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) |
 
