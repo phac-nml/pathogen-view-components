@@ -69,6 +69,34 @@ module Pathogen
       assert_selector 'button[aria-label="Fermer la notification"]'
     end
 
+    test 'uses contract typography, status icon, and dismiss button styles' do
+      render_inline(
+        Pathogen::Toast.new(
+          type: :info,
+          message: 'Sync running',
+          description: 'Metadata updates in the background.'
+        )
+      )
+
+      assert_no_selector '[class*="bg-[var(--pvc-color-success)]"]'
+      assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].font-semibold', text: 'Sync running'
+      assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].text-\\[var\\(--pvc-color-text-muted\\)\\]',
+                      text: 'Metadata updates in the background.'
+      assert_selector 'span.text-\\[var\\(--pvc-color-text-muted\\)\\]'
+      assert_selector 'button[aria-label="Dismiss notification"][class*="aspect-square"]'
+    end
+
+    test 'status types use semantic icon colours' do
+      render_inline(Pathogen::Toast.new(type: :success, message: 'Saved'))
+      assert_selector 'span.text-\\[var\\(--pvc-color-success\\)\\]'
+
+      render_inline(Pathogen::Toast.new(type: :warning, message: 'Skipped'))
+      assert_selector 'span.text-\\[var\\(--pvc-color-warning\\)\\]'
+
+      render_inline(Pathogen::Toast.new(type: :error, message: 'Failed'))
+      assert_selector 'span.text-\\[var\\(--pvc-color-danger\\)\\]'
+    end
+
     test 'passes axe structural checks' do
       render_inline(Pathogen::Toast.new(type: :warning, message: 'Threshold exceeded'))
 
