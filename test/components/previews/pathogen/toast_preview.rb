@@ -39,6 +39,14 @@ module Pathogen
     # Anchor presets for host-app layout constraints.
     def positions; end
 
+    # @label Turbo stream simulation
+    # Simulates periodic Turbo Stream appends to the toaster host.
+    # @param interval_ms number "Milliseconds between simulated stream events."
+    def turbo_stream_simulation(interval_ms: 10_000)
+      resolved_interval_ms = [interval_ms.to_i, 2000].max
+      render_with_template(locals: { interval_ms: resolved_interval_ms })
+    end
+
     # @!endgroup
   end
 end
