@@ -114,6 +114,131 @@ describe("tabs_controller", () => {
     expect(panelB.dataset.state).toBe("active");
   });
 
+  it("defers panel visibility during keyboard navigation", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">
+        <nav role="tablist" aria-orientation="horizontal" aria-label="Keyboard tabs">
+          <button id="tab-a" role="tab" aria-controls="panel-a" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">A</button>
+          <button id="tab-b" role="tab" aria-controls="panel-b" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">B</button>
+        </nav>
+        <div id="panel-a" role="tabpanel" data-pathogen--tabs-target="panel">Panel A</div>
+        <div id="panel-b" role="tabpanel" data-pathogen--tabs-target="panel">Panel B</div>
+      </div>
+    `;
+
+    await waitForTabsUpdate();
+
+    const [tabA, tabB] = document.querySelectorAll('[data-pathogen--tabs-target="tab"]');
+    const [, panelB] = document.querySelectorAll('[data-pathogen--tabs-target="panel"]');
+    let ariaSelectedUpdates = 0;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "aria-selected" && mutation.target === tabB) {
+          ariaSelectedUpdates += 1;
+        }
+      });
+    });
+
+    observer.observe(tabB, { attributes: true, attributeFilter: ["aria-selected"] });
+
+    tabA.focus();
+    dispatchKey(tabA, "ArrowRight");
+    await Promise.resolve();
+
+    observer.disconnect();
+
+    expect(document.activeElement).toBe(tabB);
+    expect(tabB.getAttribute("aria-selected")).toBe("true");
+    expect(tabB.getAttribute("aria-controls")).toBe("panel-b");
+    expect(ariaSelectedUpdates).toBe(1);
+
+    expect(panelB.hidden).toBe(true);
+
+    await waitForTabsUpdate();
+
+    expect(panelB.hidden).toBe(false);
+  });
+
+  it("does not re-apply tab selection when already synced", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">
+        <nav role="tablist" aria-orientation="horizontal" aria-label="Keyboard tabs">
+          <button id="tab-a" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">A</button>
+          <button id="tab-b" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">B</button>
+        </nav>
+        <div id="panel-a" role="tabpanel" data-pathogen--tabs-target="panel">Panel A</div>
+        <div id="panel-b" role="tabpanel" data-pathogen--tabs-target="panel">Panel B</div>
+      </div>
+    `;
+
+    await waitForTabsUpdate();
+
+    const [, tabB] = document.querySelectorAll('[data-pathogen--tabs-target="tab"]');
+    let ariaSelectedUpdates = 0;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "aria-selected" && mutation.target === tabB) {
+          ariaSelectedUpdates += 1;
+        }
+      });
+    });
+
+    observer.observe(tabB, { attributes: true, attributeFilter: ["aria-selected"] });
+
+    tabB.click();
+    await waitForTabsUpdate();
+    tabB.click();
+    await waitForTabsUpdate();
+
+    observer.disconnect();
+
+    expect(ariaSelectedUpdates).toBe(1);
+  });
+
+  it("ignores turbo render when tab selection is already synced", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs"
+           data-pathogen--tabs-default-index-value="0"
+           data-pathogen--tabs-sync-url-value="true">
+        <nav role="tablist" aria-orientation="horizontal" aria-label="Keyboard tabs">
+          <button id="tab-a" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">A</button>
+          <button id="tab-b" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">B</button>
+        </nav>
+        <div id="panel-a" role="tabpanel" data-pathogen--tabs-target="panel">Panel A</div>
+        <div id="panel-b" role="tabpanel" data-pathogen--tabs-target="panel">Panel B</div>
+      </div>
+    `;
+
+    await waitForTabsUpdate();
+
+    const [, tabB] = document.querySelectorAll('[data-pathogen--tabs-target="tab"]');
+    let ariaSelectedUpdates = 0;
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "aria-selected" && mutation.target === tabB) {
+          ariaSelectedUpdates += 1;
+        }
+      });
+    });
+
+    observer.observe(tabB, { attributes: true, attributeFilter: ["aria-selected"] });
+
+    tabB.click();
+    await waitForTabsUpdate();
+
+    const updatesBeforeTurboRender = ariaSelectedUpdates;
+    document.dispatchEvent(new Event("turbo:render"));
+    await waitForTabsUpdate();
+
+    observer.disconnect();
+
+    expect(updatesBeforeTurboRender).toBe(1);
+    expect(ariaSelectedUpdates).toBe(1);
+  });
+
   it("renders Pathogen-styled validation error when tab and panel counts mismatch", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">
