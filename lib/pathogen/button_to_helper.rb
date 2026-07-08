@@ -29,7 +29,8 @@ module Pathogen
     #   pathogen_button_to "Delete", post_path(@post), method: :delete, tone: :danger, emphasis: :outline
     #
     # @example Detached action inside a table row
-    #   pathogen_button_to "Delete", post_path(@post), method: :delete, detached: true, tone: :danger, emphasis: :outline
+    #   pathogen_button_to "Delete", post_path(@post), method: :delete, detached: true,
+    #     tone: :danger, emphasis: :outline
     def pathogen_button_to(name = nil, options = nil, html_options = nil, &block)
       name, options, html_options = normalize_button_to_args(name, options, html_options, block)
       detached = detached_option(html_options)
