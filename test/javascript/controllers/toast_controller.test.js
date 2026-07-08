@@ -81,6 +81,23 @@ describe("toast_controller", () => {
     expect(document.body.contains(toast)).toBe(false);
   });
 
+  it("pauses timer on hover and resumes on mouse leave", async () => {
+    vi.useFakeTimers();
+    const { toast } = buildToast({ timeout: 80, type: "info" });
+    await waitForController();
+
+    toast.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    vi.advanceTimersByTime(120);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(true);
+
+    toast.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+    vi.advanceTimersByTime(80);
+    vi.advanceTimersByTime(160);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(false);
+  });
+
   it("pauses timer on focus and resumes on blur", async () => {
     vi.useFakeTimers();
     const { toast } = buildToast({ timeout: 80, type: "info" });
@@ -176,6 +193,53 @@ describe("toast_controller", () => {
     await waitForController();
     expect(document.body.contains(toast)).toBe(false);
     expect(document.activeElement).toBe(previous);
+  });
+
+  it("ignores Escape when dismissible is false", async () => {
+    vi.useFakeTimers();
+    const { toast } = buildToast({ timeout: 0, type: "info", dismissible: false, withButton: false });
+    await waitForController();
+
+    toast.focus();
+    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+
+    vi.advanceTimersByTime(160);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(true);
+  });
+
+  it("removes toast immediately when reduced motion is preferred", async () => {
+    vi.useFakeTimers();
+    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
+      matches: query === "(prefers-reduced-motion: reduce)",
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+
+    const { toast } = buildToast({ timeout: 0, type: "info" });
+    await waitForController();
+
+    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    vi.advanceTimersByTime(0);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(false);
+  });
+
+  it("emits pathogen:toast:dismissed on the parent list when removed", async () => {
+    vi.useFakeTimers();
+    const { list, toast } = buildToast({ timeout: 0, type: "info" });
+    const listener = vi.fn();
+    list.addEventListener("pathogen:toast:dismissed", listener);
+    await waitForController();
+
+    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    vi.advanceTimersByTime(160);
+    await waitForController();
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0][0].detail).toEqual({ reason: "manual" });
   });
 
   it("restores focus to the most recent entry target", async () => {
