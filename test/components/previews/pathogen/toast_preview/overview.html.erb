@@ -2,35 +2,35 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sample processing queue</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Sample processing queue" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Toasts confirm background work without blocking the current task. Status is carried by the icon and message —
       not decorative colour blocks.
-    </p>
+    <% end %>
 
     <div
       class="
-        relative min-h-[24rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
-        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+        relative min-h-96 overflow-hidden rounded-(--pvc-radius-panel) border
+        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
       "
     >
       <dl class="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Queue</dt>
-          <dd class="text-[var(--pvc-color-text-muted)]">Ontario weekly export</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Queue" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Ontario weekly export" } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Samples</dt>
-          <dd class="text-[var(--pvc-color-text-muted)]">24 assigned · 1 skipped</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Samples" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) { "24 assigned · 1 skipped" } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Run</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]">B-2026-06</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Run" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "B-2026-06" } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Sync</dt>
-          <dd class="text-[var(--pvc-color-text-muted)]">Metadata update in progress</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Sync" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Metadata update in progress" } %>
         </div>
       </dl>
 
@@ -69,41 +69,41 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Status types</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Status types" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Semantic roles for success, warning, and error. Info stays quiet with a muted icon; reserve accent for actions
       inside the toast.
-    </p>
+    <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <dl class="space-y-3 text-sm">
-        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Success</dt>
-          <dd class="font-mono text-[var(--pvc-color-success)]">--pvc-color-success</dd>
+        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Success" } %>
+          <dd class="font-mono text-(--pvc-color-success)">--pvc-color-success</dd>
         </div>
-        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Warning</dt>
-          <dd class="font-mono text-[var(--pvc-color-warning)]">--pvc-color-warning</dd>
+        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Warning" } %>
+          <dd class="font-mono text-(--pvc-color-warning)">--pvc-color-warning</dd>
         </div>
-        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Error</dt>
-          <dd class="font-mono text-[var(--pvc-color-danger)]">--pvc-color-danger</dd>
+        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Error" } %>
+          <dd class="font-mono text-(--pvc-color-danger)">--pvc-color-danger</dd>
         </div>
         <div class="flex items-baseline justify-between gap-4">
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Info</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]">--pvc-color-text-muted</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Info" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "--pvc-color-text-muted" } %>
         </div>
       </dl>
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
-      Mount a persistent <code class="font-mono">Pathogen::Toaster</code> in the host layout (for example
-      <code class="font-mono">#flashes</code>) and stream <code class="font-mono">Pathogen::Toast</code> instances into
+  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
+    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
+      Mount a persistent <%= pathogen_code { "Pathogen::Toaster" } %> in the host layout (for example
+      <%= pathogen_code { "#flashes" } %>) and stream <%= pathogen_code { "Pathogen::Toast" } %> instances into
       it after Turbo responses. Errors and actionable toasts do not auto-dismiss.
-    </p>
+    <% end %>
   </div>
 </div>
