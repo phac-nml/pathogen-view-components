@@ -1,7 +1,7 @@
 <%= tag.li(**@system_arguments) do %>
-  <div class="relative p-3">
-    <div class="flex items-center gap-2">
-      <span class="flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
+  <div class="p-4">
+    <div class="flex items-start gap-2">
+      <span class="mt-0.5 flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
         <svg
           class="size-4 shrink-0"
           viewBox="0 0 16 16"
@@ -20,7 +20,7 @@
       </div>
 
       <% if dismissible %>
-        <div class="ml-auto">
+        <div class="-mr-1 shrink-0">
           <%= render Pathogen::Button.new(
             size: :small,
             tone: :neutral,
@@ -46,24 +46,26 @@
       <% end %>
     </div>
 
-    <div class="pl-6">
-      <% if description.present? %>
-        <p
-          class="
-            mt-1 break-words text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
-            [overflow-wrap:anywhere]
-          "
-          data-pathogen--toast-target="description"
-        >
-          <%= description %>
-        </p>
-      <% end %>
+    <% if description.present? || action? %>
+      <div class="pl-6">
+        <% if description.present? %>
+          <p
+            class="
+              mt-1 break-words text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
+              [overflow-wrap:anywhere]
+            "
+            data-pathogen--toast-target="description"
+          >
+            <%= description %>
+          </p>
+        <% end %>
 
-      <% if action? %>
-        <div class="mt-2">
-          <%= action %>
-        </div>
-      <% end %>
-    </div>
+        <% if action? %>
+          <div class="mt-2">
+            <%= action %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 <% end %>
