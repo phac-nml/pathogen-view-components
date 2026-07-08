@@ -7,7 +7,6 @@ const waitForController = async () => {
   await Promise.resolve();
   await Promise.resolve();
 };
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const buildToast = ({
   timeout = 1000,
@@ -83,6 +82,7 @@ describe("toast_controller", () => {
   });
 
   it("pauses timer on focus and resumes on blur", async () => {
+    vi.useFakeTimers();
     const { toast } = buildToast({ timeout: 80, type: "info" });
     const outside = document.createElement("button");
     outside.textContent = "outside";
@@ -92,12 +92,14 @@ describe("toast_controller", () => {
     outside.focus();
     toast.focus();
     toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: outside }));
-    await sleep(120);
+    vi.advanceTimersByTime(120);
+    await waitForController();
     expect(document.body.contains(toast)).toBe(true);
 
     outside.focus();
     toast.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: outside }));
-    await sleep(280);
+    vi.advanceTimersByTime(1000);
+    await waitForController();
     expect(document.body.contains(toast)).toBe(false);
   });
 
