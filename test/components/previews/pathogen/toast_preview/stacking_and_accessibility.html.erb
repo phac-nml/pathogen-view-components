@@ -2,23 +2,23 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Stack behaviour</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Stack behaviour" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Overflow toasts collapse until the stack is hovered or focused. Errors announce assertively and stay visible.
       Actionable toasts pause auto-dismiss until dismissed.
-    </p>
+    <% end %>
 
     <div
       class="
-        relative min-h-[28rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
-        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+        relative min-h-112 overflow-hidden rounded-(--pvc-radius-panel) border
+        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
       "
     >
-      <p class="text-sm text-[var(--pvc-color-text-muted)]">
+      <%= pathogen_supporting(variant: :muted) do %>
         Outbreak report workspace — reference data and publication controls stay editable while notifications stack in
         the corner.
-      </p>
+      <% end %>
 
       <%= render Pathogen::Toaster.new(
         position: :bottom_right,
@@ -65,85 +65,85 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Live regions</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Live regions" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Visible toasts use <code class="font-mono">aria-live="off"</code>. Screen-reader announcements route through
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Visible toasts use <%= pathogen_code { 'aria-live="off"' } %>. Screen-reader announcements route through
       dedicated polite and assertive regions in the toaster host.
-    </p>
+    <% end %>
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Polite channel</h3>
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+        <%= pathogen_heading(level: 4, class: "mb-3") { "Polite channel" } %>
 
         <dl class="space-y-2 text-sm">
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>status</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "status" } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>polite</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "polite" } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">used for</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]">Success, info, and warning toasts</dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">used for</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { "Success, info, and warning toasts" } %>
           </div>
         </dl>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Assertive channel</h3>
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+        <%= pathogen_heading(level: 4, class: "mb-3") { "Assertive channel" } %>
 
         <dl class="space-y-2 text-sm">
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>alert</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "alert" } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>assertive</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "assertive" } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">used for</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]">Error toasts that must interrupt</dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">used for</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { "Error toasts that must interrupt" } %>
           </div>
         </dl>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 lg:col-span-2">
-        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Toast list item</h3>
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 lg:col-span-2">
+        <%= pathogen_heading(level: 4, class: "mb-3") { "Toast list item" } %>
 
         <dl class="grid gap-2 text-sm sm:grid-cols-2">
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>listitem</code> inside labelled <code>ol</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) do %><%= pathogen_code { "listitem" } %> inside labelled <%= pathogen_code { "ol" } %><% end %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]"><code>off</code> on the visible toast</dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) do %><%= pathogen_code { "off" } %> on the visible toast<% end %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">dismiss</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]">
-              <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">Escape</kbd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">dismiss</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
+              <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-xs">Escape</kbd>
               when focused
-            </dd>
+            <% end %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">timeout</dt>
-            <dd class="text-[var(--pvc-color-text-muted)]">Paused on hover or focus; errors use <code>0</code></dd>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">timeout</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) do %>Paused on hover or focus; errors use <%= pathogen_code { "0" } %><% end %>
           </div>
         </dl>
       </div>
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
+  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
+    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
       Hover or focus the toast stack to reveal overflow items. Pair status icons with visible text — type labels are
-      exposed to screen readers via <code class="font-mono">sr-only</code> prefixes.
-    </p>
+      exposed to screen readers via <%= pathogen_code { "sr-only" } %> prefixes.
+    <% end %>
   </div>
 </div>

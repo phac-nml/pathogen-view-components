@@ -2,13 +2,13 @@
 
 <div id="pv-toast-stream-root" data-list-id="flashes-stream-sim" data-interval-ms="<%= interval_ms %>" class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Turbo stream simulation</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Turbo stream simulation" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      This preview mocks server responses by generating a full <code class="font-mono">turbo-stream</code> payload
-      and passing it to <code class="font-mono">Turbo.renderStreamMessage</code>. A random toast is appended every
-      <code class="font-mono"><%= interval_ms %>ms</code> while streaming is active.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      This preview mocks server responses by generating a full <%= pathogen_code { "turbo-stream" } %> payload
+      and passing it to <%= pathogen_code { "Turbo.renderStreamMessage" } %>. A random toast is appended every
+      <%= pathogen_code { "#{interval_ms}ms" } %> while streaming is active.
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="mb-4 flex flex-wrap items-center gap-2">
@@ -47,13 +47,13 @@
 
       <div class="mb-4 grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <p class="font-semibold text-[var(--pvc-color-text)]">Status</p>
-          <p class="text-[var(--pvc-color-text-muted)]" data-pv-stream-status>Connecting...</p>
+          <%= pathogen_supporting(class: "font-semibold") { "Status" } %>
+          <%= pathogen_supporting(variant: :muted, data: { pv_stream_status: true }) { "Connecting..." } %>
         </div>
 
         <div>
-          <p class="font-semibold text-[var(--pvc-color-text)]">Events emitted</p>
-          <p class="font-mono text-[var(--pvc-color-text-muted)]" data-pv-stream-count>0</p>
+          <%= pathogen_supporting(class: "font-semibold") { "Events emitted" } %>
+          <%= pathogen_supporting(variant: :muted, class: "font-mono", data: { pv_stream_count: true }) { "0" } %>
         </div>
       </div>
 
@@ -63,9 +63,9 @@
           border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4
         "
       >
-        <p class="text-sm text-[var(--pvc-color-text-muted)]">
+        <%= pathogen_supporting(variant: :muted) do %>
           Simulated outbreak event channel. Notifications arrive asynchronously while the workspace remains interactive.
-        </p>
+        <% end %>
 
         <%= render Pathogen::Toaster.new(
           position: :bottom_right,
@@ -79,14 +79,20 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">What this proves</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "What this proves" } %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-      <ul class="list-inside list-disc space-y-1">
-        <li>Incoming stream messages mount real <code class="font-mono">Pathogen::Toast</code> instances.</li>
-        <li>Auto-dismiss, focus restore, stack collapse, and live-region routing work under repeated updates.</li>
-        <li>The target list can be cleared with an <code class="font-mono">update</code> stream action.</li>
-      </ul>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <%= pathogen_list(variant: :muted) do |list| %>
+        <% list.with_item do %>
+          Incoming stream messages mount real <%= pathogen_code { "Pathogen::Toast" } %> instances.
+        <% end %>
+        <% list.with_item do %>
+          Auto-dismiss, focus restore, stack collapse, and live-region routing work under repeated updates.
+        <% end %>
+        <% list.with_item do %>
+          The target list can be cleared with an <%= pathogen_code { "update" } %> stream action.
+        <% end %>
+      <% end %>
     </div>
   </section>
 
