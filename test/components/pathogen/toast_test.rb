@@ -42,6 +42,7 @@ module Pathogen
 
       assert_selector 'li[data-pathogen--toast-type-value="error"]'
       assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
+      assert_selector 'li[data-pathogen--toast-persistent-value="true"]'
       assert_selector "li[class*='border-[var(--pvc-color-border)]']"
     end
 
@@ -53,6 +54,7 @@ module Pathogen
       end
 
       assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
+      assert_selector 'li[data-pathogen--toast-persistent-value="true"]'
       assert_selector 'button', text: 'Undo'
     end
 

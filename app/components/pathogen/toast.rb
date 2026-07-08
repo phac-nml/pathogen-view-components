@@ -62,6 +62,7 @@ module Pathogen
       @timeout = 0 if action?
       @system_arguments[:'data-pathogen--toast-timeout-value'] = @timeout
       @system_arguments[:'data-pathogen--toast-type-label-value'] = icon_label
+      @system_arguments[:'data-pathogen--toast-persistent-value'] = persistent?
     end
 
     def icon_label
@@ -82,6 +83,10 @@ module Pathogen
     end
 
     private
+
+    def persistent?
+      @type == :error || action?
+    end
 
     def normalized_type(type)
       candidate = type.respond_to?(:to_sym) ? type.to_sym : type
