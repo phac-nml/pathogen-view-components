@@ -197,6 +197,69 @@ describe("tabs_controller", () => {
     expect(ariaSelectedUpdates).toBe(1);
   });
 
+  it("re-syncs panels when clicking the already-selected tab after panel state drifts", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">
+        <nav role="tablist" aria-orientation="horizontal" aria-label="Keyboard tabs">
+          <button id="tab-a" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">A</button>
+          <button id="tab-b" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">B</button>
+        </nav>
+        <div id="panel-a" role="tabpanel" data-pathogen--tabs-target="panel">Panel A</div>
+        <div id="panel-b" role="tabpanel" data-pathogen--tabs-target="panel">Panel B</div>
+      </div>
+    `;
+
+    await waitForTabsUpdate();
+
+    const [tabA] = document.querySelectorAll('[data-pathogen--tabs-target="tab"]');
+    const [overviewPanel] = document.querySelectorAll('[data-pathogen--tabs-target="panel"]');
+
+    overviewPanel.hidden = true;
+    overviewPanel.setAttribute("aria-hidden", "true");
+    overviewPanel.dataset.state = "inactive";
+
+    tabA.click();
+    await waitForTabsUpdate();
+
+    expect(overviewPanel.hidden).toBe(false);
+    expect(overviewPanel.getAttribute("aria-hidden")).toBe("false");
+    expect(overviewPanel.dataset.state).toBe("active");
+  });
+
+  it("re-applies tab selection when inactive tabs have stale roving state", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">
+        <nav role="tablist" aria-orientation="horizontal" aria-label="Keyboard tabs">
+          <button id="tab-a" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">A</button>
+          <button id="tab-b" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab keydown->pathogen--tabs#handleKeyDown">B</button>
+        </nav>
+        <div id="panel-a" role="tabpanel" data-pathogen--tabs-target="panel">Panel A</div>
+        <div id="panel-b" role="tabpanel" data-pathogen--tabs-target="panel">Panel B</div>
+      </div>
+    `;
+
+    await waitForTabsUpdate();
+
+    const [tabA, tabB] = document.querySelectorAll('[data-pathogen--tabs-target="tab"]');
+
+    tabB.click();
+    await waitForTabsUpdate();
+
+    tabA.setAttribute("aria-selected", "true");
+    tabA.dataset.state = "active";
+    tabA.tabIndex = 0;
+
+    tabB.click();
+    await waitForTabsUpdate();
+
+    expect(tabA.getAttribute("aria-selected")).toBe("false");
+    expect(tabA.dataset.state).toBe("inactive");
+    expect(tabA.tabIndex).toBe(-1);
+    expect(tabB.getAttribute("aria-selected")).toBe("true");
+    expect(tabB.dataset.state).toBe("active");
+    expect(tabB.tabIndex).toBe(0);
+  });
+
   it("ignores turbo render when tab selection is already synced", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--tabs"
