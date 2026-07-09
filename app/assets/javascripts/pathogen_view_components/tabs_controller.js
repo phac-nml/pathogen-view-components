@@ -169,7 +169,7 @@ export default class extends Controller {
         return;
       }
 
-      if (this.#selectedIndex === tabIndex && this.#isTabSelectionSynced(tabIndex)) {
+      if (this.#selectedIndex === tabIndex && this.#isSelectionSynced(tabIndex)) {
         return;
       }
 
@@ -593,9 +593,20 @@ export default class extends Controller {
       return false;
     }
 
-    const tab = this.tabTargets[index];
+    return this.tabTargets.every((tab, i) => {
+      if (!tab) return false;
 
-    return tab?.getAttribute("aria-selected") === "true" && tab?.dataset.state === "active" && tab?.tabIndex === 0;
+      const isSelected = i === index;
+      const selectedValue = String(isSelected);
+      const stateValue = isSelected ? "active" : "inactive";
+      const tabIndexValue = isSelected ? 0 : -1;
+
+      return (
+        tab.getAttribute("aria-selected") === selectedValue &&
+        tab.dataset.state === stateValue &&
+        tab.tabIndex === tabIndexValue
+      );
+    });
   }
 
   /**
@@ -653,7 +664,7 @@ export default class extends Controller {
 
     const tab = this.tabTargets[index];
 
-    if (this.#selectedIndex === index && document.activeElement === tab && this.#isTabSelectionSynced(index)) {
+    if (this.#selectedIndex === index && document.activeElement === tab && this.#isSelectionSynced(index)) {
       return;
     }
 
