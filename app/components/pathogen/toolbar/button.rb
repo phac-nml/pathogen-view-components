@@ -33,9 +33,18 @@ module Pathogen
       @system_arguments.delete('disabled')
       @system_arguments[:tag] = @tag
       @system_arguments[:tabindex] = -1
+      apply_detached_form_submit_default!
 
       apply_aria_attributes!
       apply_data_attributes!
+    end
+
+    def apply_detached_form_submit_default!
+      return unless @system_arguments[:tag].to_sym == :button
+      return unless @system_arguments[:form].present? || @system_arguments['form'].present?
+      return if @system_arguments[:type].present? || @system_arguments['type'].present?
+
+      @system_arguments[:type] = :submit
     end
 
     def apply_aria_attributes!
