@@ -485,6 +485,48 @@ describe("toolbar_controller", () => {
     expect(selectAll.tabIndex).toBe(0);
   });
 
+  it("restores focus to a detached-form submitter associated with the toolbar", async () => {
+    await startController(`
+      <form id="select-all-form" data-turbo-frame="selected"></form>
+      ${toolbarShell(`
+        <button
+          id="select-all-button"
+          type="submit"
+          form="select-all-form"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+        >
+          Select all
+        </button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      `)}
+    `);
+
+    const form = document.querySelector("#select-all-form");
+    const selectAll = document.querySelector("#select-all-button");
+    const two = document.querySelector("#item-two");
+
+    selectAll.focus();
+    document.body.focus();
+
+    form.dispatchEvent(
+      new CustomEvent("turbo:submit-end", {
+        bubbles: true,
+        detail: {
+          formSubmission: {
+            submitter: selectAll,
+          },
+        },
+      }),
+    );
+
+    await flush();
+
+    expect(document.activeElement).toBe(selectAll);
+    expect(two.tabIndex).toBe(-1);
+    expect(selectAll.tabIndex).toBe(0);
+  });
+
   it("keeps toolbar navigation when aria-controls points to non-menu content", async () => {
     await startToolbar(`
       <button
