@@ -1582,12 +1582,13 @@ describe("data_grid_controller (virtual mode)", () => {
       </div>`;
   };
 
-  const virtualPaginatedGridHTML = ({ totalRows = 5000, seedRows = 20, viewportHeight = 200 } = {}) => {
+  const virtualPaginatedGridHTML = ({ totalRows = 5000, seedRows = 20, viewportHeight = 200, rowOffset = 0 } = {}) => {
     const seededRows = Array.from({ length: seedRows }, (_, i) => {
-      const rowIndex = i + 1;
+      const globalIndex = i + rowOffset;
+      const rowIndex = globalIndex + 1;
       const isFirst = i === 0;
       return `
-        <div role="row" aria-rowindex="${rowIndex + 1}" data-pvc-data-grid-global-row-index="${i}" style="height: 40px;">
+        <div role="row" aria-rowindex="${globalIndex + 2}" data-pvc-data-grid-global-row-index="${globalIndex}" style="height: 40px;">
           <div role="gridcell"
             tabindex="${isFirst ? "0" : "-1"}"
             ${isFirst ? 'data-pathogen--data-grid-active="true"' : ""}
@@ -1619,7 +1620,7 @@ describe("data_grid_controller (virtual mode)", () => {
                data-pvc-data-grid-total-count="${totalRows}"
                data-pvc-data-grid-rows-url="/demo/samples/rows.json"
                data-pvc-data-grid-page-size="20"
-               data-pvc-data-grid-row-offset="0">
+               data-pvc-data-grid-row-offset="${rowOffset}">
             <div class="pvc-data-grid__virtual-status"
                  data-pathogen--data-grid-target="virtualStatus"
                  data-loading-text="Loading rows…"
@@ -1629,6 +1630,9 @@ describe("data_grid_controller (virtual mode)", () => {
                  role="status"
                  aria-live="polite">
               Loading rows…
+            </div>
+            <div data-pathogen--data-grid-target="errorState" hidden>
+              <p data-pathogen--data-grid-target="errorMessage"></p>
             </div>
             <div role="row" class="pvc-data-grid__row pvc-data-grid__row--header" aria-rowindex="1">
               <div role="columnheader" tabindex="-1"
@@ -1922,6 +1926,72 @@ describe("data_grid_controller (virtual mode)", () => {
     );
     expect(document.activeElement).toBe(headerCell);
     expect(topRowCell).not.toBeNull();
+
+    fetchSpy.mockRestore();
+  });
+
+  it("positions the initial viewport at a non-zero paginated row offset", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      async json() {
+        return { rows: [] };
+      },
+    });
+
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 5000, seedRows: 20, rowOffset: 20 });
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 200 });
+    Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: 400 });
+    Object.defineProperty(scrollContainer, "scrollTop", { configurable: true, writable: true, value: 0 });
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+
+    expect(scrollContainer.scrollTop).toBe(800);
+    expect(document.querySelector('[data-pathogen--data-grid-row-index="21"]')).not.toBeNull();
+
+    fetchSpy.mockRestore();
+  });
+
+  it("clears the pagination error after a successful page load", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      async json() {
+        return { rows: [] };
+      },
+    });
+
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 100, seedRows: 60 });
+    const grid = document.querySelector('[data-pathogen--data-grid-target="grid"]');
+    const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 200 });
+    Object.defineProperty(scrollContainer, "scrollTop", { configurable: true, writable: true, value: 0 });
+
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+    await flush();
+
+    const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
+    grid.dispatchEvent(
+      new CustomEvent("pathogen:data-grid:error", {
+        bubbles: true,
+        detail: { message: "Unable to load more rows." },
+      }),
+    );
+    expect(errorState.hidden).toBe(false);
+
+    scrollContainer.scrollTop = 2400;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    scrollContainer.dispatchEvent(new Event("scrollend"));
+    await flush();
+    await flush();
+    await flush();
+
+    expect(fetchSpy).toHaveBeenCalled();
+    expect(errorState.hidden).toBe(true);
+    expect(grid.getAttribute("aria-busy")).toBe("false");
 
     fetchSpy.mockRestore();
   });

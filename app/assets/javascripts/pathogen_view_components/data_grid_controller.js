@@ -677,6 +677,7 @@ export default class extends Controller {
       onRowsChanged: () => {
         this.#updateVirtualAllCellsFromCache();
         this.#invalidateCellCaches();
+        this.#hideErrorState();
         this.#restorePendingFocus();
       },
       onVisibleRowsChanged: () => {
@@ -691,6 +692,14 @@ export default class extends Controller {
     this.#virtualRows = this.#pagination;
 
     this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
+    if (
+      contract.rowOffset > 0 &&
+      rows.length > 0 &&
+      this.hasScrollContainerTarget &&
+      this.scrollContainerTarget.scrollTop === 0
+    ) {
+      this.scrollContainerTarget.scrollTop = contract.rowOffset * this.#rowHeight;
+    }
     if (spacer) spacer.style.height = `${contract.totalRows * this.#rowHeight}px`;
 
     rows.forEach((row) => row.remove());

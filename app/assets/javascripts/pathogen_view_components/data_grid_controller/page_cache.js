@@ -61,7 +61,9 @@ export class PageCache {
   }
 
   getCachedRows() {
-    return Array.from(this.#rowsByIndex.values());
+    return Array.from(this.#rowsByIndex.entries())
+      .sort(([leftIndex], [rightIndex]) => leftIndex - rightIndex)
+      .map(([, row]) => row);
   }
 
   seedFromRows(rowElements) {

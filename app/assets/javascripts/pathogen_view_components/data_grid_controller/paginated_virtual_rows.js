@@ -6,6 +6,7 @@ export class PaginatedVirtualRows {
   #source;
   #placeholderTemplate;
   #fetchAbort = null;
+  #activeFetches = new Set();
   #fetchTimerId = null;
   #scrolling = false;
   #cellSelector;
@@ -96,14 +97,13 @@ export class PaginatedVirtualRows {
     }
 
     const signal = this.#fetchAbort.signal;
-    this.#setBusy(true);
-
-    let completed = 0;
-    const total = missingPages.length;
 
     missingPages.forEach((page) => {
-      this.#source
-        .fetchPage(page, { signal })
+      const request = this.#source.fetchPage(page, { signal });
+      this.#activeFetches.add(request);
+      this.#setBusy(true);
+
+      request
         .then((result) => {
           if (result.aborted) return;
 
@@ -121,8 +121,8 @@ export class PaginatedVirtualRows {
           this.#handleError(error);
         })
         .finally(() => {
-          completed += 1;
-          if (completed >= total) this.#setBusy(false);
+          this.#activeFetches.delete(request);
+          this.#setBusy(this.#activeFetches.size > 0);
         });
     });
   }
@@ -133,6 +133,8 @@ export class PaginatedVirtualRows {
     if (this.#fetchTimerId) clearTimeout(this.#fetchTimerId);
     this.#fetchTimerId = null;
     this.#scrolling = false;
+    this.#activeFetches.clear();
+    this.#setBusy(false);
   }
 
   #scheduleScrollSettledFetch() {

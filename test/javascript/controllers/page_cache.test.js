@@ -10,6 +10,7 @@ import {
   PaginatedRowSource,
   parseRows,
 } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source";
+import { paginationContract } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode";
 
 describe("page_cache", () => {
   it("maps row ranges to page numbers", () => {
@@ -83,5 +84,32 @@ describe("page_cache", () => {
     cache.evictOutsideRange(1420, 1440, 10, 5000);
     expect(cache.hasAllRowsForPage(29, pageSize, 5000)).toBe(false);
     expect(cache.needsPage(29, pageSize, 5000)).toBe(true);
+  });
+
+  it("returns cached rows in global row order", () => {
+    const cache = new PageCache();
+
+    [40, 0, 20].forEach((globalIndex) => {
+      const row = document.createElement("div");
+      row.dataset.pvcDataGridGlobalRowIndex = String(globalIndex);
+      cache.storeRows(new Map([[globalIndex, row]]));
+    });
+
+    expect(cache.getCachedRows().map((row) => row.dataset.pvcDataGridGlobalRowIndex)).toEqual(["0", "20", "40"]);
+  });
+
+  it("preserves the initial row offset in the pagination contract", () => {
+    const grid = document.createElement("div");
+    grid.dataset.pvcDataGridTotalCount = "5000";
+    grid.dataset.pvcDataGridRowsUrl = "/rows.json";
+    grid.dataset.pvcDataGridPageSize = "20";
+    grid.dataset.pvcDataGridRowOffset = "40";
+
+    expect(paginationContract(grid, 20)).toEqual({
+      totalRows: 5000,
+      rowsUrl: "/rows.json",
+      pageSize: 20,
+      rowOffset: 40,
+    });
   });
 });
