@@ -107,17 +107,17 @@
         </div>
 
         <div class="flex items-center gap-2">
-          <%= render Pathogen::Link.new(href: "#view") do |link| %>
+          <%= render Pathogen::Link.new(href: "#view", aria: { label: "View run detail" }) do |link| %>
             <% link.with_tooltip(text: "View run detail", placement: :top) %>
             <%= icon("eye", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
           <% end %>
 
-          <%= render Pathogen::Link.new(href: "#download") do |link| %>
+          <%= render Pathogen::Link.new(href: "#download", aria: { label: "Download QC report" }) do |link| %>
             <% link.with_tooltip(text: "Download QC report", placement: :top) %>
             <%= icon("download-simple", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
           <% end %>
 
-          <%= render Pathogen::Link.new(href: "#edit") do |link| %>
+          <%= render Pathogen::Link.new(href: "#edit", aria: { label: "Edit run metadata" }) do |link| %>
             <% link.with_tooltip(text: "Edit run metadata", placement: :top) %>
             <%= icon("pencil", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
           <% end %>
