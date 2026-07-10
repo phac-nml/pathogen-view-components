@@ -117,6 +117,16 @@ module Pathogen
       assert_selector 'strong', text: 'Sample three'
     end
 
+    test 'preserves the receiver of custom cell blocks' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      rows: [{ name: 'Sample three' }]
+                    )) do |grid|
+        grid.with_column('Name') { |row| custom_cell_label(row) }
+      end
+
+      assert_selector 'td.pvc-data-grid__cell--body', text: 'Custom: Sample three'
+    end
+
     test 'active cell owns roving tabindex even when it contains interactive elements' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
@@ -835,6 +845,12 @@ module Pathogen
 
       assert_selector 'div[role="grid"][data-pvc-data-grid-column-widths="120,120"]'
       assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 120px 120px;"]'
+    end
+
+    private
+
+    def custom_cell_label(row)
+      "Custom: #{row[:name]}"
     end
   end
 end

@@ -142,7 +142,7 @@ module Pathogen
         if renderer
           renderer
         elsif block
-          ->(row, index) { instance_exec(row, index, &block) }
+          ->(row, index) { block.call(row, index) }
         end
 
       Pathogen::DataGrid::ColumnComponent.new(label: label, renderer: column_renderer, **system_arguments)
