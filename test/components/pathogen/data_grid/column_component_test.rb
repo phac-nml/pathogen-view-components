@@ -96,6 +96,22 @@ module Pathogen
         assert_equal 'TEST', result
       end
 
+      test 'render_value uses block when renderer is not provided' do
+        column = ColumnComponent.new(label: 'Name', key: :name) { |row, _index| row[:name].upcase }
+        result = column.render_value({ name: 'test' }, 0)
+
+        assert_equal 'TEST', result
+      end
+
+      test 'renderer takes precedence over block' do
+        column = ColumnComponent.new(label: 'Name', renderer: ->(_row, _index) { 'renderer' }) do |_row, _index|
+          'block'
+        end
+        result = column.render_value({}, 0)
+
+        assert_equal 'renderer', result
+      end
+
       test 'render_value uses key for hash row' do
         column = ColumnComponent.new(label: 'Name', key: :name)
         result = column.render_value({ name: 'Sample' }, 0)

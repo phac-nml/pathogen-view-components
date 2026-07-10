@@ -14,6 +14,26 @@ export class CenterColumnWindow {
     this.#cache = new WeakMap();
   }
 
+  allCellsForRow(row) {
+    if (!row) return [];
+
+    const pinnedLane = row.querySelector('[data-pvc-data-grid-lane="pinned"]');
+    const centerLane = row.querySelector('[data-pvc-data-grid-lane="center"]');
+    if (!pinnedLane && !centerLane) {
+      return Array.from(row.querySelectorAll(this.#cellSelector));
+    }
+
+    const cells = [];
+    if (pinnedLane) {
+      cells.push(...pinnedLane.querySelectorAll(this.#cellSelector));
+    }
+    if (centerLane) {
+      cells.push(...this.#centerLaneCells(centerLane));
+    }
+
+    return cells;
+  }
+
   apply(row, columnRange) {
     if (!row || !columnRange) return;
 

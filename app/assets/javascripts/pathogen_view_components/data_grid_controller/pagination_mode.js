@@ -31,13 +31,19 @@ export function setPaginationBusy({ grid, status, loadingMoreText, loadedText },
   }
 }
 
-export function cachedVirtualCells({ grid, rows, cellSelector }) {
+export function cachedVirtualCells({ grid, rows, cellSelector, allCellsForRow }) {
   if (!grid) return [];
 
-  const headerCells = Array.from(grid.querySelectorAll(`${cellSelector}[data-pathogen--data-grid-row-index="0"]`));
+  const resolveRowCells = allCellsForRow || ((row) => Array.from(row.querySelectorAll(cellSelector)));
+  const headerRow =
+    grid.querySelector('.pvc-data-grid__row--header[role="row"]') ||
+    grid.querySelector('[role="row"][aria-rowindex="1"]');
+  const headerCells = headerRow
+    ? resolveRowCells(headerRow)
+    : Array.from(grid.querySelectorAll(`${cellSelector}[data-pathogen--data-grid-row-index="0"]`));
   const bodyCells = [];
   rows.forEach((row) => {
-    row.querySelectorAll(cellSelector).forEach((cell) => {
+    resolveRowCells(row).forEach((cell) => {
       bodyCells.push(cell);
     });
   });

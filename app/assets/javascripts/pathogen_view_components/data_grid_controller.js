@@ -832,6 +832,7 @@ export default class extends Controller {
       grid: this.gridTarget,
       rows: this.#pagination.getCachedRows(),
       cellSelector: CELL_SELECTOR,
+      allCellsForRow: (row) => this.#centerColumnWindow.allCellsForRow(row),
     });
   }
 

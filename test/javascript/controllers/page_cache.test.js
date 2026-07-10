@@ -10,7 +10,33 @@ import {
   PaginatedRowSource,
   parseRows,
 } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source";
-import { paginationContract } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode";
+import {
+  paginationContract,
+  cachedVirtualCells,
+} from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode";
+import { CenterColumnWindow } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns";
+
+const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
+
+const laneRowHTML = (rowIndex) => `
+  <div role="row" aria-rowindex="${rowIndex + 1}">
+    <div data-pvc-data-grid-lane="pinned">
+      <div role="gridcell" data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="${rowIndex}"
+        data-pathogen--data-grid-column-index="0">P0</div>
+    </div>
+    <div data-pvc-data-grid-lane="center">
+      <div role="gridcell" data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="${rowIndex}"
+        data-pathogen--data-grid-column-index="1">C1</div>
+      <div role="gridcell" data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="${rowIndex}"
+        data-pathogen--data-grid-column-index="2">C2</div>
+      <div role="gridcell" data-pathogen--data-grid-target="cell"
+        data-pathogen--data-grid-row-index="${rowIndex}"
+        data-pathogen--data-grid-column-index="3">C3</div>
+    </div>
+  </div>`;
 
 describe("page_cache", () => {
   it("maps row ranges to page numbers", () => {
@@ -111,5 +137,60 @@ describe("page_cache", () => {
       pageSize: 20,
       rowOffset: 40,
     });
+  });
+});
+
+describe("cachedVirtualCells", () => {
+  it("includes detached center-lane cells after column window slicing", () => {
+    document.body.innerHTML = `
+      <div role="grid">
+        <div role="row" class="pvc-data-grid__row--header" aria-rowindex="1">
+          <div data-pvc-data-grid-lane="pinned">
+            <div role="columnheader" data-pathogen--data-grid-target="cell"
+              data-pathogen--data-grid-row-index="0"
+              data-pathogen--data-grid-column-index="0">H0</div>
+          </div>
+          <div data-pvc-data-grid-lane="center">
+            <div role="columnheader" data-pathogen--data-grid-target="cell"
+              data-pathogen--data-grid-row-index="0"
+              data-pathogen--data-grid-column-index="1">H1</div>
+            <div role="columnheader" data-pathogen--data-grid-target="cell"
+              data-pathogen--data-grid-row-index="0"
+              data-pathogen--data-grid-column-index="2">H2</div>
+            <div role="columnheader" data-pathogen--data-grid-target="cell"
+              data-pathogen--data-grid-row-index="0"
+              data-pathogen--data-grid-column-index="3">H3</div>
+          </div>
+        </div>
+      </div>`;
+
+    const grid = document.querySelector('[role="grid"]');
+    const headerRow = grid.querySelector('[role="row"]');
+    const bodyRow = document.createElement("div");
+    bodyRow.innerHTML = laneRowHTML(1);
+    const row = bodyRow.firstElementChild;
+
+    const centerColumnWindow = new CenterColumnWindow({
+      pinnedCount: () => 1,
+      cellSelector: CELL_SELECTOR,
+    });
+    centerColumnWindow.apply(headerRow, { startIndex: 1, endIndex: 3 });
+    centerColumnWindow.apply(row, { startIndex: 1, endIndex: 3 });
+
+    expect(row.querySelectorAll(CELL_SELECTOR)).toHaveLength(3);
+
+    const cells = cachedVirtualCells({
+      grid,
+      rows: [row],
+      cellSelector: CELL_SELECTOR,
+      allCellsForRow: (laneRow) => centerColumnWindow.allCellsForRow(laneRow),
+    });
+
+    const bodyColumnIndexes = cells
+      .filter((cell) => cell.getAttribute("data-pathogen--data-grid-row-index") === "1")
+      .map((cell) => Number(cell.getAttribute("data-pathogen--data-grid-column-index")));
+
+    expect(bodyColumnIndexes).toEqual([0, 1, 2, 3]);
+    document.body.innerHTML = "";
   });
 });

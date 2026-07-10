@@ -44,7 +44,7 @@ module Pathogen
 
       # rubocop:disable Metrics/ParameterLists
       def initialize(label:, key: nil, width: nil, align: nil, sticky: nil, sticky_left: nil, header_content: nil,
-                     interactive: false, renderer: nil, **system_arguments)
+                     interactive: false, renderer: nil, **system_arguments, &block)
         # rubocop:enable Metrics/ParameterLists
         @label = label
         @key = key
@@ -55,7 +55,7 @@ module Pathogen
         @header_content = header_content
         @interactive = interactive
         @system_arguments = system_arguments
-        @renderer = renderer
+        @renderer = renderer || (block ? ->(row, index) { block.call(row, index) } : nil)
       end
 
       def interactive? = @interactive
