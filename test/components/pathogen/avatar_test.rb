@@ -87,6 +87,14 @@ module Pathogen
       assert_equal '`class` is an invalid argument. Use `classes` instead.', error.message
     end
 
+    test 'raises when href argument is provided via system arguments' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Avatar.new(label: 'John Doe', href: '/users/1'))
+      end
+
+      assert_equal '`href` is an invalid argument. Use `url` instead.', error.message
+    end
+
     test 'uses deterministic fallback palette classes for a fixed seed' do
       first_classes = render_inline(
         Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-a')

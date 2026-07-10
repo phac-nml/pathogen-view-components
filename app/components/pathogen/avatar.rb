@@ -69,7 +69,7 @@ module Pathogen
 
     IMAGE_CLASSES = %w[size-full object-cover object-center].join(' ').freeze
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
     def initialize(label: nil, initials: nil, colour_seed: nil, color_seed: nil, src: nil, alt: nil, url: nil,
                    size: DEFAULT_SIZE, shape: DEFAULT_SHAPE, decorative: false, **system_arguments)
       @label = label&.to_s&.strip
@@ -82,12 +82,11 @@ module Pathogen
       validate_arguments!
 
       @fallback_text = normalize_initials(initials)
-      @show_generic_icon = @fallback_text.blank?
 
       fallback_seed = colour_seed.presence || color_seed.presence || @label.presence || 'avatar'
       tone = tone_for(fallback_seed)
 
-      raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
+      validate_system_arguments!(system_arguments)
 
       custom_classes = system_arguments.delete(:classes)
 
@@ -106,7 +105,7 @@ module Pathogen
       @image_alt = image_alt_for(alt)
       @image_arguments = build_image_arguments
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
 
     private
 
@@ -115,6 +114,11 @@ module Pathogen
       raise ArgumentError, 'decorative avatars cannot be interactive links' if @decorative && @url.present?
 
       validate_url! if @url.present?
+    end
+
+    def validate_system_arguments!(system_arguments)
+      raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
+      raise ArgumentError, '`href` is an invalid argument. Use `url` instead.' if system_arguments.key?(:href)
     end
 
     def interactive?
