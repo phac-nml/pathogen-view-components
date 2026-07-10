@@ -1,22 +1,14 @@
-<div class="min-h-screen p-6 font-sans">
-  <div class="mb-6 text-center">
-    <h1 class="mb-2 text-3xl font-bold">
-      <%= icon("cursor-click", class: "inline mr-3 size-5 text-blue-600") %> Tooltip Click-through After Hide
-    </h1>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Click-through after hide" } %>
 
-    <p class="mx-auto max-w-2xl text-gray-700">
-      This preview is a manual visual regression check for a bug where a tooltip becomes hidden but still blocks clicks
-      on elements underneath it.
-    </p>
-  </div>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Manual visual regression check for a bug where a tooltip becomes hidden but still blocks clicks on elements
+      underneath it.
+    <% end %>
 
-  <div class="mx-auto max-w-2xl">
-    <div class="mb-4 rounded-xl border border-gray-200 bg-white p-4">
-      <h2 class="mb-2 text-lg">
-        Steps
-      </h2>
-
-      <ol class="list-decimal space-y-1 pl-5 text-gray-800">
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <ol class="list-decimal space-y-1 pl-5 text-sm text-[var(--pvc-color-text-muted)]">
         <li>Hover the “Tooltip trigger” button to show the tooltip.</li>
         <li>Move your mouse away to hide the tooltip.</li>
 
@@ -26,68 +18,72 @@
         </li>
       </ol>
     </div>
+  </section>
 
-    <div class="rounded-xl border border-gray-200 bg-white p-5">
+  <section>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p class="text-xs text-gray-600">Underlying action clicks</p>
-          <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-bold">0</p>
+          <%= pathogen_supporting(tag: :span, variant: :muted) { "Underlying action clicks" } %>
+
+          <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-semibold text-[var(--pvc-color-text)]">0</p>
         </div>
 
-        <%= render Pathogen::Button.new(id: 'pv-tooltip-reset', tone: :neutral, emphasis: :outline, size: :small, text: 'Reset') %>
+        <%= render Pathogen::Button.new(id: "pv-tooltip-reset", tone: :neutral, emphasis: :outline, size: :small, text: "Reset") %>
       </div>
 
-      <div>
-        <div class="rounded-xl border border-gray-200 bg-gray-100 p-6">
-          <div class="flex flex-col items-center gap-3">
-            <div
-              data-controller="pathogen--tooltip"
-              data-pathogen--tooltip-portal-aria-label-value="<%= Pathogen::Tooltip.portal_aria_label %>"
-              class="flex flex-col items-center"
-            >
-              <%= render Pathogen::Button.new(
-                    tone: :primary,
-                    emphasis: :solid,
-                    size: :small,
-                    text: 'Tooltip trigger',
-                    aria: { describedby: 'pv-tooltip-1' },
-                    data: { 'pathogen--tooltip-target': 'trigger' }
-                  ) %>
+      <div
+        class="
+          rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+          bg-[var(--pvc-color-surface-muted)] p-6
+        "
+      >
+        <div class="flex flex-col items-center gap-3">
+          <div
+            data-controller="pathogen--tooltip"
+            data-pathogen--tooltip-portal-aria-label-value="<%= Pathogen::Tooltip.portal_aria_label %>"
+            class="flex flex-col items-center"
+          >
+            <%= render Pathogen::Button.new(
+                  tone: :primary,
+                  emphasis: :solid,
+                  size: :small,
+                  text: "Tooltip trigger",
+                  aria: { describedby: "pv-tooltip-1" },
+                  data: { "pathogen--tooltip-target": "trigger" }
+                ) %>
 
-              <%= render Pathogen::Tooltip.new(
-                id: "pv-tooltip-1",
-                text: "I should not block clicks after I hide.",
-                placement: :bottom,
-              ) %>
-            </div>
-
-            <%= render Pathogen::Button.new(id: 'pv-underlying-action', tone: :primary, emphasis: :solid, text: 'Underlying action') %>
-
-            <p class="max-w-xl text-center text-xs text-gray-600">
-              Tooltip placement is <code>bottom</code>. While open, it should overlap the button above; after it hides,
-              the button must be clickable immediately.
-            </p>
+            <%= render Pathogen::Tooltip.new(
+              id: "pv-tooltip-1",
+              text: "I should not block clicks after I hide.",
+              placement: :bottom,
+            ) %>
           </div>
+
+          <%= render Pathogen::Button.new(id: "pv-underlying-action", tone: :primary, emphasis: :solid, text: "Underlying action") %>
+
+          <%= pathogen_supporting(tag: :span, variant: :muted, class: "max-w-xl text-center") do %>
+            Tooltip placement is <%= pathogen_code { ":bottom" } %>. While open, it overlaps the button above; after it
+            hides, the button must be clickable immediately.
+          <% end %>
         </div>
       </div>
 
-      <div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3">
-        <div class="flex items-start gap-2.5">
-          <%= icon("warning", class: "size-5 text-amber-600 flex-shrink-0") %>
+      <div
+        class="
+          mt-4 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+          bg-[var(--pvc-color-surface-muted)] p-3
+        "
+      >
+        <%= pathogen_supporting(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "What “broken” looks like" } %>
 
-          <div class="text-sm text-amber-900">
-            <p class="mb-1.5 font-semibold">What “broken” looks like</p>
-
-            <p class="text-amber-900">
-              If the tooltip is visually hidden but still sitting on top of the page (e.g. due to not being truly hidden
-              or still catching pointer events), clicks on “Underlying action” won’t increment the counter even though
-              the tooltip looks gone.
-            </p>
-          </div>
-        </div>
+        <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
+          If the tooltip is visually hidden but still intercepting pointer events, clicks on “Underlying action” will
+          not increment the counter even though the tooltip looks gone.
+        <% end %>
       </div>
     </div>
-  </div>
+  </section>
 </div>
 
 <script nonce="<%= request.content_security_policy_nonce %>">
