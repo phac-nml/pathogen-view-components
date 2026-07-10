@@ -55,6 +55,10 @@ export default class extends Controller {
       return;
     }
 
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+      return;
+    }
+
     const currentItem = this.#itemFromTarget(event.target);
     if (!currentItem) {
       return;
