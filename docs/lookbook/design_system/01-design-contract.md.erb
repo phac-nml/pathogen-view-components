@@ -56,7 +56,7 @@ Accent and danger have four-step ladders: foreground pair for text and outlines,
 
 Host apps theme accent through `--color-primary-*`. Shared components should not hard-code IRIDA green, Pathogen blue, or any other host brand.
 
-**Current migration state:** `Button`, `CopyableValue`, `Typography`, and `Link` use semantic colour roles. `Tabs`, `Form`, and `Tooltip` still mix semantic roles with `neutral-*` / `primary-*`. Move touched code toward `--pvc-color-*` when the role exists.
+**Current migration state:** `Button`, `CopyableValue`, `Typography`, `Link`, `Tabs`, and `Form` use semantic colour roles. `Tooltip` still mixes semantic roles with `neutral-*` / `primary-*`. Move touched code toward `--pvc-color-*` when the role exists.
 
 ### 3. Typography
 
@@ -235,7 +235,7 @@ Focus must show in light, dark, high-contrast, and forced-colours modes. It also
 
 `--pvc-color-focus` resolves to `primary-500` in both modes so focus stays distinct from accent colour.
 
-`Button`, `CopyableValue`, and `Link` use the target pattern. `Tabs` and `Form` may still use black/white outlines on older surfaces; converge on `--pvc-color-focus` when you touch them.
+`Button`, `CopyableValue`, `Link`, `Form`, and `Tabs` use the target pattern.
 
 Do not hide focus with transparent borders. Do not rely on colour alone for state.
 
