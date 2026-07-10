@@ -9,8 +9,9 @@ module Pathogen
   # Shares the inline code surface recipe with {Pathogen::Typography::Code} and adds
   # a grouped copy action sized for dense grids (24px minimum target).
   #
-  # The value is always rendered in monospace. Clicking the copy button writes the
-  # value to the clipboard via `navigator.clipboard.writeText()` and provides
+  # The value is always rendered in monospace. Clicking the copy button copies the
+  # value via the Clipboard API when available, with a selection-based
+  # `document.execCommand("copy")` fallback when it is not, and provides
   # visual + screen-reader feedback (icon swap + aria-live announcement).
   #
   # @example Basic usage
