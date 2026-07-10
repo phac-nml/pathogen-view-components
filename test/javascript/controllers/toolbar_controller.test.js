@@ -80,6 +80,26 @@ describe("toolbar_controller", () => {
     expect(one.tabIndex).toBe(0);
   });
 
+  it("ignores modified arrow key chords for toolbar navigation", async () => {
+    await startController(toolbarMarkup());
+
+    const one = document.querySelector("#item-one");
+    const two = document.querySelector("#item-two");
+
+    one.focus();
+    const event = new KeyboardEvent("keydown", {
+      bubbles: true,
+      cancelable: true,
+      key: "ArrowRight",
+      ctrlKey: true,
+    });
+    one.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(one);
+    expect(two.tabIndex).toBe(-1);
+  });
+
   it("wraps focus from first to last with ArrowLeft", async () => {
     await startController(toolbarMarkup());
 
