@@ -4,17 +4,12 @@ module Pathogen
   class LinkPreview < ViewComponent::Preview
     include Pathogen::ViewHelper
 
-    def default
-      render_with_template
-    end
+    # @!group Pathogen Link
 
-    def external_link
-      render_with_template
-    end
+    # @label Overview
+    # Inline navigation, external links, tooltips, and link-vs-button guidance
+    def overview; end
 
-    # @label With Tooltip
-    def tooltip
-      render_with_template
-    end
+    # @!endgroup
   end
 end
