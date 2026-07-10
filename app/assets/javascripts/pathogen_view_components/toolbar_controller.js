@@ -36,7 +36,7 @@ export default class extends Controller {
 
     this.#bindDomSync();
     this.#boundHandleSubmitEnd = this.handleSubmitEnd.bind(this);
-    this.element.addEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
+    document.addEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
 
     this.#syncItemsAfterDomChange();
     this.element.dataset.controllerConnected = "true";
@@ -108,10 +108,6 @@ export default class extends Controller {
   }
 
   handleSubmitEnd(event) {
-    if (!(event.target instanceof Element) || !this.element.contains(event.target)) {
-      return;
-    }
-
     const submitter = event.detail?.formSubmission?.submitter;
     if (!(submitter instanceof HTMLElement) || !this.element.contains(submitter)) {
       return;
@@ -139,7 +135,7 @@ export default class extends Controller {
 
   disconnect() {
     this.#unbindDomSync();
-    this.element.removeEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
+    document.removeEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
     delete this.element.dataset.controllerConnected;
     this.#items = [];
     this.#lastFocusedToolbarItemId = null;
