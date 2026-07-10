@@ -133,8 +133,8 @@ Table action row (default `variant: :table`):
 
 <%= render Pathogen::Toolbar.new(label: "Sample grid actions", controls: "samples-grid") do %>
   <%= render Pathogen::Toolbar::Group.new do %>
-    <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
-    <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
+    <%= render Pathogen::Toolbar::Button.new(type: :submit, form: "select-all-form", label: "Select all samples") { "Select all" } %>
+    <%= render Pathogen::Toolbar::Button.new(type: :submit, form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
   <% end %>
 
   <%= render Pathogen::Toolbar::Spacer.new %>
