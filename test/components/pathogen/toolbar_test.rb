@@ -210,7 +210,16 @@ module Pathogen
         'Select all'
       end
 
-      assert_selector 'button[form="select-all-form"][aria-label="Select all samples"]', text: 'Select all'
+      assert_selector(
+        'button[form="select-all-form"][type="submit"][aria-label="Select all samples"]',
+        text: 'Select all'
+      )
+    end
+
+    test 'preserves explicit button type for detached form controls' do
+      render_inline(Pathogen::Toolbar::Button.new(form: 'select-all-form', type: :button)) { 'Select all' }
+
+      assert_selector 'button[form="select-all-form"][type="button"]', text: 'Select all'
     end
 
     test 'renders separator semantics without toolbar item target' do
