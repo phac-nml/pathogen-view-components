@@ -14,7 +14,7 @@ module Pathogen
       test 'applies semantic code block surface classes' do
         render_inline(CodeBlock.new) { 'Test' }
 
-        assert_selector 'div.overflow-hidden.rounded-\\[var\\(--pvc-radius-panel\\)\\].text-white'
+        assert_selector 'div.overflow-hidden.text-white[class*="rounded-[var(--pvc-radius-panel)]"]'
         assert_selector "div[class*='bg-neutral-950'][class*='--pvc-color-border-strong']"
       end
 
