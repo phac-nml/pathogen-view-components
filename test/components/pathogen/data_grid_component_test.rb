@@ -22,6 +22,7 @@ module Pathogen
       assert_selector '.pvc-data-grid__table[aria-labelledby]'
       assert_selector '.pvc-data-grid__table[aria-describedby]'
       assert_selector '.pvc-data-grid[data-controller~="pathogen--data-grid"]'
+      assert_selector '.pvc-data-grid.rounded-\\[var\\(--pvc-radius-panel\\)\\]'
       assert_selector '.pvc-data-grid__table[role="grid"]'
       assert_selector '.pvc-data-grid__row[role="row"]', count: 3
       assert_selector '.pvc-data-grid__caption', text: 'Sample grid'
