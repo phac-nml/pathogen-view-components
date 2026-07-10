@@ -1,6 +1,0 @@
-<%= form_with url: "#", builder: Pathogen::FormBuilders::PathogenFormBuilder do |f| %>
-  <div class="space-y-4">
-    <%= f.switch :notifications, label: "Email notifications", checked: true %>
-    <%= f.switch :marketing, label: "Marketing updates" %>
-  </div>
-<% end %>
