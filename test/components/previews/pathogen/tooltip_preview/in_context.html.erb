@@ -98,7 +98,7 @@
       "
     >
       <nav class="flex flex-wrap items-center gap-2 text-sm">
-        <%= render Pathogen::Link.new(href: "/") do |link| %>
+        <%= render Pathogen::Link.new(href: "/", aria: { label: "Workspace home" }) do |link| %>
           <% link.with_tooltip(text: "Return to workspace home", placement: :bottom) %>
           <%= icon("house", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
         <% end %>
