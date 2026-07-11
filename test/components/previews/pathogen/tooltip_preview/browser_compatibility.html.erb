@@ -1,28 +1,35 @@
-<div class="p-6 bg-[var(--pvc-color-surface-muted)] min-h-screen">
+<div
+  class="
+    p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900
+    dark:to-slate-800 min-h-screen
+  "
+>
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-[length:var(--type-page)] font-bold text-[var(--pvc-color-text)] mb-4">
-      Browser Compatibility
+  <div class="mb-12 text-center">
+    <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+      <%= icon('globe', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Browser
+      Compatibility
     </h1>
 
-    <p class="text-lg text-[var(--pvc-color-text-muted)] max-w-3xl">
+    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
       JavaScript positioning with viewport detection for broad browser compatibility
     </p>
   </div>
 
   <!-- Browser Support Status -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Universal Browser Compatibility
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('check-circle', class: "text-green-500 dark:text-green-400 w-5 h-5 flex-shrink-0 mr-3") %> Universal
+      Browser Compatibility
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border border-[var(--pvc-color-border)]
-        p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200
+        dark:border-slate-700 p-8
       "
     >
-      <p class="text-[var(--pvc-color-text-muted)] mb-6">
+      <p class="text-slate-600 dark:text-slate-400 mb-6">
         This tooltip component uses JavaScript-based positioning for maximum browser compatibility. Works in all modern
         browsers with ES6+ JavaScript support:
       </p>
@@ -31,7 +38,7 @@
         <div
           class="
             flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-green-800 rounded-lg
           "
         >
           <div class="flex items-center gap-3">
@@ -54,7 +61,7 @@
         <div
           class="
             flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-green-800 rounded-lg
           "
         >
           <div class="flex items-center gap-3">
@@ -77,7 +84,7 @@
         <div
           class="
             flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-green-800 rounded-lg
           "
         >
           <div class="flex items-center gap-3">
@@ -100,7 +107,7 @@
         <div
           class="
             flex items-center p-3 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-green-800 rounded-lg
           "
         >
           <div class="flex items-center gap-3">
@@ -124,7 +131,7 @@
       <div
         class="
           mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200
-          dark:border-blue-800 rounded-[var(--pvc-radius-panel)]
+          dark:border-blue-800 rounded-lg
         "
       >
         <div class="flex items-start gap-3">
@@ -145,18 +152,18 @@
   </div>
 
   <!-- Positioning Strategy -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Positioning Strategy
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('shield', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Positioning Strategy
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border border-[var(--pvc-color-border)]
-        p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200
+        dark:border-slate-700 p-8
       "
     >
-      <p class="text-[var(--pvc-color-text-muted)] mb-6">
+      <p class="text-slate-600 dark:text-slate-400 mb-6">
         The tooltip component uses JavaScript-based positioning with sophisticated viewport detection:
       </p>
 
@@ -165,28 +172,28 @@
         <div class="flex items-start gap-4">
           <div
             class="
-              flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-[var(--pvc-radius-panel)] flex
+              flex-shrink-0 w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex
               items-center justify-center
             "
           >
-            <%= icon('code', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon('code', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           </div>
 
           <div class="flex-1">
-            <h3 class="font-semibold text-[var(--pvc-color-text)] mb-2">Precise Position Calculation</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">Precise Position Calculation</h3>
 
-            <p class="text-[var(--pvc-color-text-muted)] mb-3">
+            <p class="text-slate-600 dark:text-slate-400 mb-3">
               Tooltips calculate their optimal position using `getBoundingClientRect()` to get exact trigger element
               coordinates, then apply calculated positions via inline styles.
             </p>
 
             <div
               class="
-                bg-[var(--pvc-color-surface-muted)]  border border-[var(--pvc-color-border)]
+                bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700
                 rounded p-3 text-sm
               "
             >
-              <code class="text-[var(--pvc-color-text-muted)]">position: fixed; top: ${top}px; left: ${left}px;</code>
+              <code class="text-slate-800 dark:text-slate-200">position: fixed; top: ${top}px; left: ${left}px;</code>
             </div>
           </div>
         </div>
@@ -195,22 +202,22 @@
         <div class="flex items-start gap-4">
           <div
             class="
-              flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-[var(--pvc-radius-panel)] flex
+              flex-shrink-0 w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex
               items-center justify-center
             "
           >
-            <%= icon('arrows-in', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon('arrows-in', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           </div>
 
           <div class="flex-1">
-            <h3 class="font-semibold text-[var(--pvc-color-text)] mb-2">Automatic Viewport Detection</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">Automatic Viewport Detection</h3>
 
-            <p class="text-[var(--pvc-color-text-muted)]">
+            <p class="text-slate-600 dark:text-slate-400">
               The Stimulus controller detects when tooltips would overflow viewport edges and automatically flips
               placement:
             </p>
 
-            <ul class="mt-2 space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
+            <ul class="mt-2 space-y-1 text-sm text-slate-600 dark:text-slate-400">
               <li class="flex items-center gap-2">
                 <%= icon('check', class: "text-green-500 dark:text-green-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
                 Top placement flips to bottom when near top edge
@@ -238,17 +245,17 @@
         <div class="flex items-start gap-4">
           <div
             class="
-              flex-shrink-0 w-12 h-12 bg-[var(--pvc-color-surface-muted)]  rounded-[var(--pvc-radius-panel)] flex
+              flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex
               items-center justify-center
             "
           >
-            <%= icon('lock', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon('lock', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           </div>
 
           <div class="flex-1">
-            <h3 class="font-semibold text-[var(--pvc-color-text)] mb-2">Position Clamping</h3>
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-2">Position Clamping</h3>
 
-            <p class="text-[var(--pvc-color-text-muted)]">
+            <p class="text-slate-600 dark:text-slate-400">
               If a tooltip can't fit in its preferred placement even after flipping, the positioning algorithm clamps it
               to viewport bounds to ensure it remains fully visible with proper padding.
             </p>
@@ -259,18 +266,19 @@
   </div>
 
   <!-- Why JavaScript Positioning? -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Why JavaScript Positioning?
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 mr-3") %> Why JavaScript
+      Positioning?
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border border-[var(--pvc-color-border)]
-        p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200
+        dark:border-slate-700 p-8
       "
     >
-      <p class="text-[var(--pvc-color-text-muted)] mb-6">
+      <p class="text-slate-600 dark:text-slate-400 mb-6">
         The decision to use custom JavaScript positioning instead of external libraries or cutting-edge CSS features
         brings several advantages:
       </p>
@@ -279,11 +287,11 @@
         <div
           class="
             p-4 bg-green-50 dark:bg-green-900/20 border border-green-200
-            dark:border-green-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-green-800 rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('globe', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('globe', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
               <h3 class="font-semibold text-green-900 dark:text-green-100 mb-1">Broad Browser Compatibility</h3>
@@ -298,11 +306,11 @@
         <div
           class="
             p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800
-            rounded-[var(--pvc-radius-panel)]
+            rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('download', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('download', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
               <h3 class="font-semibold text-blue-900 dark:text-blue-100 mb-1">Smaller Bundle Size</h3>
@@ -316,17 +324,17 @@
 
         <div
           class="
-            p-4 bg-[var(--pvc-color-surface-muted)]  border border-[var(--pvc-color-border)]
-            rounded-[var(--pvc-radius-panel)]
+            p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-200
+            dark:border-purple-800 rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('arrows-in', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('arrows-in', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
-              <h3 class="font-semibold text-[var(--pvc-color-text)] mb-1">Sophisticated Viewport Detection</h3>
+              <h3 class="font-semibold text-purple-900 dark:text-purple-100 mb-1">Sophisticated Viewport Detection</h3>
 
-              <p class="text-sm text-[var(--pvc-color-text)]">
+              <p class="text-sm text-purple-800 dark:text-purple-200">
                 Automatic placement flipping and position clamping ensure tooltips always stay within viewport bounds.
               </p>
             </div>
@@ -336,11 +344,11 @@
         <div
           class="
             p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200
-            dark:border-amber-800 rounded-[var(--pvc-radius-panel)]
+            dark:border-amber-800 rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('code', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('code', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
               <h3 class="font-semibold text-amber-900 dark:text-amber-100 mb-1">Full Control</h3>
@@ -354,17 +362,17 @@
 
         <div
           class="
-            p-4 bg-[var(--pvc-color-surface-muted)]  border border-[var(--pvc-color-border)]
-            rounded-[var(--pvc-radius-panel)]
+            p-4 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200
+            dark:border-indigo-800 rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('puzzle-piece', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('puzzle-piece', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
-              <h3 class="font-semibold text-[var(--pvc-color-text)] mb-1">Lightweight Dependencies</h3>
+              <h3 class="font-semibold text-indigo-900 dark:text-indigo-100 mb-1">Lightweight Dependencies</h3>
 
-              <p class="text-sm text-[var(--pvc-color-text)]">
+              <p class="text-sm text-indigo-800 dark:text-indigo-200">
                 Uses Floating UI instead of Flowbite, reducing maintenance burden and improving positioning accuracy.
               </p>
             </div>
@@ -374,11 +382,11 @@
         <div
           class="
             p-4 bg-teal-50 dark:bg-teal-900/20 border border-teal-200 dark:border-teal-800
-            rounded-[var(--pvc-radius-panel)]
+            rounded-lg
           "
         >
           <div class="flex items-start gap-3">
-            <%= icon('shield', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 flex-shrink-0") %>
+            <%= icon('shield', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 flex-shrink-0") %>
 
             <div>
               <h3 class="font-semibold text-teal-900 dark:text-teal-100 mb-1">Reliable &amp; Predictable</h3>
@@ -394,25 +402,26 @@
   </div>
 
   <!-- Migration from Flowbite -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Migration from Flowbite
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('arrows-clockwise', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Migration
+      from Flowbite
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border border-[var(--pvc-color-border)]
-        p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200
+        dark:border-slate-700 p-8
       "
     >
-      <p class="text-[var(--pvc-color-text-muted)] mb-6">
+      <p class="text-slate-600 dark:text-slate-400 mb-6">
         This tooltip component was redesigned to remove the Flowbite dependency, which used Popper.js for positioning.
       </p>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Before: Flowbite -->
         <div>
-          <h3 class="text-lg font-semibold text-[var(--pvc-color-text)] mb-4 flex items-center">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center">
             <%= icon('x', class: "text-red-500 dark:text-red-400 w-5 h-5 flex-shrink-0 mr-2") %> Before: Flowbite
           </h3>
 
@@ -451,7 +460,7 @@
 
         <!-- After: Custom JavaScript -->
         <div>
-          <h3 class="text-lg font-semibold text-[var(--pvc-color-text)] mb-4 flex items-center">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center">
             <%= icon('check-circle', class: "text-green-500 dark:text-green-400 w-5 h-5 flex-shrink-0 mr-2") %> After:
             Custom JavaScript
           </h3>
@@ -500,23 +509,23 @@
 
   <!-- Resources -->
   <div>
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Additional Resources
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('books', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Additional Resources
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div
         class="
-          bg-[var(--pvc-color-surface)] rounded-[var(--pvc-radius-panel)] p-6 border
-          border-[var(--pvc-color-border)]
+          bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200
+          dark:border-slate-700
         "
       >
-        <h3 class="font-semibold text-[var(--pvc-color-text)] mb-3 flex items-center">
-          <%= icon('link', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 mr-2") %>
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
+          <%= icon('link', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-2") %>
           getBoundingClientRect API
         </h3>
 
-        <p class="text-sm text-[var(--pvc-color-text-muted)] mb-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Learn about the DOM API used for precise element positioning calculations.
         </p>
 
@@ -532,16 +541,16 @@
 
       <div
         class="
-          bg-[var(--pvc-color-surface)] rounded-[var(--pvc-radius-panel)] p-6 border
-          border-[var(--pvc-color-border)]
+          bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200
+          dark:border-slate-700
         "
       >
-        <h3 class="font-semibold text-[var(--pvc-color-text)] mb-3 flex items-center">
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
           <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 mr-2") %> Primer
           Design System
         </h3>
 
-        <p class="text-sm text-[var(--pvc-color-text-muted)] mb-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Explore GitHub's Primer design system for tooltip design inspiration and patterns.
         </p>
 
@@ -557,15 +566,15 @@
 
       <div
         class="
-          bg-[var(--pvc-color-surface)] rounded-[var(--pvc-radius-panel)] p-6 border
-          border-[var(--pvc-color-border)]
+          bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200
+          dark:border-slate-700
         "
       >
-        <h3 class="font-semibold text-[var(--pvc-color-text)] mb-3 flex items-center">
-          <%= icon('code', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 mr-2") %> Stimulus Framework
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
+          <%= icon('code', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-2") %> Stimulus Framework
         </h3>
 
-        <p class="text-sm text-[var(--pvc-color-text-muted)] mb-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
           Learn about the Stimulus JavaScript framework used for the tooltip controller.
         </p>
 
@@ -581,16 +590,16 @@
 
       <div
         class="
-          bg-[var(--pvc-color-surface)] rounded-[var(--pvc-radius-panel)] p-6 border
-          border-[var(--pvc-color-border)]
+          bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200
+          dark:border-slate-700
         "
       >
-        <h3 class="font-semibold text-[var(--pvc-color-text)] mb-3 flex items-center">
-          <%= icon('wheelchair', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 mr-2") %> ARIA Tooltip
+        <h3 class="font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center">
+          <%= icon('wheelchair', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-2") %> ARIA Tooltip
           Pattern
         </h3>
 
-        <p class="text-sm text-[var(--pvc-color-text-muted)] mb-4">
+        <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
           W3C WAI-ARIA best practices for implementing accessible tooltip components.
         </p>
 

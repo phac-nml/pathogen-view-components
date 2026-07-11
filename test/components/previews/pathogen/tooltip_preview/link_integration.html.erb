@@ -1,67 +1,79 @@
-<div class="p-6 bg-[var(--pvc-color-surface-muted)] min-h-screen">
+<div
+  class="
+    p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900
+    dark:to-slate-800 min-h-screen
+  "
+>
   <!-- Header -->
-  <div class="mb-8">
-    <h1 class="text-[length:var(--type-page)] font-bold text-[var(--pvc-color-text)] mb-4">
-      Link Component Integration
+  <div class="mb-12 text-center">
+    <h1 class="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+      <%= icon('link', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-3") %> Link Component
+      Integration
     </h1>
 
-    <p class="text-lg text-[var(--pvc-color-text-muted)] max-w-3xl">
-      Tooltip patterns for project navigation, sample actions, breadcrumbs, and compact sidebars
+    <p class="text-lg text-slate-600 dark:text-slate-400 max-w-3xl mx-auto">
+      Real-world examples of tooltips integrated with Pathogen::Link in various contexts
     </p>
   </div>
 
   <!-- Navigation Bar Example -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Navigation Bar with Tooltips
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('squares-four', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Navigation Bar
+      with Tooltips
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border
-        border-[var(--pvc-color-border)]  overflow-hidden
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border
+        border-slate-200 dark:border-slate-700 overflow-hidden
       "
     >
-      <nav class="flex items-center justify-between p-4 border-b border-[var(--pvc-color-border)]">
+      <nav
+        class="
+          flex items-center justify-between p-4 border-b border-slate-200
+          dark:border-slate-700
+        "
+      >
         <div class="flex items-center space-x-6">
           <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
             <% link.with_tooltip(text: "View your dashboard", placement: :bottom) %>
-            <%= icon('house', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 inline mr-2") %>
+            <%= icon('house', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
             Dashboard
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/samples") do |link| %>
             <% link.with_tooltip(text: "Browse and manage samples", placement: :bottom) %>
-            <%= icon('flask', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 inline mr-2") %> Samples
+            <%= icon('flask', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %> Samples
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/projects") do |link| %>
             <% link.with_tooltip(text: "View all projects", placement: :bottom) %>
-            <%= icon('folder', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 inline mr-2") %>
+            <%= icon('folder', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %>
             Projects
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
             <% link.with_tooltip(text: "Manage analysis workflows", placement: :bottom) %>
-            <%= icon('play', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 inline mr-2") %> Workflows
+            <%= icon('play', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline mr-2") %> Workflows
           <% end %>
         </div>
 
         <div class="flex items-center space-x-4">
           <%= render Pathogen::Link.new(href: "/settings") do |link| %>
             <% link.with_tooltip(text: "Configure settings", placement: :bottom) %>
-            <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           <% end %>
 
           <%= render Pathogen::Link.new(href: "/help") do |link| %>
             <% link.with_tooltip(text: "Get help and documentation", placement: :bottom) %>
-            <%= icon('question', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon('question', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
           <% end %>
         </div>
       </nav>
 
       <div class="p-6">
-        <p class="text-sm text-[var(--pvc-color-text-muted)]">
+        <p class="text-sm text-slate-600 dark:text-slate-400">
           This navigation bar uses tooltips with bottom placement to provide helpful context for each link.
         </p>
       </div>
@@ -69,30 +81,26 @@
   </div>
 
   <!-- Action List Example -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Action List with Contextual Tooltips
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('list', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Action List with
+      Contextual Tooltips
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border
-        border-[var(--pvc-color-border)]  p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border
+        border-slate-200 dark:border-slate-700 p-6
       "
     >
       <div class="space-y-4">
-        <div
-          class="
-            flex items-center justify-between p-4 bg-[var(--pvc-color-surface-muted)]
-            rounded-[var(--pvc-radius-panel)]
-          "
-        >
+        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
-            <h3 class="font-semibold text-[var(--pvc-color-text)]">
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
               Sample-001
             </h3>
 
-            <p class="text-sm text-[var(--pvc-color-text-muted)]">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
               Collected: 2024-01-15
             </p>
           </div>
@@ -100,33 +108,28 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/1/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/1/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </div>
         </div>
 
-        <div
-          class="
-            flex items-center justify-between p-4 bg-[var(--pvc-color-surface-muted)]
-            rounded-[var(--pvc-radius-panel)]
-          "
-        >
+        <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
-            <h3 class="font-semibold text-[var(--pvc-color-text)]">
+            <h3 class="font-semibold text-slate-900 dark:text-slate-100">
               Sample-002
             </h3>
 
-            <p class="text-sm text-[var(--pvc-color-text-muted)]">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
               Collected: 2024-01-16
             </p>
           </div>
@@ -134,17 +137,17 @@
           <div class="flex items-center space-x-3">
             <%= render Pathogen::Link.new(href: "/samples/2/view") do |link| %>
               <% link.with_tooltip(text: "View sample details", placement: :top) %>
-              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('eye', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/edit") do |link| %>
               <% link.with_tooltip(text: "Edit sample metadata", placement: :top) %>
-              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('pencil', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples/2/download") do |link| %>
               <% link.with_tooltip(text: "Download sample files", placement: :top) %>
-              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('download', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </div>
         </div>
@@ -153,7 +156,7 @@
       <div
         class="
           mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200
-          dark:border-blue-800 rounded-[var(--pvc-radius-panel)]
+          dark:border-blue-800 rounded-lg
         "
       >
         <div class="flex items-start gap-3">
@@ -175,55 +178,56 @@
   </div>
 
   <!-- Breadcrumb Example -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Breadcrumb Navigation
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('map-trifold', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Breadcrumb
+      Navigation
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border
-        border-[var(--pvc-color-border)]  p-6
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border
+        border-slate-200 dark:border-slate-700 p-6
       "
     >
       <nav class="flex items-center space-x-2 text-sm">
         <%= render Pathogen::Link.new(href: "/") do |link| %>
           <% link.with_tooltip(text: "Go to home page", placement: :bottom) %>
-          <%= icon('house', class: "text-[var(--pvc-color-text-muted)] w-5 h-5 flex-shrink-0 inline") %>
+          <%= icon('house', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 inline") %>
         <% end %>
 
-        <span class="text-[var(--pvc-color-text-muted)]">/</span>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
 
         <%= render Pathogen::Link.new(href: "/projects") do |link| %>
           <% link.with_tooltip(text: "View all projects", placement: :bottom) %> Projects
         <% end %>
 
-        <span class="text-[var(--pvc-color-text-muted)]">/</span>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
 
         <%= render Pathogen::Link.new(href: "/projects/irida-next") do |link| %>
           <% link.with_tooltip(text: "View project details", placement: :bottom) %> IRIDA Next
         <% end %>
 
-        <span class="text-[var(--pvc-color-text-muted)]">/</span>
+        <span class="text-slate-400 dark:text-slate-600">/</span>
 
-        <span class="text-[var(--pvc-color-text-muted)]">Samples</span>
+        <span class="text-slate-600 dark:text-slate-400">Samples</span>
       </nav>
 
       <div
         class="
-          mt-6 p-4 bg-[var(--pvc-color-surface-muted)]  border
-          border-[var(--pvc-color-border)]  rounded-[var(--pvc-radius-panel)]
+          mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 border
+          border-purple-200 dark:border-purple-800 rounded-lg
         "
       >
         <div class="flex items-start gap-3">
           <%= icon('info', class: "w-5 h-5 flex-shrink-0 text-blue-500 dark:text-blue-400") %>
 
           <div class="text-sm">
-            <p class="font-semibold text-[var(--pvc-color-text)] mb-1">
+            <p class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
               Breadcrumb Tooltips
             </p>
 
-            <p class="text-[var(--pvc-color-text)]">
+            <p class="text-purple-800 dark:text-purple-200">
               Tooltips in breadcrumbs help users understand where each link will take them, improving navigation
               confidence.
             </p>
@@ -234,51 +238,57 @@
   </div>
 
   <!-- Sidebar Menu Example -->
-  <div class="mb-8">
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Collapsed Sidebar with Tooltips
+  <div class="mb-12">
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('sidebar', class: "text-slate-500 dark:text-slate-400 w-5 h-5 flex-shrink-0 mr-3") %> Collapsed Sidebar
+      with Tooltips
     </h2>
 
     <div
       class="
-        bg-[var(--pvc-color-surface)]  rounded-[var(--pvc-radius-panel)]  border
-        border-[var(--pvc-color-border)]  overflow-hidden
+        bg-white dark:bg-slate-800 rounded-xl shadow-lg border
+        border-slate-200 dark:border-slate-700 overflow-hidden
       "
     >
       <div class="flex">
         <!-- Collapsed Sidebar -->
-        <aside class="w-16 bg-[var(--pvc-color-surface-muted)] border-r border-[var(--pvc-color-border)]">
+        <aside
+          class="
+            w-16 bg-slate-100 dark:bg-slate-900 border-r border-slate-200
+            dark:border-slate-700
+          "
+        >
           <nav class="flex flex-col items-center py-4 space-y-4">
             <%= render Pathogen::Link.new(href: "/dashboard") do |link| %>
               <% link.with_tooltip(text: "Dashboard", placement: :right) %>
-              <%= icon('house', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('house', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/samples") do |link| %>
               <% link.with_tooltip(text: "Samples", placement: :right) %>
-              <%= icon('flask', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('flask', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/projects") do |link| %>
               <% link.with_tooltip(text: "Projects", placement: :right) %>
-              <%= icon('folder', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('folder', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/workflows") do |link| %>
               <% link.with_tooltip(text: "Workflows", placement: :right) %>
-              <%= icon('play', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('play', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
 
             <%= render Pathogen::Link.new(href: "/settings") do |link| %>
               <% link.with_tooltip(text: "Settings", placement: :right) %>
-              <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-[var(--pvc-color-text-muted)]") %>
+              <%= icon('gear', class: "w-5 h-5 flex-shrink-0 text-slate-500 dark:text-slate-400") %>
             <% end %>
           </nav>
         </aside>
 
         <!-- Main Content Area -->
         <main class="flex-1 p-6">
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+          <p class="text-sm text-slate-600 dark:text-slate-400">
             In collapsed sidebars, tooltips are essential for identifying icon-only navigation items. Hover or focus on
             each icon to see its label.
           </p>
@@ -289,15 +299,16 @@
 
   <!-- Usage Tips -->
   <div>
-    <h2 class="text-[length:var(--type-title)] font-semibold text-[var(--pvc-color-text)] mb-6 flex items-center">
-      Integration Tips
+    <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-6 flex items-center">
+      <%= icon('lightbulb', class: "text-yellow-500 dark:text-yellow-400 w-5 h-5 flex-shrink-0 mr-3") %> Integration
+      Tips
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div
         class="
           bg-blue-50 dark:bg-blue-900/20 border border-blue-200
-          dark:border-blue-800 rounded-[var(--pvc-radius-panel)] p-4
+          dark:border-blue-800 rounded-lg p-4
         "
       >
         <div class="flex items-start gap-3">
@@ -318,7 +329,7 @@
       <div
         class="
           bg-green-50 dark:bg-green-900/20 border border-green-200
-          dark:border-green-800 rounded-[var(--pvc-radius-panel)] p-4
+          dark:border-green-800 rounded-lg p-4
         "
       >
         <div class="flex items-start gap-3">
@@ -338,19 +349,19 @@
 
       <div
         class="
-          bg-[var(--pvc-color-surface-muted)]  border border-[var(--pvc-color-border)]
-          rounded-[var(--pvc-radius-panel)] p-4
+          bg-purple-50 dark:bg-purple-900/20 border border-purple-200
+          dark:border-purple-800 rounded-lg p-4
         "
       >
         <div class="flex items-start gap-3">
           <%= icon('lightning', class: "w-5 h-5 flex-shrink-0 text-amber-500 dark:text-amber-400") %>
 
           <div>
-            <h3 class="font-semibold text-[var(--pvc-color-text)] mb-1">
+            <h3 class="font-semibold text-purple-900 dark:text-purple-100 mb-1">
               Consistent Placement
             </h3>
 
-            <p class="text-sm text-[var(--pvc-color-text)]">
+            <p class="text-sm text-purple-800 dark:text-purple-200">
               Use consistent tooltip placement within the same UI section for a cohesive experience.
             </p>
           </div>
@@ -360,7 +371,7 @@
       <div
         class="
           bg-amber-50 dark:bg-amber-900/20 border border-amber-200
-          dark:border-amber-800 rounded-[var(--pvc-radius-panel)] p-4
+          dark:border-amber-800 rounded-lg p-4
         "
       >
         <div class="flex items-start gap-3">
