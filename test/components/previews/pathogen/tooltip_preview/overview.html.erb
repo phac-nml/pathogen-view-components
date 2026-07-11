@@ -35,7 +35,7 @@
           ].each do |placement, guidance, label| %>
             <tr>
               <td class="px-4 py-3 align-middle">
-                <%= pathogen_code(class: "text-xs") { "placement: #{placement}" } %>
+                <%= pathogen_code(class: "text-xs") { "placement: #{placement.inspect}" } %>
               </td>
 
               <td class="px-4 py-3 align-middle">
