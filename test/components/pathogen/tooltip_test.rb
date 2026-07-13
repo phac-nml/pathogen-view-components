@@ -53,13 +53,15 @@ module Pathogen
       assert_equal 'placement must be one of: :top, :bottom, :left, :right', error.message
     end
 
-    test 'renders with Tailwind tooltip layout classes' do
+    test 'renders with shared overlay tokens' do
       render_inline(Pathogen::Tooltip.new(
                       text: 'Sample tooltip',
                       id: 'tooltip-123'
                     ))
 
-      assert_selector 'div.fixed.z-50'
+      assert_selector 'div.fixed.z-50.rounded-\\[var\\(--pvc-radius-panel\\)\\]' \
+                      '.shadow-\\[var\\(--pvc-shadow-overlay\\)\\]' \
+                      '.duration-\\[var\\(--pvc-duration-overlay\\)\\]'
     end
 
     test 'starts with closed state' do
