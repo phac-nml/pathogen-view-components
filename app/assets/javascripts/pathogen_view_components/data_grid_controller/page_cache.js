@@ -100,7 +100,7 @@ export class PageCache {
   needsPage(page, pageSize, totalRows) {
     if (!this.isPageWithinRange(page, pageSize, totalRows)) return false;
 
-    return !this.hasAllRowsForPage(page, pageSize, totalRows);
+    return this.hasAllRowsForPage(page, pageSize, totalRows) === false;
   }
 
   /**
