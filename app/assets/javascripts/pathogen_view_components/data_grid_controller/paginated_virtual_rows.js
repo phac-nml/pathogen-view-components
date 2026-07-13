@@ -32,6 +32,7 @@ export class PaginatedVirtualRows {
       url: contract.rowsUrl,
       pageSize: contract.pageSize,
       totalRows: contract.totalRows,
+      searchParams: contract.searchParams,
     });
     this.#source.seedFromRows(rows);
     this.#placeholderTemplate = rows[0]?.cloneNode(true) ?? null;

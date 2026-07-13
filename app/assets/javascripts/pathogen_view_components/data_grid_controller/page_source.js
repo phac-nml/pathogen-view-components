@@ -45,6 +45,7 @@ export class PaginatedRowSource {
   #origin;
   #parseRows;
   #prefetchPages;
+  #searchParams;
   #totalRows;
   #url;
   #pageSize;
@@ -53,6 +54,7 @@ export class PaginatedRowSource {
     url,
     pageSize,
     totalRows,
+    searchParams = null,
     prefetchPages = DEFAULT_PREFETCH_PAGES,
     cache = new PageCache(),
     fetchFn = (...args) => fetch(...args),
@@ -64,6 +66,7 @@ export class PaginatedRowSource {
     this.#origin = origin;
     this.#parseRows = rowParser;
     this.#prefetchPages = prefetchPages;
+    this.#searchParams = new URLSearchParams(searchParams || undefined);
     this.#totalRows = totalRows;
     this.#url = url;
     this.#pageSize = pageSize;
@@ -142,10 +145,25 @@ export class PaginatedRowSource {
     return this.#cache.needsPage(page, this.#pageSize, this.#totalRows);
   }
 
-  async #requestPage(page, signal) {
+  #buildRequestUrl(page) {
     const requestUrl = new URL(this.#url, this.#origin);
+
+    new Set(this.#searchParams.keys()).forEach((key) => {
+      requestUrl.searchParams.delete(key);
+      this.#searchParams.getAll(key).forEach((value) => {
+        requestUrl.searchParams.append(key, value);
+      });
+    });
+
+    // Pagination controls always win over caller-supplied duplicates.
     requestUrl.searchParams.set("page", String(page));
     requestUrl.searchParams.set("limit", String(this.#pageSize));
+
+    return requestUrl;
+  }
+
+  async #requestPage(page, signal) {
+    const requestUrl = this.#buildRequestUrl(page);
 
     try {
       const response = await this.#fetchFn(requestUrl.toString(), {

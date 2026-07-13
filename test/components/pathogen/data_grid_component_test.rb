@@ -760,6 +760,26 @@ module Pathogen
       )
     end
 
+    test 'virtual pagination exposes search parameters for page requests' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      virtual_pagination: {
+                        total_count: 100,
+                        rows_url: '/demo/samples/rows.json',
+                        search_params: { status: %w[open closed], sort: 'name' }
+                      },
+                      rows: [{ id: 'S-001' }]
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+      end
+
+      grid = Nokogiri::HTML.fragment(rendered_content).at_css('div[role="grid"]')
+      assert_equal(
+        'status%5B%5D=open&status%5B%5D=closed&sort=name',
+        grid['data-pvc-data-grid-search-params']
+      )
+    end
+
     test 'virtual pagination requires an explicit rows URL' do
       error = assert_raises(ArgumentError) do
         Pathogen::DataGridComponent.new(

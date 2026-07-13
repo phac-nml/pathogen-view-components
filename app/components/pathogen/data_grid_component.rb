@@ -12,6 +12,10 @@ module Pathogen
   #   by default. Individual columns can override with `sticky: true/false`.
   # @param fill_container [Boolean] When true, enables flex/min-height behavior
   #   so the grid can fill and scroll within a constrained parent container.
+  # @param virtual [Boolean] When true, renders the virtualized grid layout.
+  # @param virtual_pagination [Hash, nil] Optional server-side pagination contract.
+  #   Supports `total_count`, `rows_url`, `page_size`, `row_offset`, and a hash-like
+  #   `search_params` value forwarded with each page request.
   # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
   #
   # @example Basic usage
@@ -163,7 +167,7 @@ module Pathogen
     DEFAULT_VIRTUAL_PAGE_SIZE = 20
     DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
     DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Scroll to try again.'
-    VirtualPagination = Data.define(:total_count, :rows_url, :page_size, :row_offset)
+    VirtualPagination = Data.define(:total_count, :rows_url, :page_size, :row_offset, :search_params)
 
     attr_reader :rows, :keyboard_help_id, :virtual_pagination
 
@@ -197,6 +201,8 @@ module Pathogen
     def virtual_page_size = @virtual_pagination&.page_size || DEFAULT_VIRTUAL_PAGE_SIZE
 
     def virtual_row_offset = @virtual_pagination&.row_offset || 0
+
+    def virtual_search_params = @virtual_pagination&.search_params
 
     def virtual_global_data_row_index(local_row_index) = virtual_row_offset + local_row_index
 
@@ -382,8 +388,9 @@ module Pathogen
       rows_url = virtual_pagination_rows_url!(values)
       page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
       row_offset = virtual_pagination_row_offset!(values)
+      search_params = virtual_pagination_search_params!(values)
 
-      VirtualPagination.new(total_count:, rows_url:, page_size:, row_offset:)
+      VirtualPagination.new(total_count:, rows_url:, page_size:, row_offset:, search_params:)
     end
 
     def virtual_pagination_values(config)
@@ -412,6 +419,17 @@ module Pathogen
       raise ArgumentError, 'virtual_pagination requires a non-negative row_offset' if row_offset.negative?
 
       row_offset
+    end
+
+    def virtual_pagination_search_params!(values)
+      search_params = virtual_pagination_value(values, :search_params, {})
+      return if search_params.blank?
+
+      unless search_params.respond_to?(:to_h)
+        raise ArgumentError, 'virtual_pagination search_params must be a hash-like object'
+      end
+
+      Rack::Utils.build_nested_query(search_params.to_h)
     end
 
     def virtual_pagination_value(values, key, default = nil)
@@ -486,8 +504,9 @@ module Pathogen
         'data-pvc-data-grid-total-count': virtual_total_count,
         'data-pvc-data-grid-rows-url': virtual_rows_url,
         'data-pvc-data-grid-page-size': virtual_page_size,
-        'data-pvc-data-grid-row-offset': virtual_row_offset
-      )
+        'data-pvc-data-grid-row-offset': virtual_row_offset,
+        'data-pvc-data-grid-search-params': virtual_search_params
+      ).compact
     end
 
     def virtual_rowcount

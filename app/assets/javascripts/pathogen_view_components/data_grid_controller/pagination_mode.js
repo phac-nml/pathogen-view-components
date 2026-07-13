@@ -1,12 +1,14 @@
 export function paginationContract(grid, defaultPageSize) {
   const totalCount = Number.parseInt(grid.dataset.pvcDataGridTotalCount || "", 10);
   const rowsUrl = grid.dataset.pvcDataGridRowsUrl || null;
+  const searchParams = grid.dataset.pvcDataGridSearchParams || null;
   const pageSize = Number.parseInt(grid.dataset.pvcDataGridPageSize || "", 10);
   const rowOffset = Number.parseInt(grid.dataset.pvcDataGridRowOffset || "", 10);
 
   return {
     totalRows: Number.isFinite(totalCount) && totalCount > 0 ? totalCount : 0,
     rowsUrl,
+    searchParams,
     rowOffset: Number.isFinite(rowOffset) && rowOffset >= 0 ? rowOffset : 0,
     pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : defaultPageSize,
   };

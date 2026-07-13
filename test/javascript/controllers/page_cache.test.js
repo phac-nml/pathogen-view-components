@@ -96,6 +96,87 @@ describe("page_cache", () => {
     expect(second.aborted).toBe(false);
   });
 
+  it("appends additional search params to page requests", async () => {
+    let requestedUrl = null;
+    const source = new PaginatedRowSource({
+      url: "/demo/samples/rows.json",
+      pageSize: 20,
+      totalRows: 100,
+      searchParams: { sort: "name", direction: "asc", q: "salmonella" },
+      origin: "https://example.test",
+      fetchFn: async (url) => {
+        requestedUrl = new URL(url);
+        return {
+          ok: true,
+          async json() {
+            return { rows: [] };
+          },
+        };
+      },
+    });
+
+    await source.fetchPage(3);
+
+    expect(requestedUrl.searchParams.get("page")).toBe("3");
+    expect(requestedUrl.searchParams.get("limit")).toBe("20");
+    expect(requestedUrl.searchParams.get("sort")).toBe("name");
+    expect(requestedUrl.searchParams.get("direction")).toBe("asc");
+    expect(requestedUrl.searchParams.get("q")).toBe("salmonella");
+  });
+
+  it("overrides conflicting page and limit search params", async () => {
+    let requestedUrl = null;
+    const source = new PaginatedRowSource({
+      url: "/demo/samples/rows.json",
+      pageSize: 20,
+      totalRows: 100,
+      searchParams: { page: "99", limit: "5", sort: "id" },
+      origin: "https://example.test",
+      fetchFn: async (url) => {
+        requestedUrl = new URL(url);
+        return {
+          ok: true,
+          async json() {
+            return { rows: [] };
+          },
+        };
+      },
+    });
+
+    await source.fetchPage(2);
+
+    expect(requestedUrl.searchParams.get("page")).toBe("2");
+    expect(requestedUrl.searchParams.get("limit")).toBe("20");
+    expect(requestedUrl.searchParams.get("sort")).toBe("id");
+  });
+
+  it("preserves repeated search params in page requests", async () => {
+    let requestedUrl = null;
+    const source = new PaginatedRowSource({
+      url: "/demo/samples/rows.json",
+      pageSize: 20,
+      totalRows: 100,
+      searchParams: new URLSearchParams([
+        ["status", "open"],
+        ["status", "closed"],
+      ]),
+      origin: "https://example.test",
+      fetchFn: async (url) => {
+        requestedUrl = new URL(url);
+        return {
+          ok: true,
+          async json() {
+            return { rows: [] };
+          },
+        };
+      },
+    });
+
+    await source.fetchPage(2);
+
+    expect(requestedUrl.searchParams.getAll("status")).toEqual(["open", "closed"]);
+  });
+
   it("does not refetch a page while rows remain cached after partial eviction", () => {
     const cache = new PageCache();
     const pageSize = 50;
@@ -134,6 +215,7 @@ describe("page_cache", () => {
     expect(paginationContract(grid, 20)).toEqual({
       totalRows: 5000,
       rowsUrl: "/rows.json",
+      searchParams: null,
       pageSize: 20,
       rowOffset: 40,
     });

@@ -1582,7 +1582,13 @@ describe("data_grid_controller (virtual mode)", () => {
       </div>`;
   };
 
-  const virtualPaginatedGridHTML = ({ totalRows = 5000, seedRows = 20, viewportHeight = 200, rowOffset = 0 } = {}) => {
+  const virtualPaginatedGridHTML = ({
+    totalRows = 5000,
+    seedRows = 20,
+    viewportHeight = 200,
+    rowOffset = 0,
+    searchParams = null,
+  } = {}) => {
     const seededRows = Array.from({ length: seedRows }, (_, i) => {
       const globalIndex = i + rowOffset;
       const rowIndex = globalIndex + 1;
@@ -1620,7 +1626,8 @@ describe("data_grid_controller (virtual mode)", () => {
                data-pvc-data-grid-total-count="${totalRows}"
                data-pvc-data-grid-rows-url="/demo/samples/rows.json"
                data-pvc-data-grid-page-size="20"
-               data-pvc-data-grid-row-offset="${rowOffset}">
+               data-pvc-data-grid-row-offset="${rowOffset}"
+               ${searchParams ? `data-pvc-data-grid-search-params="${searchParams.replaceAll("&", "&amp;")}"` : ""}>
             <div class="pvc-data-grid__virtual-status"
                  data-pathogen--data-grid-target="virtualStatus"
                  data-loading-text="Loading rows…"
@@ -1887,6 +1894,32 @@ describe("data_grid_controller (virtual mode)", () => {
     expect(renderedLastCell).not.toBeNull();
     expect(document.activeElement?.getAttribute("data-pathogen--data-grid-row-index")).toBe("5000");
     expect(document.activeElement?.getAttribute("data-pathogen--data-grid-column-index")).toBe("1");
+
+    fetchSpy.mockRestore();
+  });
+
+  it("includes configured search parameters in paginated row requests", async () => {
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      async json() {
+        return { rows: [] };
+      },
+    });
+
+    document.body.innerHTML = virtualPaginatedGridHTML({
+      totalRows: 100,
+      seedRows: 20,
+      searchParams: "status%5B%5D=open&status%5B%5D=closed&sort=name",
+    });
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await flush();
+    await flush();
+
+    expect(fetchSpy).toHaveBeenCalled();
+    const requestUrl = new URL(fetchSpy.mock.calls[0][0], window.location.origin);
+    expect(requestUrl.searchParams.getAll("status[]")).toEqual(["open", "closed"]);
+    expect(requestUrl.searchParams.get("sort")).toBe("name");
 
     fetchSpy.mockRestore();
   });
