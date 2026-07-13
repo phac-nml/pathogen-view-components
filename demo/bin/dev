@@ -14,10 +14,8 @@ if ! gem list foreman -i --silent; then
   gem install foreman
 fi
 
-# Default to port 3001 and localhost-only bind if not specified.
-# Set BINDING=0.0.0.0 for LAN access (e.g. Remina) and DEMO_ALLOWED_HOSTS / DEMO_DISABLE_HOST_CHECK as needed.
+# Default to port 3001 if not specified
 export PORT="${PORT:-3001}"
-export BINDING="${BINDING:-127.0.0.1}"
 
 # Let the debug gem allow remote connections,
 # but avoid loading until `debugger` is called

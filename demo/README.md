@@ -24,7 +24,7 @@ This starts Rails on port 3001 plus two CSS watchers via Foreman (Pathogen gem C
 - **Preview layout** is `app/views/layouts/lookbook_preview.html.erb`, which loads both `pathogen_view_components.css` (gem CSS) and `tailwind.css` (demo CSS).
 - **Gem CSS (host-app surface)** is `../app/assets/stylesheets/pathogen_view_components.css`. Build with `pnpm --dir .. run build:css` or watch with `pnpm --dir .. run build:css:watch` from the repo root.
 - **Demo CSS (Lookbook-only)** is compiled from `app/assets/tailwind/application.css` into `app/assets/builds/tailwind.css` by `bin/rails tailwindcss:build` / `bin/rails tailwindcss:watch`.
-- **Port 3001** is the default from `bin/dev` (`PORT`); the server binds to `127.0.0.1` by default (`BINDING`). Use `BINDING=0.0.0.0` for LAN access, and `DEMO_ALLOWED_HOSTS` (or `DEMO_DISABLE_HOST_CHECK=1`) when non-local Host headers are required.
+- **Port 3001** is hardcoded in `Procfile.dev` to avoid conflicts with other local Rails apps.
 
 ## CSS development
 
