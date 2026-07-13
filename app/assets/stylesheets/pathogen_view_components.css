@@ -1134,9 +1134,6 @@
   .text-inherit {
     color: inherit;
   }
-  .text-neutral-100 {
-    color: var(--color-neutral-100);
-  }
   .text-primary {
     color: var(--color-primary);
   }
@@ -1188,9 +1185,10 @@
       var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
       var(--tw-shadow);
   }
-  .shadow-\[inset_0_1px_3px_oklch\(0_0_0\/0\.3\)\,0_0_0_1px_oklch\(0_0_0\/0\.1\)\] {
+  .shadow-\[inset_0_1px_3px_oklch\(0_0_0\/0\.3\)\,0_0_0_1px_var\(--pvc-color-border-strong\)\] {
     --tw-shadow:
-      inset 0 1px 3px var(--tw-shadow-color, oklch(0 0 0/0.3)), 0 0 0 1px var(--tw-shadow-color, oklch(0 0 0/0.1));
+      inset 0 1px 3px var(--tw-shadow-color, oklch(0 0 0/0.3)),
+      0 0 0 1px var(--tw-shadow-color, var(--pvc-color-border-strong));
     box-shadow:
       var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow),
       var(--tw-shadow);
