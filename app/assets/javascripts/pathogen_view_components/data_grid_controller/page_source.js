@@ -121,7 +121,7 @@ export class PaginatedRowSource {
   }
 
   async fetchPage(page, { signal } = {}) {
-    const cacheKey = `${page}:${this.#pageSize}`;
+    const cacheKey = this.#generateCacheKey(page);
     if (this.#inFlight.has(cacheKey)) return this.#inFlight.get(cacheKey);
 
     const request = this.#requestPage(page, signal).finally(() => {
@@ -132,8 +132,12 @@ export class PaginatedRowSource {
     return request;
   }
 
+  #generateCacheKey(page) {
+    return `${page}:${this.#pageSize}`;
+  }
+
   #needsPage(page) {
-    if (this.#inFlight.has(`${page}:${this.#pageSize}`)) return false;
+    if (this.#inFlight.has(this.#generateCacheKey(page))) return false;
 
     return this.#cache.needsPage(page, this.#pageSize, this.#totalRows);
   }
