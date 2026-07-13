@@ -9,13 +9,12 @@ module Pathogen
     }.freeze
 
     LINK_CLASSES = %w[
-      font-semibold text-neutral-900 underline decoration-1 underline-offset-[0.12em]
-      transition-[color,text-decoration-thickness] hover:text-primary-600 hover:decoration-2
-      dark:text-neutral-100 dark:hover:text-primary-400
-      rounded-md
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-black
-      dark:focus-visible:outline-white
-      focus-visible:outline-offset-2
+      font-semibold text-[var(--pvc-color-text)] underline decoration-1 underline-offset-[0.12em]
+      transition-[color,text-decoration-thickness]
+      interactive-hover:text-[var(--pvc-color-accent-strong)] interactive-hover:decoration-2
+      rounded-[var(--pvc-radius-action)]
+      focus-visible:outline focus-visible:outline-2
+      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
     ].join(' ').freeze
 
     # @param href [String] The link url (required)

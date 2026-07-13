@@ -1426,20 +1426,6 @@
       }
     }
   }
-  .hover\:text-primary-600 {
-    &:hover {
-      @media (hover: hover) {
-        color: var(--color-primary-600);
-      }
-    }
-  }
-  .hover\:decoration-2 {
-    &:hover {
-      @media (hover: hover) {
-        text-decoration-thickness: 2px;
-      }
-    }
-  }
   .focus-visible\:z-10 {
     &:focus-visible {
       z-index: 10;
@@ -1694,15 +1680,6 @@
       }
     }
   }
-  .dark\:hover\:text-primary-400 {
-    &:where(.dark, .dark *) {
-      &:hover {
-        @media (hover: hover) {
-          color: var(--color-primary-400);
-        }
-      }
-    }
-  }
   .dark\:focus-visible\:outline-white {
     &:where(.dark, .dark *) {
       &:focus-visible {
@@ -1827,10 +1804,24 @@
       }
     }
   }
+  .interactive-hover\:text-\[var\(--pvc-color-accent-strong\)\] {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        color: var(--pvc-color-accent-strong);
+      }
+    }
+  }
   .interactive-hover\:text-\[var\(--pvc-color-text\)\] {
     @media (hover: hover) {
       &:hover:not(:disabled):not([aria-disabled="true"]) {
         color: var(--pvc-color-text);
+      }
+    }
+  }
+  .interactive-hover\:decoration-2 {
+    @media (hover: hover) {
+      &:hover:not(:disabled):not([aria-disabled="true"]) {
+        text-decoration-thickness: 2px;
       }
     }
   }
