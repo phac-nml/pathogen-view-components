@@ -21,8 +21,9 @@ module Pathogen
 
         html = builder.checkbox(:active)
 
-        assert_includes html, 'focus-visible:outline-black'
-        assert_includes html, 'dark:focus-visible:outline-white'
+        assert_includes html, 'focus-visible:outline-[var(--pvc-color-focus)]'
+        assert_not_includes html, 'focus-visible:outline-black'
+        assert_not_includes html, 'dark:focus-visible:outline-white'
       end
 
       test 'checkbox tag styling uses design-contract focus outline classes' do
@@ -31,8 +32,9 @@ module Pathogen
 
         html = view.check_box_tag(:active)
 
-        assert_includes html, 'focus-visible:outline-black'
-        assert_includes html, 'dark:focus-visible:outline-white'
+        assert_includes html, 'focus-visible:outline-[var(--pvc-color-focus)]'
+        assert_not_includes html, 'focus-visible:outline-black'
+        assert_not_includes html, 'dark:focus-visible:outline-white'
       end
 
       test 'submit renders a Pathogen button with type submit' do

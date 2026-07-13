@@ -23,6 +23,17 @@ module Pathogen
         assert_selector 'span.pathogen-switch-track.h-6.w-11'
       end
 
+      test 'emits semantic token classes on switch track and focus ring' do
+        render_inline(Pathogen::Form::Switch.new(
+                        attribute: :enabled,
+                        label: 'Dark mode'
+                      ))
+
+        assert_selector "label[class*='peer-focus-visible:outline-[var(--pvc-color-focus)]']"
+        assert_selector "span.pathogen-switch-track[class*='bg-[var(--pvc-color-surface-muted)]']"
+        assert_no_selector "label[class*='peer-focus-visible:outline-black']"
+      end
+
       test 'renders visible On and Off state text with aria-hidden' do
         render_inline(Pathogen::Form::Switch.new(
                         attribute: :enabled,

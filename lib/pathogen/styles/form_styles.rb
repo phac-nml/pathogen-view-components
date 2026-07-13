@@ -10,26 +10,23 @@ module Pathogen
       # Common styling classes for checkboxes
       CHECKBOX_CLASSES = [
         'size-6', # 24px - better accessibility
-        'bg-white',
-        '!border-neutral-300',
+        'border-2',
+        'border-[var(--pvc-color-border-strong)]',
+        'bg-[var(--pvc-color-surface)]',
         'rounded-sm', # Consistent with style guide for form elements
         'cursor-pointer',
-        'transition-all',
-        'duration-150',
-        'ease-in-out',
-        'hover:bg-neutral-200',
-        'hover:border-neutral-400',
+        'accent-[var(--pvc-color-accent-solid)]',
+        'transition-[border-color,background-color]',
+        'enabled:hover:bg-[var(--pvc-color-surface-muted)]',
+        'enabled:hover:border-[var(--pvc-color-accent)]',
         'focus-visible:outline',
         'focus-visible:outline-2',
-        'focus-visible:outline-black',
-        'dark:focus-visible:outline-white',
+        'focus-visible:outline-[var(--pvc-color-focus)]',
         'focus-visible:outline-offset-2',
         'disabled:opacity-50',
         'disabled:cursor-not-allowed',
-        'dark:bg-neutral-700',
-        'dark:border-neutral-600',
-        'dark:hover:bg-neutral-600',
-        'dark:hover:border-neutral-500'
+        'disabled:border-[var(--pvc-color-border)]',
+        'disabled:bg-[var(--pvc-color-surface-muted)]'
       ].freeze
 
       # Classes to add when checkbox is in a table context
