@@ -64,19 +64,8 @@ module Pathogen
     end
 
     def build_rails_button_to_options(form_extra, method_override, submit_button)
-      rails_html_options = form_extra.stringify_keys
-      rails_html_options['method'] = method_override if method_override
-      rails_html_options.merge!(pathogen_button_tag_attributes(submit_button))
-      rails_html_options
-    end
-
-    def pathogen_button_tag_attributes(button)
-      attrs = button.instance_variable_get(:@system_arguments).deep_dup
-      classes = attrs.delete(:classes)
-      attrs[:class] = classes
-      attrs.delete(:tag)
-      attrs.delete(:type)
-      attrs.stringify_keys
+      form_extra[:method] = method_override if method_override
+      form_extra.merge(submit_button.html_attributes.except(:type))
     end
   end
 end

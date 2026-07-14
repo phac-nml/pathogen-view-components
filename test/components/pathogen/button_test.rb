@@ -193,6 +193,19 @@ module Pathogen
       assert_selector 'button[aria-disabled="true"]', text: 'Continue'
     end
 
+    test 'exposes HTML attributes without leaking mutable component state' do
+      button = Pathogen::Button.new(tag: :a, type: :submit, data: { action: 'click->form#submit' })
+
+      attributes = button.html_attributes
+      attributes[:data][:action] = 'changed'
+
+      assert_equal :submit, attributes[:type]
+      assert attributes[:class].present?
+      assert_equal 'click->form#submit', button.html_attributes.dig(:data, :action)
+      assert_not button.html_attributes.key?(:tag)
+      assert_not button.html_attributes.key?(:classes)
+    end
+
     test 'icon_only medium uses 44px square target' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Search')) do |button|
         button.with_leading_visual { 'Icon' }

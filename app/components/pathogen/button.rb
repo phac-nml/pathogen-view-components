@@ -95,6 +95,13 @@ module Pathogen
     # Set when the tooltip slot is evaluated; nil when no tooltip is present.
     attr_reader :tooltip_describedby
 
+    # Returns HTML attributes for helpers that render the outer element.
+    def html_attributes
+      @system_arguments.deep_dup.except(:tag).tap do |attributes|
+        attributes[:class] = attributes.delete(:classes)
+      end
+    end
+
     private
 
     # Reject the impossible combination early: a native `disabled` button receives no
