@@ -652,6 +652,9 @@
   .rotate-45 {
     rotate: 45deg;
   }
+  .transform {
+    transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  }
   .animate-pulse {
     animation: var(--animate-pulse);
   }
@@ -1934,6 +1937,103 @@ input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
 input[role="switch"]:disabled ~ label {
   cursor: not-allowed;
 }
+.pvc-toaster {
+  --pvc-toast-peek: 0.5rem;
+  --pvc-toast-inset: 0.5rem;
+  --pvc-toast-gap: 0.5rem;
+}
+.pvc-toaster__list {
+  position: relative;
+  width: 100%;
+}
+@media (min-width: 640px) {
+  .pvc-toaster[data-stack="peek"][data-layout="corner"] {
+    width: var(--front-width, max-content);
+    max-width: 28rem;
+  }
+}
+.pvc-toaster[data-stack="flat"] .pvc-toaster__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pvc-toast-gap);
+  height: auto;
+}
+.pvc-toaster[data-stack="flat"][data-layout="corner"] {
+  width: auto;
+}
+.pvc-toaster[data-stack="flat"] [data-pathogen--toaster-target~="toast"] {
+  position: static;
+  inset: auto;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  transform: none;
+  pointer-events: auto;
+}
+.pvc-toaster[data-stack="peek"] .pvc-toaster__list {
+  display: block;
+  pointer-events: auto;
+}
+.pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: calc(100% - (var(--toast-index, 0) * 2 * var(--pvc-toast-inset)));
+  z-index: calc(100 - var(--toast-index, 0));
+  transition:
+    transform var(--pvc-duration-overlay) ease-out,
+    width var(--pvc-duration-overlay) ease-out,
+    top var(--pvc-duration-overlay) ease-out,
+    bottom var(--pvc-duration-overlay) ease-out,
+    opacity var(--pvc-duration-default) ease-out;
+}
+.pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  pointer-events: none;
+}
+.pvc-toaster[data-stack="peek"][data-expanded="false"] .pvc-toaster__list {
+  height: calc(var(--front-height, 0px) + (var(--peek-count, 0) * var(--pvc-toast-peek)));
+}
+.pvc-toaster[data-stack="peek"][data-expanded="false"] [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  height: var(--front-height, auto);
+  overflow: hidden;
+}
+.pvc-toaster[data-stack="peek"][data-expanded="false"][data-anchor="top"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: 0;
+  bottom: auto;
+  transform: translateY(calc(var(--toast-index, 0) * var(--pvc-toast-peek)));
+}
+.pvc-toaster[data-stack="peek"][data-expanded="false"][data-anchor="bottom"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: auto;
+  bottom: 0;
+  transform: translateY(calc(var(--toast-index, 0) * var(--pvc-toast-peek) * -1));
+}
+.pvc-toaster[data-stack="peek"][data-expanded="true"] .pvc-toaster__list {
+  height: var(--stack-height, auto);
+}
+.pvc-toaster[data-stack="peek"][data-expanded="true"] [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  height: auto;
+  overflow: visible;
+  width: 100%;
+  transform: none;
+}
+.pvc-toaster[data-stack="peek"][data-expanded="true"][data-anchor="top"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: var(--toast-offset, 0px);
+  bottom: auto;
+}
+.pvc-toaster[data-stack="peek"][data-expanded="true"][data-anchor="bottom"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: auto;
+  bottom: var(--toast-offset, 0px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+    transition: opacity var(--pvc-duration-default) ease-out;
+  }
+}
 @property --tw-border-spacing-x {
   syntax: "<length>";
   inherits: false;
@@ -1973,6 +2073,26 @@ input[role="switch"]:disabled ~ label {
   syntax: "*";
   inherits: false;
   initial-value: 1;
+}
+@property --tw-rotate-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-y {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-rotate-z {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-x {
+  syntax: "*";
+  inherits: false;
+}
+@property --tw-skew-y {
+  syntax: "*";
+  inherits: false;
 }
 @property --tw-space-y-reverse {
   syntax: "*";
@@ -2099,6 +2219,11 @@ input[role="switch"]:disabled ~ label {
       --tw-scale-x: 1;
       --tw-scale-y: 1;
       --tw-scale-z: 1;
+      --tw-rotate-x: initial;
+      --tw-rotate-y: initial;
+      --tw-rotate-z: initial;
+      --tw-skew-x: initial;
+      --tw-skew-y: initial;
       --tw-space-y-reverse: 0;
       --tw-border-style: solid;
       --tw-leading: initial;
