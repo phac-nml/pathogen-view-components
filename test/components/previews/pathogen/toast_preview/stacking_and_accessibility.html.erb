@@ -5,8 +5,8 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Stack behaviour" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Overflow toasts collapse until the stack is hovered or focused. Errors announce assertively and stay visible.
-      Actionable toasts pause auto-dismiss until dismissed.
+      Overflow toasts collapse into a quiet peek deck until the stack is hovered or focused. Errors announce
+      assertively and stay visible. Actionable toasts pause auto-dismiss until dismissed.
     <% end %>
 
     <div
@@ -16,12 +16,12 @@
       "
     >
       <%= pathogen_supporting(variant: :muted) do %>
-        Outbreak report workspace — reference data and publication controls stay editable while notifications stack in
-        the corner.
+        Outbreak report workspace — reference data and publication controls stay editable while notifications stack at
+        the top center.
       <% end %>
 
       <%= render Pathogen::Toaster.new(
-        position: :bottom_right,
+        position: :top_center,
         strategy: :absolute,
         turbo_permanent: false,
         max_visible: 3,
@@ -142,8 +142,8 @@
   <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
     <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
     <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
-      Hover or focus the toast stack to reveal overflow items. Pair status icons with visible text — type labels are
-      exposed to screen readers via <%= pathogen_code { "sr-only" } %> prefixes.
+      Hover or focus the toast stack to expand the peek deck and reveal overflow items. Pair status icons with visible
+      text — type labels are exposed to screen readers via <%= pathogen_code { "sr-only" } %> prefixes.
     <% end %>
   </div>
 </div>
