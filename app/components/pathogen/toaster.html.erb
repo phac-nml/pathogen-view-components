@@ -1,5 +1,9 @@
 <%= tag.section(**@system_arguments) do %>
-  <ol id="<%= list_id %>" class="flex w-full flex-col gap-2" aria-label="<%= region_label %>">
+  <ol
+    id="<%= list_id %>"
+    class="pvc-toaster__list flex w-full flex-col gap-2"
+    aria-label="<%= region_label %>"
+  >
     <%= content %>
   </ol>
 
