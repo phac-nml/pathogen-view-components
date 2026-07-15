@@ -141,19 +141,90 @@ describe("toaster_controller", () => {
   });
 
   it("marks collapsed peek-behind toasts as non-interactive", async () => {
-    const { section, list } = buildToaster({ maxVisible: 3, count: 3 });
+    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
+    const measureBox = () => ({
+      width: 280,
+      height: 72,
+      top: 0,
+      left: 0,
+      bottom: 72,
+      right: 280,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    ["older", "middle", "front"].forEach((text) => {
+      const toast = buildToast({ text });
+      Object.defineProperty(toast, "getBoundingClientRect", {
+        configurable: true,
+        value: measureBox,
+      });
+      list.appendChild(toast);
+    });
     await waitForController();
+    await waitForAnimationFrame();
 
     const toasts = Array.from(list.querySelectorAll("li"));
     expect(section.dataset.stack).toBe("peek");
     expect(section.dataset.expanded).toBe("false");
     expect(section.dataset.anchor).toBe("top");
+    expect(section.dataset.hasPeek).toBe("true");
+    expect(section.dataset.stackReady).toBe("true");
     expect(toasts[2].dataset.behind).toBe("false");
     expect(toasts[2].tabIndex).toBe(0);
     expect(toasts[1].dataset.behind).toBe("true");
     expect(toasts[1].tabIndex).toBe(-1);
     expect(toasts[1].getAttribute("aria-hidden")).toBe("true");
     expect(toasts[0].dataset.behind).toBe("true");
+    expect(list.style.getPropertyValue("--peek-count")).toBe("2");
+  });
+
+  it("keeps a spaced flex fallback until toast metrics are measurable", async () => {
+    const { section, list } = buildToaster({ maxVisible: 3, count: 3 });
+    await waitForController();
+
+    // jsdom reports 0x0 boxes, so peek layout stays gated off.
+    expect(section.dataset.hasPeek).toBe("true");
+    expect(section.dataset.stackReady).toBeUndefined();
+    expect(list.style.getPropertyValue("--peek-count")).toBe("");
+  });
+
+  it("marks a single toast stack without peek clipping", async () => {
+    const { section, list } = buildToaster({ maxVisible: 3, count: 1 });
+    await waitForController();
+
+    expect(section.dataset.hasPeek).toBe("false");
+    expect(list.style.getPropertyValue("--peek-count")).toBe("0");
+  });
+
+  it("clips collapsed peek toasts so behind body copy cannot leak", async () => {
+    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
+    const measured = buildToast({ text: "Front toast with description text" });
+    Object.defineProperty(measured, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        width: 280,
+        height: 72,
+        top: 0,
+        left: 0,
+        bottom: 72,
+        right: 280,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    });
+    list.appendChild(buildToast({ text: "older" }));
+    list.appendChild(buildToast({ text: "middle" }));
+    list.appendChild(measured);
+    await waitForController();
+    await waitForAnimationFrame();
+
+    const toasts = Array.from(list.querySelectorAll("li"));
+    expect(section.dataset.hasPeek).toBe("true");
+    expect(toasts[0].dataset.behind).toBe("true");
+    expect(toasts[2].dataset.behind).toBe("false");
+    expect(list.style.getPropertyValue("--front-height")).toBe("72px");
     expect(list.style.getPropertyValue("--peek-count")).toBe("2");
   });
 

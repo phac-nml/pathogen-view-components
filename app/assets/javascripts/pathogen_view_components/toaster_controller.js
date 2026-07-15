@@ -217,19 +217,36 @@ export default class extends Controller {
   #applyPeekStack(visible, allToasts) {
     const frontFirst = [...visible].reverse();
     const sizes = frontFirst.map((toast) => this.#naturalSize(toast));
-    const heights = sizes.map((size) => size.height);
+    const heights = sizes.map((size) => Math.ceil(size.height));
     const frontHeight = heights[0] ?? 0;
-    const frontWidth = sizes[0]?.width ?? 0;
+    const frontWidth = Math.ceil(sizes[0]?.width ?? 0);
+    const peekCount = Math.max(0, frontFirst.length - 1);
     const list = this.#listElement();
+    // Keep the spaced flex fallback until we have a real front height. Simultaneous
+    // preview mounts often measure 0 first, which used to flash a flush stack then
+    // jump to the peek deck a moment later.
+    const metricsReady = this.#expanded || peekCount === 0 || frontHeight > 0;
+
+    this.element.dataset.hasPeek = peekCount > 0 ? "true" : "false";
+    if (metricsReady) {
+      this.element.dataset.stackReady = "true";
+    } else {
+      delete this.element.dataset.stackReady;
+    }
 
     frontFirst.forEach((toast, index) => {
-      const behind = !this.#expanded && index > 0;
+      const behind = metricsReady && !this.#expanded && index > 0;
       toast.style.setProperty("--toast-index", String(index));
       toast.dataset.behind = behind ? "true" : "false";
       toast.setAttribute("aria-hidden", behind ? "true" : "false");
       toast.tabIndex = behind ? -1 : 0;
 
-      if (this.#expanded) {
+      // Clear layout overrides; CSS handles collapsed peek strip sizing.
+      toast.style.removeProperty("max-height");
+      toast.style.removeProperty("height");
+      toast.style.removeProperty("overflow");
+
+      if (this.#expanded && metricsReady) {
         let offset = 0;
         for (let i = 0; i < index; i += 1) {
           offset += heights[i] + TOAST_GAP_PX;
@@ -256,16 +273,21 @@ export default class extends Controller {
       this.element.style.removeProperty("--front-width");
     }
 
-    if (this.#expanded) {
+    if (this.#expanded && metricsReady) {
       const stackHeight =
         heights.reduce((sum, height) => sum + height, 0) +
         Math.max(0, heights.length - 1) * TOAST_GAP_PX;
       list.style.setProperty("--stack-height", `${stackHeight}px`);
       list.style.removeProperty("--front-height");
       list.style.removeProperty("--peek-count");
-    } else {
+      this.element.dataset.hasPeek = "false";
+    } else if (metricsReady) {
       list.style.setProperty("--front-height", `${frontHeight}px`);
-      list.style.setProperty("--peek-count", String(Math.max(0, frontFirst.length - 1)));
+      list.style.setProperty("--peek-count", String(peekCount));
+      list.style.removeProperty("--stack-height");
+    } else {
+      list.style.removeProperty("--front-height");
+      list.style.removeProperty("--peek-count");
       list.style.removeProperty("--stack-height");
     }
   }
@@ -284,7 +306,8 @@ export default class extends Controller {
     };
 
     // Absolute + percentage width collapses on shrink-wrapped corner toasters.
-    // Measure with an unconstrained static layout instead.
+    // Measure with an unconstrained static layout first for width, then lock that
+    // width so height matches the rendered (non-wrapping) card.
     toast.style.position = "static";
     toast.style.width = "max-content";
     toast.style.height = "auto";
@@ -295,8 +318,10 @@ export default class extends Controller {
     toast.style.bottom = "auto";
     toast.style.transform = "none";
 
-    const rect = toast.getBoundingClientRect();
-    const size = { height: rect.height, width: rect.width };
+    const width = Math.ceil(toast.getBoundingClientRect().width);
+    if (width > 0) toast.style.width = `${width}px`;
+    const height = Math.ceil(toast.getBoundingClientRect().height);
+    const size = { height, width };
 
     Object.entries(previous).forEach(([key, value]) => {
       toast.style[key] = value;
@@ -313,12 +338,17 @@ export default class extends Controller {
   #clearToastPeekVars(toast) {
     toast.style.removeProperty("--toast-index");
     toast.style.removeProperty("--toast-offset");
+    toast.style.removeProperty("max-height");
+    toast.style.removeProperty("height");
+    toast.style.removeProperty("overflow");
     toast.removeAttribute("data-behind");
   }
 
   #clearListMetrics() {
     const list = this.#listElement();
     this.element.style.removeProperty("--front-width");
+    this.element.dataset.hasPeek = "false";
+    delete this.element.dataset.stackReady;
     if (!list) return;
     list.style.removeProperty("--front-height");
     list.style.removeProperty("--peek-count");
