@@ -9,9 +9,11 @@ module Pathogen
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
 
-      assert_selector 'section#flashes-toaster.pvc-toaster[data-controller~="pathogen--toaster"][data-turbo-permanent="true"]'
+      assert_selector 'section#flashes-toaster.pvc-toaster' \
+                      '[data-controller~="pathogen--toaster"][data-turbo-permanent="true"]'
       assert_selector 'section.pointer-events-none.top-6.left-1\\/2.-translate-x-1\\/2'
-      assert_selector 'section[data-pathogen--toaster-position-value="top_center"][data-stack="peek"][data-anchor="top"]'
+      assert_selector 'section[data-pathogen--toaster-position-value="top_center"]' \
+                      '[data-stack="peek"][data-anchor="top"]'
       assert_selector 'ol#flashes.pvc-toaster__list[aria-label="Notifications"]'
       assert_no_selector 'ol#flashes[data-pathogen--toaster-target]'
       assert_no_selector 'section[data-action*="handleToastDismissed"]'
@@ -33,7 +35,8 @@ module Pathogen
         '<li data-pathogen--toaster-target="toast">Running sync</li>'.html_safe
       end
 
-      assert_selector 'section.bottom-4.right-4[data-pathogen--toaster-position-value="bottom_right"][data-anchor="bottom"]'
+      assert_selector 'section.bottom-4.right-4' \
+                      '[data-pathogen--toaster-position-value="bottom_right"][data-anchor="bottom"]'
       assert_selector 'ol#flash-stack'
     end
 
