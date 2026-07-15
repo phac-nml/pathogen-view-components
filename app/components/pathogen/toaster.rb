@@ -7,8 +7,8 @@ module Pathogen
     DEFAULT_STRATEGY = :fixed
 
     POSITION_MAPPINGS = {
-      top_right: 'top-4 right-4 left-4 sm:left-auto items-end',
-      top_center: 'top-4 left-1/2 -translate-x-1/2 items-center',
+      top_right: 'top-6 right-4 left-4 sm:left-auto items-end',
+      top_center: 'top-6 left-1/2 -translate-x-1/2 items-center',
       bottom_right: 'bottom-4 right-4 left-4 sm:left-auto items-end',
       bottom_center: 'bottom-4 left-1/2 -translate-x-1/2 items-center'
     }.freeze
@@ -82,6 +82,7 @@ module Pathogen
       @system_arguments[:'data-expanded'] = 'false'
       @system_arguments[:'data-anchor'] = anchor_edge
       @system_arguments[:'data-layout'] = layout_kind
+      @system_arguments[:'data-has-peek'] = 'false'
     end
 
     def apply_turbo_permanent_attributes
