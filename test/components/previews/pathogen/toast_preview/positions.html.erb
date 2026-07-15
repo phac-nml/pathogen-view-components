@@ -11,10 +11,10 @@
 
     <div class="grid gap-4 lg:grid-cols-2">
       <% {
+        top_center: 'Top center (default)',
         top_right: 'Top right',
-        top_center: 'Top center',
-        bottom_right: 'Bottom right',
-        bottom_center: 'Bottom center'
+        bottom_center: 'Bottom center',
+        bottom_right: 'Bottom right'
       }.each do |position, label| %>
         <div
           class="
@@ -60,20 +60,22 @@
         </thead>
         <tbody class="divide-y divide-(--pvc-color-border)">
           <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom right</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Default — clear of left navigation and page titles</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top center</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">
+              Default — high-visibility confirmations during dense form and grid work
+            </td>
+          </tr>
+          <tr>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top right</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Avoid centered banners or keep clear of mid-layout focus</td>
           </tr>
           <tr>
             <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom center</td>
             <td class="px-4 py-2 text-(--pvc-color-text-muted)">Centred footers or full-width data grids</td>
           </tr>
           <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top right</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Avoid bottom pagination or sticky action bars</td>
-          </tr>
-          <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top center</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Banner-free layouts with bottom toolbars</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom right</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Clear of left navigation; avoids sticky headers</td>
           </tr>
         </tbody>
       </table>
