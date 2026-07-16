@@ -177,13 +177,14 @@ describe("toaster_controller", () => {
     expect(toasts[1].getAttribute("aria-hidden")).toBe("true");
     expect(toasts[0].dataset.behind).toBe("true");
     expect(list.style.getPropertyValue("--peek-count")).toBe("2");
-    // Inline offsets so host utilities cannot collapse the peek deck.
+    expect(list.style.getPropertyValue("--front-height")).toBe("72px");
+    // Deck metrics via CSS vars — position/transform owned by CSS, not inline height clips.
+    expect(toasts[2].style.getPropertyValue("--toast-index")).toBe("0");
+    expect(toasts[1].style.getPropertyValue("--toast-index")).toBe("1");
+    expect(toasts[0].style.getPropertyValue("--toast-index")).toBe("2");
+    expect(toasts[1].style.height).toBe("");
+    expect(toasts[1].style.top).toBe("");
     expect(toasts[2].style.top).toBe("");
-    expect(toasts[1].style.top).toBe("72px");
-    expect(toasts[0].style.top).toBe("80px");
-    expect(toasts[1].style.position).toBe("absolute");
-    expect(toasts[1].style.height).toBe("8px");
-    expect(toasts[2].style.position).toBe("relative");
   });
 
   it("keeps a spaced flex fallback until toast metrics are measurable", async () => {
@@ -204,7 +205,7 @@ describe("toaster_controller", () => {
     expect(list.style.getPropertyValue("--peek-count")).toBe("0");
   });
 
-  it("clips collapsed peek toasts so behind body copy cannot leak", async () => {
+  it("keeps collapsed deck metrics so behind cards share the front height", async () => {
     const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
     const measured = buildToast({ text: "Front toast with description text" });
     Object.defineProperty(measured, "getBoundingClientRect", {
@@ -233,6 +234,7 @@ describe("toaster_controller", () => {
     expect(toasts[2].dataset.behind).toBe("false");
     expect(list.style.getPropertyValue("--front-height")).toBe("72px");
     expect(list.style.getPropertyValue("--peek-count")).toBe("2");
+    expect(toasts[0].style.getPropertyValue("--toast-height")).not.toBe("");
   });
 
   it("uses bottom anchor metrics for bottom positions", async () => {
@@ -297,7 +299,7 @@ describe("toaster_controller", () => {
     expect(list.style.getPropertyValue("--stack-height")).not.toBe("");
   });
 
-  it("applies inline expanded offsets from measured heights", async () => {
+  it("applies expanded offsets from measured heights via CSS vars", async () => {
     const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
     const measure = (height) => () => ({
       width: 280,
@@ -326,11 +328,12 @@ describe("toaster_controller", () => {
     await waitForAnimationFrame();
 
     const toasts = Array.from(list.querySelectorAll("li"));
-    // front-first: front(60), middle(50), older(40) with 8px gaps
-    expect(toasts[2].style.top).toBe("0px");
-    expect(toasts[1].style.top).toBe("68px");
-    expect(toasts[0].style.top).toBe("126px");
-    expect(list.style.getPropertyValue("--stack-height")).toBe("166px");
+    // front-first: front(60), middle(50), older(40) with 14px gaps
+    expect(toasts[2].style.getPropertyValue("--toast-offset")).toBe("0px");
+    expect(toasts[1].style.getPropertyValue("--toast-offset")).toBe("74px");
+    expect(toasts[0].style.getPropertyValue("--toast-offset")).toBe("138px");
+    expect(list.style.getPropertyValue("--stack-height")).toBe("178px");
+    expect(section.dataset.hasPeek).toBe("true");
   });
 
   it("collapses the stack after mouse leave when idle", async () => {
