@@ -1,0 +1,24 @@
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-xl flex-col gap-6 p-4">
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Notification timing preference" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Status toasts auto-dismiss, so hosts must let users extend or disable that timing to satisfy
+      <%= pathogen_code { "WCAG 2.2.1" } %>. This control writes
+      <%= pathogen_code { "localStorage['pathogen.toast.durationMs']" } %>, which the toaster reads:
+      <%= pathogen_code { "20000" } %> extends the timer and <%= pathogen_code { "forever" } %> promotes status
+      toasts to dismissible dialogs.
+    <% end %>
+
+    <div
+      class="
+        rounded-(--pvc-radius-panel) border border-(--pvc-color-border)
+        bg-(--pvc-color-surface-raised) p-4
+      "
+    >
+      <%= pathogen_toast_settings %>
+    </div>
+  </section>
+</div>
