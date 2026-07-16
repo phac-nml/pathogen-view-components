@@ -24,7 +24,7 @@ module Pathogen
     CONTAINER_CLASSES = [
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
-        inline-flex items-center overflow-hidden align-middle
+        inline-flex items-center align-middle
         rounded-[var(--pvc-radius-action)]
         min-h-6 pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
@@ -34,6 +34,7 @@ module Pathogen
     BUTTON_CLASSES = %w[
       inline-flex shrink-0 items-center justify-center self-stretch
       min-h-6 min-w-6 px-1.5
+      rounded-r-[calc(var(--pvc-radius-action)-1px)]
       cursor-pointer bg-transparent
       border-l border-[var(--pvc-color-border)]
       text-[var(--pvc-color-text-muted)]
