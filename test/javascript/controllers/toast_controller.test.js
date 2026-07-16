@@ -179,6 +179,62 @@ describe("toast_controller", () => {
     expect(listener.mock.calls[0][0].detail.message).toBe("Error: Upload failed. The file is too large.");
   });
 
+  it("interrupt dialogs announce assertively without stealing focus", async () => {
+    const previous = document.createElement("button");
+    previous.textContent = "previous";
+    document.body.appendChild(previous);
+    previous.focus();
+
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:announce", listener);
+
+    const { toast } = buildToast({
+      timeout: 0,
+      type: "error",
+      mode: "dialog",
+      dismissible: true,
+      withButton: true,
+      interrupt: true,
+      message: "Critical failure",
+    });
+    await waitForController();
+    await waitForAnimationFrames();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0][0].detail.politeness).toBe("assertive");
+    // The assertive announcement carries the urgency; focus stays with the user.
+    expect(toast.contains(document.activeElement)).toBe(false);
+    expect(document.activeElement).toBe(previous);
+  });
+
+  it("does not move focus into a dialog while the user is typing", async () => {
+    const field = document.createElement("input");
+    field.type = "text";
+    document.body.appendChild(field);
+    field.focus();
+
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:announce", listener);
+
+    const { toast } = buildToast({
+      timeout: 0,
+      type: "error",
+      mode: "dialog",
+      dismissible: true,
+      withButton: true,
+      message: "Upload failed",
+    });
+    await waitForController();
+    await waitForAnimationFrames();
+
+    // Focus stays in the field; the dialog announces politely instead of
+    // hijacking active text entry.
+    expect(document.activeElement).toBe(field);
+    expect(toast.contains(document.activeElement)).toBe(false);
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0][0].detail.politeness).toBe("polite");
+  });
+
   it("dismisses focused dialog on Escape and restores prior focus", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
@@ -215,7 +271,12 @@ describe("toast_controller", () => {
 
     expect(toast.getAttribute("data-pathogen--toast-mode-value")).toBe("dialog");
     expect(toast.querySelector('[role="dialog"]')).not.toBeNull();
-    expect(listener).not.toHaveBeenCalled();
+
+    // A status toast promoted purely by a stored preference is not a user
+    // action, so it announces politely rather than stealing focus.
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener.mock.calls[0][0].detail.politeness).toBe("polite");
+    expect(toast.contains(document.activeElement)).toBe(false);
   });
 
   it("restores focus to the prior element when dismissed via the close button", async () => {

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["message", "description", "dismiss", "action", "dialog"];
+  static targets = ["message", "description", "dismiss", "action", "dialog", "typeLabel"];
   static values = {
     timeout: Number,
     type: String,
@@ -21,17 +21,37 @@ export default class extends Controller {
   #abortController = null;
 
   connect() {
+    const serverRenderedDialog = this.dialogMode;
     this.#applyHostDurationPreference();
     this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
     this.#bindEvents();
     this.#startTimer();
 
-    if (this.dialogMode) {
+    if (!this.dialogMode) {
+      // Plain status toast: polite live-region announcement, no focus move.
+      this.#announce();
+      return;
+    }
+
+    if (this.interruptValue) {
+      // Emergency error: broadcast assertively instead of hijacking focus, so a
+      // system- or stream-triggered alert reaches screen readers without
+      // pulling the user out of what they are doing.
+      this.#announce();
+      return;
+    }
+
+    if (serverRenderedDialog && this.#mayMoveFocus()) {
+      // Intentional notification dialog (error / warning / dismissible / action):
+      // move focus in so the user can read and act on it.
       this.#captureRestoreFocus();
       this.#focusDialog();
       return;
     }
 
+    // A status toast auto-promoted to a dialog (duration preference), or a
+    // dialog we should not focus right now (active text entry, or another toast
+    // already holds focus): announce politely instead of stealing focus.
     this.#announce();
   }
 
@@ -73,9 +93,7 @@ export default class extends Controller {
       shell.setAttribute("aria-modal", "false");
       shell.tabIndex = -1;
       shell.setAttribute("data-pathogen--toast-target", "dialog");
-      if (this.hasMessageTarget) {
-        shell.setAttribute("aria-labelledby", this.messageTarget.id);
-      }
+      this.#applyDialogLabels(shell);
       while (this.element.firstChild) {
         shell.appendChild(this.element.firstChild);
       }
@@ -84,9 +102,7 @@ export default class extends Controller {
       this.dialogTarget.setAttribute("role", "dialog");
       this.dialogTarget.setAttribute("aria-modal", "false");
       this.dialogTarget.tabIndex = -1;
-      if (this.hasMessageTarget) {
-        this.dialogTarget.setAttribute("aria-labelledby", this.messageTarget.id);
-      }
+      this.#applyDialogLabels(this.dialogTarget);
     }
 
     if (this.hasDismissTarget) {
@@ -197,6 +213,56 @@ export default class extends Controller {
     });
   }
 
+  // Decides whether it is safe to move focus into a freshly mounted dialog.
+  // Focus is only moved for intentional, non-disruptive cases.
+  #mayMoveFocus() {
+    const active = document.activeElement;
+
+    // Never interrupt active text entry.
+    if (this.#isEditableElement(active)) return false;
+
+    // Never yank focus from a toast that already holds it: the first dialog to
+    // mount wins, which prevents focus thrashing when several arrive together.
+    const host = this.element.closest("[data-controller~='pathogen--toaster']");
+    if (host && active instanceof HTMLElement && host.contains(active) && !this.element.contains(active)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  #isEditableElement(element) {
+    if (!(element instanceof HTMLElement)) return false;
+    if (element.isContentEditable) return true;
+
+    const tag = element.tagName;
+    if (tag === "TEXTAREA" || tag === "SELECT") return true;
+    if (tag === "INPUT") {
+      const nonTextTypes = ["button", "submit", "reset", "checkbox", "radio", "range", "color", "file", "image"];
+      return !nonTextTypes.includes((element.type || "text").toLowerCase());
+    }
+
+    return false;
+  }
+
+  // Pairs the severity label ("Error:") with the message for the dialog's
+  // accessible name, and associates the description via aria-describedby so a
+  // client-promoted dialog matches the server-rendered markup.
+  #applyDialogLabels(element) {
+    const labelIds = [];
+    if (this.hasTypeLabelTarget && this.typeLabelTarget.id) labelIds.push(this.typeLabelTarget.id);
+    if (this.hasMessageTarget && this.messageTarget.id) labelIds.push(this.messageTarget.id);
+    if (labelIds.length > 0) {
+      element.setAttribute("aria-labelledby", labelIds.join(" "));
+    }
+
+    if (this.hasDescriptionTarget && this.descriptionTarget.id) {
+      element.setAttribute("aria-describedby", this.descriptionTarget.id);
+    } else {
+      element.removeAttribute("aria-describedby");
+    }
+  }
+
   #startTimer() {
     if (this.dialogMode) return;
     if (this.#remainingMs <= 0) return;
@@ -275,8 +341,6 @@ export default class extends Controller {
   }
 
   #announce() {
-    if (this.dialogMode) return;
-
     const message = this.#announcementMessage();
     if (!message) return;
 
