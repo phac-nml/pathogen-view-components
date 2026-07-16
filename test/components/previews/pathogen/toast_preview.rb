@@ -9,11 +9,11 @@ module Pathogen
 
     # @label Playground
     # @param type select { choices: [success, info, warning, error, notice, alert] } "Toast semantic type."
-    # @param timeout number "Auto-dismiss timeout in ms (ignored for errors and action toasts)."
-    # @param dismissible toggle "Show a close button."
+    # @param timeout number "Auto-dismiss timeout in ms (ignored for warning/error/dismissible dialogs)."
+    # @param dismissible toggle "Promote to notification dialog with a close control."
     # @param position select { choices: [top_center, top_right, bottom_center, bottom_right] }
     #   "Toaster anchor position."
-    def playground(type: :info, timeout: 6000, dismissible: true, position: :top_center)
+    def playground(type: :info, timeout: 6000, dismissible: false, position: :top_center)
       render_with_template(locals: {
                              type: type.to_sym,
                              timeout: timeout.to_i,
@@ -32,7 +32,7 @@ module Pathogen
     def overview; end
 
     # @label Stacking & accessibility
-    # Overflow collapse, live-region routing, and actionable toasts.
+    # Peek stack, inert behind cards, status vs dialog modes, and notification log.
     def stacking_and_accessibility; end
 
     # @label Positions
