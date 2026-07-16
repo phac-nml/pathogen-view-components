@@ -5,8 +5,8 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Sample processing queue" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Status toasts confirm background work when the UI already shows the result. Warnings and errors use notification
-      dialogs (focus moves in). Pair overlays with durable page UI — the toaster only shows current notifications.
+      Status toasts (success/info) can peek-stack. This frame mixes in warning and error dialogs, so the toaster
+      stays <%= pathogen_code { "flat" } %> — same rule as production.
     <% end %>
 
     <div
@@ -30,7 +30,7 @@
         </div>
         <div>
           <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Sync" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Metadata update in progress" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Metadata update complete" } %>
         </div>
       </dl>
 
@@ -44,13 +44,15 @@
         <%= render Pathogen::Toast.new(
           type: :success,
           message: 'Batch assignment completed.',
-          description: '24 samples moved to run B-2026-06.'
+          description: '24 samples moved to run B-2026-06.',
+          timeout: 60_000
         ) %>
 
         <%= render Pathogen::Toast.new(
           type: :info,
-          message: 'Sync running in background.',
-          description: 'You can keep working while metadata updates.'
+          message: 'Sync finished in background.',
+          description: 'You can keep working in this queue.',
+          timeout: 60_000
         ) %>
 
         <%= render Pathogen::Toast.new(
@@ -69,32 +71,61 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "When to use which mode" } %>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Modes" } %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
-      <dl class="space-y-3 text-sm">
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Status toast" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
-            Redundant success/info only. Auto-dismisses. No controls. Announced politely. Keep the same fact visible in
-            page UI when the message matters after the toast disappears.
-          <% end %>
-        </div>
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Notification dialog" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
-            Warnings, errors, dismissible, or actionable notifications. Focus moves in; no live-region announce. Prefer
-            an in-flow banner when the message belongs next to the task.
-          <% end %>
-        </div>
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Undo" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
-            Put Undo in the page next to the changed item. An optional status toast may confirm the action; do not make
-            the toast the only Undo path.
-          <% end %>
-        </div>
-      </dl>
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div
+        class="
+          relative min-h-48 overflow-hidden rounded-(--pvc-radius-panel) border
+          border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+        "
+      >
+        <%= pathogen_heading(level: 4, class: "mb-1") { "Status toast" } %>
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          <%= pathogen_code { "type: :success" } %> · no controls · auto-dismiss
+        <% end %>
+
+        <%= render Pathogen::Toaster.new(
+          position: :top_center,
+          strategy: :absolute,
+          turbo_permanent: false,
+          max_visible: 1,
+          list_id: 'flashes-mode-status'
+        ) do %>
+          <%= render Pathogen::Toast.new(
+            type: :success,
+            message: 'Filter preset saved.',
+            description: 'Preset "Ontario weekly" is available to your team.',
+            timeout: 60_000
+          ) %>
+        <% end %>
+      </div>
+
+      <div
+        class="
+          relative min-h-48 overflow-hidden rounded-(--pvc-radius-panel) border
+          border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+        "
+      >
+        <%= pathogen_heading(level: 4, class: "mb-1") { "Notification dialog" } %>
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          <%= pathogen_code { "type: :error" } %> · focus in · dismiss required
+        <% end %>
+
+        <%= render Pathogen::Toaster.new(
+          position: :top_center,
+          strategy: :absolute,
+          turbo_permanent: false,
+          max_visible: 1,
+          list_id: 'flashes-mode-dialog'
+        ) do %>
+          <%= render Pathogen::Toast.new(
+            type: :error,
+            message: 'Reference data stale.',
+            description: 'Re-index before finalizing this outbreak report.'
+          ) %>
+        <% end %>
+      </div>
     </div>
   </section>
 </div>
