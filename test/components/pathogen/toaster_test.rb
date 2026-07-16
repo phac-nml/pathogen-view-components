@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Pathogen
   class ToasterTest < ViewComponent::TestCase
-    test 'renders persistent list with polite and assertive live regions' do
+    test 'renders persistent list with polite and assertive live regions and notification log' do
       render_inline(Pathogen::Toaster.new) do
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
@@ -16,12 +16,15 @@ module Pathogen
                       '[data-stack="peek"][data-anchor="top"]'
       assert_selector 'ol#flashes.pvc-toaster__list[aria-label="Notifications"]'
       assert_no_selector 'ol#flashes[data-pathogen--toaster-target]'
-      assert_no_selector 'section[data-action*="handleToastDismissed"]'
       assert_no_selector 'ol#flashes[aria-live]'
       assert_selector 'div[data-pathogen--toaster-target="polite"][role="status"][aria-live="polite"]',
                       visible: :all
       assert_selector 'div[data-pathogen--toaster-target="assertive"][role="alert"][aria-live="assertive"]',
                       visible: :all
+      assert_selector '[data-pathogen--toaster-target="log"][role="log"]', visible: :all
+      assert_selector 'button[data-pathogen--toaster-target="logToggle"]', text: 'Notifications'
+      assert_selector 'button[data-pathogen--toaster-target="more"][hidden]', visible: :all
+      assert_selector 'button[data-pathogen--toaster-target="dismissAll"][hidden]', visible: :all
     end
 
     test 'derives turbo-permanent id from the list id' do
@@ -53,6 +56,18 @@ module Pathogen
       render_inline(Pathogen::Toaster.new(max_visible: 4))
 
       assert_selector 'section[data-pathogen--toaster-max-visible-value="4"]'
+    end
+
+    test 'exposes duration preference when provided' do
+      render_inline(Pathogen::Toaster.new(duration_preference: 20_000))
+
+      assert_selector 'section[data-pathogen--toaster-duration-preference-value="20000"]'
+    end
+
+    test 'maps forever duration preference to zero' do
+      render_inline(Pathogen::Toaster.new(duration_preference: :forever))
+
+      assert_selector 'section[data-pathogen--toaster-duration-preference-value="0"]'
     end
 
     test 'corner positions use mobile-safe bounds and recover shrink-wrap on larger screens' do
