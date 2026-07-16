@@ -8,7 +8,8 @@ module Pathogen
         hidden items-center gap-2
         py-2.5 px-[var(--pvc-data-grid-cell-padding-x)]
         text-[var(--pvc-data-grid-text-muted-color)]
-        text-[0.8125rem] leading-[1.35]
+        text-[length:var(--pvc-data-grid-font-size)]
+        leading-[var(--pvc-data-grid-line-height)]
       ].freeze
 
       VIRTUAL_ROW_CLASSES = %w[
@@ -17,6 +18,7 @@ module Pathogen
 
       VIRTUAL_HEADER_ROW_CLASSES = %w[
         sticky top-0 z-[var(--pvc-data-grid-header-z)] bg-[var(--pvc-data-grid-header-bg)]
+        items-stretch border-b border-[var(--pvc-data-grid-border-color)]
       ].freeze
 
       VIRTUAL_LANE_CLASSES = %w[
