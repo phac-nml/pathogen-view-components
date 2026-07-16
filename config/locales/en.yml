@@ -28,7 +28,6 @@ en:
     link:
       aria-label: "%{content} (opens in a new window)"
     toast:
-      assertive_region_label: Critical notifications
       dismiss: Dismiss notification
       dismiss_all: Dismiss all
       log_empty: No notifications yet.
