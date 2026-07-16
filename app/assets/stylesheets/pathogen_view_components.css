@@ -891,9 +891,6 @@
   .bg-transparent {
     background-color: transparent;
   }
-  .bg-clip-padding {
-    background-clip: padding-box;
-  }
   .object-cover {
     object-fit: cover;
   }

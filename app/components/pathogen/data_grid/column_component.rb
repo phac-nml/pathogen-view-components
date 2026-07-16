@@ -4,7 +4,7 @@ module Pathogen
   module DataGrid
     COLUMN_CELL_BASE = %w[
       box-border min-h-10 whitespace-nowrap align-middle font-normal
-      border-b bg-clip-padding transition-colors
+      border-b transition-colors
       text-[length:var(--pvc-data-grid-font-size)]
       leading-[var(--pvc-data-grid-line-height)]
       text-[var(--pvc-data-grid-text-color)]
