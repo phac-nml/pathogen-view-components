@@ -99,7 +99,14 @@ export class PaginatedRowSource {
   }
 
   evictOutsideRange(startIndex, endIndex, bufferRows) {
-    this.#cache.evictOutsideRange(startIndex, endIndex, bufferRows, this.#totalRows);
+    // Retain the rows we intentionally prefetch (see #prefetchPages) so scrolling
+    // does not re-request pages that were just fetched and evicted. This matters
+    // most for horizontal scrolling, which never changes the visible row range yet
+    // still triggers a scroll-settled fetch. The extra page absorbs the visible
+    // range's offset from a page boundary so every prefetched page is kept whole.
+    const prefetchBuffer = (this.#prefetchPages + 1) * this.#pageSize;
+    const retainRows = Math.max(bufferRows, prefetchBuffer);
+    this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows);
   }
 
   missingPagesForRange(startIndex, endIndex) {

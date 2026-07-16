@@ -194,6 +194,35 @@ describe("page_cache", () => {
     expect(cache.needsPage(29, pageSize, 5000)).toBe(true);
   });
 
+  it("retains prefetched pages through eviction so scrolling does not re-request them", () => {
+    const cache = new PageCache();
+    const pageSize = 20;
+    const totalRows = 1000;
+    const source = new PaginatedRowSource({
+      url: "/demo/samples/rows.json",
+      pageSize,
+      totalRows,
+      prefetchPages: 2,
+      cache,
+    });
+
+    // Seed the visible range plus its 2-page prefetch window on each side, mirroring
+    // what a scroll-settled fetch loads for a visible range of rows [200, 220).
+    for (let index = 160; index < 260; index += 1) {
+      const row = document.createElement("div");
+      row.dataset.pvcDataGridGlobalRowIndex = String(index);
+      cache.storeRows(new Map([[index, row]]));
+    }
+
+    expect(source.missingPagesForRange(200, 220)).toEqual([]);
+
+    // Evicting with a small overscan buffer must not drop the prefetched pages.
+    source.evictOutsideRange(200, 220, 20);
+
+    // Horizontal scrolling re-runs the same visible-range fetch; nothing is missing.
+    expect(source.missingPagesForRange(200, 220)).toEqual([]);
+  });
+
   it("returns cached rows in global row order", () => {
     const cache = new PageCache();
 

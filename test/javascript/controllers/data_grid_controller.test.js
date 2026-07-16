@@ -1994,6 +1994,10 @@ describe("data_grid_controller (virtual mode)", () => {
         return { rows: [] };
       },
     });
+    const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
+      callback();
+      return 1;
+    });
 
     document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 100, seedRows: 60 });
     const grid = document.querySelector('[data-pathogen--data-grid-target="grid"]');
@@ -2026,6 +2030,7 @@ describe("data_grid_controller (virtual mode)", () => {
     expect(errorState.hidden).toBe(true);
     expect(grid.getAttribute("aria-busy")).toBe("false");
 
+    rafSpy.mockRestore();
     fetchSpy.mockRestore();
   });
 
