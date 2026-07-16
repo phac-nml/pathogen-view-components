@@ -1,11 +1,5 @@
 <%= tag.li(**@system_arguments) do %>
-  <%= content_tag(:div, **(dialog_mode? ? {
-        role: 'dialog',
-        'aria-modal': 'false',
-        'aria-labelledby': message_dom_id,
-        tabindex: -1,
-        'data-pathogen--toast-target': 'dialog'
-      } : {})) do %>
+  <%= content_tag(:div, **(dialog_mode? ? dialog_attributes : {})) do %>
     <div class="p-4">
       <div class="flex items-start gap-2">
         <span class="mt-0.5 flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
@@ -21,20 +15,21 @@
 
         <div class="min-w-0 flex-1">
           <p class="text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]">
-            <span class="sr-only"><%= icon_label %>:</span>
+            <span id="<%= type_label_dom_id %>" class="sr-only" data-pathogen--toast-target="typeLabel">
+              <%= icon_label %>:
+            </span>
+
             <span
               id="<%= message_dom_id %>"
               class="break-words [overflow-wrap:anywhere]"
               data-pathogen--toast-target="message"
-            ><%= message %></span>
+            >
+              <%= message %>
+            </span>
           </p>
         </div>
 
-        <div
-          class="-mr-1 shrink-0"
-          data-pathogen--toast-target="dismiss"
-          <%= 'hidden' unless dismissible %>
-        >
+        <%= tag.div class: '-mr-1 shrink-0', data: { 'pathogen--toast-target': 'dismiss' }, hidden: !dismissible do %>
           <%= render Pathogen::Button.new(
             size: :small,
             tone: :neutral,
@@ -56,13 +51,14 @@
               </svg>
             <% end %>
           <% end %>
-        </div>
+        <% end %>
       </div>
 
       <% if description.present? || action? %>
         <div class="pl-6">
           <% if description.present? %>
             <p
+              id="<%= description_dom_id %>"
               class="
                 mt-1 break-words text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
                 [overflow-wrap:anywhere]
