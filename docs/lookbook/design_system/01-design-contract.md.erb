@@ -212,7 +212,7 @@ Use `Pathogen::Link` for inline navigation. Use button-styled links only inside 
 
 ## Toasts And Notifications
 
-Prefer in-flow banners or obvious UI updates when feedback is important. Use `Pathogen::Toast` / `Pathogen::Toaster` only for brief, non-blocking confirmations — and keep host durable UI (list row, job status, flash banner, or the toaster notification log) as the source of truth for WCAG 2.2.1.
+Prefer in-flow banners or obvious UI updates when feedback is important. Use `Pathogen::Toast` / `Pathogen::Toaster` only for brief, non-blocking confirmations — and keep host durable UI (list row, job status, or flash banner) as the source of truth for WCAG 2.2.1. The toaster shows **current** notifications only; it does not keep a history drawer.
 
 Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and stream notifications into it.
 
@@ -229,8 +229,7 @@ Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and st
 - **Type** — message at control scale, semibold; description at control scale, muted.
 - **Stack** — status toasts may form a quiet peek deck. Hover, focus, or the “+N more” control expands. Peek-behind and overflow cards use `inert`. Dialog-mode notifications and `prefers-reduced-motion` use a flat stack.
 - **Timing** — default status timeout is 6s; pause on hover/focus. Hosts may set `duration_preference:` or `localStorage['pathogen.toast.durationMs']` (`6000`, `20000`, or `0` / `forever`). Forever promotes status toasts to dismissible dialogs.
-- **History** — the toaster exposes a notification log (`role="log"`) so missed overlays remain reviewable.
-- **Interrupt** — errors are polite by default (dialog focus). Pass `interrupt: true` only for true emergencies that must assertively interrupt.
+- **Interrupt** — errors rely on dialog focus by default. Pass `interrupt: true` only for true emergencies that must assertively interrupt via the live region.
 - **Dismiss** — dialogs use `Pathogen::Button` `small` + `neutral` + `ghost`, icon-only. Three or more dialogs show “Dismiss all”.
 - **Motion** — fade on dismiss; stack transform at `--pvc-duration-overlay`; honour `prefers-reduced-motion`.
 

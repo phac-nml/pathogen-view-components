@@ -4,23 +4,10 @@ const ANNOUNCE_DEBOUNCE_MS = 75;
 // Matches --pvc-toast-gap (0.875rem) at the default 16px root font size.
 const TOAST_GAP_PX = 14;
 const DURATION_STORAGE_KEY = "pathogen.toast.durationMs";
-const LOG_LIMIT = 50;
 const DISMISS_ALL_THRESHOLD = 3;
 
 export default class extends Controller {
-  static targets = [
-    "polite",
-    "assertive",
-    "toast",
-    "log",
-    "logList",
-    "logEmpty",
-    "logToggle",
-    "logToggleLabel",
-    "logCount",
-    "more",
-    "dismissAll",
-  ];
+  static targets = ["polite", "assertive", "toast", "more", "dismissAll"];
   static values = {
     maxVisible: { type: Number, default: 3 },
     position: { type: String, default: "top_center" },
@@ -36,7 +23,6 @@ export default class extends Controller {
   #onMotionChange = null;
   #applyingStack = false;
   #stackFrame = null;
-  #logEntries = [];
 
   connect() {
     this.#motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -50,7 +36,6 @@ export default class extends Controller {
     });
 
     this.#applyStack();
-    this.#syncLogUi();
   }
 
   disconnect() {
@@ -115,34 +100,6 @@ export default class extends Controller {
     const politeness = detail.politeness === "assertive" ? "assertive" : "polite";
     this.#queue[politeness].push(message);
     this.#scheduleFlush();
-  }
-
-  appendLog(event) {
-    const detail = event?.detail ?? {};
-    const message = typeof detail.message === "string" ? detail.message.trim() : "";
-    if (message.length === 0) return;
-
-    this.#logEntries.push({
-      message,
-      type: typeof detail.type === "string" ? detail.type : "info",
-      at: Date.now(),
-    });
-    if (this.#logEntries.length > LOG_LIMIT) {
-      this.#logEntries.splice(0, this.#logEntries.length - LOG_LIMIT);
-    }
-    this.#syncLogUi();
-  }
-
-  toggleLog() {
-    if (!this.hasLogTarget) return;
-    const open = this.logTarget.hasAttribute("hidden");
-    this.logTarget.toggleAttribute("hidden", !open);
-    if (this.hasLogToggleTarget) {
-      this.logToggleTarget.setAttribute("aria-expanded", open ? "true" : "false");
-    }
-    if (open && this.hasLogListTarget) {
-      this.logListTarget.querySelector("li")?.focus?.({ preventScroll: true });
-    }
   }
 
   dismissAll() {
@@ -460,29 +417,6 @@ export default class extends Controller {
     return `+${count} more`;
   }
 
-  #syncLogUi() {
-    if (this.hasLogCountTarget) {
-      const count = this.#logEntries.length;
-      this.logCountTarget.textContent = String(count);
-      this.logCountTarget.hidden = count === 0;
-    }
-
-    if (this.hasLogEmptyTarget) {
-      this.logEmptyTarget.hidden = this.#logEntries.length > 0;
-    }
-
-    if (!this.hasLogListTarget) return;
-
-    this.logListTarget.replaceChildren();
-    this.#logEntries.forEach((entry) => {
-      const item = document.createElement("li");
-      item.className = "rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] px-2 py-1";
-      item.tabIndex = -1;
-      item.textContent = entry.message;
-      this.logListTarget.appendChild(item);
-    });
-  }
-
   #visibleToasts() {
     return this.toastTargets.filter((toast) => toast.isConnected && !toast.hidden);
   }
@@ -575,4 +509,4 @@ export default class extends Controller {
   }
 }
 
-export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, DURATION_STORAGE_KEY, LOG_LIMIT, DISMISS_ALL_THRESHOLD };
+export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, DURATION_STORAGE_KEY, DISMISS_ALL_THRESHOLD };

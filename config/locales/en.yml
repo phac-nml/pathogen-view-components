@@ -30,9 +30,6 @@ en:
     toast:
       dismiss: Dismiss notification
       dismiss_all: Dismiss all
-      log_empty: No notifications yet.
-      log_label: Notification history
-      log_toggle: Notifications
       more_notifications: "+%{count} more"
       region_label: Notifications
       type:

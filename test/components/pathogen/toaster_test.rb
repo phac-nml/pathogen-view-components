@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Pathogen
   class ToasterTest < ViewComponent::TestCase
-    test 'renders persistent list with polite and assertive live regions and notification log' do
+    test 'renders persistent list with polite and assertive live regions' do
       render_inline(Pathogen::Toaster.new) do
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
@@ -23,8 +23,8 @@ module Pathogen
                       visible: :all
       assert_no_selector 'div[data-pathogen--toaster-target="assertive"][aria-label]', visible: :all
       assert_no_selector 'div[data-pathogen--toaster-target="assertive"][role="alert"]', visible: :all
-      assert_selector '[data-pathogen--toaster-target="log"][role="log"]', visible: :all
-      assert_selector 'button[data-pathogen--toaster-target="logToggle"]', text: 'Notifications'
+      assert_no_selector '[data-pathogen--toaster-target="log"]'
+      assert_no_selector 'button[data-pathogen--toaster-target="logToggle"]'
       assert_selector 'button[data-pathogen--toaster-target="more"][hidden]', visible: :all
       assert_selector 'button[data-pathogen--toaster-target="dismissAll"][hidden]', visible: :all
     end
