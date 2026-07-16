@@ -127,7 +127,10 @@ export default class extends Controller {
     if (preference === 0) {
       const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
       if (controller && typeof controller.promoteToDialog === "function") {
-        controller.promoteToDialog();
+        // Promotion driven by a stored duration preference is not a user action,
+        // so it must not steal focus (a status toast may be promoted en masse on
+        // page load). Manual/interactive promotion still moves focus.
+        controller.promoteToDialog({ focus: false });
       } else {
         toast.setAttribute("data-pathogen--toast-timeout-value", "0");
         toast.setAttribute("data-pathogen--toast-mode-value", "dialog");
