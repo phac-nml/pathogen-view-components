@@ -85,6 +85,17 @@ module Pathogen
       def render_eager?
         @selected
       end
+
+      # Renders a turbo-frame in environments with or without turbo-rails helpers.
+      def render_turbo_frame(**options, &)
+        frame_options = @system_arguments.except(:id).merge(options)
+
+        if helpers.respond_to?(:turbo_frame_tag)
+          helpers.turbo_frame_tag(@frame_id, **frame_options, &)
+        else
+          content_tag('turbo-frame', id: @frame_id, **frame_options, &)
+        end
+      end
     end
   end
 end

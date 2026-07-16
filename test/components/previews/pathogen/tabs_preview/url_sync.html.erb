@@ -2,12 +2,12 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Bookmarkable tabs</h2>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Bookmarkable tabs" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Pass <code class="font-mono">sync_url: true</code> to mirror the active tab in the URL hash. Reloading or sharing
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Pass <%= pathogen_code { "sync_url: true" } %> to mirror the active tab in the URL hash. Reloading or sharing
       the link returns to the same section. Arrow-key navigation updates the hash as well.
-    </p>
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
@@ -21,7 +21,7 @@
         <% tabs.with_tab(id: 'tab-notes', label: 'Notes') %>
 
         <% tabs.with_panel(id: 'panel-overview', tab_id: 'tab-overview') do %>
-          <dl class="grid gap-3 text-sm sm:grid-cols-2">
+          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-2">
             <div>
               <dt class="font-semibold text-[var(--pvc-color-text)]">Investigation</dt>
               <dd class="font-mono text-[var(--pvc-color-text-muted)]">INV-2026-003</dd>
@@ -31,57 +31,52 @@
               <dd class="text-[var(--pvc-color-warning)]">Active monitoring</dd>
             </div>
           </dl>
-          <p class="mt-3 text-sm text-[var(--pvc-color-text-muted)]">
-            The URL hash should read <code class="font-mono">#tab-overview</code> while this tab is selected.
-          </p>
+          <%= pathogen_supporting(variant: :muted, class: "mt-3") do %>
+            The URL hash should read <%= pathogen_code { "#tab-overview" } %> while this tab is selected.
+          <% end %>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-specimens', tab_id: 'tab-specimens') do %>
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+          <%= pathogen_text(variant: :muted) do %>
             12 linked specimens across 4 jurisdictions. Last specimen added 2026-06-08.
-          </p>
+          <% end %>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-lineage', tab_id: 'tab-lineage') do %>
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">
-            Consensus lineage: <span class="font-mono">Salmonella</span> ST-11 cluster within 3 SNPs.
-          </p>
+          <%= pathogen_text(variant: :muted) do %>
+            Consensus lineage: <%= pathogen_code { "Salmonella" } %> ST-11 cluster within 3 SNPs.
+          <% end %>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-notes', tab_id: 'tab-notes') do %>
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">
+          <%= pathogen_text(variant: :muted) do %>
             Epidemiology follow-up scheduled for 2026-06-12. Contact provincial lead before release.
-          </p>
+          <% end %>
         <% end %>
       <% end %>
     </div>
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Hash formats</h2>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Hash formats" } %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-      <ul class="space-y-2">
-        <li><code class="font-mono">#tab-specimens</code> — matches a tab id</li>
-        <li><code class="font-mono">#panel-lineage</code> — matches a panel id</li>
-        <li><code class="font-mono">#tab-2</code> — zero-based tab index fallback</li>
-      </ul>
-      <p class="mt-4">
-        Invalid hashes fall back to <code class="font-mono">default_index</code>. Hash updates use
-        <code class="font-mono">history.replaceState()</code> so routine tab changes do not pollute browser history.
-      </p>
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+      <%= pathogen_list(variant: :muted) do |list| %>
+        <% list.with_item do %>
+          <%= pathogen_code { "#tab-specimens" } %> — matches a tab id
+        <% end %>
+        <% list.with_item do %>
+          <%= pathogen_code { "#panel-lineage" } %> — matches a panel id
+        <% end %>
+        <% list.with_item do %>
+          <%= pathogen_code { "#tab-2" } %> — zero-based tab index fallback
+        <% end %>
+      <% end %>
+
+      <%= pathogen_supporting(variant: :muted, class: "mt-4") do %>
+        Invalid hashes fall back to <%= pathogen_code { "default_index" } %>. Hash updates use
+        <%= pathogen_code { "history.replaceState()" } %> so routine tab changes do not pollute browser history.
+      <% end %>
     </div>
-  </section>
-
-  <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Implementation</h2>
-
-    <pre class="overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 text-xs"><code>&lt;%= render Pathogen::Tabs.new(
-  id: "investigation-tabs",
-  label: "Investigation sections",
-  sync_url: true
-) do |tabs| %&gt;
-  ...
-&lt;% end %&gt;</code></pre>
   </section>
 </div>

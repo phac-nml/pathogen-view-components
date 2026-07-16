@@ -2,11 +2,11 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Operator account settings</h2>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Operator account settings" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Vertical tabs in a settings layout. URL sync keeps the active section bookmarkable.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Vertical tabs in a settings layout with URL sync so the active section stays bookmarkable.
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
@@ -20,7 +20,7 @@
         <% tabs.with_tab(id: 'tab-notifications', label: 'Notifications') %>
 
         <% tabs.with_panel(id: 'panel-profile', tab_id: 'tab-profile') do %>
-          <dl class="space-y-3 text-sm">
+          <dl class="space-y-3 text-[length:var(--type-control)]">
             <div>
               <dt class="font-semibold text-[var(--pvc-color-text)]">Display name</dt>
               <dd class="text-[var(--pvc-color-text-muted)]">lab-seq-review</dd>
@@ -37,15 +37,15 @@
         <% end %>
 
         <% tabs.with_panel(id: 'panel-access', tab_id: 'tab-access') do %>
-          <ul class="list-inside list-disc space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
-            <li>Run review — granted</li>
-            <li>Protocol edit — granted</li>
-            <li>User administration — denied</li>
-          </ul>
+          <%= pathogen_list(variant: :muted) do |list| %>
+            <% list.with_item { "Run review — granted" } %>
+            <% list.with_item { "Protocol edit — granted" } %>
+            <% list.with_item { "User administration — denied" } %>
+          <% end %>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-notifications', tab_id: 'tab-notifications') do %>
-          <dl class="space-y-3 text-sm">
+          <dl class="space-y-3 text-[length:var(--type-control)]">
             <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
               <dt class="font-semibold text-[var(--pvc-color-text)]">QC failure alerts</dt>
               <dd class="text-[var(--pvc-color-text-muted)]">Email</dd>
@@ -61,68 +61,11 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Specimen record workspace</h2>
+    <%= pathogen_heading(level: 2, class: "mb-2") { "Form footer with tabs above" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Horizontal tabs organizing dense record detail. Panel content uses ordinary product typography and dividers.
-    </p>
-
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <%= render(Pathogen::Tabs.new(id: 'specimen-workspace-tabs', label: 'Specimen record sections')) do |tabs| %>
-        <% tabs.with_tab(id: 'tab-metadata', label: 'Metadata', selected: true) %>
-        <% tabs.with_tab(id: 'tab-sequences', label: 'Sequences') %>
-        <% tabs.with_tab(id: 'tab-related', label: 'Related') %>
-
-        <% tabs.with_panel(id: 'panel-metadata', tab_id: 'tab-metadata') do %>
-          <dl class="grid gap-3 text-sm sm:grid-cols-2">
-            <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Specimen ID</dt>
-              <dd class="font-mono text-[var(--pvc-color-text-muted)]">SPEC-2026-00891</dd>
-            </div>
-            <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Source</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">Clinical isolate</dd>
-            </div>
-            <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Collected</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">2026-06-09</dd>
-            </div>
-            <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Submitted</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">2026-06-10</dd>
-            </div>
-          </dl>
-        <% end %>
-
-        <% tabs.with_panel(id: 'panel-sequences', tab_id: 'tab-sequences') do %>
-          <div class="space-y-2 text-sm">
-            <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] pb-2">
-              <span class="font-mono text-[var(--pvc-color-text)]">SPEC-2026-00891-R1</span>
-              <span class="text-[var(--pvc-color-success)]">Passed QC</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="font-mono text-[var(--pvc-color-text)]">SPEC-2026-00891-R2</span>
-              <span class="text-[var(--pvc-color-warning)]">Coverage review</span>
-            </div>
-          </div>
-        <% end %>
-
-        <% tabs.with_panel(id: 'panel-related', tab_id: 'tab-related') do %>
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">
-            2 related specimens within the same epidemiological cluster. Open the investigation workspace for lineage
-            context.
-          </p>
-        <% end %>
-      <% end %>
-    </div>
-  </section>
-
-  <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Form footer with tabs above</h2>
-
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Tabs organize read-only review sections; the primary action stays in the form footer below.
-    </p>
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'submission-review-tabs', label: 'Submission review')) do |tabs| %>
@@ -130,15 +73,15 @@
         <% tabs.with_tab(id: 'tab-attachments', label: 'Attachments') %>
 
         <% tabs.with_panel(id: 'panel-checklist', tab_id: 'tab-checklist') do %>
-          <ul class="list-inside list-disc space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
-            <li>Metadata complete</li>
-            <li>Consent on file</li>
-            <li>QC thresholds met</li>
-          </ul>
+          <%= pathogen_list(variant: :muted) do |list| %>
+            <% list.with_item { "Metadata complete" } %>
+            <% list.with_item { "Consent on file" } %>
+            <% list.with_item { "QC thresholds met" } %>
+          <% end %>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-attachments', tab_id: 'tab-attachments') do %>
-          <p class="text-sm text-[var(--pvc-color-text-muted)]">chain_of_custody.pdf · lab_requisition.pdf</p>
+          <%= pathogen_text(variant: :muted) { "chain_of_custody.pdf · lab_requisition.pdf" } %>
         <% end %>
       <% end %>
 
