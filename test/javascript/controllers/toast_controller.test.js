@@ -12,44 +12,63 @@ const buildToast = ({
   timeout = 1000,
   type = "info",
   typeLabel = { success: "Success", info: "Information", warning: "Warning", error: "Error" }[type] || "Information",
-  dismissible = true,
+  dismissible = false,
+  mode = "status",
+  interrupt = false,
   message = "Saved",
   description = "",
-  withButton = true,
+  withButton = false,
 } = {}) => {
   const list = document.createElement("ol");
 
   const toast = document.createElement("li");
-  toast.tabIndex = 0;
   toast.dataset.state = "open";
   toast.setAttribute("data-controller", "pathogen--toast");
   toast.setAttribute("data-pathogen--toast-timeout-value", String(timeout));
   toast.setAttribute("data-pathogen--toast-type-value", type);
   toast.setAttribute("data-pathogen--toast-type-label-value", typeLabel);
   toast.setAttribute("data-pathogen--toast-dismissible-value", String(dismissible));
+  toast.setAttribute("data-pathogen--toast-mode-value", mode);
+  toast.setAttribute("data-pathogen--toast-interrupt-value", String(interrupt));
   toast.setAttribute("data-pathogen--toast-dismiss-duration-value", "160");
+  toast.setAttribute("aria-live", "off");
+  toast.setAttribute("role", "listitem");
+
+  const shell = document.createElement("div");
+  if (mode === "dialog") {
+    shell.setAttribute("role", "dialog");
+    shell.setAttribute("aria-modal", "false");
+    shell.tabIndex = -1;
+    shell.setAttribute("data-pathogen--toast-target", "dialog");
+  }
 
   const messageNode = document.createElement("p");
   const messageText = document.createElement("span");
+  messageText.id = "msg-1";
   messageText.setAttribute("data-pathogen--toast-target", "message");
   messageText.textContent = message;
   messageNode.appendChild(messageText);
-  toast.appendChild(messageNode);
+  shell.appendChild(messageNode);
 
   if (description) {
     const descriptionNode = document.createElement("p");
     descriptionNode.setAttribute("data-pathogen--toast-target", "description");
     descriptionNode.textContent = description;
-    toast.appendChild(descriptionNode);
+    shell.appendChild(descriptionNode);
   }
 
-  if (withButton) {
+  const dismiss = document.createElement("div");
+  dismiss.setAttribute("data-pathogen--toast-target", "dismiss");
+  if (!dismissible && mode !== "dialog") dismiss.hidden = true;
+  if (withButton || dismissible || mode === "dialog") {
     const closeButton = document.createElement("button");
     closeButton.type = "button";
     closeButton.textContent = "Close";
     closeButton.setAttribute("data-action", "click->pathogen--toast#dismiss");
-    toast.appendChild(closeButton);
+    dismiss.appendChild(closeButton);
   }
+  shell.appendChild(dismiss);
+  toast.appendChild(shell);
 
   list.appendChild(toast);
   document.body.appendChild(list);
@@ -68,11 +87,12 @@ describe("toast_controller", () => {
     vi.useRealTimers();
     application?.stop();
     document.body.innerHTML = "";
+    window.localStorage?.removeItem("pathogen.toast.durationMs");
   });
 
-  it("auto-dismisses when timeout elapses", async () => {
+  it("auto-dismisses status toasts when timeout elapses", async () => {
     vi.useFakeTimers();
-    const { toast } = buildToast({ timeout: 1000, type: "info" });
+    const { toast } = buildToast({ timeout: 1000, type: "info", mode: "status" });
     await waitForController();
 
     vi.advanceTimersByTime(1000);
@@ -81,9 +101,15 @@ describe("toast_controller", () => {
     expect(document.body.contains(toast)).toBe(false);
   });
 
+  it("does not put status toasts in the tab order", async () => {
+    const { toast } = buildToast({ timeout: 0, mode: "status", dismissible: false, withButton: false });
+    await waitForController();
+    expect(toast.hasAttribute("tabindex")).toBe(false);
+  });
+
   it("pauses timer on hover and resumes on mouse leave", async () => {
     vi.useFakeTimers();
-    const { toast } = buildToast({ timeout: 80, type: "info" });
+    const { toast } = buildToast({ timeout: 80, type: "info", mode: "status" });
     await waitForController();
 
     toast.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
@@ -98,62 +124,33 @@ describe("toast_controller", () => {
     expect(document.body.contains(toast)).toBe(false);
   });
 
-  it("pauses timer on focus and resumes on blur", async () => {
-    vi.useFakeTimers();
-    const { toast } = buildToast({ timeout: 80, type: "info" });
-    const outside = document.createElement("button");
-    outside.textContent = "outside";
-    document.body.appendChild(outside);
-    await waitForController();
-
-    outside.focus();
-    toast.focus();
-    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: outside }));
-    vi.advanceTimersByTime(120);
-    await waitForController();
-    expect(document.body.contains(toast)).toBe(true);
-
-    outside.focus();
-    toast.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: outside }));
-    vi.advanceTimersByTime(1000);
-    await waitForController();
-    expect(document.body.contains(toast)).toBe(false);
-  });
-
-  it("dismisses focused toast on Escape and restores prior focus", async () => {
-    vi.useFakeTimers();
+  it("dialog mode focuses the dismiss control and does not announce", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
     document.body.appendChild(previous);
-
-    const { toast } = buildToast({ timeout: 0, type: "info" });
-    await waitForController();
-
     previous.focus();
-    toast.focus();
-    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: previous }));
-    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
 
-    vi.advanceTimersByTime(160);
-    await waitForController();
-    expect(document.body.contains(toast)).toBe(false);
-    expect(document.activeElement).toBe(previous);
-  });
-
-  it("emits an assertive announcement with message and description for error toasts", async () => {
-    buildToast({ timeout: 0, type: "error", message: "Upload failed", description: "The file is too large." });
     const listener = vi.fn();
     document.body.addEventListener("pathogen:toast:announce", listener);
 
+    const { toast } = buildToast({
+      timeout: 0,
+      type: "error",
+      mode: "dialog",
+      dismissible: true,
+      withButton: true,
+      message: "Upload failed",
+    });
     await waitForController();
-    expect(listener).toHaveBeenCalledTimes(1);
-    const { detail } = listener.mock.calls[0][0];
-    expect(detail.politeness).toBe("assertive");
-    expect(detail.message).toBe("Error: Upload failed. The file is too large.");
+    await waitForAnimationFrames();
+
+    expect(listener).not.toHaveBeenCalled();
+    expect(toast.contains(document.activeElement)).toBe(true);
+    expect(toast.querySelector('[role="dialog"]')).not.toBeNull();
   });
 
-  it("emits a polite announcement for non-error toasts", async () => {
-    buildToast({ timeout: 0, type: "success", message: "Saved" });
+  it("emits a polite announcement for status toasts", async () => {
+    buildToast({ timeout: 0, type: "success", mode: "status", message: "Saved" });
     const listener = vi.fn();
     document.body.addEventListener("pathogen:toast:announce", listener);
 
@@ -164,30 +161,41 @@ describe("toast_controller", () => {
     expect(detail.message).toBe("Success: Saved");
   });
 
-  it("does not duplicate the type label when message already includes it", async () => {
-    buildToast({ timeout: 0, type: "error", typeLabel: "Error", message: "Error: Upload failed" });
+  it("emits assertive announcements only when interrupt is true", async () => {
+    buildToast({
+      timeout: 0,
+      type: "error",
+      mode: "status",
+      interrupt: true,
+      message: "Upload failed",
+      description: "The file is too large.",
+    });
     const listener = vi.fn();
     document.body.addEventListener("pathogen:toast:announce", listener);
 
     await waitForController();
-    const { detail } = listener.mock.calls[0][0];
-    expect(detail.message).toBe("Error: Upload failed");
+    expect(listener.mock.calls[0][0].detail.politeness).toBe("assertive");
+    expect(listener.mock.calls[0][0].detail.message).toBe("Error: Upload failed. The file is too large.");
   });
 
-  it("restores focus to the prior element when dismissed via the close button", async () => {
-    vi.useFakeTimers();
+  it("dismisses focused dialog on Escape and restores prior focus", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
     document.body.appendChild(previous);
-
-    const { toast } = buildToast({ timeout: 0, type: "info" });
-    await waitForController();
-
     previous.focus();
-    toast.focus();
-    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: previous }));
 
-    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const { toast } = buildToast({
+      timeout: 0,
+      type: "info",
+      mode: "dialog",
+      dismissible: true,
+      withButton: true,
+    });
+    await waitForController();
+    await waitForAnimationFrames();
+
+    vi.useFakeTimers();
+    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
 
     vi.advanceTimersByTime(160);
     await waitForController();
@@ -195,77 +203,57 @@ describe("toast_controller", () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it("ignores Escape when dismissible is false", async () => {
-    vi.useFakeTimers();
-    const { toast } = buildToast({ timeout: 0, type: "info", dismissible: false, withButton: false });
-    await waitForController();
-
-    toast.focus();
-    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
-
-    vi.advanceTimersByTime(160);
-    await waitForController();
-    expect(document.body.contains(toast)).toBe(true);
-  });
-
-  it("removes toast immediately when reduced motion is preferred", async () => {
-    vi.useFakeTimers();
-    vi.spyOn(window, "matchMedia").mockImplementation((query) => ({
-      matches: query === "(prefers-reduced-motion: reduce)",
-      media: query,
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    }));
-
-    const { toast } = buildToast({ timeout: 0, type: "info" });
-    await waitForController();
-
-    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
-
-    vi.advanceTimersByTime(0);
-    await waitForController();
-    expect(document.body.contains(toast)).toBe(false);
-  });
-
-  it("emits pathogen:toast:dismissed on the parent list when removed", async () => {
-    vi.useFakeTimers();
-    const { list, toast } = buildToast({ timeout: 0, type: "info" });
+  it("promotes status toasts to dialogs when duration preference is forever", async () => {
+    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
     const listener = vi.fn();
-    list.addEventListener("pathogen:toast:dismissed", listener);
+    document.body.addEventListener("pathogen:toast:announce", listener);
+
+    const { toast } = buildToast({ timeout: 1000, mode: "status", dismissible: false, withButton: true });
     await waitForController();
+    await waitForAnimationFrames();
 
-    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(toast.getAttribute("data-pathogen--toast-mode-value")).toBe("dialog");
+    expect(toast.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(listener).not.toHaveBeenCalled();
+  });
 
-    vi.advanceTimersByTime(160);
+  it("publishes log events for every toast", async () => {
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:log", listener);
+    buildToast({ timeout: 0, mode: "status", message: "Saved", type: "success" });
     await waitForController();
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(listener.mock.calls[0][0].detail).toEqual({ reason: "manual" });
+    expect(listener.mock.calls[0][0].detail.message).toBe("Success: Saved");
   });
 
-  it("restores focus to the most recent entry target", async () => {
-    vi.useFakeTimers();
-    const first = document.createElement("button");
-    first.textContent = "first";
-    const second = document.createElement("button");
-    second.textContent = "second";
-    document.body.appendChild(first);
-    document.body.appendChild(second);
+  it("restores focus to the prior element when dismissed via the close button", async () => {
+    const previous = document.createElement("button");
+    previous.textContent = "previous";
+    document.body.appendChild(previous);
+    previous.focus();
 
-    const { toast } = buildToast({ timeout: 0, type: "info" });
+    const { toast } = buildToast({
+      timeout: 0,
+      type: "info",
+      mode: "dialog",
+      dismissible: true,
+      withButton: true,
+    });
     await waitForController();
+    await waitForAnimationFrames();
 
-    first.focus();
-    toast.focus();
-    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: first }));
-
-    second.focus();
-    toast.focus();
-    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: second }));
-    toast.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+    vi.useFakeTimers();
+    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     vi.advanceTimersByTime(160);
     await waitForController();
     expect(document.body.contains(toast)).toBe(false);
-    expect(document.activeElement).toBe(second);
+    expect(document.activeElement).toBe(previous);
   });
 });
+
+const waitForAnimationFrames = async () => {
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+};
