@@ -177,6 +177,13 @@ describe("toaster_controller", () => {
     expect(toasts[1].getAttribute("aria-hidden")).toBe("true");
     expect(toasts[0].dataset.behind).toBe("true");
     expect(list.style.getPropertyValue("--peek-count")).toBe("2");
+    // Inline offsets so host utilities cannot collapse the peek deck.
+    expect(toasts[2].style.top).toBe("");
+    expect(toasts[1].style.top).toBe("72px");
+    expect(toasts[0].style.top).toBe("80px");
+    expect(toasts[1].style.position).toBe("absolute");
+    expect(toasts[1].style.height).toBe("8px");
+    expect(toasts[2].style.position).toBe("relative");
   });
 
   it("keeps a spaced flex fallback until toast metrics are measurable", async () => {
@@ -288,6 +295,42 @@ describe("toaster_controller", () => {
     });
     expect(section.dataset.expanded).toBe("true");
     expect(list.style.getPropertyValue("--stack-height")).not.toBe("");
+  });
+
+  it("applies inline expanded offsets from measured heights", async () => {
+    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
+    const measure = (height) => () => ({
+      width: 280,
+      height,
+      top: 0,
+      left: 0,
+      bottom: height,
+      right: 280,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    ["older", "middle", "front"].forEach((text, index) => {
+      const toast = buildToast({ text });
+      Object.defineProperty(toast, "getBoundingClientRect", {
+        configurable: true,
+        value: measure(40 + index * 10),
+      });
+      list.appendChild(toast);
+    });
+    await waitForController();
+    await waitForAnimationFrame();
+
+    const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
+    controller.expand();
+    await waitForAnimationFrame();
+
+    const toasts = Array.from(list.querySelectorAll("li"));
+    // front-first: front(60), middle(50), older(40) with 8px gaps
+    expect(toasts[2].style.top).toBe("0px");
+    expect(toasts[1].style.top).toBe("68px");
+    expect(toasts[0].style.top).toBe("126px");
+    expect(list.style.getPropertyValue("--stack-height")).toBe("166px");
   });
 
   it("collapses the stack after mouse leave when idle", async () => {
