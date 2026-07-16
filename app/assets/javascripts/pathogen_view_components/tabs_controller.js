@@ -86,6 +86,20 @@ export default class extends Controller {
   #hashUpdateTimeout = null;
 
   /**
+   * Index of the currently selected tab
+   * @type {number|null}
+   * @private
+   */
+  #selectedIndex = null;
+
+  /**
+   * Private field for storing the panel update timeout
+   * @type {number|null}
+   * @private
+   */
+  #panelUpdateTimeout = null;
+
+  /**
    * Initializes the controller when it connects to the DOM
    * Sets up ARIA relationships and selects the default tab.
    *
@@ -130,7 +144,9 @@ export default class extends Controller {
       // Select the initial tab
       // Only update URL if the selected tab isn't already the current tab
       const validatedIndex = this.#validateDefaultIndex(initialIndex);
-      this.#selectTabByIndex(validatedIndex, shouldUpdateUrl, history.replaceState);
+      this.#applyTabSelection(validatedIndex, shouldUpdateUrl, history.replaceState, {
+        deferPanels: true,
+      });
     } catch (error) {
       console.error("[pathogen--tabs] Error during initialization:", error);
     }
@@ -150,6 +166,10 @@ export default class extends Controller {
 
       if (tabIndex === -1) {
         console.error("[pathogen--tabs] Clicked tab not found in targets");
+        return;
+      }
+
+      if (this.#selectedIndex === tabIndex && this.#isSelectionSynced(tabIndex)) {
         return;
       }
 
@@ -219,6 +239,11 @@ export default class extends Controller {
     if (this.#hashUpdateTimeout) {
       clearTimeout(this.#hashUpdateTimeout);
       this.#hashUpdateTimeout = null;
+    }
+
+    if (this.#panelUpdateTimeout) {
+      clearTimeout(this.#panelUpdateTimeout);
+      this.#panelUpdateTimeout = null;
     }
 
     // Clear cached DOM references
@@ -292,13 +317,6 @@ export default class extends Controller {
       if (panel && panel.id) {
         tab.setAttribute("aria-controls", panel.id);
       }
-
-      // Initial aria-selected (will be updated by selectTabByIndex)
-      tab.setAttribute("aria-selected", "false");
-
-      // Initial tabindex (will be updated by selectTabByIndex)
-      tab.tabIndex = -1;
-      tab.dataset.state = "inactive";
     });
 
     this.panelTargets.forEach((panel, index) => {
@@ -313,84 +331,282 @@ export default class extends Controller {
       if (tab && tab.id) {
         panel.setAttribute("aria-labelledby", tab.id);
       }
-
-      // Initial hidden state (will be updated by selectTabByIndex)
-      panel.setAttribute("aria-hidden", "true");
-      panel.hidden = true;
-      panel.dataset.state = "inactive";
     });
+  }
+
+  /**
+   * Returns whether the given tab index can be selected
+   * @private
+   * @param {number} index - The tab index
+   * @returns {boolean}
+   */
+  #canSelectIndex(index) {
+    if (!this.hasTabTarget || !this.hasPanelTarget) {
+      return false;
+    }
+
+    return index >= 0 && index < this.tabTargets.length;
+  }
+
+  /**
+   * Returns whether panel visibility already matches the given index
+   * @private
+   * @param {number} index - The tab index
+   * @returns {boolean}
+   */
+  #arePanelsSynced(index) {
+    if (!this.#canSelectIndex(index)) {
+      return false;
+    }
+
+    return this.panelTargets.every((panel, i) => {
+      if (!panel) return false;
+
+      const isVisible = i === index;
+      const hiddenValue = String(!isVisible);
+      const stateValue = isVisible ? "active" : "inactive";
+
+      return (
+        panel.hidden === !isVisible &&
+        panel.getAttribute("aria-hidden") === hiddenValue &&
+        panel.dataset.state === stateValue
+      );
+    });
+  }
+
+  /**
+   * Returns whether tab and panel state already match the given index
+   * @private
+   * @param {number} index - The tab index
+   * @returns {boolean}
+   */
+  #isSelectionSynced(index) {
+    return this.#isTabSelectionSynced(index) && this.#arePanelsSynced(index);
+  }
+
+  /**
+   * Updates tab selection state synchronously
+   *
+   * aria-controls is temporarily removed during updates so NVDA does not
+   * re-announce tabs when aria-selected changes on a focused tab.
+   *
+   * @see https://github.com/nvaccess/nvda/issues/18794
+   *
+   * @private
+   * @param {number} index - The tab index to select
+   * @returns {void}
+   */
+  #updateTabs(index) {
+    const restoredControls = this.tabTargets.map((tab) => {
+      if (!tab) return null;
+
+      const controls = tab.getAttribute("aria-controls");
+      if (controls) {
+        tab.removeAttribute("aria-controls");
+      }
+
+      return controls;
+    });
+
+    try {
+      this.tabTargets.forEach((tab, i) => {
+        if (!tab) return;
+
+        const isSelected = i === index;
+        const selectedValue = String(isSelected);
+        const stateValue = isSelected ? "active" : "inactive";
+        const tabIndexValue = isSelected ? 0 : -1;
+
+        if (tab.getAttribute("aria-selected") !== selectedValue) {
+          tab.setAttribute("aria-selected", selectedValue);
+        }
+
+        if (tab.dataset.state !== stateValue) {
+          tab.dataset.state = stateValue;
+        }
+
+        if (tab.tabIndex !== tabIndexValue) {
+          tab.tabIndex = tabIndexValue;
+        }
+      });
+    } finally {
+      this.tabTargets.forEach((tab, i) => {
+        const controls = restoredControls[i];
+        if (tab && controls) {
+          tab.setAttribute("aria-controls", controls);
+        }
+      });
+    }
+  }
+
+  /**
+   * Updates panel visibility for the selected tab
+   *
+   * When a panel becomes visible (`hidden` becomes false), any Turbo Frames
+   * with loading="lazy" inside will automatically fetch their content.
+   *
+   * @private
+   * @param {number} index - The tab index to show
+   * @returns {void}
+   */
+  #updatePanels(index) {
+    this.panelTargets.forEach((panel, i) => {
+      if (!panel) return;
+
+      const isVisible = i === index;
+      const hiddenValue = String(!isVisible);
+      const stateValue = isVisible ? "active" : "inactive";
+
+      if (panel.hidden !== !isVisible) {
+        panel.hidden = !isVisible;
+      }
+
+      if (panel.getAttribute("aria-hidden") !== hiddenValue) {
+        panel.setAttribute("aria-hidden", hiddenValue);
+      }
+
+      if (panel.dataset.state !== stateValue) {
+        panel.dataset.state = stateValue;
+      }
+    });
+  }
+
+  /**
+   * Applies tab and panel selection state synchronously
+   *
+   * @private
+   * @param {number} index - The tab index to select
+   * @param {boolean} updateUrl - Whether to update the URL hash
+   * @param {Function} updateMethod - The history method to use
+   * @returns {void}
+   */
+  #syncPanelsAndUrl(index, updateUrl, updateMethod) {
+    this.#updatePanels(index);
+
+    if (this.syncUrlValue && updateUrl) {
+      this.#updateUrlHash(index, updateMethod);
+    }
+  }
+
+  /**
+   * Defers panel visibility and optional URL updates
+   *
+   * @private
+   * @param {number} index - The tab index to show
+   * @param {boolean} updateUrl - Whether to update the URL hash
+   * @param {Function} updateMethod - The history method to use
+   * @returns {void}
+   */
+  #deferPanelUpdate(index, updateUrl, updateMethod) {
+    if (this.#panelUpdateTimeout) {
+      clearTimeout(this.#panelUpdateTimeout);
+    }
+
+    this.#panelUpdateTimeout = setTimeout(() => {
+      this.#panelUpdateTimeout = null;
+
+      if (!this.#canSelectIndex(index) || this.#selectedIndex !== index) {
+        return;
+      }
+
+      if (!this.#arePanelsSynced(index)) {
+        this.#updatePanels(index);
+      }
+
+      if (this.syncUrlValue && updateUrl) {
+        this.#updateUrlHash(index, updateMethod);
+      }
+    }, 20);
+  }
+
+  /**
+   * Applies tab selection and optionally defers panel visibility
+   *
+   * @private
+   * @param {number} index - The tab index to select
+   * @param {boolean} updateUrl - Whether to update the URL hash
+   * @param {Function} updateMethod - The history method to use
+   * @param {Object} options - Additional options
+   * @param {boolean} options.deferPanels - Defer panel visibility updates
+   * @returns {void}
+   */
+  #applyTabSelection(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = false } = {}) {
+    if (!this.#canSelectIndex(index)) {
+      return;
+    }
+
+    if (this.#selectedIndex === index && this.#isTabSelectionSynced(index)) {
+      if (!this.#arePanelsSynced(index)) {
+        if (deferPanels) {
+          this.#deferPanelUpdate(index, updateUrl, updateMethod);
+        } else {
+          this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
+        }
+      } else if (this.syncUrlValue && updateUrl) {
+        this.#updateUrlHash(index, updateMethod);
+      }
+
+      return;
+    }
+
+    this.#selectedIndex = index;
+    this.#updateTabs(index);
+
+    if (deferPanels) {
+      this.#deferPanelUpdate(index, updateUrl, updateMethod);
+    } else {
+      this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
+    }
   }
 
   /**
    * Selects a tab by index
    *
-   * This method handles both tab selection state and panel visibility.
-   * When a panel becomes visible (`hidden` becomes false), any Turbo Frames
-   * with loading="lazy" inside will automatically fetch their content.
-   *
-   * Turbo Frame Integration:
-   * - Removing the `hidden` attribute triggers Turbo's lazy loading mechanism
-   * - Turbo automatically fetches frame content when it becomes visible
-   * - Once loaded, Turbo caches the content (no refetch on revisit)
-   * - No explicit fetch() or JavaScript handling needed
-   *
    * @private
    * @param {number} index - The tab index to select
    * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
    * @param {Function} updateMethod - The history method to use (default: history.pushState)
+   * @param {Object} options - Additional options
+   * @param {boolean} options.deferPanels - Defer panel visibility updates
    * @returns {void}
    */
-  #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState) {
-    setTimeout(() => {
-      // Defensive checks for morph scenarios
-      if (!this.hasTabTarget || !this.hasPanelTarget) {
-        return;
-      }
+  #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = true } = {}) {
+    if (!this.#canSelectIndex(index)) {
+      return;
+    }
 
-      if (index < 0 || index >= this.tabTargets.length) {
-        return;
-      }
+    if (this.#selectedIndex === index && this.#isSelectionSynced(index)) {
+      return;
+    }
 
-      // Update all tabs
-      this.tabTargets.forEach((tab, i) => {
-        if (!tab) return; // Skip if tab doesn't exist
+    this.#applyTabSelection(index, updateUrl, updateMethod, { deferPanels });
+  }
 
-        const isSelected = i === index;
+  /**
+   * Returns whether tab roving state already matches the given index
+   * @private
+   * @param {number} index - The tab index
+   * @returns {boolean}
+   */
+  #isTabSelectionSynced(index) {
+    if (!this.#canSelectIndex(index)) {
+      return false;
+    }
 
-        // Update ARIA/state attributes
-        tab.setAttribute("aria-selected", String(isSelected));
-        tab.dataset.state = isSelected ? "active" : "inactive";
+    return this.tabTargets.every((tab, i) => {
+      if (!tab) return false;
 
-        // Update roving tabindex
-        tab.tabIndex = isSelected ? 0 : -1;
-      });
+      const isSelected = i === index;
+      const selectedValue = String(isSelected);
+      const stateValue = isSelected ? "active" : "inactive";
+      const tabIndexValue = isSelected ? 0 : -1;
 
-      // Update all panels
-      this.panelTargets.forEach((panel, i) => {
-        if (!panel) return; // Skip if panel doesn't exist
-
-        const isVisible = i === index;
-
-        // Update visibility via native hidden attribute so Turbo can detect
-        // when lazy frames become visible.
-        panel.hidden = !isVisible;
-
-        // Update ARIA hidden state
-        panel.setAttribute("aria-hidden", String(!isVisible));
-        panel.dataset.state = isVisible ? "active" : "inactive";
-      });
-
-      // Update URL hash if sync is enabled
-      if (this.syncUrlValue && updateUrl) {
-        this.#updateUrlHash(index, updateMethod);
-      }
-
-      // Turbo Frame lazy loading happens automatically here:
-      // If the newly visible panel contains a <turbo-frame loading="lazy" src="...">,
-      // Turbo will fetch the content immediately after the panel becomes visible.
-      // The frame's fallback content (loading spinner) displays during fetch,
-      // then morphs into the loaded content seamlessly.
-    }, 20);
+      return (
+        tab.getAttribute("aria-selected") === selectedValue &&
+        tab.dataset.state === stateValue &&
+        tab.tabIndex === tabIndexValue
+      );
+    });
   }
 
   /**
@@ -442,17 +658,24 @@ export default class extends Controller {
    * @returns {void}
    */
   #focusAndSelectTab(index) {
-    if (index < 0 || index >= this.tabTargets.length) {
+    if (!this.#canSelectIndex(index)) {
       return;
     }
 
     const tab = this.tabTargets[index];
 
-    // Move focus to the tab
-    tab.focus();
+    if (this.#selectedIndex === index && document.activeElement === tab && this.#isSelectionSynced(index)) {
+      return;
+    }
 
-    // Select the tab (automatic activation)
-    this.#selectTabByIndex(index);
+    // Apply selection before focus so the focus announcement includes the final
+    // selected state. aria-controls is stripped during the attribute batch so NVDA
+    // does not also announce aria-selected changes separately.
+    this.#applyTabSelection(index, true, history.pushState, { deferPanels: true });
+
+    if (document.activeElement !== tab) {
+      tab.focus({ preventScroll: true });
+    }
   }
 
   /**
@@ -569,12 +792,14 @@ export default class extends Controller {
   #handleHashChange() {
     try {
       const hashIndex = this.#getTabIndexFromHash();
-      if (hashIndex !== -1) {
-        // Use replaceState when hash is not present, to avoid creating additional history entries.
-        // (e.g. on initialization hash is not present and is set on initial connect,
-        // we don't want two history entries in this case).
-        this.#selectTabByIndex(hashIndex, true, history.replaceState);
+      if (hashIndex === -1 || this.#isSelectionSynced(hashIndex)) {
+        return;
       }
+
+      // Use replaceState when hash is not present, to avoid creating additional history entries.
+      // (e.g. on initialization hash is not present and is set on initial connect,
+      // we don't want two history entries in this case).
+      this.#selectTabByIndex(hashIndex, true, history.replaceState);
     } catch (error) {
       console.error("[pathogen--tabs] Error handling hash change:", error);
     }
@@ -603,23 +828,26 @@ export default class extends Controller {
         return;
       }
 
-      // Restore tab selection from URL hash
       const hashIndex = this.#getTabIndexFromHash();
-      if (hashIndex !== -1) {
-        // Don't update URL again - we're restoring from it
-        // Use replaceState since we're restoring state, not creating new history
-        this.#selectTabByIndex(hashIndex, true, history.replaceState);
-      } else {
-        // No hash found, use default index
-        // Use replaceState to avoid creating history entry during restoration
-        const validatedIndex = this.#validateDefaultIndex(this.defaultIndexValue);
-        this.#selectTabByIndex(validatedIndex, true, history.replaceState);
+      const targetIndex =
+        hashIndex !== -1 ? hashIndex : (this.#selectedIndex ?? this.#validateDefaultIndex(this.defaultIndexValue));
+
+      if (this.#isTabSelectionSynced(targetIndex)) {
+        if (!this.#arePanelsSynced(targetIndex)) {
+          this.#updatePanels(targetIndex);
+        }
+
+        return;
       }
 
-      // Note: We don't reload frames here because:
-      // 1. Frames with refresh="morph" are morphed during page morph (already translated)
-      // 2. Reloading causes untranslated content to flash while frame fetches new content
-      // 3. LocalTime processes morphed frame content via turbo:render event
+      // Tab attributes were reset by a morph — restore without touching panels
+      // when they already match.
+      this.#selectedIndex = targetIndex;
+      this.#updateTabs(targetIndex);
+
+      if (!this.#arePanelsSynced(targetIndex)) {
+        this.#updatePanels(targetIndex);
+      }
     } catch (error) {
       console.error("[pathogen--tabs] Error handling turbo render:", error);
     }
