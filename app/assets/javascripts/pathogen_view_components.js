@@ -5,6 +5,7 @@ import DisclosureController from "pathogen_view_components/disclosure_controller
 import DataGridController from "pathogen_view_components/data_grid_controller";
 import ToastController from "pathogen_view_components/toast_controller";
 import ToasterController from "pathogen_view_components/toaster_controller";
+import ToastSettingsController from "pathogen_view_components/toast_settings_controller";
 
 function registerPathogenControllers(application) {
   if (!application || typeof application.register !== "function") {
@@ -18,6 +19,7 @@ function registerPathogenControllers(application) {
   application.register("pathogen--data-grid", DataGridController);
   application.register("pathogen--toast", ToastController);
   application.register("pathogen--toaster", ToasterController);
+  application.register("pathogen--toast-settings", ToastSettingsController);
 
   if (import.meta.env?.DEV) {
     // eslint-disable-next-line no-console
@@ -32,5 +34,6 @@ export {
   DataGridController,
   ToastController,
   ToasterController,
+  ToastSettingsController,
   registerPathogenControllers,
 };
