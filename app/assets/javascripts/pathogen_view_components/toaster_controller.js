@@ -1,9 +1,8 @@
 import { Controller } from "@hotwired/stimulus";
 
 const ANNOUNCE_DEBOUNCE_MS = 75;
-const TOAST_GAP_PX = 8;
-// Matches --pvc-toast-peek (0.5rem) at the default 16px root font size.
-const TOAST_PEEK_PX = 8;
+// Matches --pvc-toast-gap (0.875rem) at the default 16px root font size.
+const TOAST_GAP_PX = 14;
 
 export default class extends Controller {
   static targets = ["polite", "assertive", "toast"];
@@ -236,19 +235,20 @@ export default class extends Controller {
       delete this.element.dataset.stackReady;
     }
 
-    const anchor = this.#anchorEdge();
-
     frontFirst.forEach((toast, index) => {
       const behind = metricsReady && !this.#expanded && index > 0;
       toast.style.setProperty("--toast-index", String(index));
+      toast.style.setProperty("--toast-height", `${heights[index]}px`);
       toast.dataset.behind = behind ? "true" : "false";
       toast.setAttribute("aria-hidden", behind ? "true" : "false");
       toast.tabIndex = behind ? -1 : 0;
 
-      // Clear layout overrides before applying the active stack mode.
+      // Clear legacy layout overrides — CSS owns position/transform/height.
       toast.style.removeProperty("max-height");
       toast.style.removeProperty("height");
       toast.style.removeProperty("overflow");
+      toast.style.removeProperty("position");
+      this.#clearAnchorOffset(toast);
 
       if (this.#expanded && metricsReady) {
         let offset = 0;
@@ -256,26 +256,8 @@ export default class extends Controller {
           offset += heights[i] + TOAST_GAP_PX;
         }
         toast.style.setProperty("--toast-offset", `${offset}px`);
-        toast.style.position = "absolute";
-        toast.style.height = "auto";
-        toast.style.maxHeight = "none";
-        toast.style.overflow = "visible";
-        this.#setAnchorOffset(toast, anchor, offset);
-      } else if (behind) {
-        toast.style.removeProperty("--toast-offset");
-        toast.style.position = "absolute";
-        toast.style.height = `${TOAST_PEEK_PX}px`;
-        toast.style.maxHeight = `${TOAST_PEEK_PX}px`;
-        toast.style.overflow = "hidden";
-        const offset = frontHeight + (index - 1) * TOAST_PEEK_PX;
-        this.#setAnchorOffset(toast, anchor, offset);
       } else {
-        toast.style.removeProperty("--toast-offset");
-        toast.style.position = "relative";
-        toast.style.height = "auto";
-        toast.style.maxHeight = "none";
-        toast.style.overflow = "visible";
-        this.#clearAnchorOffset(toast);
+        toast.style.setProperty("--toast-offset", "0px");
       }
     });
 
@@ -299,9 +281,9 @@ export default class extends Controller {
       const stackHeight =
         heights.reduce((sum, height) => sum + height, 0) + Math.max(0, heights.length - 1) * TOAST_GAP_PX;
       list.style.setProperty("--stack-height", `${stackHeight}px`);
-      list.style.removeProperty("--front-height");
-      list.style.removeProperty("--peek-count");
-      this.element.dataset.hasPeek = "false";
+      // Keep front metrics so collapse can reverse the same transform path.
+      list.style.setProperty("--front-height", `${frontHeight}px`);
+      list.style.setProperty("--peek-count", String(peekCount));
     } else if (metricsReady) {
       list.style.setProperty("--front-height", `${frontHeight}px`);
       list.style.setProperty("--peek-count", String(peekCount));
@@ -355,16 +337,6 @@ export default class extends Controller {
     return size;
   }
 
-  #setAnchorOffset(toast, anchor, offsetPx) {
-    if (anchor === "bottom") {
-      toast.style.top = "auto";
-      toast.style.bottom = `${offsetPx}px`;
-    } else {
-      toast.style.bottom = "auto";
-      toast.style.top = `${offsetPx}px`;
-    }
-  }
-
   #clearAnchorOffset(toast) {
     toast.style.removeProperty("top");
     toast.style.removeProperty("bottom");
@@ -378,6 +350,7 @@ export default class extends Controller {
   #clearToastPeekVars(toast) {
     toast.style.removeProperty("--toast-index");
     toast.style.removeProperty("--toast-offset");
+    toast.style.removeProperty("--toast-height");
     toast.style.removeProperty("max-height");
     toast.style.removeProperty("height");
     toast.style.removeProperty("overflow");
@@ -410,4 +383,4 @@ export default class extends Controller {
   }
 }
 
-export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, TOAST_PEEK_PX };
+export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX };
