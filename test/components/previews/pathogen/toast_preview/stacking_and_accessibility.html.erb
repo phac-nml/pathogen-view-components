@@ -5,9 +5,9 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Stack behaviour" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Overflow toasts collapse into a scaled card deck until the stack is hovered or focused — then they animate
-      out to full height. Errors announce assertively and stay visible. Actionable toasts pause auto-dismiss until
-      dismissed.
+      Status toasts collapse into a scaled card deck until hovered, focused, or expanded via “+N more”. Peek-behind
+      cards are <%= pathogen_code { "inert" } %>. Warnings/errors are notification dialogs — flat stack, focus moves in,
+      no live announce. Open the Notifications control to review history.
     <% end %>
 
     <div
@@ -17,9 +17,15 @@
       "
     >
       <%= pathogen_supporting(variant: :muted) do %>
-        Outbreak report workspace — reference data and publication controls stay editable while notifications stack at
-        the top center.
+        Outbreak report workspace — reference data stays editable while notifications stack at the top center.
       <% end %>
+
+      <div class="mt-4 flex items-center gap-2">
+        <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo publication') %>
+        <%= pathogen_supporting(variant: :muted, class: "text-sm") do %>
+          In-page Undo (preferred). Optional status toast may confirm without owning the action.
+        <% end %>
+      </div>
 
       <%= render Pathogen::Toaster.new(
         position: :top_center,
@@ -41,6 +47,12 @@
         ) %>
 
         <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Publication rolled back.',
+          description: 'Use Undo publication above if you need to reverse again.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
           type: :warning,
           message: 'Connection is unstable.',
           description: 'Retries are running every 10 seconds.'
@@ -51,78 +63,42 @@
           message: 'Reference data stale.',
           description: 'Re-index before finalizing this outbreak report.'
         ) %>
-
-        <%= render Pathogen::Toast.new(
-          type: :info,
-          message: 'Undo publication?',
-          description: 'This release can be rolled back for 10 minutes.'
-        ) do |toast| %>
-          <% toast.with_action do %>
-            <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo') %>
-          <% end %>
-        <% end %>
       <% end %>
     </div>
   </section>
 
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Live regions" } %>
-
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Visible toasts use <%= pathogen_code { 'aria-live="off"' } %>. Screen-reader announcements route through
-      dedicated polite and assertive regions in the toaster host.
-    <% end %>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Accessibility contract" } %>
 
     <div class="grid gap-4 lg:grid-cols-2">
       <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
-        <%= pathogen_heading(level: 4, class: "mb-3") { "Polite channel" } %>
-
+        <%= pathogen_heading(level: 4, class: "mb-3") { "Status toast" } %>
         <dl class="space-y-2 text-sm">
           <div class="flex gap-2">
             <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "status" } } %>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "listitem" } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "polite" } } %>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">announce</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { "polite status region (interrupt: assertive)" } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">used for</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { "Success, info, and warning toasts" } %>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">focus</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { "not in tab order" } %>
           </div>
         </dl>
       </div>
 
       <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
-        <%= pathogen_heading(level: 4, class: "mb-3") { "Assertive channel" } %>
-
+        <%= pathogen_heading(level: 4, class: "mb-3") { "Notification dialog" } %>
         <dl class="space-y-2 text-sm">
           <div class="flex gap-2">
             <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "alert" } } %>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { 'dialog aria-modal="false"' } } %>
           </div>
           <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { pathogen_code { "assertive" } } %>
-          </div>
-          <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">used for</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) { "Error toasts that must interrupt" } %>
-          </div>
-        </dl>
-      </div>
-
-      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 lg:col-span-2">
-        <%= pathogen_heading(level: 4, class: "mb-3") { "Toast list item" } %>
-
-        <dl class="grid gap-2 text-sm sm:grid-cols-2">
-          <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">role</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) do %><%= pathogen_code { "listitem" } %> inside labelled <%= pathogen_code { "ol" } %><% end %>
-          </div>
-          <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">aria-live</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) do %><%= pathogen_code { "off" } %> on the visible toast<% end %>
+            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">announce</dt>
+            <%= pathogen_supporting(tag: :dd, variant: :muted) { "none — focus moves into the dialog" } %>
           </div>
           <div class="flex gap-2">
             <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">dismiss</dt>
@@ -131,20 +107,8 @@
               when focused
             <% end %>
           </div>
-          <div class="flex gap-2">
-            <dt class="shrink-0 font-mono text-(--pvc-color-accent-strong)">timeout</dt>
-            <%= pathogen_supporting(tag: :dd, variant: :muted) do %>Paused on hover or focus; errors use <%= pathogen_code { "0" } %><% end %>
-          </div>
         </dl>
       </div>
     </div>
   </section>
-
-  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
-    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
-    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
-      Hover or focus the toast stack to expand the deck and reveal overflow items. Pair status icons with visible
-      text — type labels are exposed to screen readers via <%= pathogen_code { "sr-only" } %> prefixes.
-    <% end %>
-  </div>
 </div>
