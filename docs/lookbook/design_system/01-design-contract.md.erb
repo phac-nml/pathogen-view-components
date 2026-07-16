@@ -218,9 +218,9 @@ Use `Pathogen::Link` for inline navigation. Use button-styled links only inside 
 - **Surface** — raised overlay: `--pvc-color-surface-raised`, `--pvc-color-border`, `--pvc-radius-panel`, `--pvc-shadow-overlay`.
 - **Status** — pair a semantic icon with the message. Use `--pvc-color-success`, `--pvc-color-warning`, and `--pvc-color-danger` for those types. Keep `info` quiet with `--pvc-color-text-muted` on the icon; reserve accent for real brand actions inside the toast action slot.
 - **Type** — message at control scale, semibold; description at control scale, muted. No decorative accent bars or colour blocks beyond the icon.
-- **Stack** — collapsed toasts form a quiet deck: small vertical offset and horizontal inset, no scale. Hover or focus expands the stack to full height. Overflow beyond `max_visible` stays hidden until expand. Prefer `prefers-reduced-motion: reduce` → flat list with the same hide/reveal rules.
+- **Stack** — collapsed toasts form a quiet deck of full cards: small vertical offset plus a modest scale step (`--pvc-toast-scale-step`) so behind layers read as a stack, not chrome strips. Hover or focus expands the stack to full height. Overflow beyond `max_visible` stays hidden until expand. Prefer `prefers-reduced-motion: reduce` → flat list with the same hide/reveal rules.
 - **Dismiss** — `Pathogen::Button` `small` + `neutral` + `ghost`, icon-only, with a translated `aria-label`. Errors and actionable toasts stay until dismissed.
-- **Motion** — fade opacity on dismiss (`--pvc-duration-default`). Stack expand/collapse may use short transform/layout transitions at `--pvc-duration-overlay`; honour `prefers-reduced-motion` in the Stimulus controller.
+- **Motion** — fade opacity on dismiss (`--pvc-duration-default`). Stack expand/collapse animates `transform` (translateY + scale) and height at `--pvc-duration-overlay`; honour `prefers-reduced-motion` in the Stimulus controller.
 
 ## Forms
 
