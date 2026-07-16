@@ -1,0 +1,110 @@
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Peek stack" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Status toasts only — peek collapse requires every toast to be status mode. Hover, focus, or “+N more” expands.
+      Peek-behind cards are <%= pathogen_code { "inert" } %>.
+    <% end %>
+
+    <div
+      class="
+        relative min-h-80 overflow-hidden rounded-(--pvc-radius-panel) border
+        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+      "
+    >
+      <%= pathogen_supporting(variant: :muted) do %>
+        Outbreak report workspace — successive status confirmations stack at top center.
+      <% end %>
+
+      <%= render Pathogen::Toaster.new(
+        position: :top_center,
+        strategy: :absolute,
+        turbo_permanent: false,
+        max_visible: 3,
+        list_id: 'flashes-stacking'
+      ) do %>
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Annotation import complete.',
+          description: '4,391 records were indexed.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Filter preset saved.',
+          description: 'Preset "Ontario weekly report" is available to your team.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Publication rolled back.',
+          description: 'Use the in-page Undo control if you need to reverse again.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Metadata sync finished.',
+          description: '19 newly published records were indexed.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Batch assignment completed.',
+          description: '24 samples moved to run B-2026-06.',
+          timeout: 60_000
+        ) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Flat when a dialog is present" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Any warning, error, or <%= pathogen_code { "dismissible: true" } %> toast forces
+      <%= pathogen_code { 'data-stack="flat"' } %> so dialogs stay fully visible and focusable.
+    <% end %>
+
+    <div
+      class="
+        relative min-h-72 overflow-hidden rounded-(--pvc-radius-panel) border
+        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+      "
+    >
+      <%= render Pathogen::Toaster.new(
+        position: :top_center,
+        strategy: :absolute,
+        turbo_permanent: false,
+        max_visible: 3,
+        list_id: 'flashes-stacking-flat'
+      ) do %>
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Annotation import complete.',
+          description: '4,391 records were indexed.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Filter preset saved.',
+          description: 'Preset "Ontario weekly report" is available to your team.',
+          timeout: 60_000
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :warning,
+          message: 'Connection is unstable.',
+          description: 'Retries are running every 10 seconds.'
+        ) %>
+      <% end %>
+    </div>
+  </section>
+</div>

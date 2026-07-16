@@ -1,44 +1,26 @@
 <%# herb:formatter ignore %>
 
-<div class="flex max-w-3xl flex-col gap-6 p-4">
-  <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Playground" } %>
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= pathogen_supporting(variant: :muted) do %>
+    Status toasts (success/info) auto-dismiss and stay non-interactive. Warnings, errors, and
+    <%= pathogen_code { "dismissible: true" } %> become notification dialogs.
+  <% end %>
 
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Adjust type, timeout, and dismiss. Warnings/errors ignore timeout and become notification dialogs. Status toasts
-      stay non-interactive unless dismissible is enabled.
+  <div
+    class="
+      relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
+      border-(--pvc-color-border) bg-(--pvc-color-surface)
+    "
+  >
+    <%= render Pathogen::Toaster.new(**toaster_args.merge(list_id: 'flashes-playground')) do %>
+      <%= render Pathogen::Toast.new(
+        type: type,
+        message: 'Metadata sync finished.',
+        description: '19 newly published records were indexed.',
+        timeout: timeout,
+        dismissible: dismissible,
+        interrupt: interrupt
+      ) %>
     <% end %>
-
-    <dl class="mb-4 grid gap-2 text-sm sm:grid-cols-2">
-      <div class="flex gap-2">
-        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Type" } %>
-        <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { type } %>
-      </div>
-      <div class="flex gap-2">
-        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Timeout" } %>
-        <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "#{timeout} ms" } %>
-      </div>
-      <div class="flex gap-2">
-        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Dismissible" } %>
-        <%= pathogen_supporting(tag: :dd, variant: :muted) { dismissible ? 'Yes (dialog mode)' : 'No (status mode)' } %>
-      </div>
-    </dl>
-
-    <div
-      class="
-        relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
-        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
-      "
-    >
-      <%= render Pathogen::Toaster.new(**toaster_args.merge(list_id: 'flashes-playground')) do %>
-        <%= render Pathogen::Toast.new(
-          type: type,
-          message: 'Playground notification.',
-          description: 'Use Lookbook params to compare status vs dialog behaviour.',
-          timeout: timeout,
-          dismissible: dismissible
-        ) %>
-      <% end %>
-    </div>
-  </section>
+  </div>
 </div>
