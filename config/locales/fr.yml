@@ -31,7 +31,6 @@ fr:
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
     toast:
-      assertive_region_label: Notifications critiques
       dismiss: Fermer la notification
       dismiss_all: Tout fermer
       log_empty: Aucune notification pour le moment.
