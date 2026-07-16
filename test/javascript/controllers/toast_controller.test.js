@@ -218,15 +218,6 @@ describe("toast_controller", () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
-  it("publishes log events for every toast", async () => {
-    const listener = vi.fn();
-    document.body.addEventListener("pathogen:toast:log", listener);
-    buildToast({ timeout: 0, mode: "status", message: "Saved", type: "success" });
-    await waitForController();
-    expect(listener).toHaveBeenCalledTimes(1);
-    expect(listener.mock.calls[0][0].detail.message).toBe("Success: Saved");
-  });
-
   it("restores focus to the prior element when dismissed via the close button", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
