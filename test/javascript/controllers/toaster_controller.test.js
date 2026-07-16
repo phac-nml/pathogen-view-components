@@ -26,7 +26,6 @@ const TOASTER_ACTIONS = [
   "focusin->pathogen--toaster#expand",
   "focusout->pathogen--toaster#collapseIfIdle",
   "pathogen:toast:announce->pathogen--toaster#announce",
-  "pathogen:toast:log->pathogen--toaster#appendLog",
   "pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed",
 ].join(" ");
 
@@ -105,19 +104,6 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   dismissAll.hidden = true;
   section.appendChild(dismissAll);
 
-  const log = document.createElement("div");
-  log.setAttribute("data-pathogen--toaster-target", "log");
-  log.hidden = true;
-  const logList = document.createElement("ol");
-  logList.setAttribute("data-pathogen--toaster-target", "logList");
-  log.appendChild(logList);
-  section.appendChild(log);
-
-  const logCount = document.createElement("span");
-  logCount.setAttribute("data-pathogen--toaster-target", "logCount");
-  logCount.hidden = true;
-  section.appendChild(logCount);
-
   const list = document.createElement("ol");
   list.id = "flashes";
   list.className = "pvc-toaster__list";
@@ -140,7 +126,7 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   }
 
   document.body.appendChild(section);
-  return { section, list, polite, assertive, more, dismissAll, log, logList, logCount };
+  return { section, list, polite, assertive, more, dismissAll };
 };
 
 const mockReducedMotion = (matches) => {
@@ -387,18 +373,6 @@ describe("toaster_controller", () => {
     expect(toasts[1].hasAttribute("inert")).toBe(true);
     expect(toasts[1].querySelector("button")).not.toBeNull();
     expect(toasts[2].hasAttribute("inert")).toBe(false);
-  });
-
-  it("appends notification log entries from toast log events", async () => {
-    const { section, logList, logCount } = buildToaster({ maxVisible: 3, count: 0 });
-    await waitForController();
-    const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
-
-    controller.appendLog({ detail: { message: "Success: Saved", type: "success" } });
-    expect(logCount.hidden).toBe(false);
-    expect(logCount.textContent).toBe("1");
-    expect(logList.children).toHaveLength(1);
-    expect(logList.textContent).toContain("Success: Saved");
   });
 
   it("applies expanded offsets from measured heights via CSS vars", async () => {

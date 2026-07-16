@@ -32,7 +32,7 @@ module Pathogen
     def overview; end
 
     # @label Stacking & accessibility
-    # Peek stack, inert behind cards, status vs dialog modes, and notification log.
+    # Peek stack, inert behind cards, and status vs dialog modes.
     def stacking_and_accessibility; end
 
     # @label Positions
