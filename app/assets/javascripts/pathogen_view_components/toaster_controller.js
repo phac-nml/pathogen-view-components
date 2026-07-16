@@ -2,6 +2,8 @@ import { Controller } from "@hotwired/stimulus";
 
 const ANNOUNCE_DEBOUNCE_MS = 75;
 const TOAST_GAP_PX = 8;
+// Matches --pvc-toast-peek (0.5rem) at the default 16px root font size.
+const TOAST_PEEK_PX = 8;
 
 export default class extends Controller {
   static targets = ["polite", "assertive", "toast"];
@@ -234,6 +236,8 @@ export default class extends Controller {
       delete this.element.dataset.stackReady;
     }
 
+    const anchor = this.#anchorEdge();
+
     frontFirst.forEach((toast, index) => {
       const behind = metricsReady && !this.#expanded && index > 0;
       toast.style.setProperty("--toast-index", String(index));
@@ -241,7 +245,7 @@ export default class extends Controller {
       toast.setAttribute("aria-hidden", behind ? "true" : "false");
       toast.tabIndex = behind ? -1 : 0;
 
-      // Clear layout overrides; CSS handles collapsed peek strip sizing.
+      // Clear layout overrides before applying the active stack mode.
       toast.style.removeProperty("max-height");
       toast.style.removeProperty("height");
       toast.style.removeProperty("overflow");
@@ -252,8 +256,26 @@ export default class extends Controller {
           offset += heights[i] + TOAST_GAP_PX;
         }
         toast.style.setProperty("--toast-offset", `${offset}px`);
+        toast.style.position = "absolute";
+        toast.style.height = "auto";
+        toast.style.maxHeight = "none";
+        toast.style.overflow = "visible";
+        this.#setAnchorOffset(toast, anchor, offset);
+      } else if (behind) {
+        toast.style.removeProperty("--toast-offset");
+        toast.style.position = "absolute";
+        toast.style.height = `${TOAST_PEEK_PX}px`;
+        toast.style.maxHeight = `${TOAST_PEEK_PX}px`;
+        toast.style.overflow = "hidden";
+        const offset = frontHeight + (index - 1) * TOAST_PEEK_PX;
+        this.#setAnchorOffset(toast, anchor, offset);
       } else {
         toast.style.removeProperty("--toast-offset");
+        toast.style.position = "relative";
+        toast.style.height = "auto";
+        toast.style.maxHeight = "none";
+        toast.style.overflow = "visible";
+        this.#clearAnchorOffset(toast);
       }
     });
 
@@ -294,6 +316,7 @@ export default class extends Controller {
   #naturalSize(toast) {
     const previous = {
       height: toast.style.height,
+      maxHeight: toast.style.maxHeight,
       overflow: toast.style.overflow,
       width: toast.style.width,
       position: toast.style.position,
@@ -304,29 +327,47 @@ export default class extends Controller {
       transform: toast.style.transform,
     };
 
-    // Absolute + percentage width collapses on shrink-wrapped corner toasters.
-    // Measure with an unconstrained static layout first for width, then lock that
-    // width so height matches the rendered (non-wrapping) card.
+    // Measure in the toaster's real column width. Using max-content underestimates
+    // height for long host-app copy (IRIDA upload flashes) that wraps at max-w-md,
+    // which collapses peek offsets under the front card and overlaps on expand.
+    const columnWidth = Math.ceil(this.#listElement()?.clientWidth ?? 0);
+
     toast.style.position = "static";
-    toast.style.width = "max-content";
     toast.style.height = "auto";
+    toast.style.maxHeight = "none";
     toast.style.overflow = "visible";
     toast.style.left = "auto";
     toast.style.right = "auto";
     toast.style.top = "auto";
     toast.style.bottom = "auto";
     toast.style.transform = "none";
+    toast.style.width = columnWidth > 0 ? `${columnWidth}px` : "max-content";
 
     const width = Math.ceil(toast.getBoundingClientRect().width);
-    if (width > 0) toast.style.width = `${width}px`;
+    if (columnWidth <= 0 && width > 0) toast.style.width = `${width}px`;
     const height = Math.ceil(toast.getBoundingClientRect().height);
-    const size = { height, width };
+    const size = { height, width: columnWidth > 0 ? columnWidth : width };
 
     Object.entries(previous).forEach(([key, value]) => {
       toast.style[key] = value;
     });
 
     return size;
+  }
+
+  #setAnchorOffset(toast, anchor, offsetPx) {
+    if (anchor === "bottom") {
+      toast.style.top = "auto";
+      toast.style.bottom = `${offsetPx}px`;
+    } else {
+      toast.style.bottom = "auto";
+      toast.style.top = `${offsetPx}px`;
+    }
+  }
+
+  #clearAnchorOffset(toast) {
+    toast.style.removeProperty("top");
+    toast.style.removeProperty("bottom");
   }
 
   #clearPeekStyles(toasts) {
@@ -340,6 +381,8 @@ export default class extends Controller {
     toast.style.removeProperty("max-height");
     toast.style.removeProperty("height");
     toast.style.removeProperty("overflow");
+    toast.style.removeProperty("position");
+    this.#clearAnchorOffset(toast);
     toast.removeAttribute("data-behind");
   }
 
@@ -367,4 +410,4 @@ export default class extends Controller {
   }
 }
 
-export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX };
+export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, TOAST_PEEK_PX };
