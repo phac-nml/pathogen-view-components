@@ -25,6 +25,7 @@ module Pathogen
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
         inline-flex items-center overflow-hidden align-middle
+        rounded-[var(--pvc-radius-action)]
         min-h-6 pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
       ]
