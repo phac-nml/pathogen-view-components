@@ -42,12 +42,8 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
-  config.hosts << 'localhost'
-  config.hosts << '127.0.0.1'
-  config.hosts << '::1'
-  config.hosts.concat(
-    ENV.fetch('DEMO_ALLOWED_HOSTS', '').split(',').map(&:strip).compact_blank
-  )
+  # the following settings allow us to forward ports securely using vscode remote port forwarding
+  config.hosts.clear
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
