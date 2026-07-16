@@ -83,7 +83,7 @@ export class PageCache {
   hasAllRowsForPage(page, pageSize, totalRows) {
     const start = (page - 1) * pageSize;
     const end = Math.min(start + pageSize, totalRows);
-    if (start >= totalRows) return false;
+    if (start >= totalRows) return null;
 
     for (let index = start; index < end; index += 1) {
       if (!this.#rowsByIndex.has(index)) return false;

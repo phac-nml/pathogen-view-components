@@ -55,6 +55,7 @@ describe("page_cache", () => {
 
   it("does not request pages beyond the dataset", () => {
     const cache = new PageCache();
+    expect(cache.hasAllRowsForPage(101, 50, 5000)).toBeNull();
     expect(cache.needsPage(101, 50, 5000)).toBe(false);
   });
 
