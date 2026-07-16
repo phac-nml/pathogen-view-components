@@ -228,12 +228,11 @@ Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and st
 - **Status colour** — semantic icon with `--pvc-color-success`, `--pvc-color-warning`, `--pvc-color-danger`; `info` uses `--pvc-color-text-muted`. Reserve accent for real actions in the action slot.
 - **Type** — message at control scale, semibold; description at control scale, muted. Dialogs are named by their severity label plus message (`aria-labelledby`) and describe the description via `aria-describedby`.
 - **Stack** — status toasts may form a quiet peek deck. Hover, focus, or the “+N more” control expands. Peek-behind and overflow cards use `inert`. Dialog-mode notifications and `prefers-reduced-motion` use a flat stack.
-- **Timing (WCAG 2.2.1, Level A)** — default status timeout is 6s; pause on hover/focus. A 6s auto-dismissing status toast **only conforms when the same information persists in durable host UI** (a list row, job status, or flash banner). If a status toast is the *only* place the information appears, the host **must** expose a user setting that can extend or disable the timer *before* the toast is shown. Wire that setting to `duration_preference:` (per-toaster) or `localStorage['pathogen.toast.durationMs']` (global): accepted values are ms (`6000`, `20000`, …), `0`, or `forever`. `0` / `forever` promotes status toasts to dismissible dialogs (announced politely, no focus steal). A dedicated Pathogen settings component is a planned follow-up; until then hosts own this UI, e.g.:
+- **Timing (WCAG 2.2.1, Level A)** — default status timeout is 6s; pause on hover/focus. A 6s auto-dismissing status toast **only conforms when the same information persists in durable host UI** (a list row, job status, or flash banner). If a status toast is the *only* place the information appears, the host **must** expose a user setting that can extend or disable the timer *before* the toast is shown. Render `Pathogen::ToastSettings` (`pathogen_toast_settings`) in your preferences UI — it writes `localStorage['pathogen.toast.durationMs']` for you — or wire the value yourself via `duration_preference:` (per-toaster) or that storage key (global): accepted values are ms (`6000`, `20000`, …), `0`, or `forever`. `0` / `forever` promotes status toasts to dismissible dialogs (announced politely, no focus steal).
 
   ```erb
-  <%%= form.select :toast_duration,
-        [["5 seconds", 5000], ["20 seconds", 20000], ["Keep until dismissed", "forever"]],
-        onchange: "localStorage.setItem('pathogen.toast.durationMs', this.value)" %>
+  <%%# Drop-in, accessible duration control (default / 20s / forever): %>
+  <%%= pathogen_toast_settings %>
   ```
 
 - **Interrupt** — errors are dialogs and rely on guarded focus by default. Pass `interrupt: true` only for true emergencies: the error is then announced through the **assertive** live region (interrupting the screen reader) and does **not** move focus, so a system- or stream-triggered alert reaches everyone without hijacking the current task.
