@@ -38,10 +38,12 @@ module Pathogen
       assert_no_selector 'button[class*="interactive-hover:border-"]'
     end
 
-    test 'clips action lane to container radius' do
+    test 'rounds action lane to container radius without clipping focus' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="overflow-hidden"][class*="rounded-[var(--pvc-radius-action)]"]'
+      assert_selector 'span[class*="rounded-[var(--pvc-radius-action)]"]'
+      assert_no_selector 'span[class*="overflow-hidden"]'
+      assert_selector 'button[class*="rounded-r-[calc(var(--pvc-radius-action)-1px)]"]'
       assert_selector 'span[class*="min-h-6"]'
     end
 

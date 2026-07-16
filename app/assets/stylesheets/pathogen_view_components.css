@@ -751,6 +751,10 @@
     border-top-left-radius: var(--pvc-radius-action);
     border-top-right-radius: var(--pvc-radius-action);
   }
+  .rounded-r-\[calc\(var\(--pvc-radius-action\)-1px\)\] {
+    border-top-right-radius: calc(var(--pvc-radius-action) - 1px);
+    border-bottom-right-radius: calc(var(--pvc-radius-action) - 1px);
+  }
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
