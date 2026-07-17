@@ -34,7 +34,6 @@
         <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-preview-grid') do %>
           <%= render Pathogen::Toolbar::Group.new do %>
             <%= render Pathogen::Toolbar::Button.new(
-              type: :submit,
               form: 'toolbar-preview-select-all',
               label: 'Select all samples in this project'
             ) do %>
@@ -42,7 +41,6 @@
             <% end %>
 
             <%= render Pathogen::Toolbar::Button.new(
-              type: :submit,
               form: 'toolbar-preview-deselect-all',
               label: 'Deselect all samples in this project'
             ) do %>
