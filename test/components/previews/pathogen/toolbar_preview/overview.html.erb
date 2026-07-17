@@ -92,6 +92,81 @@
   </section>
 
   <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Responsive full-width reflow</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Resize the preview below the <code class="font-mono">sm</code> breakpoint (640px). The spacer collapses, each
+      <code class="font-mono">Toolbar::Group</code> takes a full row, and the search field expands to fill the available
+      width.
+    </p>
+
+    <div
+      class="
+        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)]
+      "
+      data-pathogen--toolbar-surface
+    >
+      <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-4 py-3">
+        <%= render Pathogen::Toolbar.new(label: 'Responsive sample grid actions', controls: 'toolbar-reflow-grid') do %>
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new(label: 'Select all samples in this project') do %>
+              Select all
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Deselect all samples in this project') do %>
+              Deselect all
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Spacer.new %>
+
+          <%= render Pathogen::Toolbar::Group.new do %>
+            <%= render Pathogen::Toolbar::Button.new(label: 'Filter samples') do %>
+              Filter
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Choose visible columns') do %>
+              Columns
+            <% end %>
+
+            <%= render Pathogen::Toolbar::Button.new(label: 'Export selected samples') do %>
+              Export
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
+            <input
+              id="toolbar-reflow-search"
+              type="search"
+              autocomplete="off"
+              tabindex="-1"
+              data-pathogen--toolbar-target="item"
+              aria-label="Search responsive sample grid by ID or name"
+              placeholder="Search samples by ID or name"
+              class="
+                w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+                bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)]
+                text-[var(--pvc-color-text)]
+              "
+            >
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render Pathogen::DataGridComponent.new(
+        id: 'toolbar-reflow-grid',
+        caption: 'Responsive sample inventory',
+        rows: rows
+      ) do |grid| %>
+        <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+        <% grid.with_column('Name', key: :name) %>
+        <% grid.with_column('Status', key: :status, width: 140) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Chip toolbar</h2>
 
     <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
