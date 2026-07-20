@@ -8,8 +8,8 @@
   "scripts": {
     "format": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:format && pnpm herb:lint:fix",
     "format:changed": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:format && pnpm herb:lint:fix",
-    "herb:format": "herb-format app demo/app",
-    "herb:format:check": "herb-format --check app demo/app",
+    "herb:format": "herb-format app demo/app test/components/previews",
+    "herb:format:check": "herb-format --check app demo/app test/components/previews",
     "herb:lint": "herb-lint",
     "herb:lint:fix": "herb-lint --fix",
     "test": "vitest run",
