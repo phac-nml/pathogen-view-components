@@ -22,7 +22,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@herb-tools/formatter": "^0.10.2",
-    "@herb-tools/linter": "^0.10.1",
+    "@herb-tools/linter": "^0.10.2",
     "@tailwindcss/cli": "^4.3.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
