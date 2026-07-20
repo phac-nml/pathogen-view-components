@@ -1,11 +1,22 @@
+# Herb HTML+ERB linter + formatter
+# Docs: https://herb-tools.dev/projects/linter
+#
+# `include` is additive to Herb defaults (**/*.html.erb, etc.), so test preview
+# templates are linted too. Use `exclude` / rule-level `only` to narrow further.
+
 linter:
   enabled: true
+  # Fail CI/hooks on warnings as well as errors (default is error-only).
+  failLevel: warning
   include:
     - "app/**/*.erb"
     - "demo/app/**/*.erb"
   exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
+    - ".devenv/**/*"
+    - ".direnv/**/*"
+    - ".worktrees/**/*"
     - "docs/lookbook/**/*.md.erb"
 
 formatter:
@@ -18,4 +29,10 @@ formatter:
   exclude:
     - "node_modules/**/*"
     - "vendor/**/*"
+    - ".devenv/**/*"
+    - ".direnv/**/*"
+    - ".worktrees/**/*"
     - "docs/lookbook/**/*.md.erb"
+  rewriter:
+    pre:
+      - tailwind-class-sorter
