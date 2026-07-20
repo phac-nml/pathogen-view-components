@@ -15,6 +15,8 @@ files:
     - ".devenv/**/*"
     - ".direnv/**/*"
     - ".worktrees/**/*"
+    # Rails static error pages (and MSW worker); not authored templates.
+    - "demo/public/**/*"
     - "node_modules/**/*"
     - "vendor/**/*"
 

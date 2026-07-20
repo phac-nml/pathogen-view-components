@@ -12,7 +12,7 @@
         ["SP-2026-0042", "Collected 12 Mar 2026", "View specimen detail", "Edit collection metadata", "Download FASTQ files"],
         ["SP-2026-0043", "Collected 13 Mar 2026", "View specimen detail", "Edit collection metadata", "Download FASTQ files"]
       ].each_with_index do |(id, collected, view_label, edit_label, download_label), index| %>
-        <div class="<%= index.positive? ? "border-t border-[var(--pvc-color-border)]" : "" %> flex items-center justify-between gap-4 px-4 py-3">
+        <div class="flex items-center justify-between gap-4 px-4 py-3 <%= index.positive? ? "border-t border-[var(--pvc-color-border)]" : "" %>">
           <div>
             <%= pathogen_supporting(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { id } %>
             <%= pathogen_supporting(tag: :span, variant: :muted, class: "mt-0.5 block") { collected } %>
@@ -97,7 +97,7 @@
         py-3
       "
     >
-      <nav class="flex flex-wrap items-center gap-2 text-sm">
+      <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-2 text-sm">
         <%= render Pathogen::Link.new(href: "/", aria: { label: "Workspace home" }) do |link| %>
           <% link.with_tooltip(text: "Return to workspace home", placement: :bottom) %>
           <%= icon("house", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
