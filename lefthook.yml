@@ -35,12 +35,13 @@ pre-commit:
       exclude:
         - "docs/lookbook/**/*.md.erb"
       run: pnpm exec herb-lint {staged_files}
-    - name: herb-format-check
+    - name: herb-format
       glob:
         - "**/*.erb"
       exclude:
         - "docs/lookbook/**/*.md.erb"
-      run: pnpm exec herb-format --check {staged_files}
+      run: pnpm exec herb-format {staged_files}
+      stage_fixed: true
     - name: rubocop
       glob:
         - "*.rb"
