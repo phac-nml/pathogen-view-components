@@ -119,19 +119,19 @@ module Pathogen
       assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].font-semibold', text: 'Sync running'
       assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].text-\\[var\\(--pvc-color-text-muted\\)\\]',
                       text: 'Metadata updates in the background.'
-      assert_selector 'span.text-\\[var\\(--pvc-color-text-muted\\)\\]'
+      assert_selector 'div.text-\\[var\\(--pvc-color-text-muted\\)\\]'
       assert_selector 'button[aria-label="Dismiss notification"][class*="aspect-square"]'
     end
 
     test 'status types use semantic icon colours' do
       render_inline(Pathogen::Toast.new(type: :success, message: 'Saved'))
-      assert_selector 'span.text-\\[var\\(--pvc-color-success\\)\\]'
+      assert_selector 'div.text-\\[var\\(--pvc-color-success\\)\\]'
 
       render_inline(Pathogen::Toast.new(type: :warning, message: 'Skipped'))
-      assert_selector 'span.text-\\[var\\(--pvc-color-warning\\)\\]'
+      assert_selector 'div.text-\\[var\\(--pvc-color-warning\\)\\]'
 
       render_inline(Pathogen::Toast.new(type: :error, message: 'Failed'))
-      assert_selector 'span.text-\\[var\\(--pvc-color-danger\\)\\]'
+      assert_selector 'div.text-\\[var\\(--pvc-color-danger\\)\\]'
     end
 
     test 'dialog accessible name pairs severity label with message and describes via description' do
