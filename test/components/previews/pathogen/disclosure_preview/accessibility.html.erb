@@ -1,0 +1,36 @@
+<div class="flex max-w-lg flex-col gap-6 p-4">
+  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Keyboard and names" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Tab to the trigger, then use Enter or Space to open and close. The button exposes
+      <%= pathogen_code { "aria-expanded" } %> and <%= pathogen_code { "aria-controls" } %>. The chevron is decorative
+      (<%= pathogen_code { "aria-hidden" } %>).
+    <% end %>
+
+    <%= render Pathogen::Disclosure.new(id: "a11y-settings", label: "Settings") do %>
+      <ul class="space-y-1">
+        <li>
+          <%= pathogen_link(href: "#general") { "General" } %>
+        </li>
+
+        <li>
+          <%= pathogen_link(href: "#history") { "History" } %>
+        </li>
+      </ul>
+    <% end %>
+  </section>
+
+  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Focus" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Focus the trigger with the keyboard to confirm the visible focus ring uses
+      <%= pathogen_code { "--pvc-color-focus" } %>.
+    <% end %>
+
+    <%= render Pathogen::Disclosure.new(id: "a11y-focus", label: "Quality control filters", open: true) do %>
+      <p>Pass rate, coverage threshold, and contaminant flags for this run.</p>
+    <% end %>
+  </section>
+</div>

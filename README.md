@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, and disclosures.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -129,6 +129,29 @@ Sticky columns:
 <% end %>
 ```
 
+#### Disclosure
+
+```erb
+<%= render Pathogen::Disclosure.new(id: "advanced-options", label: "Advanced options") do %>
+  <p>Include quality metrics and protocol attachments.</p>
+<% end %>
+```
+
+For rich, non-interactive trigger content, use `with_trigger` and provide `aria_label:` as the button's
+accessible name. Do not put links, buttons, inputs, or other interactive elements in a trigger slot.
+
+```erb
+<%= render Pathogen::Disclosure.new(
+  id: "metadata-templates",
+  aria_label: "Metadata templates, 3 available"
+) do |disclosure| %>
+  <% disclosure.with_trigger do %>
+    Metadata templates <span>(3)</span>
+  <% end %>
+  <p>Specimen, isolate, and outbreak templates.</p>
+<% end %>
+```
+
 ### Styles
 
 The engine ships a single precompiled `pathogen_view_components.css`, produced in this repository with **Tailwind CSS v4** from `app/assets/stylesheets/pathogen.tailwind.css` (sources scanned across components, ERB, and Stimulus). In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
@@ -170,6 +193,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
+- `pathogen--disclosure`: Show/hide a related section with `aria-expanded` / `aria-controls`
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
