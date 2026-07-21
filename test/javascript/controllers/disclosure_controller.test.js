@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import DisclosureController from "../../../app/assets/javascripts/pathogen_view_components/disclosure_controller";
 
-const waitForController = () => new Promise((resolve) => setTimeout(resolve, 50));
+const waitForController = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const appendDisclosure = ({ open = false } = {}) => {
   const container = document.createElement("div");
@@ -53,6 +53,8 @@ describe("disclosure_controller", () => {
     const { button, panel, container } = appendDisclosure();
     await waitForController();
 
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
+    expect(controller).toBeTruthy();
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(panel.hasAttribute("hidden")).toBe(true);
     expect(container.dataset.state).toBe("closed");
