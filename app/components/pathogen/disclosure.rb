@@ -31,7 +31,7 @@ module Pathogen
     renders_one :trigger
 
     TRIGGER_CLASSES = %w[
-      inline-flex w-full items-center justify-between gap-2
+      inline-flex w-full cursor-pointer items-center justify-between gap-2
       rounded-[var(--pvc-radius-control)] px-3 py-2
       text-left text-sm font-semibold text-[color:var(--pvc-color-text)]
       bg-transparent
