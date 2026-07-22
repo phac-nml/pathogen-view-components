@@ -17,9 +17,9 @@ module Pathogen
     # `aria-label`, or `aria-labelledby`). Tooltip copy is supplementary for sighted users.
     #
     # Accessibility notes:
-    # - A tooltip that repeats the accessible name is rendered visual-only (no `aria-describedby`),
-    #   so screen reader users hear the name once. A tooltip that adds detail is announced as a
-    #   description. This is inferred from the copy (see `describe:`); override when needed.
+    # - A plain-text tooltip that repeats a reliably known plain-text name is rendered visual-only
+    #   (no `aria-describedby`), so screen reader users hear the name once. Anything that adds detail
+    #   or needs browser context is a description. This is inferred from the copy (see `describe:`).
     # - A native `disabled` button cannot receive hover or focus, so a tooltip on it is
     #   unreachable. Use `aria_disabled: true` when the control must stay focusable; attaching
     #   a tooltip to a `disabled` button raises `ArgumentError`.
@@ -29,11 +29,11 @@ module Pathogen
     # @param placement [Symbol] Physical position of the tooltip (:top, :bottom, :left, :right).
     #   These are physical, not logical, directions; in RTL layouts choose accordingly.
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
-    #   `aria-describedby`. When omitted, it is inferred: if the tooltip text merely repeats the
-    #   button's accessible name (its `text:`, `aria-label`, or visible text) it stays visual-only
-    #   (no `aria-describedby`, so screen readers announce the name once); if the tooltip adds
-    #   information the name does not convey it is associated as a description. Pass `describe:`
-    #   explicitly to override the inference.
+    #   `aria-describedby`. When omitted, matching plain-text tooltip and name values stay
+    #   visual-only; different values are associated as a description. Markup, encoded entities,
+    #   and `aria-labelledby` require browser context, so they conservatively default to a
+    #   description. Pass `describe:` explicitly to override. Reliable names are `text:`,
+    #   `aria-label`, and plain visible text.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
       # Only record the tooltip here; the association decision needs `content`, which is not
@@ -173,18 +173,14 @@ module Pathogen
     # affordance. A tooltip that only repeats the accessible name adds nothing for AT.
     def describe_tooltip?(tooltip_text)
       reference = tooltip_reference_name
-      return true if reference.blank?
+      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
+      return true if reference.blank? || tooltip_name.blank?
 
-      normalize_accessible_name(tooltip_text) != reference
+      tooltip_name != reference
     end
 
-    # The button's announced name for tooltip inference: text:/aria-label, else visible text.
-    # Visible text can carry HTML markup (icon + text), so #normalize_accessible_name strips tags
-    # and normalizes whitespace to mirror the browser's accessible-name computation.
     def tooltip_reference_name
-      reference = accessible_name
-      reference = button_text unless reference.is_a?(String) && reference.present?
-      normalize_accessible_name(reference)
+      reliable_accessible_name(@system_arguments, button_text)
     end
 
     def size_classes

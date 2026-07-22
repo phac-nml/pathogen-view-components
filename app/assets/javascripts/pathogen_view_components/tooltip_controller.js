@@ -233,7 +233,8 @@ export default class extends Controller {
 
   /**
    * Shows the tooltip with positioning and optional animation.
-   * Sets data-state="open" and aria-hidden="false" on the tooltip element.
+   * Sets data-state="open" and exposes associated descriptions to assistive technology.
+   * Visual-only tooltips stay aria-hidden while displayed.
    */
   show() {
     if (!this.#tooltipElement || this.#escapeDismissed) return;
@@ -244,7 +245,7 @@ export default class extends Controller {
     this.#tooltipElement.removeAttribute("hidden");
 
     this.#tooltipElement.dataset.state = "open";
-    this.#tooltipElement.setAttribute("aria-hidden", "false");
+    this.#tooltipElement.setAttribute("aria-hidden", String(this.associateValue !== "describedby"));
 
     this.#startAutoUpdate();
     this.#positionTooltip();

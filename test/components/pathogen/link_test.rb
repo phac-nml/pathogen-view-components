@@ -63,6 +63,16 @@ module Pathogen
       assert_no_selector 'a[aria-describedby]'
     end
 
+    test 'with_tooltip conservatively describes aria-labelledby names that require browser context' do
+      render_inline(Pathogen::Link.new(href: '/samples', aria: { labelledby: 'samples-label' })) do |component|
+        component.with_tooltip(text: 'Samples')
+        'Samples'
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'a[aria-labelledby="samples-label"][aria-describedby]'
+    end
+
     test 'with_tooltip infers visual-only from visible text when the tooltip repeats it' do
       render_inline(Pathogen::Link.new(href: '/samples')) do |component|
         component.with_tooltip(text: 'Samples')
@@ -74,14 +84,23 @@ module Pathogen
       assert_selector 'a', text: 'Samples'
     end
 
-    test 'with_tooltip infers visual-only when the tooltip repeats markup-wrapped visible text' do
+    test 'with_tooltip conservatively describes visible text that contains markup' do
       render_inline(Pathogen::Link.new(href: '/samples')) do |component|
         component.with_tooltip(text: 'Samples')
         '<span class="icon"></span>  Samples  '.html_safe
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'a[aria-describedby]'
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'a[aria-describedby]'
+    end
+
+    test 'with_tooltip conservatively describes tooltip copy that contains markup' do
+      render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'Samples' })) do |component|
+        component.with_tooltip(text: '<span>Samples</span>'.html_safe) { 'icon' }
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'a[aria-describedby]'
     end
 
     test 'with_tooltip infers describedby when the tooltip adds information' do
