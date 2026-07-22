@@ -16,7 +16,20 @@ module Pathogen
     # The button itself must still expose an accessible name (visible text, `text:`,
     # `aria-label`, or `aria-labelledby`). Tooltip copy is supplementary for sighted users.
     #
-    # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
+    # Accessibility notes:
+    # - For a labelled button, give the tooltip *extra* detail the label does not convey.
+    # - For an icon-only button the tooltip usually repeats the accessible name. That name is
+    #   already announced from `aria-label`; because the tooltip is also linked via
+    #   `aria-describedby`, screen reader users may hear it echoed. Keep the two strings
+    #   identical and specific — do not add prose that only sighted users can act on.
+    # - A native `disabled` button cannot receive hover or focus, so a tooltip on it is
+    #   unreachable. Use `aria_disabled: true` when the control must stay focusable; attaching
+    #   a tooltip to a `disabled` button raises `ArgumentError`.
+    # - On touch devices the first tap reveals the tooltip (the button's own action fires on
+    #   the second tap), mirroring the shared tooltip pattern.
+    #
+    # @param placement [Symbol] Physical position of the tooltip (:top, :bottom, :left, :right).
+    #   These are physical, not logical, directions; in RTL layouts choose accordingly.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, **system_arguments|
       @tooltip_id = Pathogen::Tooltip.generate_id
@@ -62,7 +75,8 @@ module Pathogen
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def before_render
-      tooltip if tooltip?
+      validate_tooltip_target!
+      prime_tooltip_association
       validate_icon_only_content! if @icon_only
       return unless leading_visual.present? || trailing_visual.present?
       return if @icon_only && button_text.blank?
@@ -80,6 +94,27 @@ module Pathogen
     end
 
     private
+
+    # Reject the impossible combination early: a native `disabled` button receives no
+    # hover or keyboard focus, so its tooltip can never be triggered. `aria_disabled`
+    # keeps the control focusable and is the supported way to show a tooltip on an
+    # unavailable action.
+    def validate_tooltip_target!
+      return unless tooltip?
+      return unless @system_arguments[:disabled]
+
+      raise ArgumentError,
+            'Cannot attach a tooltip to a `disabled` button: a native disabled button ' \
+            'cannot receive hover or keyboard focus, so the tooltip is unreachable. ' \
+            'Use `aria_disabled: true` to keep the control focusable.'
+    end
+
+    # Evaluating the tooltip slot runs its `renders_one` lambda, which injects
+    # `aria-describedby` and the trigger data attribute into @system_arguments.
+    # This must happen before the base button renders so the trigger carries them.
+    def prime_tooltip_association
+      tooltip if tooltip?
+    end
 
     def resolve_tone_and_emphasis(tone, emphasis)
       resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
