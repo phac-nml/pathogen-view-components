@@ -66,6 +66,13 @@ module Pathogen
       "#{base_name}-#{SecureRandom.uuid}"
     end
 
+    # Reduce a value to its comparable accessible name: strip any HTML tags (icon/span markup)
+    # and collapse surrounding/interior whitespace so markup and formatting do not skew string
+    # comparisons, mirroring the browser's accessible-name computation.
+    def normalize_accessible_name(value)
+      strip_tags(value.to_s).squish
+    end
+
     private
 
     def unpack_denylist(denylist)

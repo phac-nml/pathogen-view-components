@@ -316,6 +316,16 @@ module Pathogen
       assert_selector 'button', text: 'Export'
     end
 
+    test 'with_tooltip infers visual-only when the tooltip repeats markup-wrapped visible text' do
+      render_inline(Pathogen::Button.new) do |button|
+        button.with_tooltip(text: 'Export')
+        '<span class="icon"></span>  Export  '.html_safe
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_no_selector 'button[aria-describedby]'
+    end
+
     test 'with_tooltip(describe: true) forces association even when the tooltip repeats the name' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Settings')) do |button|
         button.with_leading_visual { 'Icon' }

@@ -86,13 +86,14 @@ module Pathogen
       reference = tooltip_reference_name
       return true if reference.blank?
 
-      tooltip_text.to_s.strip != reference
+      normalize_accessible_name(tooltip_text) != reference
     end
 
     # The link's announced name for tooltip inference: `aria-label` when present, otherwise the
-    # trimmed visible text.
+    # visible text. Visible text can contain HTML markup (icons/spans), so #normalize_accessible_name
+    # strips tags and normalizes whitespace to mirror the browser's accessible-name computation.
     def tooltip_reference_name
-      (aria_label_reference || content&.strip).to_s.strip
+      normalize_accessible_name(aria_label_reference || content)
     end
 
     def aria_label_reference
