@@ -2,7 +2,7 @@
   condition: tooltip?,
   tag: :div,
   class: class_names(
-    "inline-block",
+    "inline-block" => !@block,
     "block w-full" => @block
   ),
   'data-controller': 'pathogen--tooltip',
