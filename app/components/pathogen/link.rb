@@ -30,19 +30,30 @@ module Pathogen
     # The tooltip that appears on mouse hover or keyboard focus over the link. (optional)
     #
     # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
+    # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
+    #   `aria-describedby` (default `true`). Set `describe: false` for an icon-only link whose
+    #   tooltip merely repeats the accessible name, so the tooltip stays visual-only and screen
+    #   reader users do not hear the name announced twice.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
-    renders_one :tooltip, lambda { |placement: :top, **system_arguments|
+    renders_one :tooltip, lambda { |placement: :top, describe: true, **system_arguments|
       @tooltip_id = Pathogen::Tooltip.generate_id
-      @link_system_arguments[:aria] ||= {}
-      @link_system_arguments[:aria][:describedby] = [
-        @link_system_arguments[:aria][:describedby],
-        @tooltip_id
-      ].compact.join(' ')
+      @tooltip_associate = describe ? 'describedby' : 'none'
+      if describe
+        @link_system_arguments[:aria] ||= {}
+        @link_system_arguments[:aria][:describedby] = [
+          @link_system_arguments[:aria][:describedby],
+          @tooltip_id
+        ].compact.join(' ')
+      end
       @link_system_arguments[:data] ||= {}
       @link_system_arguments[:data]['pathogen--tooltip-target'] = 'trigger'
 
       Pathogen::Tooltip.new(id: @tooltip_id, placement: placement, **system_arguments)
     }
+
+    # Association mode passed to the tooltip Stimulus controller ("describedby" or "none").
+    # Set while priming the tooltip slot; nil when the link has no tooltip.
+    attr_reader :tooltip_associate
 
     def before_render
       tooltip if tooltip?

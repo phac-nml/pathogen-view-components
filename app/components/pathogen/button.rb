@@ -30,14 +30,25 @@ module Pathogen
     #
     # @param placement [Symbol] Physical position of the tooltip (:top, :bottom, :left, :right).
     #   These are physical, not logical, directions; in RTL layouts choose accordingly.
+    # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
+    #   `aria-describedby`. Defaults to `false` for icon-only buttons (the tooltip repeats the
+    #   accessible name, so it stays visual-only to avoid a duplicate screen-reader
+    #   announcement) and `true` otherwise. Pass `describe: true` on an icon-only button when
+    #   the tooltip adds information the accessible name does not convey.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
-    renders_one :tooltip, lambda { |placement: :top, **system_arguments|
+    renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
+      # Default: icon-only buttons keep the tooltip visual-only (the accessible name is
+      # already on the button), labelled buttons associate it as a supplementary description.
+      describe = !@icon_only if describe.nil?
       @tooltip_id = Pathogen::Tooltip.generate_id
-      @system_arguments[:aria] ||= {}
-      @system_arguments[:aria][:describedby] = [
-        @system_arguments[:aria][:describedby],
-        @tooltip_id
-      ].compact.join(' ')
+      @tooltip_associate = describe ? 'describedby' : 'none'
+      if describe
+        @system_arguments[:aria] ||= {}
+        @system_arguments[:aria][:describedby] = [
+          @system_arguments[:aria][:describedby],
+          @tooltip_id
+        ].compact.join(' ')
+      end
       @system_arguments[:data] ||= {}
       @system_arguments[:data]['pathogen--tooltip-target'] = 'trigger'
 
@@ -92,6 +103,10 @@ module Pathogen
 
       trimmed_content.presence || @text
     end
+
+    # Association mode passed to the tooltip Stimulus controller ("describedby" or "none").
+    # Set while priming the tooltip slot; nil when the button has no tooltip.
+    attr_reader :tooltip_associate
 
     private
 
