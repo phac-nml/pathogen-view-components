@@ -169,18 +169,8 @@ module Pathogen
         (aria.is_a?(Hash) && (aria[:label] || aria['label'] || aria[:labelledby] || aria['labelledby']).presence)
     end
 
-    # Infer whether the tooltip should be a description (`aria-describedby`) or a visual-only
-    # affordance. A tooltip that only repeats the accessible name adds nothing for AT.
     def describe_tooltip?(tooltip_text)
-      reference = tooltip_reference_name
-      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
-      return true if reference.blank? || tooltip_name.blank?
-
-      tooltip_name != reference
-    end
-
-    def tooltip_reference_name
-      reliable_accessible_name(@system_arguments, button_text)
+      tooltip_describes?(tooltip_text, @system_arguments, button_text)
     end
 
     def size_classes

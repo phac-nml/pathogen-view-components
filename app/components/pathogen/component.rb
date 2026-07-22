@@ -84,6 +84,15 @@ module Pathogen
       normalize_reliable_accessible_name(label.presence || visible_text)
     end
 
+    # Decide whether tooltip copy adds a description to a reliably known accessible name.
+    def tooltip_describes?(tooltip_text, arguments, visible_text)
+      reference = reliable_accessible_name(arguments, visible_text)
+      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
+      return true if reference.blank? || tooltip_name.blank?
+
+      tooltip_name != reference
+    end
+
     private
 
     def aria_attribute(arguments, key)

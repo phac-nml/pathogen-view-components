@@ -125,6 +125,17 @@ module Pathogen
       assert_selector 'div[role="tooltip"]', text: 'View samples'
     end
 
+    test 'with_tooltip infers association after generating an external-link aria-label' do
+      render_inline(Pathogen::Link.new(href: 'https://example.org/samples')) do |component|
+        component.with_tooltip(text: 'Samples')
+        'Samples'
+      end
+
+      assert_selector 'a[aria-label="Samples (opens in a new window)"][aria-describedby]'
+      assert_selector "div[data-controller='pathogen--tooltip']" \
+                      "[data-pathogen--tooltip-associate-value='describedby']"
+    end
+
     test 'raises error when href is blank' do
       error = assert_raises(ArgumentError) do
         component = Pathogen::Link.new(href: '')
