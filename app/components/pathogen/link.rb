@@ -52,12 +52,11 @@ module Pathogen
     attr_reader :tooltip_associate
 
     def before_render
-      associate_tooltip!
-
       raise ArgumentError, 'href is required' if @link_system_arguments[:href].blank?
       raise ArgumentError, "invalid href format: #{@link_system_arguments[:href]}" unless validate_href_format!
 
       setup_external_link_attributes if external_link?(@link_system_arguments[:href])
+      associate_tooltip!
     end
 
     private
@@ -80,19 +79,8 @@ module Pathogen
       @link_system_arguments[:aria][:describedby] = [existing, @tooltip_id].compact.join(' ')
     end
 
-    # Infer whether the tooltip should be a description (`aria-describedby`) or visual-only.
-    # A tooltip that only repeats the link's accessible name adds nothing for AT, so it stays
-    # visual-only; anything else is treated as supplementary.
     def describe_tooltip?(tooltip_text)
-      reference = tooltip_reference_name
-      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
-      return true if reference.blank? || tooltip_name.blank?
-
-      tooltip_name != reference
-    end
-
-    def tooltip_reference_name
-      reliable_accessible_name(@link_system_arguments, content)
+      tooltip_describes?(tooltip_text, @link_system_arguments, content)
     end
 
     def setup_external_link_attributes
