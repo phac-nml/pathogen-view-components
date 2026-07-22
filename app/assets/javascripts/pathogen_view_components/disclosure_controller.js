@@ -1,10 +1,13 @@
 import { Controller } from "@hotwired/stimulus";
 
 /**
- * Accessible disclosure: toggles a panel with aria-expanded / aria-controls.
+ * APG disclosure: toggles a panel with aria-expanded / aria-controls.
+ *
+ * Updating aria-expanded on the focused button lets screen readers announce
+ * expanded/collapsed on activation (including VoiceOver), not only on focus.
  *
  * @example
- * <div data-controller="pathogen--disclosure" data-pathogen--disclosure-open-value="false" data-state="closed">
+ * <div data-controller="pathogen--disclosure" data-pathogen--disclosure-open-value="false">
  *   <button type="button"
  *           data-pathogen--disclosure-target="button"
  *           data-action="click->pathogen--disclosure#toggle"
@@ -24,7 +27,7 @@ export default class DisclosureController extends Controller {
   };
 
   connect() {
-    this.applyDom();
+    this.applyDom({ dispatch: false });
   }
 
   toggle(event) {
@@ -41,17 +44,10 @@ export default class DisclosureController extends Controller {
   }
 
   openValueChanged(value, previousValue) {
-    this.applyDom();
-
-    // Skip the initial Stimulus value callback (no previous value yet).
-    if (previousValue === undefined) {
-      return;
-    }
-
-    this.dispatch(value ? "opened" : "closed", { detail: { open: value } });
+    this.applyDom({ dispatch: previousValue !== undefined });
   }
 
-  applyDom() {
+  applyDom({ dispatch }) {
     if (!this.hasButtonTarget || !this.hasPanelTarget) {
       return;
     }
@@ -59,14 +55,18 @@ export default class DisclosureController extends Controller {
     const isOpen = this.openValue;
 
     this.buttonTarget.setAttribute("aria-expanded", String(isOpen));
-    this.buttonTarget.setAttribute("aria-controls", this.panelTarget.id);
+    if (this.panelTarget.id) {
+      this.buttonTarget.setAttribute("aria-controls", this.panelTarget.id);
+    }
 
     if (isOpen) {
       this.panelTarget.removeAttribute("hidden");
-      this.element.dataset.state = "open";
     } else {
       this.panelTarget.setAttribute("hidden", "");
-      this.element.dataset.state = "closed";
+    }
+
+    if (dispatch) {
+      this.dispatch(isOpen ? "opened" : "closed", { detail: { open: isOpen } });
     }
   }
 }

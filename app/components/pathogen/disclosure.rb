@@ -3,19 +3,21 @@
 module Pathogen
   # Accessible disclosure: a button that shows or hides a related section.
   #
-  # Follows the WAI-ARIA Authoring Practices disclosure pattern
-  # (aria-expanded / aria-controls on a native button; panel uses the hidden attribute).
+  # Follows the WAI-ARIA Authoring Practices disclosure pattern: a native button
+  # with aria-expanded / aria-controls, and a panel toggled with the hidden
+  # attribute. Stimulus keeps state in sync so screen readers announce
+  # expanded/collapsed on activation (including VoiceOver), not only on focus.
   #
   # @example Label and content
   #   <%= render Pathogen::Disclosure.new(id: "advanced", label: "Advanced options") do %>
   #     <p>Extra settings appear here.</p>
   #   <% end %>
   #
-  # @example Open by default with a custom trigger
+  # @example Heading + custom trigger (visible text is the accessible name)
   #   <%= render Pathogen::Disclosure.new(
   #     id: "settings",
   #     open: true,
-  #     aria_label: "Settings"
+  #     heading_level: 3
   #   ) do |disclosure| %>
   #     <% disclosure.with_trigger do %>
   #       Settings <span>(current)</span>
@@ -27,76 +29,118 @@ module Pathogen
   #
   # Custom trigger content must be non-interactive phrasing content. Do not
   # include links, buttons, inputs, or other interactive elements inside it.
-  class Disclosure < Pathogen::Component
+  # Prefer visible trigger text as the accessible name. Use aria_label: only when
+  # the trigger has no usable text, or when you must supply a richer name that
+  # still includes the visible label (WCAG 2.5.3).
+  class Disclosure < Pathogen::Component # rubocop:disable Metrics/ClassLength
     renders_one :trigger
 
-    TRIGGER_CLASSES = %w[
+    DEFAULT_SIZE = :medium
+    SIZE_MAPPINGS = {
+      small: 'text-xs px-2 py-1 min-h-6',
+      medium: 'text-sm px-3 py-2 min-h-11'
+    }.freeze
+    SIZE_OPTIONS = SIZE_MAPPINGS.keys.freeze
+
+    HEADING_LEVELS = (2..6)
+
+    BASE_TRIGGER_CLASSES = %w[
+      pathogen-disclosure__trigger
       inline-flex w-full cursor-pointer items-center justify-between gap-2
-      rounded-[var(--pvc-radius-control)] px-3 py-2
-      text-left text-sm font-semibold text-[color:var(--pvc-color-text)]
+      rounded-[var(--pvc-radius-control)]
+      text-left font-semibold text-[color:var(--pvc-color-text)]
       bg-transparent
       hover:bg-[var(--pvc-color-surface-muted)]
-      focus-visible:outline-2 focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:outline focus-visible:outline-2
+      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
     ].join(' ').freeze
 
     PANEL_CLASSES = %w[
-      px-3 pb-2 pt-1 text-sm text-[color:var(--pvc-color-text-muted)]
+      pathogen-disclosure__panel
+      px-3 pb-2 pt-1 text-sm text-[color:var(--pvc-color-text)]
     ].join(' ').freeze
 
-    ICON_CLASSES = %w[
-      size-4 shrink-0 text-[color:var(--pvc-color-text-muted)] transition-transform duration-[var(--pvc-duration-fast)]
-      motion-reduce:transition-none
-      group-data-[state=open]:rotate-180
+    HEADING_CLASSES = %w[
+      pathogen-disclosure__heading
+      m-0
     ].join(' ').freeze
 
-    CHEVRON_PATH =
-      'M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 ' \
-      '4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z'
+    LABEL_CLASSES = 'min-w-0 flex-1'
 
-    attr_reader :id, :label, :open
+    INTERACTIVE_TRIGGER_PATTERN = /
+      <\s*(?:a|button|input|select|textarea|details|summary|iframe|object|embed)\b
+      | \brole\s*=\s*["']?(?:button|link|menuitem|option|switch|tab|textbox)
+      | \btabindex\s*=\s*["']?(?!-1\b)
+    /ix
+
+    attr_reader :id, :label, :open, :size, :heading_level
 
     # @param id [String, nil] root id; panel id is derived as "#{id}-panel"
     # @param label [String, nil] trigger text when no trigger slot is provided
-    # @param aria_label [String, nil] required accessible name when using a custom trigger slot
+    # @param aria_label [String, nil] optional accessible name override (use sparingly)
     # @param open [Boolean] whether the panel starts open
+    # @param size [Symbol] :medium (44px min) or :small (24px min)
+    # @param heading_level [Integer, nil] wrap the trigger button in h2–h6 when set
+    # @param trigger_arguments [Hash] HTML attributes merged onto the button
+    # @param panel_arguments [Hash] HTML attributes merged onto the panel
     # @param system_arguments [Hash] HTML attributes for the root element
-    def initialize(id: nil, label: nil, aria_label: nil, open: false, **system_arguments)
+    def initialize( # rubocop:disable Metrics/ParameterLists
+      id: nil,
+      label: nil,
+      aria_label: nil,
+      open: false,
+      size: DEFAULT_SIZE,
+      heading_level: nil,
+      trigger_arguments: {},
+      panel_arguments: {},
+      **system_arguments
+    )
       @id = id.presence || self.class.generate_id(base_name: 'disclosure')
       @panel_id = "#{@id}-panel"
+      @label_id = "#{@id}-label"
       @label = label
       @aria_label = aria_label
       @open = open
+      @size = fetch_or_fallback(SIZE_OPTIONS, size, DEFAULT_SIZE)
+      @heading_level = normalize_heading_level(heading_level)
+      @trigger_arguments = trigger_arguments
+      @panel_arguments = panel_arguments
       @system_arguments = system_arguments
     end
 
     def before_render
       raise ArgumentError, 'Disclosure requires label: or a trigger slot' if @label.blank? && !trigger?
-      raise ArgumentError, 'Disclosure with a trigger slot requires aria_label:' if trigger? && @aria_label.blank?
       raise ArgumentError, 'Disclosure requires a content block for the panel' unless content?
+
+      validate_trigger_non_interactive! if trigger?
+      validate_accessible_name!
+      validate_label_in_name!
     end
 
     def call
-      heading = trigger? ? trigger : @label
-
       tag.div(**root_attributes) do
-        safe_join([
-                    tag.button(**button_attributes) do
-                      safe_join([
-                                  tag.span(heading, class: 'min-w-0 flex-1'),
-                                  chevron_html
-                                ])
-                    end,
-                    tag.div(**panel_attributes) { content }
-                  ])
+        safe_join([trigger_node, tag.div(**panel_attributes) { content }])
       end
     end
 
     private
 
+    def normalize_heading_level(level)
+      return if level.nil?
+
+      integer_level = Integer(level, exception: false)
+
+      unless integer_level && HEADING_LEVELS.cover?(integer_level)
+        raise ArgumentError, "Disclosure heading_level: must be #{HEADING_LEVELS.begin}–#{HEADING_LEVELS.end}"
+      end
+
+      integer_level
+    end
+
     def root_attributes
       {
         id: @id,
-        class: class_names('group', @system_arguments[:class]),
+        class: class_names('pathogen-disclosure', @system_arguments[:class]),
         data: merge_root_data,
         **@system_arguments.except(:class, :data, :id)
       }.compact
@@ -108,56 +152,119 @@ module Pathogen
 
       incoming.merge(
         'controller' => controllers,
-        'pathogen--disclosure-open-value' => @open,
-        'state' => @open ? 'open' : 'closed'
+        'pathogen--disclosure-open-value' => @open
       )
     end
 
+    def trigger_node
+      button = tag.button(**button_attributes) { button_content }
+      return button unless @heading_level
+
+      content_tag(:"h#{@heading_level}", button, class: HEADING_CLASSES)
+    end
+
     def button_attributes
-      aria_attributes = {
-        expanded: @open,
-        controls: @panel_id
-      }
-      aria_attributes[:label] = @aria_label if trigger?
+      incoming = @trigger_arguments.deep_dup
+      incoming_data = (incoming.delete(:data) || {}).deep_stringify_keys
+      incoming_aria = (incoming.delete(:aria) || {}).deep_stringify_keys
+      incoming_class = incoming.delete(:class)
 
       {
         type: 'button',
-        class: TRIGGER_CLASSES,
-        aria: aria_attributes,
-        data: {
-          'pathogen--disclosure-target': 'button',
-          action: 'click->pathogen--disclosure#toggle'
-        }
+        class: class_names(BASE_TRIGGER_CLASSES, SIZE_MAPPINGS[@size], incoming_class),
+        aria: merge_button_aria(incoming_aria),
+        data: merge_button_data(incoming_data),
+        **incoming
       }
     end
 
+    def merge_button_aria(incoming_aria)
+      aria = incoming_aria.merge(
+        'expanded' => @open,
+        'controls' => @panel_id
+      )
+      aria['label'] = @aria_label if @aria_label.present?
+      aria
+    end
+
+    def merge_button_data(incoming_data)
+      actions = [incoming_data['action'], 'click->pathogen--disclosure#toggle'].compact.join(' ').strip
+
+      incoming_data.merge(
+        'pathogen--disclosure-target' => 'button',
+        'action' => actions
+      )
+    end
+
     def panel_attributes
+      incoming = @panel_arguments.deep_dup
+      incoming_data = (incoming.delete(:data) || {}).deep_stringify_keys
+      incoming_class = incoming.delete(:class)
+
       attributes = {
         id: @panel_id,
-        class: PANEL_CLASSES,
-        data: {
-          'pathogen--disclosure-target': 'panel'
-        }
+        class: class_names(PANEL_CLASSES, incoming_class),
+        data: incoming_data.merge(
+          'pathogen--disclosure-target' => 'panel'
+        ),
+        **incoming.except(:id, :hidden)
       }
       attributes[:hidden] = true unless @open
       attributes
     end
 
+    def button_content
+      text = trigger? ? trigger : @label
+      safe_join([
+                  tag.span(text, id: @label_id, class: LABEL_CLASSES),
+                  chevron_html
+                ])
+    end
+
     def chevron_html
-      tag.span(
-        class: ICON_CLASSES,
-        aria: { hidden: true }
-      ) do
-        tag.svg(
-          xmlns: 'http://www.w3.org/2000/svg',
-          viewBox: '0 0 20 20',
-          fill: 'currentColor',
-          class: 'size-4',
-          aria: { hidden: true }
-        ) do
-          tag.path('fill-rule': 'evenodd', 'clip-rule': 'evenodd', d: CHEVRON_PATH)
-        end
-      end
+      tag.span(class: 'pathogen-disclosure__icon', aria: { hidden: true })
+    end
+
+    def validate_trigger_non_interactive!
+      html = trigger.to_s
+      return unless html.match?(INTERACTIVE_TRIGGER_PATTERN)
+
+      raise ArgumentError,
+            'Disclosure trigger slot cannot contain interactive elements ' \
+            '(links, buttons, inputs, or widgets with a widget role)'
+    end
+
+    def validate_accessible_name!
+      return if @aria_label.present?
+      return if visible_trigger_text.present?
+
+      raise ArgumentError,
+            'Disclosure requires visible trigger text or aria_label: for the accessible name'
+    end
+
+    def validate_label_in_name!
+      return if @aria_label.blank?
+
+      visible = visible_trigger_text
+      return if visible.blank?
+      return if label_in_name?(visible, @aria_label)
+
+      raise ArgumentError,
+            'Disclosure aria_label: must include the visible trigger text (WCAG 2.5.3 Label in Name)'
+    end
+
+    def label_in_name?(visible, name)
+      normalized_visible = visible.downcase
+      normalized_name = name.downcase
+      return true if normalized_name.include?(normalized_visible)
+
+      tokens = normalized_visible.scan(/[[:alnum:]]+/)
+      tokens.any? && tokens.all? { |token| normalized_name.include?(token) }
+    end
+
+    def visible_trigger_text
+      raw = trigger? ? trigger.to_s : @label.to_s
+      helpers.strip_tags(raw).gsub(/\s+/, ' ').strip
     end
   end
 end
