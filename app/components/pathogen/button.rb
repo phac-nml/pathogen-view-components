@@ -175,14 +175,16 @@ module Pathogen
       reference = tooltip_reference_name
       return true if reference.blank?
 
-      tooltip_text.to_s.strip != reference
+      normalize_accessible_name(tooltip_text) != reference
     end
 
     # The button's announced name for tooltip inference: text:/aria-label, else visible text.
+    # Visible text can carry HTML markup (icon + text), so #normalize_accessible_name strips tags
+    # and normalizes whitespace to mirror the browser's accessible-name computation.
     def tooltip_reference_name
       reference = accessible_name
       reference = button_text unless reference.is_a?(String) && reference.present?
-      reference.to_s.strip
+      normalize_accessible_name(reference)
     end
 
     def size_classes

@@ -74,6 +74,16 @@ module Pathogen
       assert_selector 'a', text: 'Samples'
     end
 
+    test 'with_tooltip infers visual-only when the tooltip repeats markup-wrapped visible text' do
+      render_inline(Pathogen::Link.new(href: '/samples')) do |component|
+        component.with_tooltip(text: 'Samples')
+        '<span class="icon"></span>  Samples  '.html_safe
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_no_selector 'a[aria-describedby]'
+    end
+
     test 'with_tooltip infers describedby when the tooltip adds information' do
       render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'Samples' })) do |component|
         component.with_tooltip(text: 'View all 12 samples') { 'icon' }
