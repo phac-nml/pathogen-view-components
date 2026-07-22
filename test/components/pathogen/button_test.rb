@@ -305,6 +305,25 @@ module Pathogen
       assert_selector 'div[role="tooltip"]', text: 'Export'
     end
 
+    test 'with_tooltip prefers aria-label over visible text when inferring the accessible name' do
+      render_inline(Pathogen::Button.new(text: 'Download', aria: { label: 'Export' })) do |button|
+        button.with_tooltip(text: 'Export')
+      end
+
+      assert_selector 'button[aria-label="Export"]', text: 'Download'
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_no_selector 'button[aria-describedby]'
+    end
+
+    test 'with_tooltip conservatively describes aria-labelledby names that require browser context' do
+      render_inline(Pathogen::Button.new(text: 'Export', aria: { labelledby: 'export-label' })) do |button|
+        button.with_tooltip(text: 'Export')
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'button[aria-labelledby="export-label"][aria-describedby]'
+    end
+
     test 'with_tooltip infers visual-only from visible text when the tooltip repeats it' do
       render_inline(Pathogen::Button.new) do |button|
         button.with_tooltip(text: 'Export')
@@ -316,14 +335,23 @@ module Pathogen
       assert_selector 'button', text: 'Export'
     end
 
-    test 'with_tooltip infers visual-only when the tooltip repeats markup-wrapped visible text' do
+    test 'with_tooltip conservatively describes visible text that contains markup' do
       render_inline(Pathogen::Button.new) do |button|
         button.with_tooltip(text: 'Export')
         '<span class="icon"></span>  Export  '.html_safe
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'button[aria-describedby]'
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'button[aria-describedby]'
+    end
+
+    test 'with_tooltip conservatively describes tooltip copy that contains markup' do
+      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
+        button.with_tooltip(text: '<span>Export</span>'.html_safe)
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'button[aria-describedby]'
     end
 
     test 'with_tooltip(describe: true) forces association even when the tooltip repeats the name' do

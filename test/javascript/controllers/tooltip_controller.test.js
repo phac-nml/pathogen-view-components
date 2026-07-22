@@ -416,9 +416,11 @@ describe("tooltip_controller", () => {
       const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
       controller.show();
       expect(tooltip.dataset.state).toBe("open");
+      expect(tooltip.getAttribute("aria-hidden")).toBe("true");
 
       controller.hide();
       expect(tooltip.dataset.state).toBe("closed");
+      expect(tooltip.getAttribute("aria-hidden")).toBe("true");
 
       dialog.remove();
     });

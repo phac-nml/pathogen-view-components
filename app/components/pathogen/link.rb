@@ -31,10 +31,11 @@ module Pathogen
     #
     # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
-    #   `aria-describedby`. When omitted, it is inferred: a tooltip that merely repeats the link's
-    #   accessible name (its `aria-label` or visible text) stays visual-only (no `aria-describedby`,
-    #   so screen readers announce the name once); anything else is associated as a description.
-    #   Pass `describe:` to override.
+    #   `aria-describedby`. When omitted, matching plain-text tooltip and name values stay
+    #   visual-only; different values are associated as a description. Markup, encoded entities,
+    #   and `aria-labelledby` require browser context, so they conservatively default to a
+    #   description. Pass `describe:` explicitly to override. Reliable names are `aria-label` and
+    #   plain visible text.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
       # Only record the tooltip here; the association decision needs `content`, which is not
@@ -84,25 +85,14 @@ module Pathogen
     # visual-only; anything else is treated as supplementary.
     def describe_tooltip?(tooltip_text)
       reference = tooltip_reference_name
-      return true if reference.blank?
+      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
+      return true if reference.blank? || tooltip_name.blank?
 
-      normalize_accessible_name(tooltip_text) != reference
+      tooltip_name != reference
     end
 
-    # The link's announced name for tooltip inference: `aria-label` when present, otherwise the
-    # visible text. Visible text can contain HTML markup (icons/spans), so #normalize_accessible_name
-    # strips tags and normalizes whitespace to mirror the browser's accessible-name computation.
     def tooltip_reference_name
-      normalize_accessible_name(aria_label_reference || content)
-    end
-
-    def aria_label_reference
-      label = @link_system_arguments[:'aria-label']
-      return label if label.is_a?(String) && label.present?
-
-      aria = @link_system_arguments[:aria]
-      value = aria[:label] || aria['label'] if aria.is_a?(Hash)
-      value if value.is_a?(String) && value.present?
+      reliable_accessible_name(@link_system_arguments, content)
     end
 
     def setup_external_link_attributes
