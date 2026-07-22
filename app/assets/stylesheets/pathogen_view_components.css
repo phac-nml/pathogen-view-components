@@ -460,10 +460,6 @@
     width: calc(var(--spacing) * 2);
     height: calc(var(--spacing) * 2);
   }
-  .size-4 {
-    width: calc(var(--spacing) * 4);
-    height: calc(var(--spacing) * 4);
-  }
   .size-5 {
     width: calc(var(--spacing) * 5);
     height: calc(var(--spacing) * 5);
@@ -1094,9 +1090,6 @@
   .text-\[color\:var\(--pvc-color-text\)\] {
     color: var(--pvc-color-text);
   }
-  .text-\[color\:var\(--pvc-color-text-muted\)\] {
-    color: var(--pvc-color-text-muted);
-  }
   .text-\[var\(--pvc-color-accent-strong\)\] {
     color: var(--pvc-color-accent-strong);
   }
@@ -1236,11 +1229,6 @@
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
   }
-  .transition-transform {
-    transition-property: transform, translate, scale, rotate;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
-    transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
   .duration-150 {
     --tw-duration: 150ms;
     transition-duration: 150ms;
@@ -1267,9 +1255,6 @@
   .select-none {
     -webkit-user-select: none;
     user-select: none;
-  }
-  .group-data-\[state\=open\]\:rotate-180:is(:where(.group)[data-state="open"] *) {
-    rotate: 180deg;
   }
   .peer-focus-visible\:outline:is(:where(.peer):focus-visible ~ *) {
     outline-style: var(--tw-outline-style);
@@ -1440,9 +1425,6 @@
   @media (prefers-reduced-motion: reduce) {
     .motion-reduce\:animate-none {
       animation: none;
-    }
-    .motion-reduce\:transition-none {
-      transition-property: none;
     }
   }
   @media (width >= 40rem) {
@@ -1892,6 +1874,45 @@ input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
 }
 input[role="switch"]:disabled ~ label {
   cursor: not-allowed;
+}
+.pathogen-disclosure__icon {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: 0.125rem;
+  flex-shrink: 0;
+  border-block-end: 2px solid currentColor;
+  border-inline-end: 2px solid currentColor;
+  color: var(--pvc-color-text-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--pvc-duration-fast) ease;
+}
+.pathogen-disclosure__trigger[aria-expanded="true"] .pathogen-disclosure__icon {
+  transform: rotate(45deg);
+}
+.pathogen-disclosure__heading .pathogen-disclosure__trigger {
+  width: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pathogen-disclosure__icon {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .pathogen-disclosure__icon {
+    border-color: ButtonText;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+  .pathogen-disclosure__trigger:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .pathogen-disclosure__trigger:hover {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
 }
 @property --tw-border-spacing-x {
   syntax: "<length>";
