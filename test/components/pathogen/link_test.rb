@@ -42,6 +42,28 @@ module Pathogen
       )
     end
 
+    test 'with_tooltip associates via aria-describedby by default' do
+      render_inline(Pathogen::Link.new(href: '/samples')) do |component|
+        component.with_tooltip(text: 'More info') { 'Samples' }
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'a[aria-describedby][data-pathogen--tooltip-target="trigger"]'
+      tooltip_id = page.find('a')['aria-describedby']
+      assert_selector "div##{tooltip_id}[role='tooltip']", text: 'More info'
+    end
+
+    test 'with_tooltip(describe: false) keeps an icon-only link visual-only' do
+      render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'View samples' })) do |component|
+        component.with_tooltip(text: 'View samples', describe: false) { 'icon' }
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_selector 'a[aria-label="View samples"][data-pathogen--tooltip-target="trigger"]'
+      assert_no_selector 'a[aria-describedby]'
+      assert_selector 'div[role="tooltip"]', text: 'View samples'
+    end
+
     test 'raises error when href is blank' do
       error = assert_raises(ArgumentError) do
         component = Pathogen::Link.new(href: '')
