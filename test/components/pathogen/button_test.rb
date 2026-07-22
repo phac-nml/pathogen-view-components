@@ -245,5 +245,54 @@ module Pathogen
 
       assert_axe_structural_accessible rendered_content, context: 'icon-only button'
     end
+
+    test 'with_tooltip wraps the button and associates aria-describedby' do
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Specimens')) do |button|
+        button.with_leading_visual { 'Icon' }
+        button.with_tooltip(text: 'Specimens', placement: :right)
+      end
+
+      assert_selector(
+        "div[data-controller='pathogen--tooltip']" \
+        "[data-pathogen--tooltip-portal-aria-label-value='#{Pathogen::Tooltip.portal_aria_label}']"
+      )
+      assert_selector 'button[aria-label="Specimens"][data-pathogen--tooltip-target="trigger"]'
+      assert_selector 'button[aria-describedby]'
+      tooltip_id = page.find('button')['aria-describedby']
+      assert_selector "div##{tooltip_id}[role='tooltip'][data-pathogen--tooltip-target='tooltip']", text: 'Specimens'
+    end
+
+    test 'with_tooltip keeps the accessible name on the button itself' do
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Dashboard')) do |button|
+        button.with_leading_visual { 'Icon' }
+        button.with_tooltip(text: 'Dashboard', placement: :right)
+      end
+
+      assert_selector 'button[aria-label="Dashboard"]'
+      assert_no_selector 'button[aria-label=""]'
+      assert_selector 'div[role="tooltip"]', text: 'Dashboard'
+    end
+
+    test 'with_tooltip works on labelled text buttons' do
+      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
+        button.with_tooltip(text: 'Exports are retained for 30 days')
+      end
+
+      assert_selector 'button[data-pathogen--tooltip-target="trigger"]', text: 'Export'
+      assert_selector 'div[role="tooltip"]', text: 'Exports are retained for 30 days'
+    end
+
+    test 'icon_only with_tooltip passes axe-core structural checks' do
+      render_inline(
+        Pathogen::Button.new(icon_only: true, text: 'Settings', tone: :neutral, emphasis: :ghost)
+      ) do |button|
+        button.with_leading_visual do
+          '<svg aria-hidden="true" width="16" height="16"><circle cx="8" cy="8" r="6"></circle></svg>'.html_safe
+        end
+        button.with_tooltip(text: 'Settings', placement: :right)
+      end
+
+      assert_axe_structural_accessible rendered_content, context: 'icon-only button with tooltip'
+    end
   end
 end

@@ -43,8 +43,10 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Collapsed sidebar" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      When navigation collapses to icons, use <%= pathogen_code { "placement: :right" } %> so labels open into the
-      content area.
+      When a sidebar collapses to icons, use <%= pathogen_code { "placement: :right" } %> so labels open into the
+      content area. Prefer <%= pathogen_code { "Pathogen::Link" } %> for destinations and
+      <%= pathogen_code { "Pathogen::Button" } %> for actions; both support <%= pathogen_code { "with_tooltip" } %>. See
+      the Button Accessibility preview for an icon-only button rail.
     <% end %>
 
     <div
