@@ -17,11 +17,9 @@ module Pathogen
     # `aria-label`, or `aria-labelledby`). Tooltip copy is supplementary for sighted users.
     #
     # Accessibility notes:
-    # - For a labelled button, give the tooltip *extra* detail the label does not convey.
-    # - For an icon-only button the tooltip usually repeats the accessible name. That name is
-    #   already announced from `aria-label`; because the tooltip is also linked via
-    #   `aria-describedby`, screen reader users may hear it echoed. Keep the two strings
-    #   identical and specific — do not add prose that only sighted users can act on.
+    # - A tooltip that repeats the accessible name is rendered visual-only (no `aria-describedby`),
+    #   so screen reader users hear the name once. A tooltip that adds detail is announced as a
+    #   description. This is inferred from the copy (see `describe:`); override when needed.
     # - A native `disabled` button cannot receive hover or focus, so a tooltip on it is
     #   unreachable. Use `aria_disabled: true` when the control must stay focusable; attaching
     #   a tooltip to a `disabled` button raises `ArgumentError`.
@@ -32,23 +30,17 @@ module Pathogen
     #   These are physical, not logical, directions; in RTL layouts choose accordingly.
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
     #   `aria-describedby`. When omitted, it is inferred: if the tooltip text merely repeats the
-    #   button's accessible name it stays visual-only (no `aria-describedby`, so screen readers
-    #   announce the name once); if the tooltip adds information the name does not convey it is
-    #   associated as a description. Pass `describe:` explicitly to override the inference.
+    #   button's accessible name (its `text:`, `aria-label`, or visible text) it stays visual-only
+    #   (no `aria-describedby`, so screen readers announce the name once); if the tooltip adds
+    #   information the name does not convey it is associated as a description. Pass `describe:`
+    #   explicitly to override the inference.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
-      describe = describe_tooltip?(system_arguments[:text]) if describe.nil?
+      # Only record the tooltip here; the association decision needs `content`, which is not
+      # safe to read while slots are evaluated, so it is deferred to #associate_tooltip!.
       @tooltip_id = Pathogen::Tooltip.generate_id
-      @tooltip_associate = describe ? 'describedby' : 'none'
-      if describe
-        @system_arguments[:aria] ||= {}
-        @system_arguments[:aria][:describedby] = [
-          @system_arguments[:aria][:describedby],
-          @tooltip_id
-        ].compact.join(' ')
-      end
-      @system_arguments[:data] ||= {}
-      @system_arguments[:data]['pathogen--tooltip-target'] = 'trigger'
+      @tooltip_describe = describe
+      @tooltip_text = system_arguments[:text]
 
       Pathogen::Tooltip.new(id: @tooltip_id, placement: placement, **system_arguments)
     }
@@ -85,7 +77,7 @@ module Pathogen
 
     def before_render
       validate_tooltip_target!
-      prime_tooltip_association
+      associate_tooltip!
       validate_icon_only_content! if @icon_only
       return unless leading_visual.present? || trailing_visual.present?
       return if @icon_only && button_text.blank?
@@ -103,7 +95,7 @@ module Pathogen
     end
 
     # Association mode passed to the tooltip Stimulus controller ("describedby" or "none").
-    # Set while priming the tooltip slot; nil when the button has no tooltip.
+    # Set in before_render by #associate_tooltip!; nil when the button has no tooltip.
     attr_reader :tooltip_associate
 
     private
@@ -122,11 +114,21 @@ module Pathogen
             'Use `aria_disabled: true` to keep the control focusable.'
     end
 
-    # Evaluating the tooltip slot runs its `renders_one` lambda, which injects
-    # `aria-describedby` and the trigger data attribute into @system_arguments.
-    # This must happen before the base button renders so the trigger carries them.
-    def prime_tooltip_association
-      tooltip if tooltip?
+    # Decide how the tooltip relates to the button and wire the trigger onto @system_arguments.
+    # Runs in before_render, where `content` is available for the inference.
+    def associate_tooltip!
+      return unless tooltip?
+
+      tooltip # ensure the slot lambda has run (populates @tooltip_id / @tooltip_text / @tooltip_describe)
+      describe = @tooltip_describe.nil? ? describe_tooltip?(@tooltip_text) : @tooltip_describe
+      @tooltip_associate = describe ? 'describedby' : 'none'
+
+      (@system_arguments[:data] ||= {})['pathogen--tooltip-target'] = 'trigger'
+      return unless describe
+
+      @system_arguments[:aria] ||= {}
+      existing = @system_arguments[:aria][:describedby]
+      @system_arguments[:aria][:describedby] = [existing, @tooltip_id].compact.join(' ')
     end
 
     def resolve_tone_and_emphasis(tone, emphasis)
@@ -168,15 +170,19 @@ module Pathogen
     end
 
     # Infer whether the tooltip should be a description (`aria-describedby`) or a visual-only
-    # affordance. A tooltip that only repeats the accessible name adds nothing for AT, so it
-    # stays visual-only; anything else is treated as supplementary. Compares against
-    # `accessible_name` (text / aria-label) only — never `content` — to stay safe while the
-    # tooltip slot is evaluated.
+    # affordance. A tooltip that only repeats the accessible name adds nothing for AT.
     def describe_tooltip?(tooltip_text)
-      reference = accessible_name
-      return true unless reference.is_a?(String) && reference.present?
+      reference = tooltip_reference_name
+      return true if reference.blank?
 
-      tooltip_text.to_s.strip != reference.strip
+      tooltip_text.to_s.strip != reference
+    end
+
+    # The button's announced name for tooltip inference: text:/aria-label, else visible text.
+    def tooltip_reference_name
+      reference = accessible_name
+      reference = button_text unless reference.is_a?(String) && reference.present?
+      reference.to_s.strip
     end
 
     def size_classes

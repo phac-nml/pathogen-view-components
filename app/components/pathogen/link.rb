@@ -31,34 +31,27 @@ module Pathogen
     #
     # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
-    #   `aria-describedby`. When omitted, it is inferred: a tooltip that merely repeats the
-    #   link's `aria-label` stays visual-only (no `aria-describedby`, so screen readers announce
-    #   the name once); anything else is associated as a description. Links named by their
-    #   visible text (no `aria-label`) always associate. Pass `describe:` to override.
+    #   `aria-describedby`. When omitted, it is inferred: a tooltip that merely repeats the link's
+    #   accessible name (its `aria-label` or visible text) stays visual-only (no `aria-describedby`,
+    #   so screen readers announce the name once); anything else is associated as a description.
+    #   Pass `describe:` to override.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
-      describe = describe_tooltip?(system_arguments[:text]) if describe.nil?
+      # Only record the tooltip here; the association decision needs `content`, which is not
+      # safe to read while slots are evaluated, so it is deferred to #associate_tooltip!.
       @tooltip_id = Pathogen::Tooltip.generate_id
-      @tooltip_associate = describe ? 'describedby' : 'none'
-      if describe
-        @link_system_arguments[:aria] ||= {}
-        @link_system_arguments[:aria][:describedby] = [
-          @link_system_arguments[:aria][:describedby],
-          @tooltip_id
-        ].compact.join(' ')
-      end
-      @link_system_arguments[:data] ||= {}
-      @link_system_arguments[:data]['pathogen--tooltip-target'] = 'trigger'
+      @tooltip_describe = describe
+      @tooltip_text = system_arguments[:text]
 
       Pathogen::Tooltip.new(id: @tooltip_id, placement: placement, **system_arguments)
     }
 
     # Association mode passed to the tooltip Stimulus controller ("describedby" or "none").
-    # Set while priming the tooltip slot; nil when the link has no tooltip.
+    # Set in before_render by #associate_tooltip!; nil when the link has no tooltip.
     attr_reader :tooltip_associate
 
     def before_render
-      tooltip if tooltip?
+      associate_tooltip!
 
       raise ArgumentError, 'href is required' if @link_system_arguments[:href].blank?
       raise ArgumentError, "invalid href format: #{@link_system_arguments[:href]}" unless validate_href_format!
@@ -68,18 +61,47 @@ module Pathogen
 
     private
 
-    # Infer whether the tooltip should be a description (`aria-describedby`) or visual-only.
-    # A tooltip that only repeats the link's `aria-label` adds nothing for AT, so it stays
-    # visual-only; anything else is treated as supplementary. Only `aria-label` is inspected —
-    # never `content` — to stay safe while the tooltip slot is evaluated, so links named by
-    # visible text always associate.
-    def describe_tooltip?(tooltip_text)
-      aria = @link_system_arguments[:aria]
-      reference = @link_system_arguments[:'aria-label'] ||
-                  (aria.is_a?(Hash) && (aria[:label] || aria['label']))
-      return true unless reference.is_a?(String) && reference.present?
+    # Decide how the tooltip relates to the link and wire the trigger onto @link_system_arguments
+    # before the link renders. Runs in before_render, where `content` is available, so the
+    # inference can compare against the link's visible text as well as its aria-label.
+    def associate_tooltip!
+      return unless tooltip?
 
-      tooltip_text.to_s.strip != reference.strip
+      tooltip # ensure the slot lambda has run (populates @tooltip_id / @tooltip_text / @tooltip_describe)
+      describe = @tooltip_describe.nil? ? describe_tooltip?(@tooltip_text) : @tooltip_describe
+      @tooltip_associate = describe ? 'describedby' : 'none'
+
+      (@link_system_arguments[:data] ||= {})['pathogen--tooltip-target'] = 'trigger'
+      return unless describe
+
+      @link_system_arguments[:aria] ||= {}
+      existing = @link_system_arguments[:aria][:describedby]
+      @link_system_arguments[:aria][:describedby] = [existing, @tooltip_id].compact.join(' ')
+    end
+
+    # Infer whether the tooltip should be a description (`aria-describedby`) or visual-only.
+    # A tooltip that only repeats the link's accessible name adds nothing for AT, so it stays
+    # visual-only; anything else is treated as supplementary.
+    def describe_tooltip?(tooltip_text)
+      reference = tooltip_reference_name
+      return true if reference.blank?
+
+      tooltip_text.to_s.strip != reference
+    end
+
+    # The link's announced name for tooltip inference: `aria-label` when present, otherwise the
+    # trimmed visible text.
+    def tooltip_reference_name
+      (aria_label_reference || content&.strip).to_s.strip
+    end
+
+    def aria_label_reference
+      label = @link_system_arguments[:'aria-label']
+      return label if label.is_a?(String) && label.present?
+
+      aria = @link_system_arguments[:aria]
+      value = aria[:label] || aria['label'] if aria.is_a?(Hash)
+      value if value.is_a?(String) && value.present?
     end
 
     def setup_external_link_attributes
