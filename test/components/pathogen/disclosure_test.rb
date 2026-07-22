@@ -135,7 +135,9 @@ module Pathogen
     test 'raises when a custom trigger has no accessible name' do
       error = assert_raises(ArgumentError) do
         render_inline(Pathogen::Disclosure.new(id: 'unnamed')) do |disclosure|
-          disclosure.with_trigger { '<span aria-hidden="true"></span>'.html_safe }
+          disclosure.with_trigger do
+            '<span aria-hidden="true">Decorative label</span><span hidden>Hidden label</span>'.html_safe
+          end
           'Panel'
         end
       end
