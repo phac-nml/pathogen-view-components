@@ -31,15 +31,13 @@ module Pathogen
     # @param placement [Symbol] Physical position of the tooltip (:top, :bottom, :left, :right).
     #   These are physical, not logical, directions; in RTL layouts choose accordingly.
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
-    #   `aria-describedby`. Defaults to `false` for icon-only buttons (the tooltip repeats the
-    #   accessible name, so it stays visual-only to avoid a duplicate screen-reader
-    #   announcement) and `true` otherwise. Pass `describe: true` on an icon-only button when
-    #   the tooltip adds information the accessible name does not convey.
+    #   `aria-describedby`. When omitted, it is inferred: if the tooltip text merely repeats the
+    #   button's accessible name it stays visual-only (no `aria-describedby`, so screen readers
+    #   announce the name once); if the tooltip adds information the name does not convey it is
+    #   associated as a description. Pass `describe:` explicitly to override the inference.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
     renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
-      # Default: icon-only buttons keep the tooltip visual-only (the accessible name is
-      # already on the button), labelled buttons associate it as a supplementary description.
-      describe = !@icon_only if describe.nil?
+      describe = describe_tooltip?(system_arguments[:text]) if describe.nil?
       @tooltip_id = Pathogen::Tooltip.generate_id
       @tooltip_associate = describe ? 'describedby' : 'none'
       if describe
@@ -167,6 +165,18 @@ module Pathogen
       @text.presence ||
         @system_arguments[:'aria-label'].presence ||
         (aria.is_a?(Hash) && (aria[:label] || aria['label'] || aria[:labelledby] || aria['labelledby']).presence)
+    end
+
+    # Infer whether the tooltip should be a description (`aria-describedby`) or a visual-only
+    # affordance. A tooltip that only repeats the accessible name adds nothing for AT, so it
+    # stays visual-only; anything else is treated as supplementary. Compares against
+    # `accessible_name` (text / aria-label) only — never `content` — to stay safe while the
+    # tooltip slot is evaluated.
+    def describe_tooltip?(tooltip_text)
+      reference = accessible_name
+      return true unless reference.is_a?(String) && reference.present?
+
+      tooltip_text.to_s.strip != reference.strip
     end
 
     def size_classes
