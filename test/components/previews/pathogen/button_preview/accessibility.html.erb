@@ -28,9 +28,11 @@
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Icon-only rail controls need an accessible name on the button itself (via <%= pathogen_code { "text:" } %> /
-      <%= pathogen_code { "aria-label" } %>). Attach <%= pathogen_code { "with_tooltip" } %> for sighted hover/focus
-      labels — the tooltip must not be the only name. Use <%= pathogen_code { "placement: :right" } %> so labels open
-      into the content area.
+      <%= pathogen_code { "aria-label" } %>). Attach <%= pathogen_code { "with_tooltip" } %> for a sighted hover/focus
+      label — the tooltip must not be the only name. Keep the tooltip text identical to the accessible name here; it
+      repeats the name for sighted users rather than adding new information. Use
+      <%= pathogen_code { "placement: :right" } %> (a physical direction — flip it in RTL) so labels open into the
+      content area. On touch, the first tap reveals the tooltip and the action fires on the second tap.
     <% end %>
 
     <div
@@ -72,8 +74,9 @@
 
         <div class="flex-1 px-4 py-4">
           <%= pathogen_supporting(variant: :muted) do %>
-            Hover or focus each rail icon to read the section label. Screen readers get the name from
-            <%= pathogen_code { "aria-label" } %> on the button; the tooltip is extra help for sighted users.
+            Hover or focus each rail icon to read the section label. Screen readers already get the name from
+            <%= pathogen_code { "aria-label" } %> on the button, so the tooltip adds no new information for them — it is
+            purely a visual affordance for sighted pointer and keyboard users.
           <% end %>
         </div>
       </div>
