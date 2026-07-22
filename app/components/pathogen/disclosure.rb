@@ -236,7 +236,7 @@ module Pathogen
 
     def validate_accessible_name!
       return if @aria_label.present?
-      return if visible_trigger_text.present?
+      return if accessible_trigger_text.present?
 
       raise ArgumentError,
             'Disclosure requires visible trigger text or aria_label: for the accessible name'
@@ -262,9 +262,31 @@ module Pathogen
       tokens.any? && tokens.all? { |token| normalized_name.include?(token) }
     end
 
+    def accessible_trigger_text
+      trigger_text(exclude_aria_hidden: true)
+    end
+
     def visible_trigger_text
-      raw = trigger? ? trigger.to_s : @label.to_s
-      helpers.strip_tags(raw).gsub(/\s+/, ' ').strip
+      trigger_text(exclude_aria_hidden: false)
+    end
+
+    def trigger_text(exclude_aria_hidden:)
+      return normalize_trigger_text(@label.to_s) unless trigger?
+
+      fragment = Nokogiri::HTML::DocumentFragment.parse(trigger.to_s)
+      excluded_nodes = fragment.css('[hidden], script, style, template').to_a
+      if exclude_aria_hidden
+        excluded_nodes.concat(
+          fragment.css('[aria-hidden]').select { |node| node['aria-hidden']&.casecmp?('true') }
+        )
+      end
+      excluded_nodes.each(&:remove)
+
+      normalize_trigger_text(fragment.text)
+    end
+
+    def normalize_trigger_text(text)
+      text.gsub(/\s+/, ' ').strip
     end
   end
 end
