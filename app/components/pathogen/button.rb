@@ -11,6 +11,26 @@ module Pathogen
     renders_one :leading_visual
     renders_one :trailing_visual
 
+    # The tooltip that appears on mouse hover or keyboard focus over the button. (optional)
+    #
+    # The button itself must still expose an accessible name (visible text, `text:`,
+    # `aria-label`, or `aria-labelledby`). Tooltip copy is supplementary for sighted users.
+    #
+    # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
+    # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
+    renders_one :tooltip, lambda { |placement: :top, **system_arguments|
+      @tooltip_id = Pathogen::Tooltip.generate_id
+      @system_arguments[:aria] ||= {}
+      @system_arguments[:aria][:describedby] = [
+        @system_arguments[:aria][:describedby],
+        @tooltip_id
+      ].compact.join(' ')
+      @system_arguments[:data] ||= {}
+      @system_arguments[:data]['pathogen--tooltip-target'] = 'trigger'
+
+      Pathogen::Tooltip.new(id: @tooltip_id, placement: placement, **system_arguments)
+    }
+
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(base_button_class: Pathogen::BaseButton, tone: nil, emphasis: nil,
                    size: DEFAULT_SIZE, block: false, icon_only: false, text: nil, disabled: false,
@@ -42,6 +62,7 @@ module Pathogen
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def before_render
+      tooltip if tooltip?
       validate_icon_only_content! if @icon_only
       return unless leading_visual.present? || trailing_visual.present?
       return if @icon_only && button_text.blank?
