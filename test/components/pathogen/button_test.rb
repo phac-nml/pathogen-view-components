@@ -282,6 +282,15 @@ module Pathogen
       assert_selector 'div[role="tooltip"]', text: 'Exports are retained for 30 days'
     end
 
+    test 'with_tooltip preserves full-width block button layout' do
+      render_inline(Pathogen::Button.new(block: true, text: 'Run analysis')) do |button|
+        button.with_tooltip(text: 'Starts this run')
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'].block.w-full"
+      assert_selector "div[data-controller='pathogen--tooltip'] > button.flex.w-full", text: 'Run analysis'
+    end
+
     test 'icon_only with_tooltip passes axe-core structural checks' do
       render_inline(
         Pathogen::Button.new(icon_only: true, text: 'Settings', tone: :neutral, emphasis: :ghost)

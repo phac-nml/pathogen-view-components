@@ -1,7 +1,10 @@
 <%= render Pathogen::ConditionalWrapper.new(
   condition: tooltip?,
   tag: :div,
-  class: "inline-block",
+  class: class_names(
+    "inline-block",
+    "block w-full" => @block
+  ),
   'data-controller': 'pathogen--tooltip',
   'data-pathogen--tooltip-portal-aria-label-value': Pathogen::Tooltip.portal_aria_label
 ) do %>
