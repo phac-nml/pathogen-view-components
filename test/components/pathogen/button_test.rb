@@ -246,7 +246,7 @@ module Pathogen
       assert_axe_structural_accessible rendered_content, context: 'icon-only button'
     end
 
-    test 'with_tooltip wraps the button and associates aria-describedby' do
+    test 'with_tooltip wraps the button and marks it as the tooltip trigger' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Specimens')) do |button|
         button.with_leading_visual { 'Icon' }
         button.with_tooltip(text: 'Specimens', placement: :right)
@@ -257,9 +257,42 @@ module Pathogen
         "[data-pathogen--tooltip-portal-aria-label-value='#{Pathogen::Tooltip.portal_aria_label}']"
       )
       assert_selector 'button[aria-label="Specimens"][data-pathogen--tooltip-target="trigger"]'
+      assert_selector "div[role='tooltip'][data-pathogen--tooltip-target='tooltip']", text: 'Specimens'
+    end
+
+    test 'with_tooltip on an icon-only button is visual-only (no aria-describedby echo)' do
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Specimens')) do |button|
+        button.with_leading_visual { 'Icon' }
+        button.with_tooltip(text: 'Specimens', placement: :right)
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_selector 'button[aria-label="Specimens"]'
+      assert_no_selector 'button[aria-describedby]'
+    end
+
+    test 'with_tooltip on a labelled button associates via aria-describedby' do
+      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
+        button.with_tooltip(text: 'Exports are retained for 30 days')
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
       assert_selector 'button[aria-describedby]'
       tooltip_id = page.find('button')['aria-describedby']
-      assert_selector "div##{tooltip_id}[role='tooltip'][data-pathogen--tooltip-target='tooltip']", text: 'Specimens'
+      assert_selector "div##{tooltip_id}[role='tooltip'][data-pathogen--tooltip-target='tooltip']",
+                      text: 'Exports are retained for 30 days'
+    end
+
+    test 'with_tooltip(describe: true) forces association on an icon-only button' do
+      render_inline(Pathogen::Button.new(icon_only: true, text: 'Filters')) do |button|
+        button.with_leading_visual { 'Icon' }
+        button.with_tooltip(text: '3 active filters', placement: :bottom, describe: true)
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector 'button[aria-label="Filters"][aria-describedby]'
+      tooltip_id = page.find('button')['aria-describedby']
+      assert_selector "div##{tooltip_id}[role='tooltip']", text: '3 active filters'
     end
 
     test 'with_tooltip keeps the accessible name on the button itself' do
