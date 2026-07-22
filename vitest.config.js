@@ -17,6 +17,27 @@ export default defineConfig({
         jsRoot,
         "data_grid_controller/virtualizer.js",
       ),
+      "pathogen_view_components/data_grid_controller/page_cache": resolve(jsRoot, "data_grid_controller/page_cache.js"),
+      "pathogen_view_components/data_grid_controller/page_source": resolve(
+        jsRoot,
+        "data_grid_controller/page_source.js",
+      ),
+      "pathogen_view_components/data_grid_controller/paginated_virtual_rows": resolve(
+        jsRoot,
+        "data_grid_controller/paginated_virtual_rows.js",
+      ),
+      "pathogen_view_components/data_grid_controller/pagination_mode": resolve(
+        jsRoot,
+        "data_grid_controller/pagination_mode.js",
+      ),
+      "pathogen_view_components/data_grid_controller/virtual_window": resolve(
+        jsRoot,
+        "data_grid_controller/virtual_window.js",
+      ),
+      "pathogen_view_components/data_grid_controller/virtual_columns": resolve(
+        jsRoot,
+        "data_grid_controller/virtual_columns.js",
+      ),
     },
   },
   test: {

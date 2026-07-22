@@ -29,18 +29,19 @@ pre-commit:
         - "**/*.js"
       run: pnpm exec eslint --fix {staged_files}
       stage_fixed: true
+    - name: herb-format
+      glob:
+        - "**/*.erb"
+      exclude:
+        - "docs/lookbook/**/*.md.erb"
+      run: pnpm exec herb-format {staged_files}
+      stage_fixed: true
     - name: herb-lint
       glob:
         - "**/*.erb"
       exclude:
         - "docs/lookbook/**/*.md.erb"
       run: pnpm exec herb-lint {staged_files}
-    - name: herb-format-check
-      glob:
-        - "**/*.erb"
-      exclude:
-        - "docs/lookbook/**/*.md.erb"
-      run: pnpm exec herb-format --check {staged_files}
     - name: rubocop
       glob:
         - "*.rb"

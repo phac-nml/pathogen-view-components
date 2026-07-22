@@ -6,24 +6,25 @@
   "type": "module",
   "packageManager": "pnpm@10.25.0",
   "scripts": {
-    "format": "prettier --write . && eslint app/assets/javascripts test/javascript --fix",
-    "format:changed": "prettier --write . && eslint app/assets/javascripts test/javascript --fix",
-    "herb:format": "herb-format",
-    "herb:format:check": "herb-format --check",
+    "format": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
+    "format:changed": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
+    "herb:format": "herb-format app demo/app test/components/previews",
+    "herb:format:check": "herb-format --check app demo/app test/components/previews",
     "herb:lint": "herb-lint",
+    "herb:lint:fix": "herb-lint --fix",
     "test": "vitest run",
     "test:unit": "vitest run test/javascript",
-    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript && pnpm herb:lint",
-    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix",
+    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript && pnpm herb:lint && pnpm herb:format:check",
+    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
     "build:css": "node scripts/build-pathogen-tailwind.mjs",
     "build:css:check": "node scripts/build-pathogen-tailwind.mjs --check",
     "build:css:watch": "node scripts/watch-pathogen-css.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@herb-tools/formatter": "^0.10.1",
-    "@herb-tools/linter": "^0.10.1",
-    "@tailwindcss/cli": "^4.3.2",
+    "@herb-tools/formatter": "^0.10.2",
+    "@herb-tools/linter": "^0.10.2",
+    "@tailwindcss/cli": "^4.3.3",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/user-event": "^14.6.1",
@@ -33,13 +34,14 @@
     "eslint-config-prettier": "^10.0.0",
     "globals": "^17.7.0",
     "jsdom": "^29.1.1",
+    "msw": "2.15.0",
     "prettier": "^3.9.5",
-    "tailwindcss": "^4.3.2",
+    "tailwindcss": "^4.3.3",
     "vite": "^7.3.6",
     "vitest": "^4.1.10"
   },
   "dependencies": {
-    "@floating-ui/dom": "^1.7.5",
+    "@floating-ui/dom": "^1.8.0",
     "@hotwired/stimulus": "^3.0.0",
     "uuid": "^14.0.1"
   },
@@ -53,5 +55,10 @@
       "esbuild": "^0.28.1"
     }
   },
-  "license": "MIT"
+  "license": "MIT",
+  "msw": {
+    "workerDirectory": [
+      "demo/public"
+    ]
+  }
 }

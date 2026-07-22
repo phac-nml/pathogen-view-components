@@ -161,6 +161,24 @@ module Pathogen
         frame_content = page.find('turbo-frame#content-frame').text.strip
         assert_empty frame_content
       end
+
+      test 'falls back to native turbo-frame when helper is unavailable' do
+        component = Pathogen::Tabs::LazyPanel.new(
+          frame_id: 'content-frame',
+          src_path: '/path/to/content',
+          selected: false
+        )
+
+        component.define_singleton_method(:helpers) { Object.new }
+
+        render_inline(component) do
+          'Fallback content'
+        end
+
+        assert_selector 'turbo-frame#content-frame[src="/path/to/content"]'
+        assert_selector 'turbo-frame[loading="lazy"]'
+        assert_selector 'turbo-frame[refresh="morph"]'
+      end
     end
   end
 end
