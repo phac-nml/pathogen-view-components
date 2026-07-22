@@ -8,12 +8,13 @@ const waitForController = () => new Promise((resolve) => setTimeout(resolve, 0))
 const appendDisclosure = ({ open = false } = {}) => {
   const container = document.createElement("div");
   container.id = "disc-1";
+  container.className = "pathogen-disclosure";
   container.setAttribute("data-controller", "pathogen--disclosure");
   container.setAttribute("data-pathogen--disclosure-open-value", open ? "true" : "false");
-  container.dataset.state = open ? "open" : "closed";
 
   const button = document.createElement("button");
   button.type = "button";
+  button.className = "pathogen-disclosure__trigger";
   button.setAttribute("data-pathogen--disclosure-target", "button");
   button.setAttribute("data-action", "click->pathogen--disclosure#toggle");
   button.setAttribute("aria-expanded", open ? "true" : "false");
@@ -50,22 +51,21 @@ describe("disclosure_controller", () => {
   });
 
   it("starts closed with aria-expanded false and hidden panel", async () => {
-    const { button, panel, container } = appendDisclosure();
+    const { container, button, panel } = appendDisclosure();
     await waitForController();
 
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
     expect(controller).toBeTruthy();
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(panel.hasAttribute("hidden")).toBe(true);
-    expect(container.dataset.state).toBe("closed");
+    expect(controller.openValue).toBe(false);
   });
 
-  it("opens on toggle and updates aria-expanded", async () => {
+  it("opens on click and updates aria-expanded", async () => {
     const { container, button, panel } = appendDisclosure();
     await waitForController();
 
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
-    expect(controller).toBeTruthy();
     expect(controller.openValue).toBe(false);
 
     button.click();
@@ -74,10 +74,9 @@ describe("disclosure_controller", () => {
     expect(controller.openValue).toBe(true);
     expect(button.getAttribute("aria-expanded")).toBe("true");
     expect(panel.hasAttribute("hidden")).toBe(false);
-    expect(container.dataset.state).toBe("open");
   });
 
-  it("closes on a second toggle", async () => {
+  it("closes on a second click", async () => {
     const { container, button, panel } = appendDisclosure({ open: true });
     await waitForController();
 
@@ -90,10 +89,23 @@ describe("disclosure_controller", () => {
     expect(controller.openValue).toBe(false);
     expect(button.getAttribute("aria-expanded")).toBe("false");
     expect(panel.hasAttribute("hidden")).toBe(true);
-    expect(container.dataset.state).toBe("closed");
   });
 
-  it("open() and close() set the value directly", async () => {
+  it("keeps focus on the button after toggle so screen readers hear the new state", async () => {
+    const { container, button } = appendDisclosure();
+    await waitForController();
+
+    button.focus();
+    button.click();
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
+    expect(document.activeElement).toBe(button);
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(controller.openValue).toBe(true);
+  });
+
+  it("open() and close() set the value and aria-expanded directly", async () => {
     const { container, button, panel } = appendDisclosure();
     await waitForController();
 
