@@ -26,8 +26,17 @@ export default class DisclosureController extends Controller {
     open: { type: Boolean, default: false },
   };
 
+  initialize() {
+    this.hasConnected = false;
+  }
+
   connect() {
     this.applyDom({ dispatch: false });
+    this.hasConnected = true;
+  }
+
+  disconnect() {
+    this.hasConnected = false;
   }
 
   toggle(event) {
@@ -43,8 +52,8 @@ export default class DisclosureController extends Controller {
     this.openValue = false;
   }
 
-  openValueChanged(value, previousValue) {
-    this.applyDom({ dispatch: previousValue !== undefined });
+  openValueChanged() {
+    this.applyDom({ dispatch: this.hasConnected });
   }
 
   applyDom({ dispatch }) {

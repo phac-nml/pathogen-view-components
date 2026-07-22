@@ -125,6 +125,17 @@ describe("disclosure_controller", () => {
     expect(panel.hasAttribute("hidden")).toBe(true);
   });
 
+  it.each([false, true])("does not dispatch a state event when connecting with open=%s", async (open) => {
+    const { container } = appendDisclosure({ open });
+    const events = [];
+    container.addEventListener("pathogen--disclosure:opened", () => events.push("opened"));
+    container.addEventListener("pathogen--disclosure:closed", () => events.push("closed"));
+
+    await waitForController();
+
+    expect(events).toEqual([]);
+  });
+
   it("dispatches opened and closed events", async () => {
     const { container } = appendDisclosure();
     await waitForController();
