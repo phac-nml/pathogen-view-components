@@ -29,11 +29,12 @@
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Icon-only rail controls need an accessible name on the button itself (via <%= pathogen_code { "text:" } %> /
       <%= pathogen_code { "aria-label" } %>). Attach <%= pathogen_code { "with_tooltip" } %> for a sighted hover/focus
-      label — the tooltip must not be the only name. On icon-only buttons the tooltip defaults to visual-only (no
-      <%= pathogen_code { "aria-describedby" } %>), so the <%= pathogen_code { "aria-label" } %> is the single announced
-      name with no duplicate echo; keep the tooltip text identical to that name. Use
-      <%= pathogen_code { "placement: :right" } %> (a physical direction — flip it in RTL) so labels open into the
-      content area. On touch, the first tap reveals the tooltip and the action fires on the second tap.
+      label — the tooltip must not be the only name. When the tooltip text matches that name (as here) it is inferred to
+      be visual-only (no <%= pathogen_code { "aria-describedby" } %>), so the <%= pathogen_code { "aria-label" } %> is
+      the single announced name with no duplicate echo; a tooltip that adds new information is associated as a
+      description instead. Use <%= pathogen_code { "placement: :right" } %> (a physical direction — flip it in RTL) so
+      labels open into the content area. On touch, the first tap reveals the tooltip and the action fires on the second
+      tap.
     <% end %>
 
     <div
