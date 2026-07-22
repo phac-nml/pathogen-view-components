@@ -288,7 +288,57 @@ module Pathogen
       end
 
       assert_selector "div[data-controller='pathogen--tooltip'].block.w-full"
+      assert_no_selector "div[data-controller='pathogen--tooltip'].inline-block"
       assert_selector "div[data-controller='pathogen--tooltip'] > button.flex.w-full", text: 'Run analysis'
+    end
+
+    test 'with_tooltip wrapper stays inline-block for non-block buttons' do
+      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
+        button.with_tooltip(text: 'Exports are retained for 30 days')
+      end
+
+      assert_selector "div[data-controller='pathogen--tooltip'].inline-block"
+      assert_no_selector "div[data-controller='pathogen--tooltip'].block"
+    end
+
+    test 'with_tooltip defaults to top placement' do
+      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
+        button.with_tooltip(text: 'Exports are retained for 30 days')
+      end
+
+      assert_selector 'div[role="tooltip"][data-placement="top"]', text: 'Exports are retained for 30 days'
+    end
+
+    test 'with_tooltip appends its id to a caller-supplied aria-describedby' do
+      render_inline(Pathogen::Button.new(text: 'Export', aria: { describedby: 'existing-hint' })) do |button|
+        button.with_tooltip(text: 'Exports are retained for 30 days')
+      end
+
+      describedby = page.find('button')['aria-describedby'].split
+      assert_includes describedby, 'existing-hint'
+      tooltip_id = describedby.last
+      assert_match(/\Atooltip-/, tooltip_id)
+      assert_selector "div##{tooltip_id}[role='tooltip']", text: 'Exports are retained for 30 days'
+    end
+
+    test 'with_tooltip on a disabled button raises a helpful error' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Button.new(text: 'Save', disabled: true)) do |button|
+          button.with_tooltip(text: 'Save your work')
+        end
+      end
+
+      assert_match(/disabled/, error.message)
+      assert_match(/aria_disabled/, error.message)
+    end
+
+    test 'with_tooltip is allowed on an aria_disabled button' do
+      render_inline(Pathogen::Button.new(text: 'Continue', aria_disabled: true)) do |button|
+        button.with_tooltip(text: 'Complete the form first')
+      end
+
+      assert_selector 'button[aria-disabled="true"][data-pathogen--tooltip-target="trigger"]', text: 'Continue'
+      assert_selector 'div[role="tooltip"]', text: 'Complete the form first'
     end
 
     test 'icon_only with_tooltip passes axe-core structural checks' do
