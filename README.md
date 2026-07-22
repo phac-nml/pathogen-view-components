@@ -137,12 +137,22 @@ Sticky columns:
 <% end %>
 ```
 
-For rich, non-interactive trigger content, use `with_trigger` and provide `aria_label:` as the button's
-accessible name. Do not put links, buttons, inputs, or other interactive elements in a trigger slot.
+`Pathogen::Disclosure` follows the WAI-ARIA disclosure pattern: a native `<button>` with
+`aria-expanded` / `aria-controls`, and a panel toggled with `hidden`. Stimulus updates
+`aria-expanded` on the focused control so screen readers announce expanded/collapsed on
+activation (including VoiceOver), not only when the control receives focus.
+
+- Default size is `:medium` (44px minimum target). Use `size: :small` for dense toolbars (24px).
+- Set `heading_level: 2..6` to wrap the button in a heading (APG FAQ pattern).
+- Prefer visible trigger text as the accessible name. Use `aria_label:` only when the trigger has
+  no usable text, or when you need a richer name that still includes the visible label (WCAG 2.5.3).
+- Do not put links, buttons, inputs, or other interactive elements in a trigger slot.
+- Pass `trigger_arguments:` / `panel_arguments:` to extend the button or panel without forking.
 
 ```erb
 <%= render Pathogen::Disclosure.new(
   id: "metadata-templates",
+  heading_level: 3,
   aria_label: "Metadata templates, 3 available"
 ) do |disclosure| %>
   <% disclosure.with_trigger do %>
@@ -193,7 +203,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
-- `pathogen--disclosure`: Show/hide a related section with `aria-expanded` / `aria-controls`
+- `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development

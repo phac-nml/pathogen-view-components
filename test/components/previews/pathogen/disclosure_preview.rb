@@ -7,11 +7,11 @@ module Pathogen
     # @!group Pathogen Disclosure
 
     # @label Overview
-    # Basic closed and open disclosures
+    # Closed, open, heading, custom trigger, and dense sizes
     def overview; end
 
     # @label Accessibility
-    # Keyboard and ARIA behaviour for show/hide sections
+    # Keyboard, aria-expanded announcements, focus, and Label in Name
     def accessibility; end
 
     # @!endgroup
