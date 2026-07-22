@@ -3,8 +3,10 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Specimen row actions" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Icon-only row utilities need an accessible name via <%= pathogen_code { "aria: { label: ... }" } %> and can use
-      tooltips for supplementary detail. Keep labels specific to the row action, not the icon shape.
+      Icon-only row utilities need an accessible name via <%= pathogen_code { "aria: { label: ... }" } %>. For icon-only
+      controls the tooltip repeats that name for sighted users — keep the two strings identical and specific to the row
+      action, not the icon shape. Screen reader users already hear the name, so do not add extra prose here. Reserve
+      richer tooltip copy for controls that also show a visible label (see the breadcrumb trail below).
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
@@ -44,9 +46,10 @@
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       When a sidebar collapses to icons, use <%= pathogen_code { "placement: :right" } %> so labels open into the
-      content area. Prefer <%= pathogen_code { "Pathogen::Link" } %> for destinations and
-      <%= pathogen_code { "Pathogen::Button" } %> for actions; both support <%= pathogen_code { "with_tooltip" } %>. See
-      the Button Accessibility preview for an icon-only button rail.
+      content area (a physical direction — use <%= pathogen_code { ":left" } %> in RTL layouts). Prefer
+      <%= pathogen_code { "Pathogen::Link" } %> for destinations and <%= pathogen_code { "Pathogen::Button" } %> for
+      actions; both support <%= pathogen_code { "with_tooltip" } %>. On touch, the first tap reveals the tooltip and the
+      second follows the link. See the Button Accessibility preview for an icon-only button rail.
     <% end %>
 
     <div
