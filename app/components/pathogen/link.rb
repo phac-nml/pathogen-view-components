@@ -31,11 +31,13 @@ module Pathogen
     #
     # @param placement [Symbol] Position of tooltip (:top, :bottom, :left, :right)
     # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
-    #   `aria-describedby` (default `true`). Set `describe: false` for an icon-only link whose
-    #   tooltip merely repeats the accessible name, so the tooltip stays visual-only and screen
-    #   reader users do not hear the name announced twice.
+    #   `aria-describedby`. When omitted, it is inferred: a tooltip that merely repeats the
+    #   link's `aria-label` stays visual-only (no `aria-describedby`, so screen readers announce
+    #   the name once); anything else is associated as a description. Links named by their
+    #   visible text (no `aria-label`) always associate. Pass `describe:` to override.
     # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
-    renders_one :tooltip, lambda { |placement: :top, describe: true, **system_arguments|
+    renders_one :tooltip, lambda { |placement: :top, describe: nil, **system_arguments|
+      describe = describe_tooltip?(system_arguments[:text]) if describe.nil?
       @tooltip_id = Pathogen::Tooltip.generate_id
       @tooltip_associate = describe ? 'describedby' : 'none'
       if describe
@@ -65,6 +67,20 @@ module Pathogen
     end
 
     private
+
+    # Infer whether the tooltip should be a description (`aria-describedby`) or visual-only.
+    # A tooltip that only repeats the link's `aria-label` adds nothing for AT, so it stays
+    # visual-only; anything else is treated as supplementary. Only `aria-label` is inspected —
+    # never `content` — to stay safe while the tooltip slot is evaluated, so links named by
+    # visible text always associate.
+    def describe_tooltip?(tooltip_text)
+      aria = @link_system_arguments[:aria]
+      reference = @link_system_arguments[:'aria-label'] ||
+                  (aria.is_a?(Hash) && (aria[:label] || aria['label']))
+      return true unless reference.is_a?(String) && reference.present?
+
+      tooltip_text.to_s.strip != reference.strip
+    end
 
     def setup_external_link_attributes
       @link_system_arguments.merge!(EXTERNAL_LINK_ATTRIBUTES)
