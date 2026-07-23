@@ -676,4 +676,27 @@ describe("toolbar_controller", () => {
     expect(one.tabIndex).toBe(0);
     expect(two.tabIndex).toBe(-1);
   });
+
+  it("re-syncs from the document-root turbo:morph event", async () => {
+    await startController(`
+      ${toolbarMarkup()}
+      <button id="outside-control" type="button">Outside</button>
+    `);
+
+    const one = document.querySelector("#item-one");
+    const two = document.querySelector("#item-two");
+    const outsideControl = document.querySelector("#outside-control");
+
+    two.focus();
+    two.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    outsideControl.focus();
+    two.disabled = true;
+
+    document.documentElement.dispatchEvent(new CustomEvent("turbo:morph", { bubbles: true }));
+    await flush();
+
+    expect(document.activeElement).toBe(outsideControl);
+    expect(one.tabIndex).toBe(0);
+    expect(two.tabIndex).toBe(-1);
+  });
 });
