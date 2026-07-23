@@ -19,8 +19,8 @@ module Pathogen
       focus-visible:z-10
       disabled:cursor-not-allowed disabled:opacity-60
       aria-disabled:cursor-not-allowed aria-disabled:opacity-60
-      aria-pressed:bg-[var(--pvc-color-surface-muted)]
-      aria-pressed:border-[var(--pvc-color-border-strong)]
+      aria-pressed:bg-[color-mix(in_oklab,var(--pvc-color-accent)_12%,var(--pvc-color-surface))]
+      aria-pressed:border-[var(--pvc-color-accent)]
     ].join(' ').freeze
 
     STYLE_CLASSES = {

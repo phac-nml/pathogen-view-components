@@ -104,18 +104,30 @@ module Pathogen
       assert_raises(ArgumentError) { Pathogen::Toolbar.new(label: 'A', labelled_by: 'toolbar-heading') }
     end
 
-    test 'uses aria-disabled without native disabled for unavailable buttons' do
+    test 'uses native disabled for unavailable buttons' do
       render_inline(Pathogen::Toolbar::Button.new(disabled: true)) { 'Archive' }
+
+      assert_selector 'button[data-pathogen--toolbar-target="item"][tabindex="-1"][disabled]'
+      assert_no_selector 'button[aria-disabled]'
+    end
+
+    test 'preserves string-keyed native disabled arguments' do
+      render_inline(Pathogen::Toolbar::Button.new(**{ 'disabled' => true })) { 'Archive' }
+
+      assert_selector 'button[data-pathogen--toolbar-target="item"][tabindex="-1"][disabled]', text: 'Archive'
+    end
+
+    test 'uses aria-disabled when an unavailable button must remain focusable' do
+      render_inline(Pathogen::Toolbar::Button.new(aria_disabled: true)) { 'Archive' }
 
       assert_selector 'button[data-pathogen--toolbar-target="item"][tabindex="-1"][aria-disabled="true"]'
       assert_no_selector 'button[disabled]'
     end
 
-    test 'removes string-keyed native disabled from toolbar button arguments' do
-      render_inline(Pathogen::Toolbar::Button.new(**{ 'disabled' => true })) { 'Archive' }
-
-      assert_selector 'button[data-pathogen--toolbar-target="item"][tabindex="-1"]', text: 'Archive'
-      assert_no_selector 'button[disabled]'
+    test 'rejects conflicting disabled states' do
+      assert_raises(ArgumentError) do
+        Pathogen::Toolbar::Button.new(disabled: true, aria_disabled: true)
+      end
     end
 
     test 'uses small Pathogen::Button sizing defaults in toolbar context' do
@@ -128,7 +140,12 @@ module Pathogen
     test 'renders aria-pressed with visible pressed styling' do
       render_inline(Pathogen::Toolbar::Button.new(pressed: true)) { 'Bold' }
 
-      assert_selector 'button[aria-pressed="true"][class*="aria-pressed:bg-"]', text: 'Bold'
+      assert_selector(
+        'button[aria-pressed="true"]' \
+        '[class*="aria-pressed:bg-"]' \
+        '[class*="aria-pressed:border-[var(--pvc-color-accent)]"]',
+        text: 'Bold'
+      )
     end
 
     test 'supports aria-label on toolbar buttons for icon-only usage' do

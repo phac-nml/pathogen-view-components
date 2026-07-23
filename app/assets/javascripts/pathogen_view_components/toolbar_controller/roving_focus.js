@@ -1,4 +1,4 @@
-import { isAriaDisabled, isVisibleItem } from "pathogen_view_components/toolbar_controller/visibility";
+import { isAriaDisabled, visibleItems } from "pathogen_view_components/toolbar_controller/visibility";
 
 export function nextIndex(currentIndex, length) {
   return (currentIndex + 1) % length;
@@ -20,7 +20,7 @@ export function initialTabStopItem(visibleItems) {
 }
 
 export function setInitialTabStop(items) {
-  const visible = items.filter((item) => isVisibleItem(item));
+  const visible = visibleItems(items);
   if (visible.length === 0) {
     return;
   }

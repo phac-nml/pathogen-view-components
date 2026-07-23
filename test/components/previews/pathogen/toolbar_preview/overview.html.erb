@@ -60,7 +60,7 @@
               Columns
             <% end %>
 
-            <%= render Pathogen::Toolbar::Button.new(disabled: true, label: 'Export selected samples') do %>
+            <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: 'Export selected samples') do %>
               Export
             <% end %>
           <% end %>
@@ -147,7 +147,7 @@
               autocomplete="off"
               tabindex="-1"
               data-pathogen--toolbar-target="item"
-              aria-label="Search responsive sample grid by ID or name"
+              aria-label="Search samples by ID or name"
               placeholder="Search samples by ID or name"
               class="
                 w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
@@ -230,7 +230,7 @@
             Refresh data
           <% end %>
 
-          <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+          <%= render Pathogen::Toolbar::Button.new(aria_disabled: true) do %>
             Sync all
           <% end %>
 
@@ -263,7 +263,7 @@
           Refresh data
         <% end %>
 
-        <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
+        <%= render Pathogen::Toolbar::Button.new(aria_disabled: true) do %>
           Sync all
         <% end %>
 

@@ -11,16 +11,21 @@ module Pathogen
     renders_one :trailing_visual
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(label: nil, pressed: nil, disabled: false, tag: :button, tone: :neutral, emphasis: :ghost,
-                   size: :small, **system_arguments)
+    def initialize(label: nil, pressed: nil, disabled: false, aria_disabled: false, tag: :button, tone: :neutral,
+                   emphasis: :ghost, size: :small, **system_arguments)
       @label = label
       @pressed = pressed
-      @disabled = disabled
+      @disabled = disabled || system_arguments.delete('disabled') == true
+      @aria_disabled = aria_disabled
       @tag = tag
       @tone = tone
       @emphasis = emphasis
       @size = size
       @system_arguments = system_arguments
+
+      if @disabled && @aria_disabled
+        raise ArgumentError, 'Cannot set both disabled and aria_disabled on a toolbar button'
+      end
 
       build_button_arguments!
     end
@@ -29,10 +34,10 @@ module Pathogen
     private
 
     def build_button_arguments!
-      @system_arguments.delete(:disabled)
-      @system_arguments.delete('disabled')
       @system_arguments[:tag] = @tag
       @system_arguments[:tabindex] = -1
+      @system_arguments[:disabled] = true if @disabled
+      @system_arguments[:aria_disabled] = true if @aria_disabled
       apply_detached_form_submit_default!
 
       apply_aria_attributes!
@@ -50,7 +55,6 @@ module Pathogen
     def apply_aria_attributes!
       @system_arguments[:aria] ||= {}
       @system_arguments[:aria][:label] = @label if @label.present?
-      @system_arguments[:aria][:disabled] = true if @disabled
       @system_arguments[:aria][:pressed] = @pressed unless @pressed.nil?
     end
 
