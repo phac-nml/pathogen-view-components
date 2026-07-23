@@ -165,12 +165,12 @@ export default class extends Controller {
   #bindDomSync() {
     this.#boundSyncItems = this.#syncItemsAfterDomChange.bind(this);
     this.element.addEventListener("pathogen--toolbar:sync", this.#boundSyncItems);
-    this.element.addEventListener("turbo:morph", this.#boundSyncItems);
+    document.addEventListener("turbo:morph", this.#boundSyncItems);
   }
 
   #unbindDomSync() {
     this.element.removeEventListener("pathogen--toolbar:sync", this.#boundSyncItems);
-    this.element.removeEventListener("turbo:morph", this.#boundSyncItems);
+    document.removeEventListener("turbo:morph", this.#boundSyncItems);
   }
 
   #syncItemsAfterDomChange() {
