@@ -19,6 +19,8 @@ module Pathogen
       focus-visible:z-10
       disabled:cursor-not-allowed disabled:opacity-60
       aria-disabled:cursor-not-allowed aria-disabled:opacity-60
+      aria-pressed:bg-[var(--pvc-color-surface-muted)]
+      aria-pressed:border-[var(--pvc-color-border-strong)]
     ].join(' ').freeze
 
     STYLE_CLASSES = {
