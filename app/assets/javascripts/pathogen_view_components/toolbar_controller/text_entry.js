@@ -30,27 +30,3 @@ export function isTextEntryTarget(target) {
 
   return Boolean(target.closest(TEXT_ENTRY_SELECTOR));
 }
-
-export function shouldNavigateFromTextEntry(target, key) {
-  if (key !== "ArrowLeft" && key !== "ArrowRight") {
-    return false;
-  }
-
-  if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement)) {
-    return false;
-  }
-
-  const { selectionStart, selectionEnd } = target;
-  if (selectionStart === null || selectionEnd === null) {
-    return false;
-  }
-
-  const selectionStartIndex = Math.min(selectionStart, selectionEnd);
-  const selectionEndIndex = Math.max(selectionStart, selectionEnd);
-
-  if (key === "ArrowLeft") {
-    return selectionStartIndex === 0;
-  }
-
-  return selectionEndIndex === target.value.length;
-}

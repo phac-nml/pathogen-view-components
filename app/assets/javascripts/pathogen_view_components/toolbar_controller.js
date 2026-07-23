@@ -8,11 +8,7 @@ import {
   setInitialTabStop,
   setTabStopForItems,
 } from "pathogen_view_components/toolbar_controller/roving_focus";
-import {
-  isTextEntryTarget,
-  placeTextEntryCaret,
-  shouldNavigateFromTextEntry,
-} from "pathogen_view_components/toolbar_controller/text_entry";
+import { isTextEntryTarget, placeTextEntryCaret } from "pathogen_view_components/toolbar_controller/text_entry";
 import { isAriaDisabled, isVisibleItem, visibleItems } from "pathogen_view_components/toolbar_controller/visibility";
 
 export default class extends Controller {
@@ -74,7 +70,10 @@ export default class extends Controller {
       return;
     }
 
-    if (isTextEntryTarget(event.target) && !shouldNavigateFromTextEntry(event.target, event.key)) {
+    // APG: leave Left/Right (and Home/End) to the text control itself. Put
+    // text-entry items last in DOM order so caret navigation never fights the
+    // toolbar. Leave the field with Tab / Shift+Tab.
+    if (isTextEntryTarget(event.target)) {
       return;
     }
 
