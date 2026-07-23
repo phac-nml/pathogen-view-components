@@ -5,16 +5,21 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Data grid toolbar</h2>
+    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Data grid toolbar' } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
       Default <code class="font-mono">variant: :table</code> for full-width action rows above a data grid. Group related
       controls with <code class="font-mono">Toolbar::Group</code>, push end groups with
       <code class="font-mono">Toolbar::Spacer</code>, and place text-entry controls last in DOM order per the
-      <a class="text-[var(--pvc-color-accent)] underline" href="https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/">APG toolbar pattern</a>.
+      <%= render Pathogen::Link.new(href: 'https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/') do %>
+        APG toolbar pattern
+      <% end %>.
       Detached submit buttons follow the
-      <a class="text-[var(--pvc-color-accent)] underline" href="https://github.com/phac-nml/irida-next/pull/2035">IRIDA selection-buttons pattern</a>.
-    </p>
+      <%= render Pathogen::Link.new(href: 'https://github.com/phac-nml/irida-next/pull/2035') do %>
+        IRIDA selection-buttons pattern
+      <% end %>.
+      Arrow keys never leave a text field — use Tab to move out.
+    <% end %>
 
     <%# Hidden forms keep screen readers from announcing a form boundary before each button. %>
     <%= form_tag '#', method: :get, id: 'toolbar-preview-select-all', class: 'hidden', data: { turbo_frame: 'selected' } do %>
@@ -92,13 +97,13 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Responsive full-width reflow</h2>
+    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Responsive full-width reflow' } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
       Resize the preview below the <code class="font-mono">sm</code> breakpoint (640px). The spacer collapses, each
       <code class="font-mono">Toolbar::Group</code> takes a full row, and the search field expands to fill the available
       width.
-    </p>
+    <% end %>
 
     <div
       class="
@@ -167,12 +172,12 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Chip toolbar</h2>
+    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Chip toolbar' } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
       Use <code class="font-mono">variant: :chip</code> for compact bordered toolbars in dialogs, panels, or inline
       editor contexts. Use a toolbar only when grouping three or more controls.
-    </p>
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Toolbar.new(label: 'Sample actions', variant: :chip) do %>
@@ -194,12 +199,13 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Toggle and disabled states</h2>
+    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Toggle and disabled states' } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
-      Pressed state is consumer-owned; the toolbar reflects it through <code class="font-mono">aria-pressed</code>.
-      Unavailable actions use <code class="font-mono">aria-disabled</code> so they stay focusable and discoverable.
-    </p>
+    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+      Pressed state is consumer-owned; the toolbar reflects it through <code class="font-mono">aria-pressed</code> and a
+      muted fill so the state is visible. Unavailable actions use <code class="font-mono">aria-disabled</code> so they
+      stay focusable and discoverable.
+    <% end %>
 
     <div class="flex flex-wrap gap-4">
       <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
@@ -227,17 +233,21 @@
           <%= render Pathogen::Toolbar::Button.new(disabled: true) do %>
             Sync all
           <% end %>
+
+          <%= render Pathogen::Toolbar::Button.new do %>
+            Download log
+          <% end %>
         <% end %>
       </div>
     </div>
   </section>
 
   <section>
-    <h2 id="toolbar-preview-a11y-title" class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">
+    <%= pathogen_heading(level: 2, id: 'toolbar-preview-a11y-title', class: 'mb-2') do %>
       Keyboard and custom controls
-    </h2>
+    <% end %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
       Tab into the toolbar once, then use
       <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">←</kbd>
       <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">→</kbd>
@@ -245,7 +255,7 @@
       <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">End</kbd> to move
       between items. Custom controls join roving focus when they expose
       <code class="font-mono">data-pathogen--toolbar-target="item"</code>.
-    </p>
+    <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title', variant: :chip) do %>
@@ -277,10 +287,10 @@
   <section
     class="
       rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]
-      p-4 text-sm text-[var(--pvc-color-text-muted)]
+      p-4 text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
     "
   >
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Usage notes</h2>
+    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Usage notes' } %>
 
     <ul class="list-disc space-y-2 pl-5">
       <li>
@@ -290,7 +300,8 @@
 
       <li>
         Host-local dropdown menus stay consumer-managed in v1: only the closed trigger is a toolbar item; open menus
-        must own their own keyboard model.
+        must own their own keyboard model and stop keydown propagation so the toolbar does not steal
+        Left/Right/Home/End.
       </li>
 
       <li>

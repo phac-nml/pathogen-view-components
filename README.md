@@ -158,6 +158,7 @@ Compact inline toolbar (`variant: :chip`):
 ```erb
 <%= render Pathogen::Toolbar.new(label: "Editor actions", variant: :chip) do %>
   <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") { "Dense" } %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:wrap] == "1") { "Wrap" } %>
   <%= render Pathogen::Toolbar::Separator.new %>
   <button type="button" tabindex="-1" data-pathogen--toolbar-target="item">More</button>
 <% end %>
@@ -168,6 +169,7 @@ Compact inline toolbar (`variant: :chip`):
 - When composing a toolbar above a data grid, wrap both in one framed surface (`data-pathogen--toolbar-surface`) so the grid omits its outer border; separate the toolbar band with a single `border-b`.
 - Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
 - Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
+- Text-entry controls keep Left/Right/Home/End for caret movement; leave them with Tab / Shift+Tab. Prefer placing text entry last in DOM order.
 - The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
 - Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 
