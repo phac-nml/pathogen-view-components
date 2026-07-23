@@ -8,8 +8,8 @@ import {
   setInitialTabStop,
   setTabStopForItems,
 } from "pathogen_view_components/toolbar_controller/roving_focus";
-import { isTextEntryTarget, placeTextEntryCaret } from "pathogen_view_components/toolbar_controller/text_entry";
-import { isAriaDisabled, isVisibleItem, visibleItems } from "pathogen_view_components/toolbar_controller/visibility";
+import { ownsToolbarNavigationKeys, placeTextEntryCaret } from "pathogen_view_components/toolbar_controller/text_entry";
+import { isAriaDisabled, isNavigableItem, visibleItems } from "pathogen_view_components/toolbar_controller/visibility";
 
 export default class extends Controller {
   static targets = ["item"];
@@ -70,10 +70,9 @@ export default class extends Controller {
       return;
     }
 
-    // APG: leave Left/Right (and Home/End) to the text control itself. Put
-    // text-entry items last in DOM order so caret navigation never fights the
-    // toolbar. Leave the field with Tab / Shift+Tab.
-    if (isTextEntryTarget(event.target)) {
+    // APG: controls that require the toolbar's navigation keys own those keys.
+    // Put them last in DOM order and leave them with Tab / Shift+Tab.
+    if (ownsToolbarNavigationKeys(event.target)) {
       return;
     }
 
@@ -122,6 +121,11 @@ export default class extends Controller {
     }
 
     queueMicrotask(() => {
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement !== document.body && activeElement !== document.documentElement) {
+        return;
+      }
+
       this.#focusToolbarItem(item);
     });
   }
@@ -178,12 +182,12 @@ export default class extends Controller {
     this.#items = nextItems;
 
     const focusedItem = connectedItemForTarget(this.#items, document.activeElement);
-    if (focusedItem && isVisibleItem(focusedItem)) {
+    if (focusedItem && isNavigableItem(focusedItem)) {
       setTabStopForItems(this.#items, focusedItem);
       return;
     }
 
-    if (this.#restoreLastFocusedToolbarItem()) {
+    if (this.#restoreLastFocusedTabStop()) {
       return;
     }
 
@@ -191,7 +195,7 @@ export default class extends Controller {
   }
 
   #focusToolbarItem(item) {
-    if (!item?.isConnected || !isVisibleItem(item)) {
+    if (!item?.isConnected || !isNavigableItem(item)) {
       return;
     }
 
@@ -199,16 +203,7 @@ export default class extends Controller {
     setTabStopForItems(this.#items, item);
   }
 
-  #restoreLastFocusedToolbarItem() {
-    const activeElement = document.activeElement;
-    if (
-      activeElement instanceof HTMLElement &&
-      activeElement.isConnected &&
-      connectedItemForTarget(this.#items, activeElement)
-    ) {
-      return false;
-    }
-
+  #restoreLastFocusedTabStop() {
     if (!this.#lastFocusedToolbarItemId) {
       return false;
     }
@@ -217,11 +212,11 @@ export default class extends Controller {
       (toolbarItem) => toolbarItem.isConnected && toolbarItem.id === this.#lastFocusedToolbarItemId,
     );
 
-    if (!item || !isVisibleItem(item)) {
+    if (!item || !isNavigableItem(item)) {
       return false;
     }
 
-    this.#focusToolbarItem(item);
+    setTabStopForItems(this.#items, item);
     return true;
   }
 

@@ -191,7 +191,7 @@ Buttons have two decisions: **tone** and **emphasis**.
 - Toolbars use `small`, `ghost` (default for `Toolbar::Button`) or `outline`, and named icon buttons.
 - Table toolbars default to full-width reflow (`variant: :table`). Group related controls with `Pathogen::Toolbar::Group`, push end groups with `Toolbar::Spacer`, and place text-entry controls last in DOM order.
 - When a toolbar contains focus, the container shows a `:focus-within` outline (APG) in addition to the focused item's `focus-visible` ring.
-- Toggle toolbar buttons set `aria-pressed` and rely on Button's visible pressed styles (muted fill + stronger border).
+- Toggle toolbar buttons set `aria-pressed` and rely on Button's visible pressed styles (accent-tinted fill + accent border).
 - Do not put two primary solid buttons beside each other unless they are genuinely equal choices.
 
 ### Hover On Solid Buttons

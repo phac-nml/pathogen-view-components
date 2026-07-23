@@ -56,11 +56,8 @@ module Pathogen
     private
 
     def setup_external_link_attributes
+      @external_link = true
       @link_system_arguments.merge!(EXTERNAL_LINK_ATTRIBUTES)
-      label_content = content&.strip
-      return if label_content.blank?
-
-      @link_system_arguments[:'aria-label'] ||= t('.aria-label', content: label_content)
     end
 
     def external_link?(href)
