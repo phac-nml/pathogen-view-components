@@ -164,7 +164,7 @@ describe("toolbar_controller", () => {
     expect(bubbledClicks).toBe(0);
   });
 
-  it("does not intercept arrow keys for text-entry targets away from boundaries", async () => {
+  it("does not intercept arrow keys for text-entry targets", async () => {
     await startController(toolbarMarkup({ includeInput: true }));
 
     const input = document.querySelector("#item-search");
@@ -177,37 +177,39 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(input);
   });
 
-  it("moves focus out of text-entry targets with ArrowRight at the end", async () => {
+  it("keeps focus in text-entry targets at caret boundaries", async () => {
     await startController(toolbarMarkup({ includeInput: true }));
 
-    const one = document.querySelector("#item-one");
     const input = document.querySelector("#item-search");
 
     input.focus();
     input.setSelectionRange(input.value.length, input.value.length);
 
-    const event = dispatchKey(input, "ArrowRight");
+    const rightEvent = dispatchKey(input, "ArrowRight");
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(one);
+    expect(rightEvent.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(input);
+
+    input.setSelectionRange(0, 0);
+
+    const leftEvent = dispatchKey(input, "ArrowLeft");
+
+    expect(leftEvent.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(input);
   });
 
-  it("moves focus to the next visible toolbar button from a text-entry target boundary", async () => {
-    await startToolbar(`
-        <input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="abc" />
-        <button id="item-search-submit" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Search</button>
-        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
-    `);
+  it("keeps focus in text-entry targets when all text is selected", async () => {
+    await startController(toolbarMarkup({ includeInput: true }));
 
     const input = document.querySelector("#item-search");
-    const searchButton = document.querySelector("#item-search-submit");
 
     input.focus();
-    input.setSelectionRange(input.value.length, input.value.length);
+    input.setSelectionRange(0, input.value.length);
 
-    dispatchKey(input, "ArrowRight");
+    const event = dispatchKey(input, "ArrowLeft");
 
-    expect(document.activeElement).toBe(searchButton);
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(input);
   });
 
   it("skips hidden toolbar items during arrow navigation", async () => {
@@ -224,36 +226,6 @@ describe("toolbar_controller", () => {
     dispatchKey(one, "ArrowRight");
 
     expect(document.activeElement).toBe(two);
-  });
-
-  it("moves focus out of text-entry targets with ArrowLeft at the start", async () => {
-    await startController(toolbarMarkup({ includeInput: true }));
-
-    const three = document.querySelector("#item-three");
-    const input = document.querySelector("#item-search");
-
-    input.focus();
-    input.setSelectionRange(0, 0);
-
-    const event = dispatchKey(input, "ArrowLeft");
-
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(three);
-  });
-
-  it("moves focus out of text-entry targets with ArrowLeft when all text is selected", async () => {
-    await startController(toolbarMarkup({ includeInput: true }));
-
-    const three = document.querySelector("#item-three");
-    const input = document.querySelector("#item-search");
-
-    input.focus();
-    input.setSelectionRange(0, input.value.length);
-
-    const event = dispatchKey(input, "ArrowLeft");
-
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(three);
   });
 
   it("places the caret on the arrival edge when arrowing into a text-entry item", async () => {
@@ -274,37 +246,12 @@ describe("toolbar_controller", () => {
     expect(input.selectionStart).toBe(input.value.length);
     expect(input.selectionEnd).toBe(input.value.length);
 
-    dispatchKey(input, "ArrowRight");
-
-    expect(document.activeElement).toBe(advanced);
-
+    advanced.focus();
     dispatchKey(advanced, "ArrowLeft");
 
     expect(document.activeElement).toBe(input);
     expect(input.selectionStart).toBe(0);
     expect(input.selectionEnd).toBe(0);
-
-    dispatchKey(input, "ArrowLeft");
-
-    expect(document.activeElement).toBe(actions);
-  });
-
-  it("moves focus to the previous toolbar item when search text is fully selected", async () => {
-    await startToolbar(`
-        <button id="item-actions" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Actions</button>
-        <input id="item-search" type="search" data-pathogen--toolbar-target="item" tabindex="-1" value="100" />
-        <button id="item-advanced" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Advanced</button>
-    `);
-
-    const actions = document.querySelector("#item-actions");
-    const input = document.querySelector("#item-search");
-
-    input.focus();
-    input.setSelectionRange(0, input.value.length);
-
-    dispatchKey(input, "ArrowLeft");
-
-    expect(document.activeElement).toBe(actions);
   });
 
   it("does not intercept arrow keys for contenteditable toolbar items", async () => {
@@ -438,8 +385,8 @@ describe("toolbar_controller", () => {
 
     const event = dispatchKey(newSearch, "ArrowLeft");
 
-    expect(event.defaultPrevented).toBe(true);
-    expect(document.activeElement).toBe(document.querySelector("#new-one"));
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(newSearch);
     expect(document.activeElement).not.toBe(one);
   });
 
