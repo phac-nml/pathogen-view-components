@@ -8,7 +8,8 @@ module Pathogen
   #
   # Group related controls with {Pathogen::Toolbar::Group} so they reflow together.
   # Place {Pathogen::Toolbar::Spacer} between start and end groups on wide layouts.
-  # Put text-entry controls last in DOM order per the APG toolbar pattern.
+  # If an arrow-key-owning control is unavoidable, include only one and put it
+  # last in DOM order per the APG toolbar pattern.
   class Toolbar < Pathogen::Component
     include Pathogen::StimulusDataMerge
 
