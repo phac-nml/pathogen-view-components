@@ -122,6 +122,13 @@ module Pathogen
       render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
 
       assert_selector "button[class*='text-xs'][class*='px-2'][class*='py-1']"
+      assert_selector "button[class*='bg-transparent'][class*='border-transparent']"
+    end
+
+    test 'renders aria-pressed with visible pressed styling' do
+      render_inline(Pathogen::Toolbar::Button.new(pressed: true)) { 'Bold' }
+
+      assert_selector 'button[aria-pressed="true"][class*="aria-pressed:bg-"]', text: 'Bold'
     end
 
     test 'supports aria-label on toolbar buttons for icon-only usage' do
@@ -227,8 +234,14 @@ module Pathogen
 
       assert_selector 'div[role="separator"][aria-orientation="vertical"]'
       assert_no_selector 'div[role="separator"][aria-hidden]'
-      assert_selector 'div[role="separator"][class*="bg-[var(--pvc-color-border-strong)]"]'
+      assert_selector 'div[role="separator"][class*="mx-1"][class*="bg-[var(--pvc-color-border-strong)]"]'
       assert_no_selector 'div[role="separator"][data-pathogen--toolbar-target]'
+    end
+
+    test 'passes axe-core structural checks for a labelled toolbar' do
+      render_inline(Pathogen::Toolbar.new(label: 'Sample actions')) { axe_toolbar_items }
+
+      assert_axe_structural_accessible rendered_content, context: 'toolbar with buttons'
     end
 
     test 'custom controls participate only when explicitly targeted' do
@@ -255,6 +268,25 @@ module Pathogen
       render_inline(Pathogen::Toolbar::Button.new(data: { 'pathogen--toolbar-target': 'custom' })) { 'Custom target' }
 
       assert_selector 'button[data-pathogen--toolbar-target~="custom"][data-pathogen--toolbar-target~="item"]'
+    end
+
+    private
+
+    def axe_toolbar_items
+      helpers = ActionController::Base.helpers
+      helpers.safe_join(
+        [
+          helpers.tag.button('Edit', type: 'button', tabindex: -1, data: { 'pathogen--toolbar-target': 'item' }),
+          helpers.tag.button('Duplicate', type: 'button', tabindex: -1, data: { 'pathogen--toolbar-target': 'item' }),
+          helpers.tag.button(
+            'Archive',
+            type: 'button',
+            tabindex: -1,
+            'aria-disabled': 'true',
+            data: { 'pathogen--toolbar-target': 'item' }
+          )
+        ]
+      )
     end
   end
 end
