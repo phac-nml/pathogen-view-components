@@ -9,8 +9,9 @@
 
     <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
       Default <code class="font-mono">variant: :table</code> for full-width action rows above a data grid. Group related
-      controls with <code class="font-mono">Toolbar::Group</code>, push end groups with
-      <code class="font-mono">Toolbar::Spacer</code>, and place text-entry controls last in DOM order per the
+      actions with <code class="font-mono">Toolbar::Group</code>, push end groups with
+      <code class="font-mono">Toolbar::Spacer</code>, and keep text-entry controls outside the element with
+      <code class="font-mono">role="toolbar"</code> and its roving focus, as recommended by the
       <%= render Pathogen::Link.new(href: 'https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/') do %>
         APG toolbar pattern
       <% end %>.
@@ -18,7 +19,8 @@
       <%= render Pathogen::Link.new(href: 'https://github.com/phac-nml/irida-next/pull/2035') do %>
         IRIDA selection-buttons pattern
       <% end %>.
-      Arrow keys never leave a text field — use Tab to move out.
+      The search field remains in the same visual band as a separate Tab stop, so its text-editing keys stay native and
+      toolbar arrow navigation remains available for every action.
     <% end %>
 
     <%# Hidden forms keep screen readers from announcing a form boundary before each button. %>
@@ -35,7 +37,12 @@
       "
       data-pathogen--toolbar-surface
     >
-      <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-4 py-3">
+      <div
+        class="
+          grid grid-cols-1 items-center gap-2 border-b border-[var(--pvc-color-border)]
+          bg-[var(--pvc-color-surface-muted)] px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]
+        "
+      >
         <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-preview-grid') do %>
           <%= render Pathogen::Toolbar::Group.new do %>
             <%= render Pathogen::Toolbar::Button.new(
@@ -64,24 +71,24 @@
               Export
             <% end %>
           <% end %>
-
-          <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
-            <input
-              id="toolbar-preview-search"
-              type="search"
-              autocomplete="off"
-              tabindex="-1"
-              data-pathogen--toolbar-target="item"
-              aria-label="Search samples by ID or name"
-              placeholder="Search samples by ID or name"
-              class="
-                w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-                bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)]
-                text-[var(--pvc-color-text)]
-              "
-            >
-          <% end %>
         <% end %>
+
+        <div class="min-w-0">
+          <label class="sr-only" for="toolbar-preview-search">Search samples by ID or name</label>
+
+          <input
+            id="toolbar-preview-search"
+            type="search"
+            autocomplete="off"
+            placeholder="Search samples by ID or name"
+            class="
+              w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+              bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-[var(--pvc-color-focus)]
+            "
+          >
+        </div>
       </div>
 
       <%= render Pathogen::DataGridComponent.new(
@@ -112,7 +119,12 @@
       "
       data-pathogen--toolbar-surface
     >
-      <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-4 py-3">
+      <div
+        class="
+          grid grid-cols-1 items-center gap-2 border-b border-[var(--pvc-color-border)]
+          bg-[var(--pvc-color-surface-muted)] px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]
+        "
+      >
         <%= render Pathogen::Toolbar.new(label: 'Responsive sample grid actions', controls: 'toolbar-reflow-grid') do %>
           <%= render Pathogen::Toolbar::Group.new do %>
             <%= render Pathogen::Toolbar::Button.new(label: 'Select all samples in this project') do %>
@@ -139,24 +151,24 @@
               Export
             <% end %>
           <% end %>
-
-          <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
-            <input
-              id="toolbar-reflow-search"
-              type="search"
-              autocomplete="off"
-              tabindex="-1"
-              data-pathogen--toolbar-target="item"
-              aria-label="Search samples by ID or name"
-              placeholder="Search samples by ID or name"
-              class="
-                w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-                bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)]
-                text-[var(--pvc-color-text)]
-              "
-            >
-          <% end %>
         <% end %>
+
+        <div class="min-w-0">
+          <label class="sr-only" for="toolbar-reflow-search">Search samples by ID or name</label>
+
+          <input
+            id="toolbar-reflow-search"
+            type="search"
+            autocomplete="off"
+            placeholder="Search samples by ID or name"
+            class="
+              w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+              bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-[var(--pvc-color-focus)]
+            "
+          >
+        </div>
       </div>
 
       <%= render Pathogen::DataGridComponent.new(
