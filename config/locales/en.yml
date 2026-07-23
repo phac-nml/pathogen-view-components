@@ -26,7 +26,7 @@ en:
       required_indicator: "*"
       title: required
     link:
-      aria-label: "%{content} (opens in a new window)"
+      new_window_label: "(opens in a new window)"
     tooltip:
       portal:
         aria_label: Tooltips

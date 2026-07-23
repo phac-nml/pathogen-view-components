@@ -1,4 +1,4 @@
-import { MOVE_FORWARD, TEXT_ENTRY_SELECTOR } from "pathogen_view_components/toolbar_controller/constants";
+import { MOVE_FORWARD, NAVIGATION_OWNER_SELECTOR } from "pathogen_view_components/toolbar_controller/constants";
 
 export function textEntryControl(item) {
   if (item instanceof HTMLInputElement || item instanceof HTMLTextAreaElement) {
@@ -23,10 +23,10 @@ export function placeTextEntryCaret(item, moveDirection) {
   input.setSelectionRange(position, position);
 }
 
-export function isTextEntryTarget(target) {
+export function ownsToolbarNavigationKeys(target) {
   if (!(target instanceof Element)) {
     return false;
   }
 
-  return Boolean(target.closest(TEXT_ENTRY_SELECTOR));
+  return Boolean(target.closest(NAVIGATION_OWNER_SELECTOR));
 }
