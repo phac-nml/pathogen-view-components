@@ -144,7 +144,7 @@ Table action row (default `variant: :table`):
     <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: "Export selected samples") { "Export" } %>
   <% end %>
 
-  <%# Text-entry controls last in DOM order per the APG toolbar pattern. %>
+  <%# If unavoidable, include one arrow-key-owning control and place it last. %>
   <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
     <input type="search" tabindex="-1" data-pathogen--toolbar-target="item" aria-label="Search samples">
   <% end %>
@@ -170,7 +170,7 @@ Compact inline toolbar (`variant: :chip`):
 - Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
 - Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
 - Use `disabled: true` for native, unfocusable buttons. Use `aria_disabled: true` only when an unavailable action must remain focusable for discoverability.
-- Text-entry controls and native selects keep Left/Right/Home/End for their own operation; leave them with Tab / Shift+Tab and place them last in DOM order.
+- Avoid controls that need Left/Right/Home/End. If one is unavoidable, include only one text-entry control or native select, place it last in DOM order, and leave it with Tab / Shift+Tab.
 - The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
 - Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 
