@@ -131,24 +131,27 @@ Table action row (default `variant: :table`):
 </form>
 <form id="deselect-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get"></form>
 
-<%= render Pathogen::Toolbar.new(label: "Sample grid actions", controls: "samples-grid") do %>
-  <%= render Pathogen::Toolbar::Group.new do %>
-    <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
-    <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
+<div class="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]">
+  <%= render Pathogen::Toolbar.new(label: "Sample grid actions", controls: "samples-grid") do %>
+    <%= render Pathogen::Toolbar::Group.new do %>
+      <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
+      <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Spacer.new %>
+
+    <%= render Pathogen::Toolbar::Group.new do %>
+      <%= render Pathogen::Toolbar::Button.new { "Columns" } %>
+      <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: "Export selected samples") { "Export" } %>
+    <% end %>
   <% end %>
 
-  <%= render Pathogen::Toolbar::Spacer.new %>
-
-  <%= render Pathogen::Toolbar::Group.new do %>
-    <%= render Pathogen::Toolbar::Button.new { "Columns" } %>
-    <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: "Export selected samples") { "Export" } %>
-  <% end %>
-
-  <%# If unavoidable, include one arrow-key-owning control and place it last. %>
-  <%= render Pathogen::Toolbar::Group.new(reflow: :alone) do %>
-    <input type="search" tabindex="-1" data-pathogen--toolbar-target="item" aria-label="Search samples">
-  <% end %>
-<% end %>
+  <%# Search is visually adjacent, but outside role="toolbar" and its roving focus. %>
+  <div>
+    <label class="sr-only" for="sample-search">Search samples</label>
+    <input id="sample-search" type="search" placeholder="Search samples">
+  </div>
+</div>
 ```
 
 Toolbar buttons associated with a detached form default to `type="submit"`. Pass an explicit `type:` to override that default.
@@ -164,13 +167,14 @@ Compact inline toolbar (`variant: :chip`):
 <% end %>
 ```
 
-- Use `Toolbar::Group` so related controls reflow together. Use `reflow: :alone` when a control (typically search) should wrap independently.
+- Use `Toolbar::Group` so related toolbar controls reflow together. Use `reflow: :alone` only when an actual toolbar control should wrap independently.
 - Use `Toolbar::Spacer` between start and end groups on wide viewports; it collapses on narrow screens.
 - When composing a toolbar above a data grid, wrap both in one framed surface (`data-pathogen--toolbar-surface`) so the grid omits its outer border; separate the toolbar band with a single `border-b`.
 - Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
 - Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
 - Use `disabled: true` for native, unfocusable buttons. Use `aria_disabled: true` only when an unavailable action must remain focusable for discoverability.
-- Avoid controls that need Left/Right/Home/End. If one is unavoidable, include only one text-entry control or native select, place it last in DOM order, and leave it with Tab / Shift+Tab.
+- Keep text inputs and native selects outside `role="toolbar"` and its Stimulus item targets. They can remain visually adjacent in the same action band as ordinary Tab stops, preserving native text/selection keys without making toolbar actions unreachable.
+- If an arrow-key-owning control is genuinely unavoidable inside a toolbar, include only one, place it last in DOM order, and document the keyboard compromise.
 - The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
 - Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 
