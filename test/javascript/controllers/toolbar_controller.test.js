@@ -58,6 +58,20 @@ describe("toolbar_controller", () => {
     expect(third.tabIndex).toBe(-1);
   });
 
+  it("skips native disabled items when assigning the initial tab stop", async () => {
+    await startToolbar(`
+      <button id="item-disabled" type="button" disabled data-pathogen--toolbar-target="item" tabindex="-1">
+        Disabled
+      </button>
+      <button id="item-enabled" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Enabled</button>
+      <button id="item-third" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Third</button>
+    `);
+
+    expect(document.querySelector("#item-disabled").tabIndex).toBe(-1);
+    expect(document.querySelector("#item-enabled").tabIndex).toBe(0);
+    expect(document.querySelector("#item-third").tabIndex).toBe(-1);
+  });
+
   it("moves focus with ArrowRight and wraps from last to first", async () => {
     await startController(toolbarMarkup());
 
@@ -228,6 +242,25 @@ describe("toolbar_controller", () => {
     expect(document.activeElement).toBe(two);
   });
 
+  it("skips toolbar items inside CSS-hidden ancestors", async () => {
+    await startToolbar(`
+      <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+      <div style="display: none">
+        <button id="item-hidden" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Hidden</button>
+      </div>
+      <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+    `);
+
+    const one = document.querySelector("#item-one");
+    const two = document.querySelector("#item-two");
+
+    one.focus();
+    dispatchKey(one, "ArrowRight");
+
+    expect(document.activeElement).toBe(two);
+    expect(two.tabIndex).toBe(0);
+  });
+
   it("places the caret on the arrival edge when arrowing into a text-entry item", async () => {
     await startToolbar(`
         <button id="item-actions" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Actions</button>
@@ -300,6 +333,25 @@ describe("toolbar_controller", () => {
 
     expect(event.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(second);
+  });
+
+  it("leaves navigation keys to native selects", async () => {
+    await startToolbar(`
+      <button id="item-one" type="button" data-pathogen--toolbar-target="item" tabindex="-1">One</button>
+      <select id="item-filter" data-pathogen--toolbar-target="item" tabindex="-1">
+        <option>Active</option>
+        <option>Pending</option>
+      </select>
+    `);
+
+    const select = document.querySelector("#item-filter");
+    select.focus();
+
+    for (const key of ["ArrowLeft", "ArrowRight", "Home", "End"]) {
+      const event = dispatchKey(select, key);
+      expect(event.defaultPrevented).toBe(false);
+      expect(document.activeElement).toBe(select);
+    }
   });
 
   it("updates the tab stop when focus enters a custom targeted control", async () => {
@@ -494,6 +546,44 @@ describe("toolbar_controller", () => {
     expect(selectAll.tabIndex).toBe(0);
   });
 
+  it("does not restore a submitter after the user moves focus elsewhere", async () => {
+    await startController(`
+      <form id="select-all-form" data-turbo-frame="selected"></form>
+      ${toolbarShell(`
+        <button
+          id="select-all-button"
+          type="submit"
+          form="select-all-form"
+          data-pathogen--toolbar-target="item"
+          tabindex="-1"
+        >
+          Select all
+        </button>
+        <button id="item-two" type="button" data-pathogen--toolbar-target="item" tabindex="-1">Two</button>
+      `)}
+      <button id="outside-control" type="button">Outside</button>
+    `);
+
+    const form = document.querySelector("#select-all-form");
+    const selectAll = document.querySelector("#select-all-button");
+    const outsideControl = document.querySelector("#outside-control");
+
+    selectAll.focus();
+    outsideControl.focus();
+
+    form.dispatchEvent(
+      new CustomEvent("turbo:submit-end", {
+        bubbles: true,
+        detail: { formSubmission: { submitter: selectAll } },
+      }),
+    );
+
+    await flush();
+
+    expect(document.activeElement).toBe(outsideControl);
+    expect(selectAll.tabIndex).toBe(0);
+  });
+
   it("keeps toolbar navigation when aria-controls points to non-menu content", async () => {
     await startToolbar(`
       <button
@@ -543,18 +633,47 @@ describe("toolbar_controller", () => {
   });
 
   it("re-syncs the roving tab stop on the pathogen--toolbar:sync event", async () => {
-    await startController(toolbarMarkup());
+    await startController(`
+      ${toolbarMarkup()}
+      <button id="outside-control" type="button">Outside</button>
+    `);
 
     const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
     const two = document.querySelector("#item-two");
+    const outsideControl = document.querySelector("#outside-control");
 
     two.focus();
     two.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
-    document.body.focus();
+    outsideControl.focus();
 
     toolbar.dispatchEvent(new CustomEvent("pathogen--toolbar:sync", { bubbles: true }));
     await flush();
 
+    expect(document.activeElement).toBe(outsideControl);
     expect(two.tabIndex).toBe(0);
+  });
+
+  it("does not restore a remembered item that became natively disabled", async () => {
+    await startController(`
+      ${toolbarMarkup()}
+      <button id="outside-control" type="button">Outside</button>
+    `);
+
+    const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
+    const one = document.querySelector("#item-one");
+    const two = document.querySelector("#item-two");
+    const outsideControl = document.querySelector("#outside-control");
+
+    two.focus();
+    two.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+    outsideControl.focus();
+    two.disabled = true;
+
+    toolbar.dispatchEvent(new CustomEvent("pathogen--toolbar:sync", { bubbles: true }));
+    await flush();
+
+    expect(document.activeElement).toBe(outsideControl);
+    expect(one.tabIndex).toBe(0);
+    expect(two.tabIndex).toBe(-1);
   });
 });
