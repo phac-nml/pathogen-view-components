@@ -1,14 +1,3 @@
-[data-controller~="pathogen--toolbar"] [data-pathogen--toolbar-target~="item"][aria-disabled="true"] {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-[data-controller~="pathogen--toolbar"]
-  [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
-  outline: 2px solid var(--pvc-color-focus);
-  outline-offset: 2px;
-}
-
 /* Composite toolbar + grid surface: one outer frame, grid omits its own border */
 [data-pathogen--toolbar-surface] > .pvc-data-grid {
   border-radius: 0;
@@ -21,6 +10,29 @@
   align-items: center;
   gap: 0.5rem;
   width: 100%;
+}
+
+/*
+ * APG toolbar focus styling: highlight the container when it contains focus so
+ * users know Left/Right navigate within the group. Items keep their own
+ * focus-visible rings (Pathogen::Button or the custom-item rule below).
+ */
+[data-controller~="pathogen--toolbar"]:focus-within {
+  outline: 2px solid var(--pvc-color-focus);
+  outline-offset: 2px;
+}
+
+/* Custom (non-ViewComponent) items: match Button focus + aria-disabled recipes */
+[data-controller~="pathogen--toolbar"]
+  [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
+  outline: 2px solid var(--pvc-color-focus);
+  outline-offset: 2px;
+}
+
+[data-controller~="pathogen--toolbar"]
+  [data-pathogen--toolbar-target~="item"]:not([data-view-component])[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 [data-pathogen--toolbar-group] {
@@ -68,5 +80,27 @@
     display: block;
     flex: 1 1 auto;
     min-width: 0.5rem;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-controller~="pathogen--toolbar"]:focus-within {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  [data-controller~="pathogen--toolbar"]
+    [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  [data-controller~="pathogen--toolbar"] [role="separator"] {
+    background: ButtonText;
+  }
+
+  [data-controller~="pathogen--toolbar"] [data-pathogen--toolbar-target~="item"][aria-pressed="true"] {
+    outline: 1px solid ButtonText;
+    background: Canvas;
   }
 }
