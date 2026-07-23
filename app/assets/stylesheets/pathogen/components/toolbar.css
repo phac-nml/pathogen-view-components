@@ -12,16 +12,6 @@
   width: 100%;
 }
 
-/*
- * APG toolbar focus styling: highlight the container when it contains focus so
- * users know Left/Right navigate within the group. Items keep their own
- * focus-visible rings (Pathogen::Button or the custom-item rule below).
- */
-[data-controller~="pathogen--toolbar"]:focus-within {
-  outline: 2px solid var(--pvc-color-focus);
-  outline-offset: 2px;
-}
-
 /* Custom (non-ViewComponent) items: match Button focus + aria-disabled recipes */
 [data-controller~="pathogen--toolbar"]
   [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
@@ -84,11 +74,6 @@
 }
 
 @media (forced-colors: active) {
-  [data-controller~="pathogen--toolbar"]:focus-within {
-    outline: 2px solid Highlight;
-    outline-offset: 2px;
-  }
-
   [data-controller~="pathogen--toolbar"]
     [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
     outline: 2px solid Highlight;
