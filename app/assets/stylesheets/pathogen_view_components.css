@@ -1087,9 +1087,6 @@
   .text-\[var\(--pvc-color-danger-strong\)\] {
     color: var(--pvc-color-danger-strong);
   }
-  .text-\[var\(--pvc-color-success\)\] {
-    color: var(--pvc-color-success);
-  }
   .text-\[var\(--pvc-color-surface\)\] {
     color: var(--pvc-color-surface);
   }

@@ -16,13 +16,19 @@ module Pathogen
       assert_no_selector '[role="status"]'
     end
 
-    Pathogen::Badge::TONE_OPTIONS.each do |tone|
-      test "renders #{tone} tone classes" do
+    test 'exposes the shared soft tone ladder' do
+      assert_equal Pathogen::SoftToneStyles::TONE_OPTIONS, Pathogen::Badge::TONE_OPTIONS
+      assert_equal Pathogen::SoftToneStyles::DEFAULT_TONE, Pathogen::Badge::DEFAULT_TONE
+    end
+
+    Pathogen::SoftToneStyles::TONE_OPTIONS.each do |tone|
+      test "renders every #{tone} tone token" do
         render_inline(Pathogen::Badge.new(text: tone.to_s.capitalize, tone: tone))
 
-        distinctive = Pathogen::Badge::TONE_CLASSES.fetch(tone).split.find { |token| token.start_with?('bg-') }
+        Pathogen::SoftToneStyles::SOFT_TONE_CLASSES.fetch(tone).split.each do |token|
+          assert_includes root_class_list, token
+        end
 
-        assert_includes root_class_list, distinctive
         assert_text tone.to_s.capitalize
       end
     end
@@ -83,8 +89,16 @@ module Pathogen
         badge.with_leading_visual { '<svg data-test-icon="asterisk"></svg>'.html_safe }
       end
 
-      assert_selector 'span[aria-hidden="true"] svg[data-test-icon="asterisk"]'
+      assert_selector 'span[aria-hidden="true"] svg[data-test-icon="asterisk"]', visible: :all
       assert_text 'Required'
+    end
+
+    test 'marks the leading visual inert so slotted content cannot take focus' do
+      render_inline(Pathogen::Badge.new(text: 'Required', tone: :accent)) do |badge|
+        badge.with_leading_visual { '<button type="button">Dismiss</button>'.html_safe }
+      end
+
+      assert_selector 'span[aria-hidden="true"][inert] button', visible: :all
     end
 
     test 'merges custom classes via classes argument' do
@@ -174,6 +188,29 @@ module Pathogen
       assert_match(/Stimulus action/i, error.message)
     end
 
+    test 'rejects arguments that rename the badge for assistive technology' do
+      [
+        { 'aria-label': 'Export ready' },
+        { 'ARIA-LABEL': 'Export ready' },
+        { aria: { label: 'Export ready' } },
+        { aria: { Label: 'Export ready' } },
+        { 'aria-labelledby': 'run-status-heading' },
+        { aria: { labelledby: 'run-status-heading' } }
+      ].each do |system_arguments|
+        error = assert_raises(ArgumentError) do
+          render_inline(Pathogen::Badge.new(text: 'Ready', **system_arguments))
+        end
+
+        assert_match(/overrides the visible label/i, error.message)
+      end
+    end
+
+    test 'allows aria arguments that describe rather than rename' do
+      render_inline(Pathogen::Badge.new(text: 'Ready', aria: { describedby: 'run-status-help' }))
+
+      assert_selector 'span[aria-describedby="run-status-help"]', text: 'Ready'
+    end
+
     test 'allows non-interactive Stimulus metadata' do
       render_inline(Pathogen::Badge.new(text: 'Ready', data: { controller: 'status', status_target: 'badge' }))
 
@@ -188,7 +225,7 @@ module Pathogen
     end
 
     test 'passes axe-core checks for each tone' do
-      Pathogen::Badge::TONE_OPTIONS.each do |tone|
+      Pathogen::SoftToneStyles::TONE_OPTIONS.each do |tone|
         render_inline(Pathogen::Badge.new(text: "#{tone} state", tone: tone))
 
         assert_axe_structural_accessible rendered_content, context: "#{tone} badge"

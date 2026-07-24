@@ -3,8 +3,9 @@
     <%= pathogen_heading(level: 5, class: 'mb-2 text-[var(--pvc-color-text)]') { 'Text carries meaning' } %>
 
     <%= pathogen_supporting(variant: :muted, class: 'mb-4 text-[var(--pvc-color-text-muted)]') do %>
-      Badges are plain spans by default — not live regions, not controls. Screen readers announce the visible label.
-      Prefer host <code>role="status"</code> only when this badge node itself updates live.
+      Badges are plain spans by default — not live regions, not controls. Screen readers announce the visible label,
+      and <code>aria-label</code> is rejected so the accessible name can never drift from it. Prefer host
+      <code>role="status"</code> only when this badge node itself updates live.
     <% end %>
 
     <div
@@ -23,8 +24,8 @@
     <%= pathogen_heading(level: 5, class: 'mb-2 text-[var(--pvc-color-text)]') { 'Leading visual is decorative' } %>
 
     <%= pathogen_supporting(variant: :muted, class: 'mb-4 text-[var(--pvc-color-text-muted)]') do %>
-      Optional leading visuals are <code>aria-hidden</code>. Icon-only badges are rejected — hosts must always pass
-      text.
+      Optional leading visuals are <code>aria-hidden</code> and <code>inert</code>, so slotted content stays decorative
+      and cannot take focus. Icon-only badges are rejected — hosts must always pass text.
     <% end %>
 
     <div
