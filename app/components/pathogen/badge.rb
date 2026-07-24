@@ -100,7 +100,9 @@ module Pathogen
     private
 
     def validate_system_arguments!(system_arguments)
-      raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
+      if system_argument_key(system_arguments, 'class')
+        raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.'
+      end
 
       reject_static_only_violations!(system_arguments)
       reject_interactive_wiring!(system_arguments)
