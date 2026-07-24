@@ -128,11 +128,21 @@ module Pathogen
     end
 
     test 'rejects interactive roles because badges are not controls' do
+      %w[button Button BUTTON].each do |role|
+        error = assert_raises(ArgumentError) do
+          render_inline(Pathogen::Badge.new(text: 'Ready', role: role))
+        end
+
+        assert_match(/interactive role/i, error.message)
+      end
+    end
+
+    test 'rejects href because badges are not links' do
       error = assert_raises(ArgumentError) do
-        render_inline(Pathogen::Badge.new(text: 'Ready', role: 'button'))
+        render_inline(Pathogen::Badge.new(text: 'Ready', href: '/status'))
       end
 
-      assert_match(/interactive role/i, error.message)
+      assert_match(/`href` is an invalid argument/i, error.message)
     end
 
     test 'rejects direct event handler attributes' do
