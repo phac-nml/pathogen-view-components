@@ -71,6 +71,7 @@ Pathogen does not ship a generic `Card` component yet. Compose surfaces from tok
 3. **[Dark mode](<%= page_path("design-system-dark-mode") %>)** — the same product language under lower light.
 4. **[Preview guidelines](<%= page_path("design-system-preview-guidelines") %>)** — how examples should look like real product work.
 5. **[Review checklist](<%= page_path("design-system-review-checklist") %>)** — a compact pass before merge.
+6. **[Host and library boundary](<%= page_path("design-system-host-library-boundary") %>)** — what belongs in Pathogen vs any host app.
 
 ## When Docs, Code, And Previews Disagree
 
@@ -82,4 +83,4 @@ Pathogen does not ship a generic `Card` component yet. Compose surfaces from tok
 
 ## Host Applications
 
-Pathogen owns shared roles, component behaviour, and accessibility expectations. Host apps own brand colour through `--color-primary-*` (Pathogen defaults to blue; IRIDA uses green). Local host components should still use Pathogen tokens and interaction patterns while they remain in use.
+Pathogen owns shared roles, component behaviour, and accessibility expectations. Host apps own brand colour through `--color-primary-*` and compose pages with `Pathogen::*`. See [Host and library boundary](<%= page_path("design-system-host-library-boundary") %>) for what must stay out of the gem and how to retire host-local UI debt.
