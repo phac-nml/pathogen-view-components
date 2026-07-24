@@ -27,6 +27,14 @@ module Pathogen
       end
     end
 
+    test 'success soft fill uses readable text colour for AA contrast' do
+      render_inline(Pathogen::Badge.new(text: 'Ready', tone: :success))
+
+      assert_includes root_class_list, 'text-[var(--pvc-color-text)]'
+      assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]'
+      assert_not_includes root_class_list, 'text-[var(--pvc-color-success)]'
+    end
+
     test 'strips surrounding whitespace from text' do
       render_inline(Pathogen::Badge.new(text: '  Ready  '))
 

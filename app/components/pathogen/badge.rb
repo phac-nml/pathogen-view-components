@@ -21,7 +21,9 @@ module Pathogen
     DEFAULT_TONE = :neutral
     TONE_OPTIONS = %i[neutral accent success warning danger].freeze
 
-    # Soft-fill + hairline recipe aligned with Pathogen::Avatar tone tints.
+    # Soft-fill + hairline recipe. Accent/danger use *-strong text on tinted fills.
+    # Success/warning are base-only tokens today (#96); soft fills use --pvc-color-text
+    # for AA contrast at meta type size (same approach as Avatar warning).
     TONE_CLASSES = {
       neutral: %w[
         bg-[var(--pvc-color-surface-muted)]
@@ -35,7 +37,7 @@ module Pathogen
       ].join(' '),
       success: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-success)]
+        text-[var(--pvc-color-text)]
         border-[color-mix(in_oklab,var(--pvc-color-success)_45%,var(--pvc-color-border))]
       ].join(' '),
       warning: %w[
