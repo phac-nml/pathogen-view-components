@@ -31,6 +31,14 @@ module Pathogen
       assert_selector 'a.my-custom.font-semibold'
     end
 
+    test 'keeps visible text in the accessible name and announces a new window for external links' do
+      render_inline(Pathogen::Link.new(href: 'https://www.w3.org/WAI/')) { 'Accessibility guidance' }
+
+      assert_selector 'a[target="_blank"][rel="noopener noreferrer"]', text: 'Accessibility guidance'
+      assert_no_selector 'a[aria-label]'
+      assert_selector 'a > span.sr-only', text: I18n.t('pathogen.link.new_window_label')
+    end
+
     test 'renders translated portal aria-label on tooltip controller wrapper' do
       render_inline(Pathogen::Link.new(href: '/samples')) do |component|
         component.with_tooltip(text: 'More info') { 'Samples' }

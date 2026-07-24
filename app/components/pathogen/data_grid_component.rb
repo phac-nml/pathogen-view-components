@@ -33,6 +33,7 @@ module Pathogen
   # rubocop:disable Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
+    include Pathogen::StimulusDataMerge
 
     ROOT_CLASSES = %w[
       max-w-full rounded-[var(--pvc-radius-panel)] isolate [container-type:inline-size]
@@ -486,8 +487,7 @@ module Pathogen
 
     def apply_data_grid_controller!
       @system_arguments[:data] ||= {}
-      existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
-      @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+      merge_stimulus_data!(@system_arguments[:data], :controller, 'pathogen--data-grid')
     end
 
     def virtual_metadata_attributes

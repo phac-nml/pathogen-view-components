@@ -1,0 +1,91 @@
+/* Composite toolbar + grid surface: one outer frame, grid omits its own border */
+[data-pathogen--toolbar-surface] > .pvc-data-grid {
+  border-radius: 0;
+  border-width: 0;
+}
+
+[role="toolbar"][data-pathogen--toolbar-variant="table"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+/* Custom (non-ViewComponent) items: match Button focus + aria-disabled recipes */
+[data-controller~="pathogen--toolbar"]
+  [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
+  outline: 2px solid var(--pvc-color-focus);
+  outline-offset: 2px;
+}
+
+[data-controller~="pathogen--toolbar"]
+  [data-pathogen--toolbar-target~="item"]:not([data-view-component])[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+[data-pathogen--toolbar-group] {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+/* Related controls stay on one row; full width only when the toolbar wraps */
+[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="group"] {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+@media (max-width: 639px) {
+  [data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="group"] {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}
+
+/* Search and other standalone fields reflow independently */
+[data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="alone"] {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: none;
+}
+
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-group][data-pathogen--toolbar-reflow="alone"] {
+    flex: 0 1 16rem;
+    width: auto;
+    max-width: 16rem;
+  }
+}
+
+/* Push trailing groups to the end on wide viewports; omit on narrow screens */
+[data-pathogen--toolbar-spacer] {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  [data-pathogen--toolbar-spacer] {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0.5rem;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-controller~="pathogen--toolbar"]
+    [data-pathogen--toolbar-target~="item"]:not([data-view-component]):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  [data-controller~="pathogen--toolbar"] [role="separator"] {
+    background: ButtonText;
+  }
+
+  [data-controller~="pathogen--toolbar"] [data-pathogen--toolbar-target~="item"][aria-pressed="true"] {
+    outline: 1px solid ButtonText;
+    background: Canvas;
+  }
+}
