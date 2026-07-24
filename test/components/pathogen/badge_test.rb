@@ -119,6 +119,54 @@ module Pathogen
       assert_selector 'span[role="status"]', text: 'Ready'
     end
 
+    test 'rejects tabindex because badges are not focusable' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Badge.new(text: 'Ready', tabindex: 0))
+      end
+
+      assert_match(/`tabindex` is an invalid argument/i, error.message)
+    end
+
+    test 'rejects interactive roles because badges are not controls' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Badge.new(text: 'Ready', role: 'button'))
+      end
+
+      assert_match(/interactive role/i, error.message)
+    end
+
+    test 'rejects direct event handler attributes' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Badge.new(text: 'Ready', onclick: 'submitBadge()'))
+      end
+
+      assert_match(/event handler/i, error.message)
+    end
+
+    test 'rejects Stimulus actions in nested data arguments' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Badge.new(text: 'Ready', data: { action: 'click->badge#activate' }))
+      end
+
+      assert_match(/Stimulus action/i, error.message)
+    end
+
+    test 'rejects direct Stimulus action attributes' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Badge.new(text: 'Ready', 'data-action': 'click->badge#activate'))
+      end
+
+      assert_match(/Stimulus action/i, error.message)
+    end
+
+    test 'allows non-interactive Stimulus metadata' do
+      render_inline(Pathogen::Badge.new(text: 'Ready', data: { controller: 'status', status_target: 'badge' }))
+
+      assert_selector(
+        'span[data-controller="status"][data-status-target="badge"]', text: 'Ready'
+      )
+    end
+
     test 'view helper maps pathogen_badge to Pathogen::Badge' do
       assert_equal 'Pathogen::Badge', Pathogen::ViewHelper::PATHOGEN_COMPONENT_HELPERS[:badge]
       assert_includes Pathogen::ViewHelper.instance_methods(false), :pathogen_badge

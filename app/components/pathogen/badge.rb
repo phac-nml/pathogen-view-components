@@ -21,6 +21,11 @@ module Pathogen
     DEFAULT_TONE = :neutral
     TONE_OPTIONS = %i[neutral accent success warning danger].freeze
 
+    INTERACTIVE_ROLES = %w[
+      button checkbox combobox grid gridcell link listbox menu menuitem menuitemcheckbox menuitemradio option radio
+      scrollbar searchbox slider spinbutton switch tab textbox tree treegrid treeitem
+    ].freeze
+
     # Soft-fill + hairline recipe. Accent/danger use *-strong text on tinted fills.
     # Success/warning are base-only tokens today (#96); soft fills use --pvc-color-text
     # for AA contrast at meta type size (same approach as Avatar warning).
@@ -96,6 +101,36 @@ module Pathogen
 
     def validate_system_arguments!(system_arguments)
       raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
+
+      if system_argument_key(system_arguments, 'tabindex')
+        raise ArgumentError, '`tabindex` is an invalid argument because badges are not focusable.'
+      end
+
+      role_key = system_argument_key(system_arguments, 'role')
+      role = system_arguments[role_key]
+      if INTERACTIVE_ROLES.include?(role.to_s)
+        raise ArgumentError, "`#{role}` is an interactive role. Badges are not controls."
+      end
+
+      event_handler = system_arguments.keys.find { |key| key.to_s.match?(/\Aon[a-z]+\z/i) }
+      raise ArgumentError, "`#{event_handler}` is an event handler. Badges are not interactive." if event_handler
+
+      return unless stimulus_action?(system_arguments)
+
+      raise ArgumentError, '`data-action` is a Stimulus action. Badges are not interactive.'
+    end
+
+    def stimulus_action?(system_arguments)
+      return true if system_argument_key(system_arguments, 'data-action')
+
+      data_key = system_argument_key(system_arguments, 'data')
+      data_arguments = system_arguments[data_key]
+
+      data_arguments.respond_to?(:keys) && data_arguments.keys.any? { |key| key.to_s == 'action' }
+    end
+
+    def system_argument_key(system_arguments, name)
+      system_arguments.keys.find { |key| key.to_s.casecmp?(name) }
     end
   end
 end
