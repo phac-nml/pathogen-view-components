@@ -137,7 +137,7 @@ module Pathogen
       data_key = system_argument_key(system_arguments, 'data')
       data_arguments = system_arguments[data_key]
 
-      data_arguments.respond_to?(:keys) && data_arguments.keys.any? { |key| key.to_s == 'action' }
+      data_arguments.respond_to?(:keys) && data_arguments.keys.any? { |key| key.to_s.casecmp?('action') }
     end
 
     def system_argument_key(system_arguments, name)
