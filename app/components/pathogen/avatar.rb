@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
+require_relative '../../lib/pathogen/soft_tone_styles'
+
 module Pathogen
   # Pathogen::Avatar renders a user or entity avatar with image and deterministic fallback styling.
-  class Avatar < Pathogen::Component # rubocop:disable Metrics/ClassLength
+  class Avatar < Pathogen::Component
+    include Pathogen::SoftToneStyles
+
     DEFAULT_SIZE = :medium
     SIZE_OPTIONS = %i[xs small medium large].freeze
 
     DEFAULT_SHAPE = :circle
     SHAPE_OPTIONS = %i[circle rounded square].freeze
-
-    TONE_OPTIONS = %i[neutral accent success warning danger].freeze
 
     SIZE_MAPPINGS = {
       xs: 'h-6 w-6 text-[0.625rem]',
@@ -38,34 +40,6 @@ module Pathogen
       focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pvc-color-focus)]
       focus-visible:outline-offset-2
     ].join(' ').freeze
-
-    FALLBACK_TONE_CLASSES = {
-      neutral: %w[
-        bg-[var(--pvc-color-surface-muted)]
-        text-[var(--pvc-color-text)]
-        border-[var(--pvc-color-border-strong)]
-      ].join(' '),
-      accent: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-accent)_16%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-accent-strong)]
-        border-[color-mix(in_oklab,var(--pvc-color-accent)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      success: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-success)]
-        border-[color-mix(in_oklab,var(--pvc-color-success)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      warning: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-warning)_18%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-text)]
-        border-[color-mix(in_oklab,var(--pvc-color-warning)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      danger: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-danger)_14%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-danger-strong)]
-        border-[color-mix(in_oklab,var(--pvc-color-danger)_45%,var(--pvc-color-border))]
-      ].join(' ')
-    }.freeze
 
     IMAGE_CLASSES = %w[size-full object-cover object-center].join(' ').freeze
 
@@ -96,7 +70,7 @@ module Pathogen
         BASE_CLASSES,
         SIZE_MAPPINGS.fetch(@size),
         SHAPE_MAPPINGS.fetch(@shape),
-        FALLBACK_TONE_CLASSES.fetch(tone),
+        soft_tone_classes(tone),
         custom_classes
       )
 
