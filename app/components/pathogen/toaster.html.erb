@@ -1,0 +1,57 @@
+<%= tag.section(**@system_arguments) do %>
+  <button
+    type="button"
+    class="
+      pointer-events-auto mb-2 inline-flex min-h-6 items-center self-end rounded-[var(--pvc-radius-control)] border
+      border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-meta)]
+      font-medium text-[var(--pvc-color-text)] focus-visible:outline-2 focus-visible:outline-offset-2
+      focus-visible:outline-[var(--pvc-color-focus)]
+    "
+    data-pathogen--toaster-target="dismissAll"
+    data-action="click->pathogen--toaster#dismissAll"
+    hidden
+  >
+    <%= dismiss_all_label %>
+  </button>
+
+  <ol id="<%= list_id %>" class="pvc-toaster__list w-full" aria-label="<%= region_label %>">
+    <%= content %>
+  </ol>
+
+  <button
+    type="button"
+    class="
+      pvc-toaster__more pointer-events-auto mt-1 inline-flex min-h-6 items-center self-center
+      rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-meta)] font-medium
+      text-[var(--pvc-color-text)] shadow-[var(--pvc-shadow-overlay)] focus-visible:outline-2
+      focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+    "
+    data-pathogen--toaster-target="more"
+    data-action="click->pathogen--toaster#expandFromControl"
+    data-template="<%= more_label %>"
+    hidden
+  >
+    <%= more_label.sub('%{count}', '0') %>
+  </button>
+
+  <div
+    class="sr-only"
+    data-pathogen--toaster-target="polite"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
+
+  <%#
+    Primed assertive region: no role="alert" / aria-label — those make AT announce
+    the container name instead of injected text.
+  %>
+
+  <div
+    class="sr-only"
+    data-pathogen--toaster-target="assertive"
+    aria-live="assertive"
+    aria-atomic="true"
+  ></div>
+<% end %>

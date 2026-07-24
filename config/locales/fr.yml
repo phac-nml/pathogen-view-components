@@ -30,6 +30,24 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    toast:
+      dismiss: Fermer la notification
+      dismiss_all: Tout fermer
+      more_notifications: "+%{count} de plus"
+      region_label: Notifications
+      settings:
+        description: Choisissez combien de temps les notifications d’état restent
+          affichées avant de disparaître.
+        label: Durée des notifications
+        options:
+          default: Par défaut (6 secondes)
+          extend: 20 secondes
+          forever: Garder jusqu’à ce que je les ferme
+      type:
+        error: Erreur
+        info: Information
+        success: Succès
+        warning: Avertissement
     tooltip:
       portal:
         aria_label: Info-bulles

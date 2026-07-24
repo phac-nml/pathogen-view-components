@@ -210,6 +210,35 @@ Use `Pathogen::Link` for inline navigation. Use button-styled links only inside 
 
 `Pathogen::Link` is for underlined inline navigation with accent on hover. Toolbar actions should be buttons.
 
+## Toasts And Notifications
+
+Prefer in-flow banners or obvious UI updates when feedback is important. Use `Pathogen::Toast` / `Pathogen::Toaster` only for brief, non-blocking confirmations — and keep host durable UI (list row, job status, or flash banner) as the source of truth for WCAG 2.2.1. The toaster shows **current** notifications only; it does not keep a history drawer.
+
+Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and stream notifications into it.
+
+### Modes
+
+| Mode | When | Behaviour |
+|------|------|-----------|
+| **Status toast** | Redundant success/info; auto-dismiss | No close button, no action slot, not in tab order. Announced via polite live region. |
+| **Notification dialog** | `dismissible`, action slot, `warning`, or `error` | `role="dialog"` (non-modal), focus moves in, no live announce. Stays until dismissed. Focus is **guarded**: it never interrupts active text entry, and when several dialogs arrive together only the first takes focus (the rest announce politely). |
+
+- **Placement** — default anchor is `top_center`. Hosts may switch to `top_right`, `bottom_center`, or `bottom_right` when chrome would collide.
+- **Surface** — raised overlay: `--pvc-color-surface-raised`, `--pvc-color-border`, `--pvc-radius-panel`, `--pvc-shadow-overlay`.
+- **Status colour** — semantic icon with `--pvc-color-success`, `--pvc-color-warning`, `--pvc-color-danger`; `info` uses `--pvc-color-text-muted`. Reserve accent for real actions in the action slot.
+- **Type** — message at control scale, semibold; description at control scale, muted. Dialogs are named by their severity label plus message (`aria-labelledby`) and describe the description via `aria-describedby`.
+- **Stack** — status toasts may form a quiet peek deck. Hover, focus, or the “+N more” control expands. Peek-behind and overflow cards use `inert`. Dialog-mode notifications and `prefers-reduced-motion` use a flat stack.
+- **Timing (WCAG 2.2.1, Level A)** — default status timeout is 6s; pause on hover/focus. A 6s auto-dismissing status toast **only conforms when the same information persists in durable host UI** (a list row, job status, or flash banner). If a status toast is the *only* place the information appears, the host **must** expose a user setting that can extend or disable the timer *before* the toast is shown. Render `Pathogen::ToastSettings` (`pathogen_toast_settings`) in your preferences UI — it writes `localStorage['pathogen.toast.durationMs']` for you — or wire the value yourself via `duration_preference:` (per-toaster) or that storage key (global): accepted values are ms (`6000`, `20000`, …), `0`, or `forever`. `0` / `forever` promotes status toasts to dismissible dialogs (announced politely, no focus steal).
+
+  ```erb
+  <%%# Drop-in, accessible duration control (default / 20s / forever): %>
+  <%%= pathogen_toast_settings %>
+  ```
+
+- **Interrupt** — errors are dialogs and rely on guarded focus by default. Pass `interrupt: true` only for true emergencies: the error is then announced through the **assertive** live region (interrupting the screen reader) and does **not** move focus, so a system- or stream-triggered alert reaches everyone without hijacking the current task.
+- **Dismiss** — dialogs use `Pathogen::Button` `small` + `neutral` + `ghost`, icon-only. Three or more dialogs show “Dismiss all”.
+- **Motion** — fade on dismiss; stack transform at `--pvc-duration-overlay`; honour `prefers-reduced-motion`.
+
 ## Forms
 
 - Native controls first.
@@ -273,6 +302,7 @@ Fix accessibility in Pathogen primitives first. Host apps inherit those gains ev
 | Tabs | [Tabs pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/), `Pathogen::Tabs` |
 | Forms, switches, radios | [Checkbox](https://www.w3.org/WAI/ARIA/apg/patterns/checkbox/), [Radio](https://www.w3.org/WAI/ARIA/apg/patterns/radio/), [Switch](https://www.w3.org/WAI/ARIA/apg/patterns/switch/), `Pathogen::Form::*` |
 | Tooltips | [Tooltip pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tooltip/), `Pathogen::Tooltip` |
+| Toasts / notifications | Status toast (live region) vs notification dialog (focus); see [Toasts And Notifications](#toasts-and-notifications). Prefer banners for important errors. |
 | Data grids / tables | [Grid](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) and [Table](https://www.w3.org/WAI/ARIA/apg/patterns/table/), `Pathogen::DataGridComponent` |
 | Dialogs and disclosures | [Dialog modal](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/), [Disclosure](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/) |
 

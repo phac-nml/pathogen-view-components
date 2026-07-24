@@ -1,0 +1,26 @@
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= pathogen_supporting(variant: :muted) do %>
+    Status toasts (success/info) auto-dismiss and stay non-interactive. Warnings, errors, and
+    <%= pathogen_code { "dismissible: true" } %> become notification dialogs.
+  <% end %>
+
+  <div
+    class="
+      relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
+      border-(--pvc-color-border) bg-(--pvc-color-surface)
+    "
+  >
+    <%= render Pathogen::Toaster.new(**toaster_args.merge(list_id: 'flashes-playground')) do %>
+      <%= render Pathogen::Toast.new(
+        type: type,
+        message: 'Metadata sync finished.',
+        description: '19 newly published records were indexed.',
+        timeout: timeout,
+        dismissible: dismissible,
+        interrupt: interrupt
+      ) %>
+    <% end %>
+  </div>
+</div>
