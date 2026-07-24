@@ -1,0 +1,48 @@
+/* Disclosure: APG button trigger caret + forced-colors. */
+
+/* CSS caret: right when collapsed, down when expanded (APG convention). */
+.pathogen-disclosure__icon {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: 0.125rem;
+  flex-shrink: 0;
+  border-block-end: 2px solid currentColor;
+  border-inline-end: 2px solid currentColor;
+  color: var(--pvc-color-text-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--pvc-duration-fast) ease;
+}
+
+.pathogen-disclosure__trigger[aria-expanded="true"] .pathogen-disclosure__icon {
+  transform: rotate(45deg);
+}
+
+.pathogen-disclosure__heading .pathogen-disclosure__trigger {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pathogen-disclosure__icon {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .pathogen-disclosure__icon {
+    border-color: ButtonText;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+
+  .pathogen-disclosure__trigger:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .pathogen-disclosure__trigger:hover {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}
