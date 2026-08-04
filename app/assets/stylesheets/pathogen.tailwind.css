@@ -140,5 +140,52 @@
   }
 }
 
+/* CopyableValue icon crossfade */
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
+  opacity: 1;
+  transition: opacity var(--pvc-duration-fast) ease-out;
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="success"] [data-pathogen--copyable-value-target="icon"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="success"]
+  [data-pathogen--copyable-value-target="successIcon"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="icon"] {
+  color: var(--pvc-color-danger);
+}
+
+@media (forced-colors: active) {
+  [data-controller~="pathogen--copyable-value"][data-state="success"]
+    [data-pathogen--copyable-value-target="successIcon"] {
+    opacity: 1;
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+
+  [data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="icon"] {
+    color: LinkText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"] {
+    transition: none;
+  }
+}
+
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";

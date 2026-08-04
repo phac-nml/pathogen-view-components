@@ -1,0 +1,58 @@
+<div class="flex max-w-3xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Icon-only copy button" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      The copy action is an icon-only button with a distinct accessible name that includes the value being copied.
+    <% end %>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <dl class="grid gap-3">
+        <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-3">
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Project ID" } %>
+
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %></dd>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Sample ID" } %>
+
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Keyboard and screen-reader feedback" } %>
+
+    <div class="mb-4 flex flex-wrap items-baseline gap-x-1 gap-y-2">
+      <%= pathogen_supporting(variant: :muted, tag: :span) do %>
+        Tab to the copy button and activate it with Enter or Space. Success and failure states are announced through an
+      <% end %>
+
+      <%= pathogen_code { 'aria-live="polite"' } %>
+
+      <%= pathogen_supporting(variant: :muted, tag: :span) do %>
+        region. The icon swaps to a checkmark on success and uses danger colour on failure.
+      <% end %>
+    </div>
+
+    <%= render Pathogen::CopyableValue.new(value: "a3f29c1", copied_message: "Hash copied to clipboard") %>
+  </section>
+
+  <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Manual selection fallback" } %>
+
+    <div class="mb-4 flex flex-wrap items-baseline gap-x-1 gap-y-2">
+      <%= pathogen_supporting(variant: :muted, tag: :span) { "The value uses" } %>
+      <%= pathogen_code { "select-all" } %>
+
+      <%= pathogen_supporting(variant: :muted, tag: :span) do %>
+        so users can still copy manually when clipboard APIs are unavailable.
+      <% end %>
+    </div>
+
+    <%= render Pathogen::CopyableValue.new(value: "INXT_WFE_C9M2XXRNFS") %>
+  </section>
+</div>
