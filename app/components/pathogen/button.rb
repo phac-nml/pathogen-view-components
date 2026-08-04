@@ -58,6 +58,13 @@ module Pathogen
       trimmed_content.presence || @text
     end
 
+    # Returns HTML attributes for helpers that render the outer element.
+    def html_attributes
+      @system_arguments.deep_dup.except(:tag).tap do |attributes|
+        attributes[:class] = attributes.delete(:classes)
+      end
+    end
+
     private
 
     def resolve_tone_and_emphasis(tone, emphasis)
