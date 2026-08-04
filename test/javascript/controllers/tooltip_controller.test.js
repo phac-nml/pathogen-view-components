@@ -366,4 +366,95 @@ describe("tooltip_controller", () => {
     container.remove();
     tooltip.remove();
   });
+
+  describe("associate value", () => {
+    const appendVisualOnlyTooltip = () => {
+      const container = document.createElement("div");
+      container.setAttribute("data-controller", "pathogen--tooltip");
+      container.setAttribute("data-pathogen--tooltip-associate-value", "none");
+
+      const trigger = document.createElement("button");
+      trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+      trigger.setAttribute("aria-label", "Specimens");
+      trigger.setAttribute("tabindex", "0");
+
+      const tooltip = document.createElement("div");
+      tooltip.id = "tip-visual-only";
+      tooltip.setAttribute("role", "tooltip");
+      tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+      tooltip.dataset.state = "closed";
+      tooltip.setAttribute("data-placement", "top");
+      tooltip.setAttribute("aria-hidden", "true");
+      tooltip.textContent = "Specimens";
+
+      container.appendChild(trigger);
+      container.appendChild(tooltip);
+
+      const dialog = document.createElement("dialog");
+      dialog.appendChild(container);
+      document.body.appendChild(dialog);
+
+      return { container, trigger, tooltip, dialog };
+    };
+
+    it("does not inject aria-describedby or log an error when associate is none", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const { trigger, dialog } = appendVisualOnlyTooltip();
+      await waitForController();
+
+      expect(trigger.hasAttribute("aria-describedby")).toBe(false);
+      expect(errorSpy).not.toHaveBeenCalled();
+
+      errorSpy.mockRestore();
+      dialog.remove();
+    });
+
+    it("still shows and hides a visual-only tooltip on hover", async () => {
+      const { container, tooltip, dialog } = appendVisualOnlyTooltip();
+      await waitForController();
+
+      const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+      controller.show();
+      expect(tooltip.dataset.state).toBe("open");
+      expect(tooltip.getAttribute("aria-hidden")).toBe("true");
+
+      controller.hide();
+      expect(tooltip.dataset.state).toBe("closed");
+      expect(tooltip.getAttribute("aria-hidden")).toBe("true");
+
+      dialog.remove();
+    });
+
+    it("repairs a missing aria-describedby when associate defaults to describedby", async () => {
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      const container = document.createElement("div");
+      container.setAttribute("data-controller", "pathogen--tooltip");
+
+      const trigger = document.createElement("button");
+      trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
+      trigger.setAttribute("tabindex", "0");
+
+      const tooltip = document.createElement("div");
+      tooltip.id = "tip-default-associate";
+      tooltip.setAttribute("role", "tooltip");
+      tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
+      tooltip.dataset.state = "closed";
+      tooltip.setAttribute("data-placement", "top");
+      tooltip.setAttribute("aria-hidden", "true");
+
+      container.appendChild(trigger);
+      container.appendChild(tooltip);
+      const dialog = document.createElement("dialog");
+      dialog.appendChild(container);
+      document.body.appendChild(dialog);
+      await waitForController();
+
+      expect(trigger.getAttribute("aria-describedby")).toBe("tip-default-associate");
+      expect(errorSpy).toHaveBeenCalled();
+
+      errorSpy.mockRestore();
+      dialog.remove();
+    });
+  });
 });

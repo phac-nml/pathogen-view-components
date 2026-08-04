@@ -3,8 +3,11 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Specimen row actions" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Icon-only row utilities need an accessible name via <%= pathogen_code { "aria: { label: ... }" } %> and can use
-      tooltips for supplementary detail. Keep labels specific to the row action, not the icon shape.
+      Icon-only row utilities need an accessible name via <%= pathogen_code { "aria: { label: ... }" } %>. When the
+      tooltip text matches that name it is inferred to be visual-only automatically — the control's
+      <%= pathogen_code { "aria-label" } %> is the single announced name, with no duplicate
+      <%= pathogen_code { "aria-describedby" } %> echo. When the tooltip adds new information it is associated as a
+      description instead (see the breadcrumb trail below). Pass <%= pathogen_code { "describe:" } %> to override.
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
@@ -43,8 +46,11 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Collapsed sidebar" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      When navigation collapses to icons, use <%= pathogen_code { "placement: :right" } %> so labels open into the
-      content area.
+      When a sidebar collapses to icons, use <%= pathogen_code { "placement: :right" } %> so labels open into the
+      content area (a physical direction — use <%= pathogen_code { ":left" } %> in RTL layouts). Prefer
+      <%= pathogen_code { "Pathogen::Link" } %> for destinations and <%= pathogen_code { "Pathogen::Button" } %> for
+      actions; both support <%= pathogen_code { "with_tooltip" } %>. On touch, the first tap reveals the tooltip and the
+      second follows the link. See the Button Accessibility preview for an icon-only button rail.
     <% end %>
 
     <div

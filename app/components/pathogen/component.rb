@@ -66,7 +66,45 @@ module Pathogen
       "#{base_name}-#{SecureRandom.uuid}"
     end
 
+    # Normalize only content whose accessible name can be inferred reliably without a browser.
+    # Markup and encoded entities can change the computed name through attributes, hidden content,
+    # image alternatives, or CSS, so callers must treat those values as unknown.
+    def normalize_reliable_accessible_name(value)
+      source = value.to_s
+      return if source.match?(/<[^>]+>|&(?:#\d+|#x[\da-f]+|[a-z][a-z\d]+);/i)
+
+      source.squish
+    end
+
+    def reliable_accessible_name(arguments, visible_text)
+      return if aria_attribute(arguments, :labelledby).present?
+
+      label = aria_attribute(arguments, :label)
+      label = nil unless label.is_a?(String)
+      normalize_reliable_accessible_name(label.presence || visible_text)
+    end
+
+    # Decide whether tooltip copy adds a description to a reliably known accessible name.
+    def tooltip_describes?(tooltip_text, arguments, visible_text)
+      reference = reliable_accessible_name(arguments, visible_text)
+      tooltip_name = normalize_reliable_accessible_name(tooltip_text)
+      return true if reference.blank? || tooltip_name.blank?
+
+      tooltip_name != reference
+    end
+
     private
+
+    def aria_attribute(arguments, key)
+      direct_key = key == :label ? :'aria-label' : :'aria-labelledby'
+      direct = arguments[direct_key] || arguments[direct_key.to_s]
+      return direct if direct.present?
+
+      aria = arguments[:aria]
+      return unless aria.is_a?(Hash)
+
+      aria[key] || aria[key.to_s]
+    end
 
     def unpack_denylist(denylist)
       denylist.each_with_object({}) do |(keys, value), memo|
