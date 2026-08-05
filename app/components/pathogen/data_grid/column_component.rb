@@ -39,6 +39,8 @@ module Pathogen
 
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
+      include Pathogen::StimulusDataMerge
+
       attr_accessor :sticky, :sticky_left
       attr_reader :label, :key, :width, :align
 
@@ -146,12 +148,9 @@ module Pathogen
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}
-        existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
-                           data_attributes.delete('pathogen--data-grid-target')
-        merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
+        merge_stimulus_data!(data_attributes, :'pathogen--data-grid-target', 'cell')
 
         out = data_attributes.merge(
-          'pathogen--data-grid-target': merged_targets,
           'pathogen--data-grid-row-index': row_index,
           'pathogen--data-grid-column-index': column_index,
           'pathogen--data-grid-has-interactive': interactive
