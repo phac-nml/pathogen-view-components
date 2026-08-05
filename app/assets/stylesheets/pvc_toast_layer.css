@@ -1,0 +1,188 @@
+/* Toast stack: Sonner-like deck — full cards with scale + Y offset; expand animates transform. */
+
+.pvc-toaster {
+  --pvc-toast-gap: 0.875rem; /* 14px — matches TOAST_GAP_PX in toaster_controller.js */
+  --pvc-toast-scale-step: 0.05;
+}
+
+.pvc-toaster__list {
+  position: relative;
+  width: 100%;
+}
+
+/*
+ * Corner anchors use shrink-to-fit (sm:w-max). Absolute toasts need a measured front
+ * width so the toaster column stays stable.
+ */
+@media (min-width: 640px) {
+  .pvc-toaster[data-stack="peek"][data-layout="corner"][data-stack-ready] {
+    width: var(--front-width, max-content);
+    max-width: 28rem;
+  }
+}
+
+/* Shared spaced column used before metrics are ready and for flat/reduced-motion. */
+.pvc-toaster[data-stack="flat"] .pvc-toaster__list,
+.pvc-toaster[data-stack="peek"]:not([data-stack-ready]) .pvc-toaster__list,
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"] .pvc-toaster__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pvc-toast-gap);
+  height: auto;
+  overflow: visible;
+  padding: 0;
+}
+
+.pvc-toaster[data-stack="flat"][data-layout="corner"] {
+  width: auto;
+}
+
+.pvc-toaster[data-stack="flat"] [data-pathogen--toaster-target~="toast"],
+.pvc-toaster[data-stack="peek"]:not([data-stack-ready]) [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Peek deck: all visible toasts absolute at the anchor edge; position via transform. */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-has-peek="true"] .pvc-toaster__list,
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"] .pvc-toaster__list {
+  display: block;
+  overflow: visible;
+  padding: 0;
+  pointer-events: auto;
+  transition: height var(--pvc-duration-overlay) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"] .pvc-toaster__list {
+  height: calc(var(--front-height, 0px) + (var(--peek-count, 0) * var(--pvc-toast-gap)));
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"] .pvc-toaster__list {
+  height: var(--stack-height, auto);
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: 100%;
+  z-index: calc(100 - var(--toast-index, 0));
+  transition:
+    transform var(--pvc-duration-overlay) cubic-bezier(0.22, 1, 0.36, 1),
+    height var(--pvc-duration-overlay) cubic-bezier(0.22, 1, 0.36, 1),
+    opacity var(--pvc-duration-default) ease-out;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])
+  > *,
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])
+  > * {
+  transition: opacity var(--pvc-duration-overlay) ease-out;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="top"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="top"][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: 0;
+  bottom: auto;
+  transform-origin: center top;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="bottom"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="bottom"][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  top: auto;
+  bottom: 0;
+  transform-origin: center bottom;
+}
+
+/* Collapsed front: full size at the anchor. */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="false"] {
+  height: var(--front-height, auto);
+  max-height: none;
+  overflow: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="false"]
+  > * {
+  opacity: 1;
+}
+
+/* Collapsed behind: same card height as front, scaled + nudged for the deck silhouette. */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  height: var(--front-height, auto);
+  max-height: var(--front-height, none);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="top"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  transform: translateY(calc(var(--toast-index, 1) * var(--pvc-toast-gap)))
+    scale(calc(1 - (var(--toast-index, 1) * var(--pvc-toast-scale-step))));
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="bottom"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  transform: translateY(calc(var(--toast-index, 1) * var(--pvc-toast-gap) * -1))
+    scale(calc(1 - (var(--toast-index, 1) * var(--pvc-toast-scale-step))));
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"]
+  > * {
+  opacity: 0;
+}
+
+/* Expanded: natural heights, cumulative Y offsets, full scale. */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  height: var(--toast-height, auto);
+  max-height: none;
+  overflow: visible;
+  pointer-events: auto;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="top"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  transform: translateY(var(--toast-offset, 0px)) scale(1);
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="bottom"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  transform: translateY(calc(var(--toast-offset, 0px) * -1)) scale(1);
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])
+  > * {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]),
+  .pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]) > * {
+    transition: opacity var(--pvc-duration-default) ease-out;
+  }
+}
