@@ -652,6 +652,9 @@
   .items-stretch {
     align-items: stretch;
   }
+  .justify-between {
+    justify-content: space-between;
+  }
   .justify-center {
     justify-content: center;
   }
@@ -942,6 +945,9 @@
   .pr-3 {
     padding-right: calc(var(--spacing) * 3);
   }
+  .pb-2 {
+    padding-bottom: calc(var(--spacing) * 2);
+  }
   .pb-\[var\(--pvc-data-grid-cell-padding-y\)\] {
     padding-bottom: var(--pvc-data-grid-cell-padding-y);
   }
@@ -1080,6 +1086,9 @@
   }
   .whitespace-pre-wrap {
     white-space: pre-wrap;
+  }
+  .text-\[color\:var\(--pvc-color-text\)\] {
+    color: var(--pvc-color-text);
   }
   .text-\[var\(--pvc-color-accent-strong\)\] {
     color: var(--pvc-color-accent-strong);
@@ -1311,6 +1320,9 @@
     background-color: var(--pvc-data-grid-row-hover-bg);
   }
   @media (hover: hover) {
+    .hover\:bg-\[var\(--pvc-color-surface-muted\)\]:hover {
+      background-color: var(--pvc-color-surface-muted);
+    }
     .hover\:bg-\[var\(--pvc-data-grid-row-hover-bg\)\]:hover {
       background-color: var(--pvc-data-grid-row-hover-bg);
     }
@@ -1862,6 +1874,45 @@ input[role="switch"][aria-disabled="true"] ~ label .pathogen-switch-track {
 }
 input[role="switch"]:disabled ~ label {
   cursor: not-allowed;
+}
+.pathogen-disclosure__icon {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-inline-start: 0.125rem;
+  flex-shrink: 0;
+  border-block-end: 2px solid currentColor;
+  border-inline-end: 2px solid currentColor;
+  color: var(--pvc-color-text-muted);
+  transform: rotate(-45deg);
+  transition: transform var(--pvc-duration-fast) ease;
+}
+.pathogen-disclosure__trigger[aria-expanded="true"] .pathogen-disclosure__icon {
+  transform: rotate(45deg);
+}
+.pathogen-disclosure__heading .pathogen-disclosure__trigger {
+  width: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pathogen-disclosure__icon {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .pathogen-disclosure__icon {
+    border-color: ButtonText;
+    color: ButtonText;
+    forced-color-adjust: none;
+  }
+  .pathogen-disclosure__trigger:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .pathogen-disclosure__trigger:hover {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
 }
 @property --tw-border-spacing-x {
   syntax: "<length>";

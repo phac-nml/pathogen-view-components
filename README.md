@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, and disclosures.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -129,6 +129,39 @@ Sticky columns:
 <% end %>
 ```
 
+#### Disclosure
+
+```erb
+<%= render Pathogen::Disclosure.new(id: "advanced-options", label: "Advanced options") do %>
+  <p>Include quality metrics and protocol attachments.</p>
+<% end %>
+```
+
+`Pathogen::Disclosure` follows the WAI-ARIA disclosure pattern: a native `<button>` with
+`aria-expanded` / `aria-controls`, and a panel toggled with `hidden`. Stimulus updates
+`aria-expanded` on the focused control so screen readers announce expanded/collapsed on
+activation (including VoiceOver), not only when the control receives focus.
+
+- Default size is `:medium` (44px minimum target). Use `size: :small` for dense toolbars (24px).
+- Set `heading_level: 2..6` to wrap the button in a heading (APG FAQ pattern).
+- Prefer visible trigger text as the accessible name. Use `aria_label:` only when the trigger has
+  no usable text, or when you need a richer name that still includes the visible label (WCAG 2.5.3).
+- Do not put links, buttons, inputs, or other interactive elements in a trigger slot.
+- Pass `trigger_arguments:` / `panel_arguments:` to extend the button or panel without forking.
+
+```erb
+<%= render Pathogen::Disclosure.new(
+  id: "metadata-templates",
+  heading_level: 3,
+  aria_label: "Metadata templates, 3 available"
+) do |disclosure| %>
+  <% disclosure.with_trigger do %>
+    Metadata templates <span>(3)</span>
+  <% end %>
+  <p>Specimen, isolate, and outbreak templates.</p>
+<% end %>
+```
+
 ### Styles
 
 The engine ships a single precompiled `pathogen_view_components.css`, produced in this repository with **Tailwind CSS v4** from `app/assets/stylesheets/pathogen.tailwind.css` (sources scanned across components, ERB, and Stimulus). In most Rails setups, the engine will precompile this file. Ensure your application includes the stylesheet via your asset pipeline or build tooling.
@@ -170,6 +203,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
+- `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
