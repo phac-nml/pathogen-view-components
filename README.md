@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, and DataGrid.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -24,8 +24,8 @@ JavaScript dependencies (importmap or package manager):
 
 - `@hotwired/stimulus` **^3.0.0**
 - `@hotwired/turbo-rails` **^8.0.0** (peer dependency)
-- `uuid` **^13.0.0**
-- `@floating-ui/dom` **^1.7.5**
+- `uuid` **^14.0.1**
+- `@floating-ui/dom` **^1.8.0**
 
 ## Installation
 
