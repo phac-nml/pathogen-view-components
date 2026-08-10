@@ -72,6 +72,7 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
       /^JavaScript dependencies.*?\n(?<section>.*?)(?=^## )/m,
       :section
     ]
+    assert dependency_section, 'README must include a JavaScript dependencies section'
     documented_requirements = dependency_section.scan(/^- `([^`]+)` \*\*([^*]+)\*\*/).to_h
 
     assert_equal package_requirements, documented_requirements
