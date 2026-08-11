@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Gate for files this gem ships to host apps.
+# Checks: generated CSS is up to date, then the tests under test/shipped_files/.
+# CI runs `bin/verify` before `bin/test` so those checks run once, not twice.
+
+ROOT = File.expand_path('..', __dir__)
+CHECKS = [
+  ['Generated CSS', ['pnpm', 'run', 'build:css:check']],
+  ['Shipped files', [File.join(ROOT, 'bin/test'), 'test/shipped_files']]
+].freeze
+
+Dir.chdir(ROOT) do
+  failures = CHECKS.filter_map do |name, command|
+    puts "\n== #{name} =="
+    name unless system(*command)
+  end
+
+  if failures.any?
+    warn "\nShipped file checks failed: #{failures.join(', ')}"
+    exit(false)
+  end
+
+  puts "\nShipped files verified."
+end

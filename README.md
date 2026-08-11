@@ -110,11 +110,15 @@ Sticky columns:
 #### Tabs
 
 ```erb
-<%= render Pathogen::TabsComponent.new(label: "Sample Tabs") do |tabs| %>
-  <% tabs.with_tab("Overview", id: "overview") do %>
+<%= render Pathogen::Tabs.new(id: "sample-tabs", label: "Sample tabs") do |tabs| %>
+  <% tabs.with_tab(id: "overview-tab", label: "Overview", selected: true) %>
+  <% tabs.with_tab(id: "details-tab", label: "Details") %>
+
+  <% tabs.with_panel(id: "overview-panel", tab_id: "overview-tab") do %>
     <p>Overview content</p>
   <% end %>
-  <% tabs.with_tab("Details", id: "details") do %>
+
+  <% tabs.with_panel(id: "details-panel", tab_id: "details-tab") do %>
     <p>Details content</p>
   <% end %>
 <% end %>
@@ -182,10 +186,11 @@ bin/setup
 
 Use `bin/setup --skip-demo` if you only want the library dependencies and hooks without preparing the Lookbook demo app.
 
-Run tests:
+Run checks:
 
 ```bash
-bin/test           # Ruby component tests
+bin/verify         # Generated CSS + shipped-file gates
+bin/test           # Ruby component tests (excludes shipped-file gates)
 pnpm test          # JavaScript controller tests (requires pnpm install)
 ```
 
