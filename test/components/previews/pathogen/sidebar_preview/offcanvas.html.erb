@@ -1,0 +1,67 @@
+<div class="space-y-4 p-4">
+  <script nonce="<%= request.content_security_policy_nonce %>">
+    try {
+      window.localStorage.removeItem("pathogen.sidebar.offcanvas-sidebar.open");
+    } catch (_error) {}
+  </script>
+
+  <%= pathogen_sidebar_boot_tag(id: 'offcanvas-sidebar') %>
+
+  <style>
+    .sidebar-preview-offcanvas .offcanvas-trigger-outside {
+      display: inline-flex;
+    }
+
+    .sidebar-preview-offcanvas .offcanvas-trigger-inside {
+      display: none;
+    }
+
+    .sidebar-preview-offcanvas .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"] .offcanvas-trigger-outside {
+      display: none;
+    }
+
+    .sidebar-preview-offcanvas .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"] .offcanvas-trigger-inside {
+      display: inline-flex;
+    }
+  </style>
+
+  <%= pathogen_supporting(variant: :muted, class: 'px-1') do %>
+    To verify off-canvas behavior in Lookbook, drag-resize the preview viewport narrower than the
+    <%= pathogen_code { 'xl' } %> breakpoint.
+  <% end %>
+
+  <%= render Pathogen::Sidebar::Provider.new(
+    id: 'offcanvas-sidebar',
+    class: 'sidebar-preview-offcanvas h-[600px] !min-h-[600px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]'
+  ) do %>
+    <%= render Pathogen::Sidebar.new(id: 'mobile-sidebar', label: 'Primary navigation') do %>
+      <%= render Pathogen::Sidebar::Header.new(class: 'h-14 px-3 py-0') do %>
+        <%= render Pathogen::Sidebar::Trigger.new(class: 'offcanvas-trigger-inside h-10 w-10 min-h-10 min-w-10') %>
+        <span data-pathogen-sidebar-label="true" class="text-[length:var(--type-control)] font-semibold">Navigation</span>
+      <% end %>
+
+      <%= render Pathogen::Sidebar::Content.new do %>
+        <button type="button" class="rounded-[var(--pvc-radius-control)] px-2 py-1">
+          <span data-pathogen-sidebar-label="true">Overview</span>
+        </button>
+
+        <button type="button" class="rounded-[var(--pvc-radius-control)] px-2 py-1">
+          <span data-pathogen-sidebar-label="true">Monitoring</span>
+        </button>
+      <% end %>
+    <% end %>
+
+    <%= render Pathogen::Sidebar::Inset.new do %>
+      <div class="flex h-14 items-center gap-2 border-b border-[color:var(--pvc-color-border)] px-3 py-0">
+        <%= render Pathogen::Sidebar::Trigger.new(class: 'offcanvas-trigger-outside h-10 w-10 min-h-10 min-w-10') %>
+        <span class="text-[length:var(--type-control)] font-semibold">Small viewport host trigger</span>
+      </div>
+
+      <main class="p-4">
+        <%= pathogen_supporting(variant: :muted) do %>
+          Open on small viewports with the host trigger. Escape and overlay click close the drawer.
+        <% end %>
+      </main>
+    <% end %>
+  <% end %>
+</div>
