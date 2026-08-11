@@ -367,11 +367,11 @@ describe("tooltip_controller", () => {
     tooltip.remove();
   });
 
-  describe("associate value", () => {
+  describe("describedby value", () => {
     const appendVisualOnlyTooltip = () => {
       const container = document.createElement("div");
       container.setAttribute("data-controller", "pathogen--tooltip");
-      container.setAttribute("data-pathogen--tooltip-associate-value", "none");
+      container.setAttribute("data-pathogen--tooltip-describedby-value", "false");
 
       const trigger = document.createElement("button");
       trigger.setAttribute("data-pathogen--tooltip-target", "trigger");
@@ -397,7 +397,7 @@ describe("tooltip_controller", () => {
       return { container, trigger, tooltip, dialog };
     };
 
-    it("does not inject aria-describedby or log an error when associate is none", async () => {
+    it("does not inject aria-describedby or log an error when describedby is false", async () => {
       const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       const { trigger, dialog } = appendVisualOnlyTooltip();
       await waitForController();
@@ -425,7 +425,7 @@ describe("tooltip_controller", () => {
       dialog.remove();
     });
 
-    it("repairs a missing aria-describedby when associate defaults to describedby", async () => {
+    it("repairs a missing aria-describedby when describedby defaults to true", async () => {
       const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       const container = document.createElement("div");
@@ -436,7 +436,7 @@ describe("tooltip_controller", () => {
       trigger.setAttribute("tabindex", "0");
 
       const tooltip = document.createElement("div");
-      tooltip.id = "tip-default-associate";
+      tooltip.id = "tip-default-describedby";
       tooltip.setAttribute("role", "tooltip");
       tooltip.setAttribute("data-pathogen--tooltip-target", "tooltip");
       tooltip.dataset.state = "closed";
@@ -450,7 +450,7 @@ describe("tooltip_controller", () => {
       document.body.appendChild(dialog);
       await waitForController();
 
-      expect(trigger.getAttribute("aria-describedby")).toBe("tip-default-associate");
+      expect(trigger.getAttribute("aria-describedby")).toBe("tip-default-describedby");
       expect(errorSpy).toHaveBeenCalled();
 
       errorSpy.mockRestore();

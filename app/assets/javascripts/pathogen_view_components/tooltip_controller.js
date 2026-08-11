@@ -105,8 +105,8 @@ const TOOLTIP_PORTAL_ID = "pathogen-tooltip-portal";
  * - Escape key dismissal
  * - Focus loss dismissal
  * - Touch outside dismissal
- * - Requires aria-describedby from trigger to tooltip (associate="describedby", default);
- *   visual-only tooltips (associate="none") rely on the trigger's own accessible name
+ * - Requires aria-describedby from trigger to tooltip (`describedby=true`, default);
+ *   visual-only tooltips (`describedby=false`) rely on the trigger's own accessible name
  * - Validates keyboard accessibility
  * - Prevents simultaneous tooltips
  *
@@ -138,14 +138,10 @@ export default class extends Controller {
     animationFrame: { type: Boolean, default: false },
     // Set from I18n in Ruby wrappers (e.g. Pathogen::Link); English fallback for manual markup.
     portalAriaLabel: { type: String, default: "Tooltips" },
-    // How the tooltip relates to its trigger for assistive tech:
-    // - "describedby" (default): the tooltip is a supplementary description and the trigger
-    //   must reference it via aria-describedby (validated/repaired here).
-    // - "none": the tooltip is a visual-only affordance for sighted users. The trigger
-    //   already carries its own accessible name, so no aria-describedby is required and the
-    //   tooltip content is intentionally not exposed to AT (prevents a duplicate "echo"
-    //   announcement on icon-only controls).
-    associate: { type: String, default: "describedby" },
+    // Whether the tooltip is a supplementary description for assistive tech:
+    // - true (default): the trigger must reference the tooltip via aria-describedby.
+    // - false: visual-only affordance for sighted users; no aria-describedby required.
+    describedby: { type: Boolean, default: true },
   };
 
   // Private fields - store direct references since tooltip may be portaled while open
@@ -245,7 +241,7 @@ export default class extends Controller {
     this.#tooltipElement.removeAttribute("hidden");
 
     this.#tooltipElement.dataset.state = "open";
-    this.#tooltipElement.setAttribute("aria-hidden", String(this.associateValue !== "describedby"));
+    this.#tooltipElement.setAttribute("aria-hidden", String(!this.describedbyValue));
 
     this.#startAutoUpdate();
     this.#positionTooltip();
@@ -313,9 +309,9 @@ export default class extends Controller {
 
     if (this.#bindingsActive) return;
 
-    // Visual-only tooltips (associate="none") deliberately omit aria-describedby; the
+    // Visual-only tooltips (describedby=false) deliberately omit aria-describedby; the
     // trigger supplies its own accessible name, so skip the association repair/validation.
-    if (this.associateValue === "describedby") {
+    if (this.describedbyValue) {
       this.#validateAriaDescribedBy(this.#triggerElement);
     }
     this.#validateKeyboardAccessibility(this.#triggerElement);

@@ -260,114 +260,43 @@ module Pathogen
       assert_selector "div[role='tooltip'][data-pathogen--tooltip-target='tooltip']", text: 'Specimens'
     end
 
-    test 'with_tooltip on an icon-only button is visual-only (no aria-describedby echo)' do
+    test 'with_tooltip(describe: false) keeps an icon-only button visual-only' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Specimens')) do |button|
         button.with_leading_visual { 'Icon' }
-        button.with_tooltip(text: 'Specimens', placement: :right)
+        button.with_tooltip(text: 'Specimens', placement: :right, describe: false)
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-describedby-value='false']"
       assert_selector 'button[aria-label="Specimens"]'
       assert_no_selector 'button[aria-describedby]'
     end
 
-    test 'with_tooltip on a labelled button associates via aria-describedby' do
+    test 'with_tooltip associates via aria-describedby by default' do
       render_inline(Pathogen::Button.new(text: 'Export')) do |button|
         button.with_tooltip(text: 'Exports are retained for 30 days')
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-describedby-value='true']"
       assert_selector 'button[aria-describedby]'
       tooltip_id = page.find('button')['aria-describedby']
       assert_selector "div##{tooltip_id}[role='tooltip'][data-pathogen--tooltip-target='tooltip']",
                       text: 'Exports are retained for 30 days'
     end
 
-    test 'with_tooltip infers describedby when an icon-only tooltip adds information' do
-      render_inline(Pathogen::Button.new(icon_only: true, text: 'Filters')) do |button|
-        button.with_leading_visual { 'Icon' }
-        button.with_tooltip(text: '3 active filters', placement: :bottom)
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'button[aria-label="Filters"][aria-describedby]'
-      tooltip_id = page.find('button')['aria-describedby']
-      assert_selector "div##{tooltip_id}[role='tooltip']", text: '3 active filters'
-    end
-
-    test 'with_tooltip infers visual-only when a labelled tooltip repeats the name' do
-      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
-        button.with_tooltip(text: 'Export')
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'button[aria-describedby]'
-      assert_selector 'div[role="tooltip"]', text: 'Export'
-    end
-
-    test 'with_tooltip prefers aria-label over visible text when inferring the accessible name' do
-      render_inline(Pathogen::Button.new(text: 'Download', aria: { label: 'Export' })) do |button|
-        button.with_tooltip(text: 'Export')
-      end
-
-      assert_selector 'button[aria-label="Export"]', text: 'Download'
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'button[aria-describedby]'
-    end
-
-    test 'with_tooltip conservatively describes aria-labelledby names that require browser context' do
-      render_inline(Pathogen::Button.new(text: 'Export', aria: { labelledby: 'export-label' })) do |button|
-        button.with_tooltip(text: 'Export')
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'button[aria-labelledby="export-label"][aria-describedby]'
-    end
-
-    test 'with_tooltip infers visual-only from visible text when the tooltip repeats it' do
-      render_inline(Pathogen::Button.new) do |button|
-        button.with_tooltip(text: 'Export')
-        'Export'
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'button[aria-describedby]'
-      assert_selector 'button', text: 'Export'
-    end
-
-    test 'with_tooltip conservatively describes visible text that contains markup' do
-      render_inline(Pathogen::Button.new) do |button|
-        button.with_tooltip(text: 'Export')
-        '<span class="icon"></span>  Export  '.html_safe
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'button[aria-describedby]'
-    end
-
-    test 'with_tooltip conservatively describes tooltip copy that contains markup' do
-      render_inline(Pathogen::Button.new(text: 'Export')) do |button|
-        button.with_tooltip(text: '<span>Export</span>'.html_safe)
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'button[aria-describedby]'
-    end
-
-    test 'with_tooltip(describe: true) forces association even when the tooltip repeats the name' do
+    test 'with_tooltip(describe: true) associates even when the tooltip repeats the name' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Settings')) do |button|
         button.with_leading_visual { 'Icon' }
         button.with_tooltip(text: 'Settings', placement: :bottom, describe: true)
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-describedby-value='true']"
       assert_selector 'button[aria-label="Settings"][aria-describedby]'
     end
 
     test 'with_tooltip keeps the accessible name on the button itself' do
       render_inline(Pathogen::Button.new(icon_only: true, text: 'Dashboard')) do |button|
         button.with_leading_visual { 'Icon' }
-        button.with_tooltip(text: 'Dashboard', placement: :right)
+        button.with_tooltip(text: 'Dashboard', placement: :right, describe: false)
       end
 
       assert_selector 'button[aria-label="Dashboard"]'

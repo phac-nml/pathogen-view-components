@@ -47,71 +47,10 @@ module Pathogen
         component.with_tooltip(text: 'More info') { 'Samples' }
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-describedby-value='true']"
       assert_selector 'a[aria-describedby][data-pathogen--tooltip-target="trigger"]'
       tooltip_id = page.find('a')['aria-describedby']
       assert_selector "div##{tooltip_id}[role='tooltip']", text: 'More info'
-    end
-
-    test 'with_tooltip infers visual-only when the tooltip repeats the aria-label' do
-      render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'View samples' })) do |component|
-        component.with_tooltip(text: 'View samples') { 'icon' }
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_selector 'a[aria-label="View samples"]'
-      assert_no_selector 'a[aria-describedby]'
-    end
-
-    test 'with_tooltip conservatively describes aria-labelledby names that require browser context' do
-      render_inline(Pathogen::Link.new(href: '/samples', aria: { labelledby: 'samples-label' })) do |component|
-        component.with_tooltip(text: 'Samples')
-        'Samples'
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'a[aria-labelledby="samples-label"][aria-describedby]'
-    end
-
-    test 'with_tooltip infers visual-only from visible text when the tooltip repeats it' do
-      render_inline(Pathogen::Link.new(href: '/samples')) do |component|
-        component.with_tooltip(text: 'Samples')
-        'Samples'
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_no_selector 'a[aria-describedby]'
-      assert_selector 'a', text: 'Samples'
-    end
-
-    test 'with_tooltip conservatively describes visible text that contains markup' do
-      render_inline(Pathogen::Link.new(href: '/samples')) do |component|
-        component.with_tooltip(text: 'Samples')
-        '<span class="icon"></span>  Samples  '.html_safe
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'a[aria-describedby]'
-    end
-
-    test 'with_tooltip conservatively describes tooltip copy that contains markup' do
-      render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'Samples' })) do |component|
-        component.with_tooltip(text: '<span>Samples</span>'.html_safe) { 'icon' }
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'a[aria-describedby]'
-    end
-
-    test 'with_tooltip infers describedby when the tooltip adds information' do
-      render_inline(Pathogen::Link.new(href: '/samples', aria: { label: 'Samples' })) do |component|
-        component.with_tooltip(text: 'View all 12 samples') { 'icon' }
-      end
-
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='describedby']"
-      assert_selector 'a[aria-describedby]'
-      tooltip_id = page.find('a')['aria-describedby']
-      assert_selector "div##{tooltip_id}[role='tooltip']", text: 'View all 12 samples'
     end
 
     test 'with_tooltip(describe: false) keeps an icon-only link visual-only' do
@@ -119,13 +58,12 @@ module Pathogen
         component.with_tooltip(text: 'View samples', describe: false) { 'icon' }
       end
 
-      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-associate-value='none']"
-      assert_selector 'a[aria-label="View samples"][data-pathogen--tooltip-target="trigger"]'
+      assert_selector "div[data-controller='pathogen--tooltip'][data-pathogen--tooltip-describedby-value='false']"
+      assert_selector 'a[aria-label="View samples"]'
       assert_no_selector 'a[aria-describedby]'
-      assert_selector 'div[role="tooltip"]', text: 'View samples'
     end
 
-    test 'with_tooltip infers association after generating an external-link aria-label' do
+    test 'with_tooltip keeps default association for generated external-link aria-labels' do
       render_inline(Pathogen::Link.new(href: 'https://example.org/samples')) do |component|
         component.with_tooltip(text: 'Samples')
         'Samples'
@@ -133,7 +71,7 @@ module Pathogen
 
       assert_selector 'a[aria-label="Samples (opens in a new window)"][aria-describedby]'
       assert_selector "div[data-controller='pathogen--tooltip']" \
-                      "[data-pathogen--tooltip-associate-value='describedby']"
+                      "[data-pathogen--tooltip-describedby-value='true']"
     end
 
     test 'raises error when href is blank' do

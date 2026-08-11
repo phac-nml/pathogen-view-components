@@ -7,7 +7,7 @@
   ),
   'data-controller': 'pathogen--tooltip',
   'data-pathogen--tooltip-portal-aria-label-value': Pathogen::Tooltip.portal_aria_label,
-  'data-pathogen--tooltip-associate-value': tooltip_associate
+  'data-pathogen--tooltip-describedby-value': tooltip_describedby
 ) do %>
   <%= render @base_button_class.new(**@system_arguments) do -%>
     <% if leading_visual %>
