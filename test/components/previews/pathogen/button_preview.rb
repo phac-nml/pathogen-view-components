@@ -15,7 +15,7 @@ module Pathogen
     def button_to; end
 
     # @label Accessibility patterns
-    # Keyboard focus, icon-only names, repeating labels, and focusable disabled states
+    # Keyboard focus, icon-only names, tooltips on rail icons, repeating labels, and focusable disabled states
     def accessibility; end
 
     # @!endgroup
