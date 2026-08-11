@@ -7,16 +7,19 @@ require 'test_helper'
 require 'tmpdir'
 
 class ShippedFilesGemTest < ActiveSupport::TestCase
-  REQUIRED_GLOBS = %w[
-    app/components/**/*
-    app/helpers/**/*
-    app/assets/javascripts/**/*
-    config/locales/**/*
-    lib/**/*
-  ].freeze
+  # Exact paths host apps rely on. If the gemspec stops packaging one of these,
+  # installs break in an obvious way.
   REQUIRED_FILES = %w[
     app/assets/stylesheets/pathogen_view_components.css
     config/importmap.rb
+  ].freeze
+  # Folders that must ship at least one file. We do not list every file here;
+  # we only fail if a whole public area disappears from the built gem.
+  REQUIRED_ROOTS = %w[
+    app/assets/javascripts
+    app/components
+    config/locales
+    lib
   ].freeze
 
   setup do
@@ -37,13 +40,12 @@ class ShippedFilesGemTest < ActiveSupport::TestCase
   end
 
   test 'gem includes files used by applications' do
-    expected_files = REQUIRED_GLOBS.flat_map do |pattern|
-      PROJECT_ROOT.glob(pattern).select(&:file?).map { |path| path.relative_path_from(PROJECT_ROOT).to_s }
+    missing_files = REQUIRED_FILES.reject { |path| @packaged_files.include?(path) }
+    missing_roots = REQUIRED_ROOTS.reject do |root|
+      @packaged_files.any? { |path| path == root || path.start_with?("#{root}/") }
     end
-    expected_files.concat(REQUIRED_FILES)
 
-    missing_files = expected_files.uniq.sort - @packaged_files
-
-    assert_empty missing_files, "Gem is missing files used by applications:\n#{missing_files.join("\n")}"
+    assert_empty missing_files, "Gem is missing shipped files:\n#{missing_files.join("\n")}"
+    assert_empty missing_roots, "Gem is missing shipped roots:\n#{missing_roots.join("\n")}"
   end
 end

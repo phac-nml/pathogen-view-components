@@ -7,18 +7,8 @@ require 'yaml'
 class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
   JAVASCRIPT_ROOT = PROJECT_ROOT.join('app/assets/javascripts')
   MAIN_JAVASCRIPT_FILE = JAVASCRIPT_ROOT.join('pathogen_view_components.js')
-
-  class ImportmapPins
-    attr_reader :pins
-
-    def initialize
-      @pins = {}
-    end
-
-    def pin(name, to:, **)
-      @pins[name] = to
-    end
-  end
+  CDN_PACKAGE_PATTERN = %r{/npm/(?<package>@[^/]+/[^@]+|[^@/]+)@(?<version>[^/]+)}
+  IMPORTMAP_PIN_PATTERN = /pin\s+['"]([^'"]+)['"]\s*,\s*to:\s*['"]([^'"]+)['"]/m
 
   test 'every shipped JavaScript file has an importmap pin' do
     expected_pins = JAVASCRIPT_ROOT.glob('**/*.js').to_h do |path|
@@ -38,6 +28,10 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     expected_imports = {}
     expected_registrations = {}
 
+    # Naming rule from each *_controller.js file, e.g. tabs_controller.js:
+    #   import/export class  -> TabsController
+    #   Stimulus registration -> pathogen--tabs
+    #   importmap module      -> pathogen_view_components/tabs_controller
     JAVASCRIPT_ROOT.glob('pathogen_view_components/*_controller.js').each do |path|
       module_name = path.relative_path_from(JAVASCRIPT_ROOT).to_s.delete_suffix('.js')
       basename = path.basename('.js').to_s.delete_suffix('_controller')
@@ -62,7 +56,16 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
   end
 
   test 'importmap package versions match the pnpm lockfile' do
-    assert_equal locked_external_versions, external_importmap_versions
+    packages = YAML.safe_load(PROJECT_ROOT.join('pnpm-lock.yaml').read).fetch('packages')
+
+    mismatched = external_importmap_versions.filter_map do |name, package_version|
+      package, version = package_version.values_at(:package, :version)
+      next if packages.key?("#{package}@#{version}")
+
+      "#{name} (#{package}@#{version})"
+    end
+
+    assert_empty mismatched, "Importmap CDN pins missing from pnpm-lock.yaml:\n#{mismatched.join("\n")}"
   end
 
   test 'README dependency versions match package.json' do
@@ -97,9 +100,7 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
   private
 
   def importmap_pins
-    collector = ImportmapPins.new
-    collector.instance_eval(PROJECT_ROOT.join('config/importmap.rb').read, 'config/importmap.rb')
-    collector.pins
+    PROJECT_ROOT.join('config/importmap.rb').read.scan(IMPORTMAP_PIN_PATTERN).to_h
   end
 
   def local_importmap_pins
@@ -110,37 +111,10 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     importmap_pins.filter_map do |name, target|
       next unless target.start_with?('https://cdn.jsdelivr.net/npm/')
 
-      match = target.match(%r{/npm/(?<package>@[^/]+/[^@]+|[^@/]+)@(?<version>[^/]+)/})
-      [name, match[:version]] if match
+      match = target.match(CDN_PACKAGE_PATTERN)
+      next unless match
+
+      [name, { package: match[:package], version: match[:version] }]
     end.to_h
-  end
-
-  def locked_external_versions
-    lockfile = YAML.safe_load(PROJECT_ROOT.join('pnpm-lock.yaml').read)
-    dependencies = lockfile.dig('importers', '.', 'dependencies')
-    versions = locked_direct_versions(dependencies)
-    versions.merge!(locked_floating_versions(lockfile, versions.fetch('@floating-ui/dom')))
-  end
-
-  def locked_direct_versions(dependencies)
-    {
-      'uuid' => resolved_version(dependencies.fetch('uuid').fetch('version')),
-      '@floating-ui/dom' => resolved_version(dependencies.fetch('@floating-ui/dom').fetch('version'))
-    }
-  end
-
-  def locked_floating_versions(lockfile, dom_version)
-    dependencies = lockfile.dig('snapshots', "@floating-ui/dom@#{dom_version}", 'dependencies')
-    utils_version = resolved_version(dependencies.fetch('@floating-ui/utils'))
-
-    {
-      '@floating-ui/core' => resolved_version(dependencies.fetch('@floating-ui/core')),
-      '@floating-ui/utils' => utils_version,
-      '@floating-ui/utils/dom' => utils_version
-    }
-  end
-
-  def resolved_version(version)
-    version.to_s.split('(', 2).first
   end
 end

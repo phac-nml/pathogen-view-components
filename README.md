@@ -186,10 +186,11 @@ bin/setup
 
 Use `bin/setup --skip-demo` if you only want the library dependencies and hooks without preparing the Lookbook demo app.
 
-Run tests:
+Run checks:
 
 ```bash
-bin/test           # Ruby component tests
+bin/verify         # Generated CSS + shipped-file gates
+bin/test           # Ruby component tests (excludes shipped-file gates)
 pnpm test          # JavaScript controller tests (requires pnpm install)
 ```
 

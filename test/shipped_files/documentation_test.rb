@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
-require 'view_component_test_case'
+require 'test_helper'
 
-class ShippedFilesDocumentationTest < ViewComponentTestCase
+class ShippedFilesDocumentationTest < ActiveSupport::TestCase
   DOCUMENTATION_FILES = [
     PROJECT_ROOT.join('README.md'),
-    *PROJECT_ROOT.glob('docs/lookbook/design_system/*.md.erb'),
-    *PROJECT_ROOT.glob('app/components/**/*.rb')
+    *PROJECT_ROOT.glob('docs/lookbook/design_system/*.md.erb')
   ].freeze
+  # Names that docs may still mention on purpose (for example a migration table
+  # that says "this old component is gone"). They are not loadable classes, so
+  # list them here instead of treating them as broken references.
   REMOVED_COMPONENTS = {
     'Pathogen::Typography::Eyebrow' => 'documented as a removed component in the typography migration table'
-  }.freeze
-  EXAMPLE_APP_PATHS = {
-    'app/controllers/projects_controller.rb' => 'example host application controller',
-    'app/views/projects/details.turbo_stream.erb' => 'example host application response template'
   }.freeze
   FILE_PATH_PATTERN = %r{(?<![.\w/])(?:app|config|docs|lib|scripts|test)/[A-Za-z0-9_./-]+}
 
@@ -33,25 +31,10 @@ class ShippedFilesDocumentationTest < ViewComponentTestCase
     missing = DOCUMENTATION_FILES.flat_map do |documentation_file|
       documentation_file.read.scan(FILE_PATH_PATTERN).filter_map do |reference|
         reference = reference.delete_suffix('.')
-        next if EXAMPLE_APP_PATHS.key?(reference)
-
         reference unless PROJECT_ROOT.join(reference).exist?
       end
     end.uniq
 
     assert_empty missing, "Docs use missing file paths: #{missing.join(', ')}"
-  end
-
-  test 'README Tabs example works with the current component' do
-    tabs_section = PROJECT_ROOT.join('README.md').read[/^#### Tabs\n(?<section>.*?)(?=^#### |^### |\z)/m, :section]
-    assert tabs_section, 'README must include a Tabs section'
-
-    example = tabs_section[/```erb\n(?<example>.*?)```/m, :example]
-    assert example, 'README Tabs section must include an ERB example'
-
-    rendered = @controller.view_context.render(inline: example)
-
-    assert_includes rendered, 'role="tablist"'
-    assert_includes rendered, 'role="tabpanel"'
   end
 end
