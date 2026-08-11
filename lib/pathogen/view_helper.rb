@@ -3,6 +3,40 @@
 module Pathogen
   # ViewHelper for pathogen component helpers
   module ViewHelper
+    PATHOGEN_COMPONENT_HELPERS = {
+      button: 'Pathogen::Button',
+      avatar: 'Pathogen::Avatar',
+      link: 'Pathogen::Link',
+      disclosure: 'Pathogen::Disclosure',
+      sidebar: 'Pathogen::Sidebar',
+      radio_button: 'Pathogen::Form::RadioButton',
+      switch: 'Pathogen::Form::Switch',
+      heading: 'Pathogen::Typography::Heading',
+      heading_group: 'Pathogen::Typography::HeadingGroup',
+      section: 'Pathogen::Typography::Section',
+      text: 'Pathogen::Typography::Text',
+      supporting: 'Pathogen::Typography::Supporting',
+      lead: 'Pathogen::Typography::Lead',
+      callout: 'Pathogen::Typography::Callout',
+      code: 'Pathogen::Typography::Code',
+      code_block: 'Pathogen::Typography::CodeBlock',
+      list: 'Pathogen::Typography::List'
+    }.freeze
+
+    # Define helper methods for components
+    PATHOGEN_COMPONENT_HELPERS.each do |name, component|
+      define_method "pathogen_#{name}" do |*args, **kwargs, &block|
+        render component.constantize.new(*args, **kwargs), &block
+      end
+    end
+
+    # Emits a tiny head script that applies persisted desktop sidebar preference
+    # before first paint to reduce expanded/rail flashes.
+    def pathogen_sidebar_boot_tag(id: 'sidebar')
+      sidebar_id = id.presence || 'sidebar'
+      javascript_tag(pathogen_sidebar_boot_script(sidebar_id))
+    end
+
     # Render typography with a preset configuration
     #
     # @param preset [Symbol] Preset name (:article, :card, :section, :dialog, :form_section)
@@ -33,5 +67,31 @@ module Pathogen
                spacing: config[:spacing]
              ), &)
     end
+
+    private
+
+    # rubocop:disable Metrics/MethodLength
+    def pathogen_sidebar_boot_script(sidebar_id)
+      storage_key = "pathogen.sidebar.#{sidebar_id}.open"
+      token = sidebar_id.to_s.parameterize(separator: '-')
+      token = 'sidebar' if token.blank?
+      id_attribute = "data-pathogen-sidebar-open-#{token}"
+
+      <<~JS
+        (function() {
+          var value = 'true';
+          try {
+            var stored = window.localStorage.getItem(#{storage_key.to_json});
+            if (stored === 'false') value = 'false';
+            if (stored === 'true') value = 'true';
+          } catch (error) {
+            value = 'true';
+          }
+          document.documentElement.setAttribute('data-pathogen-sidebar-open', value);
+          document.documentElement.setAttribute(#{id_attribute.to_json}, value);
+        })();
+      JS
+    end
+    # rubocop:enable Metrics/MethodLength
   end
 end

@@ -27,6 +27,20 @@ en:
       title: required
     link:
       aria-label: "%{content} (opens in a new window)"
+    sidebar:
+      provider:
+        announce_closed: Sidebar closed.
+        announce_expanded: Sidebar expanded.
+        announce_opened: Sidebar opened.
+        announce_rail: Sidebar collapsed to icons.
+        close_label: Close sidebar
+        collapse_label: Collapse sidebar
+        expand_label: Expand sidebar
+        open_label: Open sidebar
+        overlay_label: Close sidebar
+      trigger:
+        label: Toggle sidebar
+        open_label: Open sidebar
     tooltip:
       portal:
         aria_label: Tooltips
