@@ -737,6 +737,9 @@
   .overflow-x-auto {
     overflow-x: auto;
   }
+  .overflow-y-auto {
+    overflow-y: auto;
+  }
   .rounded {
     border-radius: 0.25rem;
   }
@@ -1959,11 +1962,19 @@ input[role="switch"]:disabled ~ label {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width);
   isolation: isolate;
 }
-.pathogen-sidebar {
+.pathogen-sidebar-dialog {
+  position: relative;
+  display: flex;
+  flex: none;
   width: var(--pathogen-sidebar-current-width);
-  transition:
-    width var(--pvc-duration-default) ease,
-    transform var(--pvc-duration-default) ease;
+  min-height: 100%;
+  transition: width var(--pvc-duration-default) ease;
+}
+.pathogen-sidebar-dialog__close {
+  display: none;
+}
+.pathogen-sidebar {
+  width: 100%;
 }
 .pathogen-sidebar-inset {
   transition: margin-inline-start var(--pvc-duration-default) ease;
@@ -2004,7 +2015,15 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
 html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
   .pathogen-sidebar-provider
   [data-pathogen-sidebar-label="true"] {
-  display: none;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
@@ -2022,21 +2041,59 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar,
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar {
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-dialog,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   position: fixed;
   inset-block: 0;
   inset-inline-start: 0;
   z-index: 40;
   width: min(var(--pathogen-sidebar-width), 85vw);
   max-width: 20rem;
+  min-height: 0;
+  height: 100dvh;
+  visibility: hidden;
+  pointer-events: none;
   transform: translateX(-100%);
+  transition:
+    transform var(--pvc-duration-default) ease,
+    visibility 0s linear var(--pvc-duration-default);
 }
 html[data-pathogen-sidebar-viewport="mobile"]
   .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
-  .pathogen-sidebar,
+  .pathogen-sidebar-dialog,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
-  .pathogen-sidebar {
+  .pathogen-sidebar-dialog {
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-dialog__close,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog__close {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-end: 0.5rem;
+  z-index: 1;
+  display: inline-flex;
+}
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-trigger,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-trigger {
+  display: none;
+}
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-header,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-header {
+  padding-inline-end: 3.5rem;
+}
+html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-dialog,
+:dir(rtl) .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
+  transform: translateX(100%);
+}
+html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"]
+  .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
+  .pathogen-sidebar-dialog,
+:dir(rtl)
+  .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
+  .pathogen-sidebar-dialog {
   transform: translateX(0);
 }
 html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-inset,
@@ -2044,7 +2101,7 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathog
   width: 100%;
 }
 @media (prefers-reduced-motion: reduce) {
-  .pathogen-sidebar,
+  .pathogen-sidebar-dialog,
   .pathogen-sidebar-inset {
     transition: none;
   }
