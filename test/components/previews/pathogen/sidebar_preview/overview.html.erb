@@ -9,26 +9,34 @@
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
-        <button type="button">
-          <span aria-hidden="true">D</span>
-          <span data-pathogen-sidebar-label="true" class="ml-2">Dashboard</span>
-        </button>
-
-        <button type="button">
-          <span aria-hidden="true">S</span>
-          <span data-pathogen-sidebar-label="true" class="ml-2">Samples</span>
-        </button>
-
-        <button type="button">
-          <span aria-hidden="true">C</span>
-          <span data-pathogen-sidebar-label="true" class="ml-2">Settings</span>
-        </button>
+        <ul class="m-0 flex list-none flex-col gap-1 p-0">
+          <% [
+            ['D', 'Dashboard', '#run-overview'],
+            ['S', 'Samples', '#samples'],
+            ['C', 'Settings', '#settings']
+          ].each do |icon, label, href| %>
+            <li>
+              <a
+                href="<%= href %>"
+                class="
+                  interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
+                  rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
+                  text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
+                  focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+                "
+              >
+                <span class="inline-flex size-4 shrink-0 items-center justify-center" aria-hidden="true"><%= icon %></span>
+                <span data-pathogen-sidebar-label="true" class="ml-2"><%= label %></span>
+              </a>
+            </li>
+          <% end %>
+        </ul>
       <% end %>
 
       <%= render Pathogen::Sidebar::Footer.new do %>
         <span
           data-pathogen-sidebar-label="true"
-          class="text-[length:var(--type-meta)] text-[color:var(--pvc-color-text-muted)]"
+          class="text-[length:var(--type-meta)] text-[color:var(--pvc-color-text)]"
         >
           Signed in as analyst@example.org
         </span>
@@ -42,12 +50,10 @@
       </div>
 
       <main class="space-y-2 p-4">
-        <%= pathogen_heading(level: 2) { 'Run overview' } %>
+        <%= pathogen_heading(level: 2, id: 'run-overview') { 'Run overview' } %>
 
-        <%= pathogen_supporting(variant: :muted) do %>
-          Host owns page composition and main landmark inside Sidebar::Inset. Use the sidebar trigger to collapse to the
-          icon rail — labels marked with <%= pathogen_code { 'data-pathogen-sidebar-label="true"' } %> hide
-          automatically.
+        <%= pathogen_supporting do %>
+          Sequencing run RUN-2026-0812 is processing 48 samples. Twelve samples have completed quality control.
         <% end %>
       </main>
     <% end %>
