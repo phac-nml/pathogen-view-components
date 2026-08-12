@@ -32,15 +32,10 @@ fr:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
     sidebar:
       provider:
-        announce_closed: Barre latérale fermée.
-        announce_expanded: Barre latérale développée.
-        announce_opened: Barre latérale ouverte.
-        announce_rail: Barre latérale réduite aux icônes.
         close_label: Fermer la barre latérale
         collapse_label: Réduire la barre latérale
         expand_label: Développer la barre latérale
         open_label: Ouvrir la barre latérale
-        overlay_label: Fermer la barre latérale
       trigger:
         open_label: Ouvrir la barre latérale
     tooltip:

@@ -22,8 +22,7 @@ module Pathogen
       def call
         tag.div(**provider_attributes) do
           safe_join([
-                      tag.button(**overlay_attributes),
-                      tag.span('', **live_region_attributes),
+                      tag.div(**overlay_attributes),
                       content
                     ])
         end
@@ -72,36 +71,17 @@ module Pathogen
           'pathogen--sidebar-collapse-label-value' => t('.collapse_label'),
           'pathogen--sidebar-expand-label-value' => t('.expand_label'),
           'pathogen--sidebar-open-label-value' => t('.open_label'),
-          'pathogen--sidebar-close-label-value' => t('.close_label'),
-          'pathogen--sidebar-announce-expanded-value' => t('.announce_expanded'),
-          'pathogen--sidebar-announce-rail-value' => t('.announce_rail'),
-          'pathogen--sidebar-announce-opened-value' => t('.announce_opened'),
-          'pathogen--sidebar-announce-closed-value' => t('.announce_closed')
+          'pathogen--sidebar-close-label-value' => t('.close_label')
         }
       end
 
       def overlay_attributes
         {
-          type: 'button',
           class: 'pathogen-sidebar-overlay hidden',
-          tabindex: -1,
-          aria: { hidden: true, label: t('.overlay_label') },
+          aria: { hidden: true },
           data: {
             action: 'click->pathogen--sidebar#closeOffcanvas',
             'pathogen--sidebar-target': 'overlay'
-          }
-        }
-      end
-
-      def live_region_attributes
-        {
-          class: 'sr-only',
-          aria: {
-            live: 'polite',
-            atomic: true
-          },
-          data: {
-            'pathogen--sidebar-target': 'liveRegion'
           }
         }
       end
