@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module Pathogen
-  # Sidebar navigation column. On mobile, the controller promotes the outer
-  # container to a modal dialog while preserving this component's nav landmark.
+  # Sidebar navigation column. On mobile, the controller moves the panel into
+  # the native dialog while preserving this component's nav landmark.
   class Sidebar < Pathogen::Component
     BASE_CLASSES = %w[
       pathogen-sidebar
@@ -13,6 +13,7 @@ module Pathogen
     ].join(' ').freeze
 
     DIALOG_CLASSES = 'pathogen-sidebar-dialog'
+    PANEL_CLASSES = 'pathogen-sidebar-panel'
 
     attr_reader :id
 
@@ -36,9 +37,12 @@ module Pathogen
     end
 
     def call
-      tag.div(**dialog_attributes) do
-        safe_join([dialog_close_button, tag.nav(**attributes) { content }])
-      end
+      safe_join([
+                  tag.dialog(**dialog_attributes),
+                  tag.div(**panel_attributes) do
+                    safe_join([dialog_close_button, tag.nav(**attributes) { content }])
+                  end
+                ])
     end
 
     private
@@ -58,8 +62,18 @@ module Pathogen
       {
         id: "#{@id}-dialog",
         class: DIALOG_CLASSES,
-        tabindex: -1,
-        data: { 'pathogen--sidebar-target' => 'dialog' }
+        data: {
+          action: 'click->pathogen--sidebar#closeOnBackdrop',
+          'pathogen--sidebar-target' => 'dialog'
+        }
+      }
+    end
+
+    def panel_attributes
+      {
+        id: "#{@id}-panel",
+        class: PANEL_CLASSES,
+        data: { 'pathogen--sidebar-target' => 'panel' }
       }
     end
 

@@ -47,17 +47,16 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   provider.setAttribute("data-pathogen--sidebar-expand-label-value", "Expand sidebar");
   provider.setAttribute("data-pathogen--sidebar-open-label-value", "Open sidebar");
   provider.setAttribute("data-pathogen--sidebar-close-label-value", "Close sidebar");
-  const overlay = document.createElement("div");
-  overlay.className = "pathogen-sidebar-overlay hidden";
-  overlay.setAttribute("aria-hidden", "true");
-  overlay.setAttribute("data-action", "click->pathogen--sidebar#closeOffcanvas");
-  overlay.setAttribute("data-pathogen--sidebar-target", "overlay");
-
-  const dialog = document.createElement("div");
+  const dialog = document.createElement("dialog");
   dialog.id = `${id}-dialog`;
   dialog.className = "pathogen-sidebar-dialog";
-  dialog.tabIndex = -1;
+  dialog.setAttribute("data-action", "click->pathogen--sidebar#closeOnBackdrop");
   dialog.setAttribute("data-pathogen--sidebar-target", "dialog");
+
+  const panel = document.createElement("div");
+  panel.id = `${id}-panel`;
+  panel.className = "pathogen-sidebar-panel";
+  panel.setAttribute("data-pathogen--sidebar-target", "panel");
 
   const closeButton = document.createElement("button");
   closeButton.type = "button";
@@ -74,7 +73,7 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
     <button type="button">first</button>
     <a href="#">second</a>
   `;
-  dialog.append(closeButton, nav);
+  panel.append(closeButton, nav);
 
   const trigger = document.createElement("button");
   trigger.type = "button";
@@ -85,10 +84,10 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   inset.className = "pathogen-sidebar-inset";
   inset.innerHTML = '<button type="button">Background action</button>';
 
-  provider.append(overlay, dialog, trigger, inset);
+  provider.append(dialog, panel, trigger, inset);
   document.body.append(provider);
 
-  return { provider, overlay, dialog, closeButton, nav, trigger, inset };
+  return { provider, dialog, panel, closeButton, nav, trigger, inset };
 };
 
 describe("sidebar_controller", () => {
@@ -99,6 +98,16 @@ describe("sidebar_controller", () => {
     document.documentElement.removeAttribute("data-pathogen-sidebar-viewport");
     document.body.removeAttribute("style");
     window.localStorage.clear();
+    HTMLDialogElement.prototype.showModal = vi.fn(function showModal() {
+      this.setAttribute("open", "");
+      this.querySelector("button")?.focus();
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function close() {
+      if (!this.open) return;
+
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    });
     application = Application.start();
     application.register("pathogen--sidebar", SidebarController);
   });
@@ -162,7 +171,7 @@ describe("sidebar_controller", () => {
 
   it("keeps multiple triggers synchronized to the same controlled region", async () => {
     setupMatchMedia({ matches: true });
-    const { provider, dialog, trigger } = appendSidebar({ open: true });
+    const { provider, panel, trigger } = appendSidebar({ open: true });
     const secondTrigger = trigger.cloneNode(true);
     provider.append(secondTrigger);
     await waitForController();
@@ -171,23 +180,23 @@ describe("sidebar_controller", () => {
     await waitForController();
 
     for (const control of [trigger, secondTrigger]) {
-      expect(control.getAttribute("aria-controls")).toBe(dialog.id);
+      expect(control.getAttribute("aria-controls")).toBe(panel.id);
       expect(control.getAttribute("aria-expanded")).toBe("false");
       expect(control.getAttribute("aria-label")).toBe("Expand sidebar");
     }
   });
 
-  it("opens as a named modal dialog and makes content outside it inert", async () => {
+  it("opens a named native modal dialog", async () => {
     setupMatchMedia({ matches: false });
     const outside = document.createElement("button");
     outside.textContent = "Outside provider";
     document.body.prepend(outside);
-    const { provider, overlay, dialog, closeButton, trigger, inset, nav } = appendSidebar({ open: true });
+    const { provider, dialog, panel, closeButton, trigger, inset, nav } = appendSidebar({ open: true });
     await waitForController();
 
     expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("mobile");
-    expect(dialog.getAttribute("aria-hidden")).toBe("true");
-    expect(dialog.hasAttribute("inert")).toBe(true);
+    expect(dialog.open).toBe(false);
+    expect(panel.parentElement).toBe(dialog);
 
     trigger.focus();
     trigger.click();
@@ -195,13 +204,12 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("offcanvas");
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
-    expect(overlay.classList.contains("hidden")).toBe(false);
-    expect(dialog.getAttribute("role")).toBe("dialog");
-    expect(dialog.getAttribute("aria-modal")).toBe("true");
+    expect(dialog.open).toBe(true);
+    expect(dialog.showModal).toHaveBeenCalledOnce();
     expect(dialog.getAttribute("aria-label")).toBe("Primary navigation");
     expect(nav.getAttribute("aria-label")).toBe("Primary navigation");
-    expect(inset.hasAttribute("inert")).toBe(true);
-    expect(outside.hasAttribute("inert")).toBe(true);
+    expect(inset.hasAttribute("inert")).toBe(false);
+    expect(outside.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("hidden");
     expect(document.activeElement).toBe(closeButton);
     expect(trigger.getAttribute("aria-controls")).toBe(dialog.id);
@@ -210,93 +218,60 @@ describe("sidebar_controller", () => {
 
   it("closes with Escape and restores focus to the exact invoking trigger", async () => {
     setupMatchMedia({ matches: false });
-    const { overlay, dialog, trigger, inset } = appendSidebar({ open: true });
+    const { dialog, panel, trigger, inset } = appendSidebar({ open: true });
     await waitForController();
 
     trigger.focus();
     trigger.click();
     await waitForController();
 
-    const escape = new KeyboardEvent("keydown", { key: "Escape", bubbles: true });
-    document.dispatchEvent(escape);
+    dialog.dispatchEvent(new Event("cancel", { cancelable: true }));
+    dialog.close();
     await waitForController();
 
-    expect(overlay.classList.contains("hidden")).toBe(true);
-    expect(dialog.hasAttribute("role")).toBe(false);
-    expect(dialog.hasAttribute("aria-modal")).toBe(false);
-    expect(dialog.getAttribute("aria-hidden")).toBe("true");
-    expect(dialog.hasAttribute("inert")).toBe(true);
+    expect(dialog.open).toBe(false);
+    expect(panel.parentElement).toBe(dialog);
     expect(inset.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("");
     expect(document.activeElement).toBe(trigger);
     expect(window.localStorage.getItem("pathogen.sidebar.specimen-sidebar.open")).toBeNull();
   });
 
-  it("closes through pointer interaction on the overlay", async () => {
+  it("closes through pointer interaction on the native backdrop", async () => {
     setupMatchMedia({ matches: false });
-    const { overlay, trigger } = appendSidebar();
+    const { dialog, trigger } = appendSidebar();
     await waitForController();
 
     trigger.click();
     await waitForController();
-    overlay.click();
+    vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue({
+      left: 0,
+      right: 320,
+      top: 0,
+      bottom: 800,
+    });
+    dialog.dispatchEvent(new MouseEvent("click", { bubbles: true, clientX: 500, clientY: 400 }));
     await waitForController();
 
+    expect(dialog.open).toBe(false);
     expect(document.activeElement).toBe(trigger);
   });
 
-  it("cycles Tab and Shift+Tab within the modal dialog", async () => {
+  it("leaves modal focus containment to the native dialog", async () => {
     setupMatchMedia({ matches: false });
-    const { trigger, closeButton, nav } = appendSidebar({ open: true });
+    const { dialog, trigger, closeButton } = appendSidebar({ open: true });
     await waitForController();
 
     trigger.click();
     await waitForController();
 
-    const focusables = nav.querySelectorAll("button, a");
-    focusables[1].focus();
-
-    const tabForward = new KeyboardEvent("keydown", { key: "Tab", bubbles: true });
-    document.dispatchEvent(tabForward);
-
-    expect(document.activeElement).toBe(closeButton);
-
-    const tabBackward = new KeyboardEvent("keydown", {
-      key: "Tab",
-      shiftKey: true,
-      bubbles: true,
-    });
-    document.dispatchEvent(tabBackward);
-
-    expect(document.activeElement).toBe(focusables[1]);
-  });
-
-  it("excludes disabled controls, hidden ancestors, and unchecked radios from the modal tab cycle", async () => {
-    setupMatchMedia({ matches: false });
-    const { trigger, closeButton, nav } = appendSidebar();
-    nav.insertAdjacentHTML(
-      "beforeend",
-      `
-        <button type="button" disabled>disabled</button>
-        <div hidden><button type="button">hidden</button></div>
-        <input type="radio" name="choice" aria-label="Choice one">
-        <input type="radio" name="choice" aria-label="Choice two" checked>
-      `,
-    );
-    await waitForController();
-
-    trigger.click();
-    await waitForController();
-    const checkedRadio = nav.querySelector("input:checked");
-    checkedRadio.focus();
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
-
+    expect(dialog.open).toBe(true);
     expect(document.activeElement).toBe(closeButton);
   });
 
   it("cleans modal state when resizing to desktop and preserves useful focus", async () => {
     const media = setupMatchMedia({ matches: false });
-    const { dialog, closeButton, nav, trigger, inset } = appendSidebar({ open: true });
+    const { dialog, panel, closeButton, nav, trigger, inset } = appendSidebar({ open: true });
     await waitForController();
 
     trigger.click();
@@ -306,7 +281,8 @@ describe("sidebar_controller", () => {
     media.setMatches(true);
     await waitForController();
 
-    expect(dialog.hasAttribute("role")).toBe(false);
+    expect(dialog.open).toBe(false);
+    expect(panel.parentElement).toBe(dialog.parentElement);
     expect(inset.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("");
     expect(document.activeElement).toBe(nav.querySelector("button"));
@@ -322,8 +298,9 @@ describe("sidebar_controller", () => {
     await waitForController();
 
     expect(provider.dataset.pathogenSidebarMode).toBe("offcanvas");
-    expect(dialog.hasAttribute("inert")).toBe(true);
+    expect(dialog.open).toBe(false);
     expect(document.activeElement).toBe(trigger);
+    expect(trigger.getAttribute("aria-controls")).toBe(dialog.id);
   });
 
   it("cleans global modal state when the controller disconnects", async () => {
@@ -352,12 +329,12 @@ describe("sidebar_controller", () => {
     document.dispatchEvent(new Event("turbo:before-cache"));
     await waitForController();
 
-    expect(dialog.hasAttribute("role")).toBe(false);
+    expect(dialog.open).toBe(false);
     expect(inset.hasAttribute("inert")).toBe(false);
     expect(document.body.style.overflow).toBe("");
   });
 
-  it("preserves inert and scroll-lock state that existed before opening", async () => {
+  it("preserves scroll-lock state that existed before opening", async () => {
     setupMatchMedia({ matches: false });
     document.body.style.overflow = "clip";
     const outside = document.createElement("div");
@@ -388,8 +365,8 @@ describe("sidebar_controller", () => {
 
     expect(first.dialog.id).not.toBe(second.dialog.id);
     expect(first.provider.dataset.pathogenSidebarOpen).toBe("false");
-    expect(first.dialog.hasAttribute("role")).toBe(false);
-    expect(second.dialog.getAttribute("role")).toBe("dialog");
+    expect(first.dialog.open).toBe(false);
+    expect(second.dialog.open).toBe(true);
     expect(second.trigger.getAttribute("aria-controls")).toBe(second.dialog.id);
   });
 

@@ -4,13 +4,12 @@ require 'test_helper'
 
 module Pathogen
   class SidebarTest < ViewComponent::TestCase
-    test 'provider renders controller wiring with a non-interactive overlay' do
+    test 'provider renders controller wiring' do
       render_inline(Pathogen::Sidebar::Provider.new(id: 'lab-sidebar')) { 'Provider content' }
 
       assert_selector 'div.pathogen-sidebar-provider[data-controller~="pathogen--sidebar"]'
       assert_selector 'div[data-pathogen--sidebar-storage-key-value="pathogen.sidebar.lab-sidebar.open"]'
-      assert_selector 'div.pathogen-sidebar-overlay[data-pathogen--sidebar-target="overlay"][aria-hidden="true"]',
-                      visible: :all
+      assert_no_selector '.pathogen-sidebar-overlay', visible: :all
       assert_no_selector '[data-pathogen--sidebar-target="liveRegion"]', visible: :all
       assert_selector 'div.pathogen-sidebar-provider', text: 'Provider content'
     end
@@ -37,10 +36,12 @@ module Pathogen
     test 'sidebar renders a dialog container around the named nav landmark' do
       render_inline(Pathogen::Sidebar.new(id: 'lab-nav', label: 'Primary navigation')) { 'Nav content' }
 
-      assert_selector 'div#lab-nav-dialog.pathogen-sidebar-dialog' \
-                      '[data-pathogen--sidebar-target="dialog"][tabindex="-1"]:not([role])'
-      assert_selector 'div#lab-nav-dialog > button.pathogen-sidebar-dialog__close[type="button"]', visible: :all
-      selector = 'div#lab-nav-dialog > nav#lab-nav.pathogen-sidebar[data-pathogen--sidebar-target="sidebar"]' \
+      assert_selector 'dialog#lab-nav-dialog.pathogen-sidebar-dialog' \
+                      '[data-pathogen--sidebar-target="dialog"]:not([open])', visible: :all
+      assert_selector 'div#lab-nav-panel.pathogen-sidebar-panel[data-pathogen--sidebar-target="panel"]', visible: :all
+      assert_selector 'div.pathogen-sidebar-panel > button.pathogen-sidebar-dialog__close[type="button"]', visible: :all
+      selector = 'div.pathogen-sidebar-panel > nav#lab-nav.pathogen-sidebar' \
+                 '[data-pathogen--sidebar-target="sidebar"]' \
                  '[aria-label="Primary navigation"]'
 
       assert_selector selector, text: 'Nav content'

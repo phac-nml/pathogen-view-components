@@ -1962,13 +1962,28 @@ input[role="switch"]:disabled ~ label {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width);
   isolation: isolate;
 }
-.pathogen-sidebar-dialog {
+.pathogen-sidebar-panel {
   position: relative;
   display: flex;
   flex: none;
   width: var(--pathogen-sidebar-current-width);
   min-height: 100%;
   transition: width var(--pvc-duration-default) ease;
+}
+.pathogen-sidebar-dialog {
+  width: min(var(--pathogen-sidebar-width), 85vw);
+  max-width: 20rem;
+  height: 100dvh;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+.pathogen-sidebar-dialog::backdrop {
+  background: rgb(0 0 0 / 0.35);
 }
 .pathogen-sidebar-dialog__close {
   display: none;
@@ -1994,18 +2009,6 @@ input[role="switch"]:disabled ~ label {
 }
 .pathogen-sidebar-trigger__icon::after {
   bottom: 4px;
-}
-.pathogen-sidebar-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 30;
-  border: 0;
-  background: var(--pvc-color-text);
-}
-@supports (color: color-mix(in lab, red, red)) {
-  .pathogen-sidebar-overlay {
-    background: color-mix(in oklab, var(--pvc-color-text) 35%, transparent);
-  }
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"],
 html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
@@ -2041,11 +2044,12 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-dialog,
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   position: fixed;
   inset-block: 0;
   inset-inline-start: 0;
+  inset-inline-end: auto;
   z-index: 40;
   width: min(var(--pathogen-sidebar-width), 85vw);
   max-width: 20rem;
@@ -2058,9 +2062,13 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathog
     transform var(--pvc-duration-default) ease,
     visibility 0s linear var(--pvc-duration-default);
 }
+.pathogen-sidebar-dialog .pathogen-sidebar-panel {
+  width: 100%;
+  min-height: 100%;
+}
 html[data-pathogen-sidebar-viewport="mobile"]
   .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
-  .pathogen-sidebar-dialog,
+  > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   .pathogen-sidebar-dialog {
   visibility: visible;
@@ -2085,13 +2093,13 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sideba
   min-height: 3.75rem;
   padding-inline-end: 3.5rem;
 }
-html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-dialog,
+html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider > .pathogen-sidebar-panel,
 :dir(rtl) .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   transform: translateX(100%);
 }
 html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"]
   .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
-  .pathogen-sidebar-dialog,
+  > .pathogen-sidebar-panel,
 :dir(rtl)
   .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   .pathogen-sidebar-dialog {
@@ -2103,12 +2111,13 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathog
 }
 @media (prefers-reduced-motion: reduce) {
   .pathogen-sidebar-dialog,
+  .pathogen-sidebar-panel,
   .pathogen-sidebar-inset {
     transition: none;
   }
 }
 @media (forced-colors: active) {
-  .pathogen-sidebar-overlay {
+  .pathogen-sidebar-dialog::backdrop {
     background: CanvasText;
     opacity: 0.35;
   }
