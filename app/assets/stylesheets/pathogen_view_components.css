@@ -2082,6 +2082,7 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sideba
 }
 html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-header,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-header {
+  min-height: 3.75rem;
   padding-inline-end: 3.5rem;
 }
 html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-dialog,
