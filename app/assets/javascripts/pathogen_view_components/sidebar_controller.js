@@ -189,6 +189,7 @@ export default class SidebarController extends Controller {
 
   syncHtmlOpenData() {
     document.documentElement.setAttribute("data-pathogen-sidebar-open", String(this.openValue));
+    document.documentElement.setAttribute("data-pathogen-sidebar-viewport", this.isDesktop() ? "desktop" : "mobile");
   }
 
   syncTriggerAttributes({ desktop, visibleOpen }) {

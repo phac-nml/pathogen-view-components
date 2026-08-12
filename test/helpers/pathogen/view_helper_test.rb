@@ -63,6 +63,16 @@ module Pathogen
 
       assert_includes html, 'pathogen.sidebar.lab-sidebar.open'
       assert_includes html, 'data-pathogen-sidebar-open'
+      assert_includes html, 'data-pathogen-sidebar-viewport'
+      assert_includes html, '(min-width: 80rem)'
+    end
+
+    test 'sidebar boot helper accepts a custom breakpoint' do
+      helper = ActionView::Base.empty
+      helper.extend(Pathogen::ViewHelper)
+      html = helper.pathogen_sidebar_boot_tag(id: 'lab-sidebar', breakpoint: '(min-width: 64rem)')
+
+      assert_includes html, '(min-width: 64rem)'
     end
   end
 end
