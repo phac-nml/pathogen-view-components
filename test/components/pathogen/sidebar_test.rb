@@ -44,8 +44,7 @@ module Pathogen
         '<main id="host-main">Host page</main>'.html_safe
       end
 
-      assert_selector 'div.pathogen-sidebar-inset[data-pathogen--sidebar-target="inset"] main#host-main',
-                      text: 'Host page'
+      assert_selector 'div.pathogen-sidebar-inset main#host-main', text: 'Host page'
     end
 
     test 'layout primitives render with expected classes' do

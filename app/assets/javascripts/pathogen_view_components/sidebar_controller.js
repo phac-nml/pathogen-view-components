@@ -15,10 +15,9 @@ const FOCUSABLE_SELECTOR = [
 ].join(",");
 
 export default class SidebarController extends Controller {
-  static targets = ["sidebar", "inset", "overlay", "liveRegion", "trigger"];
+  static targets = ["sidebar", "overlay", "liveRegion", "trigger"];
 
   static values = {
-    id: { type: String, default: "sidebar" },
     open: { type: Boolean, default: true },
     breakpoint: { type: String, default: "(min-width: 80rem)" },
     storageKey: { type: String, default: "pathogen.sidebar.sidebar.open" },
@@ -52,7 +51,6 @@ export default class SidebarController extends Controller {
     this.restoreDesktopPreference();
     this.applyState({ announce: false, shouldPersist: false });
 
-    this.element.setAttribute("data-pathogen-sidebar-initialized", "true");
     document.addEventListener("keydown", this.onDocumentKeydown);
   }
 
@@ -190,17 +188,7 @@ export default class SidebarController extends Controller {
   }
 
   syncHtmlOpenData() {
-    const root = document.documentElement;
-    const value = String(this.openValue);
-    root.setAttribute("data-pathogen-sidebar-open", value);
-
-    const token =
-      this.idValue
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "") || "sidebar";
-
-    root.setAttribute(`data-pathogen-sidebar-open-${token}`, value);
+    document.documentElement.setAttribute("data-pathogen-sidebar-open", String(this.openValue));
   }
 
   syncTriggerAttributes({ desktop, visibleOpen }) {

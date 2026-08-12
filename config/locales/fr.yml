@@ -42,7 +42,6 @@ fr:
         open_label: Ouvrir la barre latérale
         overlay_label: Fermer la barre latérale
       trigger:
-        label: Basculer la barre latérale
         open_label: Ouvrir la barre latérale
     tooltip:
       portal:
