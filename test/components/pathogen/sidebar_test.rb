@@ -9,7 +9,8 @@ module Pathogen
 
       assert_selector 'div.pathogen-sidebar-provider[data-controller~="pathogen--sidebar"]'
       assert_selector 'div[data-pathogen--sidebar-storage-key-value="pathogen.sidebar.lab-sidebar.open"]'
-      assert_selector 'button.pathogen-sidebar-overlay[data-pathogen--sidebar-target="overlay"]', visible: :all
+      assert_selector 'button.pathogen-sidebar-overlay[data-pathogen--sidebar-target="overlay"][tabindex="-1"]',
+                      visible: :all
       assert_selector 'span.sr-only[data-pathogen--sidebar-target="liveRegion"]', visible: :all
       assert_selector 'div.pathogen-sidebar-provider', text: 'Provider content'
     end

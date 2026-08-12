@@ -54,6 +54,7 @@ const appendSidebar = ({ open = true } = {}) => {
   const overlay = document.createElement("button");
   overlay.type = "button";
   overlay.className = "pathogen-sidebar-overlay hidden";
+  overlay.tabIndex = -1;
   overlay.setAttribute("data-action", "click->pathogen--sidebar#closeOffcanvas");
   overlay.setAttribute("data-pathogen--sidebar-target", "overlay");
 
@@ -153,6 +154,7 @@ describe("sidebar_controller", () => {
     expect(provider.dataset.pathogenSidebarMode).toBe("offcanvas");
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
     expect(overlay.classList.contains("hidden")).toBe(false);
+    expect(overlay.tabIndex).toBe(-1);
     expect(nav.hasAttribute("inert")).toBe(false);
 
     const escape = new KeyboardEvent("keydown", { key: "Escape" });
