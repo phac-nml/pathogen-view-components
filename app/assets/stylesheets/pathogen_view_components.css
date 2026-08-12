@@ -2014,10 +2014,14 @@ input[role="switch"]:disabled ~ label {
     background: color-mix(in oklab, var(--pvc-color-text) 35%, transparent);
   }
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"],
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"] {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"],
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
+  .pathogen-sidebar-provider
+  [data-pathogen-sidebar-label="true"] {
   display: none;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
@@ -2031,14 +2035,6 @@ input[role="switch"]:disabled ~ label {
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   padding-inline: 0.25rem;
-}
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
-  --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
-}
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  [data-pathogen-sidebar-label="true"] {
-  display: none;
 }
 html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {

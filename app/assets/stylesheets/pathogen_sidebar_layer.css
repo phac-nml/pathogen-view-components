@@ -47,11 +47,23 @@
   }
 }
 
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] {
+/*
+ * Rail (collapsed desktop) state has two channels that must agree:
+ * - `html[...viewport=desktop][...open=false]` is the pre-paint anti-flash hook
+ *   set by the boot script before Stimulus connects.
+ * - the provider `[data-pathogen-sidebar-mode="rail"]` attribute is authored by
+ *   the controller and is authoritative once JS is running.
+ * Shared declarations are grouped so the two selectors never drift apart.
+ */
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"],
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
 }
 
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"] {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"],
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
+  .pathogen-sidebar-provider
+  [data-pathogen-sidebar-label="true"] {
   display: none;
 }
 
@@ -68,16 +80,6 @@
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   padding-inline: 0.25rem;
-}
-
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
-  --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
-}
-
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  [data-pathogen-sidebar-label="true"] {
-  display: none;
 }
 
 html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
