@@ -108,6 +108,7 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
+    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("desktop");
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(trigger.getAttribute("aria-label")).toBe("Collapse sidebar");
   });
@@ -142,6 +143,8 @@ describe("sidebar_controller", () => {
     setupMatchMedia({ matches: false });
     const { provider, overlay, trigger, nav } = appendSidebar({ open: true });
     await waitForController();
+
+    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("mobile");
 
     trigger.focus();
     trigger.click();
@@ -195,10 +198,12 @@ describe("sidebar_controller", () => {
     await waitForController();
 
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("desktop");
     media.setMatches(false);
     await waitForController();
 
     expect(provider.dataset.pathogenSidebarMode).toBe("offcanvas");
+    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("mobile");
     expect(liveRegion.textContent).toBe("");
   });
 });
