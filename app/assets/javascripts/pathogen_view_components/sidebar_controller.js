@@ -20,7 +20,7 @@ export default class SidebarController extends Controller {
   static values = {
     open: { type: Boolean, default: true },
     breakpoint: { type: String, default: "(min-width: 80rem)" },
-    storageKey: { type: String, default: "pathogen.sidebar.sidebar.open" },
+    storageKey: String,
     collapseLabel: String,
     expandLabel: String,
     openLabel: String,

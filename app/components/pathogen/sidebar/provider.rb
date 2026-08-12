@@ -51,11 +51,16 @@ module Pathogen
       def root_data_attributes
         incoming = (@system_arguments[:data] || {}).deep_stringify_keys
 
-        SIDEBAR_VALUE_DEFAULTS.merge(
-          'controller' => merged_controllers(incoming),
-          'pathogen--sidebar-open-value' => @open,
-          'pathogen--sidebar-storage-key-value' => "pathogen.sidebar.#{@id}.open"
-        ).merge(incoming).merge(translated_values)
+        # Component-owned wiring (controller list, open state, storage key) is
+        # merged last so callers can override labels/breakpoint but not internals.
+        SIDEBAR_VALUE_DEFAULTS
+          .merge(translated_values)
+          .merge(incoming)
+          .merge(
+            'controller' => merged_controllers(incoming),
+            'pathogen--sidebar-open-value' => @open,
+            'pathogen--sidebar-storage-key-value' => Pathogen::Sidebar.storage_key(@id)
+          )
       end
 
       def merged_controllers(incoming)

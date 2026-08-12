@@ -71,7 +71,7 @@ module Pathogen
     private
 
     def pathogen_sidebar_boot_script(sidebar_id, breakpoint)
-      storage_key = "pathogen.sidebar.#{sidebar_id}.open"
+      storage_key = Pathogen::Sidebar.storage_key(sidebar_id)
 
       <<~JS.squish
         (function() {
