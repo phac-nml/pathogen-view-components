@@ -32,6 +32,10 @@ module Pathogen
 
     # Emits a tiny head script that applies persisted desktop sidebar preference
     # before first paint to reduce expanded/rail flashes.
+    #
+    # Must be rendered inside the document <head> (alongside any dark-mode check)
+    # so it runs before the sidebar paints. Placed in <body> it runs after the
+    # first paint — under Turbo the default-open sidebar flashes before collapsing.
     def pathogen_sidebar_boot_tag(id: 'sidebar', breakpoint: default_sidebar_breakpoint)
       sidebar_id = id.presence || 'sidebar'
       javascript_tag(pathogen_sidebar_boot_script(sidebar_id, breakpoint))
