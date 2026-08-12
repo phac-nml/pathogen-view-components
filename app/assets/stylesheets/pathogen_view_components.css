@@ -1990,7 +1990,9 @@ input[role="switch"]:disabled ~ label {
   z-index: 30;
   border: 0;
   background: var(--pvc-color-text);
-  @supports (color: color-mix(in lab, red, red)) {
+}
+@supports (color: color-mix(in lab, red, red)) {
+  .pathogen-sidebar-overlay {
     background: color-mix(in oklab, var(--pvc-color-text) 35%, transparent);
   }
 }
