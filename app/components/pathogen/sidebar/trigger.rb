@@ -17,17 +17,13 @@ module Pathogen
 
       ICON_CLASSES = 'pathogen-sidebar-trigger__icon relative block h-4 w-4'
 
-      def initialize(icon_only: true, **system_arguments)
-        @icon_only = icon_only
+      def initialize(**system_arguments)
         @system_arguments = system_arguments
       end
 
       def call
         tag.button(**attributes) do
-          safe_join([
-            tag.span('', class: ICON_CLASSES, aria: { hidden: true }),
-            label_span
-          ].compact)
+          tag.span('', class: ICON_CLASSES, aria: { hidden: true })
         end
       end
 
@@ -50,12 +46,6 @@ module Pathogen
           ),
           **@system_arguments.except(:class, :data, :aria, :title, :type)
         }
-      end
-
-      def label_span
-        return if @icon_only
-
-        tag.span(content || t('.label'), class: 'ml-2', data: { pathogen_sidebar_label: true })
       end
     end
   end

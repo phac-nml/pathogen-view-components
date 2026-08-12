@@ -39,7 +39,6 @@ const appendSidebar = ({ open = true } = {}) => {
   const provider = document.createElement("div");
   provider.className = "pathogen-sidebar-provider";
   provider.setAttribute("data-controller", "pathogen--sidebar");
-  provider.setAttribute("data-pathogen--sidebar-id-value", "sidebar");
   provider.setAttribute("data-pathogen--sidebar-open-value", String(open));
   provider.setAttribute("data-pathogen--sidebar-breakpoint-value", "(min-width: 80rem)");
   provider.setAttribute("data-pathogen--sidebar-storage-key-value", "pathogen.sidebar.sidebar.open");
@@ -77,7 +76,6 @@ const appendSidebar = ({ open = true } = {}) => {
   trigger.setAttribute("data-action", "click->pathogen--sidebar#toggle");
 
   const inset = document.createElement("div");
-  inset.setAttribute("data-pathogen--sidebar-target", "inset");
 
   provider.append(overlay, liveRegion, nav, trigger, inset);
   document.body.append(provider);
