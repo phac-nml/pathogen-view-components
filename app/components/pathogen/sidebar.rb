@@ -13,6 +13,12 @@ module Pathogen
 
     attr_reader :id
 
+    # Canonical localStorage key for a sidebar's persisted desktop open state.
+    # Shared by Provider, the boot helper, and the Stimulus controller.
+    def self.storage_key(id)
+      "pathogen.sidebar.#{id.presence || 'sidebar'}.open"
+    end
+
     def initialize(id: nil, label: nil, labelledby: nil, **system_arguments)
       @id = id.presence || self.class.generate_id(base_name: 'sidebar')
       @label = label
@@ -52,6 +58,7 @@ module Pathogen
 
     def data_attributes
       incoming = (@system_arguments[:data] || {}).deep_stringify_keys
+      # Target is owned by the component, not overridable by callers.
       incoming.merge('pathogen--sidebar-target' => 'sidebar')
     end
   end
