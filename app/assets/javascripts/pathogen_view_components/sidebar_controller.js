@@ -164,7 +164,9 @@ export default class SidebarController extends Controller {
     if (this.hasOverlayTarget) {
       this.overlayTarget.classList.toggle("hidden", desktop || !visibleOpen);
       this.overlayTarget.setAttribute("aria-hidden", String(desktop || !visibleOpen));
-      this.overlayTarget.tabIndex = desktop || !visibleOpen ? -1 : 0;
+      // Pointer click and Escape still dismiss; keep the overlay out of the tab order
+      // so it does not compete with the sidebar focus trap.
+      this.overlayTarget.tabIndex = -1;
     }
 
     this.syncHtmlOpenData();
