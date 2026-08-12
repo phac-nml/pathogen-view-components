@@ -43,17 +43,19 @@ module Pathogen
       def css_variables
         incoming = @system_arguments[:style].to_s.strip
         vars = '--pathogen-sidebar-width:16rem;--pathogen-sidebar-width-rail:3.25rem;'
-        [incoming, vars].compact_blank.join(' ')
+        return vars if incoming.blank?
+
+        "#{incoming.chomp(';')};#{vars}"
       end
 
       def root_data_attributes
         incoming = (@system_arguments[:data] || {}).deep_stringify_keys
 
-        incoming.merge(
+        SIDEBAR_VALUE_DEFAULTS.merge(
           'controller' => merged_controllers(incoming),
           'pathogen--sidebar-open-value' => @open,
           'pathogen--sidebar-storage-key-value' => "pathogen.sidebar.#{@id}.open"
-        ).merge(SIDEBAR_VALUE_DEFAULTS).merge(translated_values)
+        ).merge(incoming).merge(translated_values)
       end
 
       def merged_controllers(incoming)

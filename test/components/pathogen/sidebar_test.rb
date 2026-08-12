@@ -14,6 +14,25 @@ module Pathogen
       assert_selector 'div.pathogen-sidebar-provider', text: 'Provider content'
     end
 
+    test 'provider allows breakpoint override via data attributes' do
+      render_inline(
+        Pathogen::Sidebar::Provider.new(
+          id: 'lab-sidebar',
+          data: { 'pathogen--sidebar-breakpoint-value' => '(min-width: 64rem)' }
+        )
+      ) { 'Provider content' }
+
+      assert_selector 'div[data-pathogen--sidebar-breakpoint-value="(min-width: 64rem)"]'
+    end
+
+    test 'provider joins incoming style and css variables with semicolon delimiter' do
+      render_inline(
+        Pathogen::Sidebar::Provider.new(id: 'lab-sidebar', style: 'color:red')
+      ) { 'Provider content' }
+
+      assert_selector 'div[style*="color:red;--pathogen-sidebar-width:16rem"]'
+    end
+
     test 'sidebar renders named nav landmark with target wiring' do
       render_inline(Pathogen::Sidebar.new(id: 'lab-nav', label: 'Primary navigation')) { 'Nav content' }
 
