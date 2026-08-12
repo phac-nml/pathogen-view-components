@@ -32,9 +32,9 @@ module Pathogen
 
     # Emits a tiny head script that applies persisted desktop sidebar preference
     # before first paint to reduce expanded/rail flashes.
-    def pathogen_sidebar_boot_tag(id: 'sidebar')
+    def pathogen_sidebar_boot_tag(id: 'sidebar', breakpoint: default_sidebar_breakpoint)
       sidebar_id = id.presence || 'sidebar'
-      javascript_tag(pathogen_sidebar_boot_script(sidebar_id))
+      javascript_tag(pathogen_sidebar_boot_script(sidebar_id, breakpoint))
     end
 
     # Render typography with a preset configuration
@@ -70,22 +70,27 @@ module Pathogen
 
     private
 
-    def pathogen_sidebar_boot_script(sidebar_id)
+    def pathogen_sidebar_boot_script(sidebar_id, breakpoint)
       storage_key = "pathogen.sidebar.#{sidebar_id}.open"
 
-      <<~JS
+      <<~JS.squish
         (function() {
+          var breakpoint = #{breakpoint.to_json};
+          var desktop = window.matchMedia(breakpoint).matches;
+          document.documentElement.setAttribute('data-pathogen-sidebar-viewport', desktop ? 'desktop' : 'mobile');
           var value = 'true';
           try {
             var stored = window.localStorage.getItem(#{storage_key.to_json});
             if (stored === 'false') value = 'false';
             if (stored === 'true') value = 'true';
-          } catch (error) {
-            value = 'true';
-          }
-          document.documentElement.setAttribute('data-pathogen-sidebar-open', value);
+          } catch (error) { value = 'true'; }
+          if (desktop) document.documentElement.setAttribute('data-pathogen-sidebar-open', value);
         })();
       JS
+    end
+
+    def default_sidebar_breakpoint
+      Pathogen::Sidebar::Provider::SIDEBAR_VALUE_DEFAULTS.fetch('pathogen--sidebar-breakpoint-value')
     end
   end
 end

@@ -70,38 +70,43 @@
   padding-inline: 0.25rem;
 }
 
-@media (min-width: 80rem) {
-  html[data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
-    --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
-  }
-
-  html[data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider [data-pathogen-sidebar-label="true"] {
-    display: none;
-  }
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
+  --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
 }
 
-@media (max-width: 79.99rem) {
-  .pathogen-sidebar-provider {
-    min-height: auto;
-  }
+html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
+  .pathogen-sidebar-provider
+  [data-pathogen-sidebar-label="true"] {
+  display: none;
+}
 
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
+  min-height: auto;
+}
+
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  z-index: 40;
+  width: min(var(--pathogen-sidebar-width), 85vw);
+  max-width: 20rem;
+  transform: translateX(-100%);
+}
+
+html[data-pathogen-sidebar-viewport="mobile"]
+  .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
+  .pathogen-sidebar,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   .pathogen-sidebar {
-    position: fixed;
-    inset-block: 0;
-    inset-inline-start: 0;
-    z-index: 40;
-    width: min(var(--pathogen-sidebar-width), 85vw);
-    max-width: 20rem;
-    transform: translateX(-100%);
-  }
+  transform: translateX(0);
+}
 
-  .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"] .pathogen-sidebar {
-    transform: translateX(0);
-  }
-
-  .pathogen-sidebar-inset {
-    width: 100%;
-  }
+html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-inset,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-inset {
+  width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
