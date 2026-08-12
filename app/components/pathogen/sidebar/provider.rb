@@ -2,7 +2,7 @@
 
 module Pathogen
   class Sidebar
-    # Wrapper that owns sidebar mode, persistence, and overlay state.
+    # Wrapper that owns sidebar mode and persistence.
     class Provider < Pathogen::Component
       BASE_CLASSES = %w[
         pathogen-sidebar-provider
@@ -20,12 +20,7 @@ module Pathogen
       end
 
       def call
-        tag.div(**provider_attributes) do
-          safe_join([
-                      tag.div(**overlay_attributes),
-                      content
-                    ])
-        end
+        tag.div(**provider_attributes) { content }
       end
 
       private
@@ -72,17 +67,6 @@ module Pathogen
           'pathogen--sidebar-expand-label-value' => t('.expand_label'),
           'pathogen--sidebar-open-label-value' => t('.open_label'),
           'pathogen--sidebar-close-label-value' => t('.close_label')
-        }
-      end
-
-      def overlay_attributes
-        {
-          class: 'pathogen-sidebar-overlay hidden',
-          aria: { hidden: true },
-          data: {
-            action: 'click->pathogen--sidebar#closeOffcanvas',
-            'pathogen--sidebar-target': 'overlay'
-          }
         }
       end
     end

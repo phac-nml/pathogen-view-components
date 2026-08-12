@@ -1,24 +1,9 @@
 import { Controller } from "@hotwired/stimulus";
 
-const FOCUSABLE_SELECTOR = [
-  "a[href]",
-  "area[href]",
-  "button",
-  "input:not([type='hidden'])",
-  "select",
-  "textarea",
-  "iframe",
-  "object",
-  "embed",
-  "summary",
-  "[contenteditable]",
-  "[tabindex]",
-].join(",");
-
 const MODAL_OPEN_EVENT = "pathogen:sidebar:modal-open";
 
 export default class SidebarController extends Controller {
-  static targets = ["close", "dialog", "overlay", "sidebar", "trigger"];
+  static targets = ["close", "dialog", "panel", "sidebar", "trigger"];
 
   static values = {
     open: { type: Boolean, default: true },
@@ -34,11 +19,10 @@ export default class SidebarController extends Controller {
     this.offcanvasOpen = false;
     this.lastTrigger = null;
     this.matchMediaList = null;
-    this.modalActive = false;
-    this.inertedElements = new Set();
+    this.scrollLocked = false;
     this.originalBodyOverflow = "";
     this.onBreakpointChange = this.onBreakpointChange.bind(this);
-    this.onDocumentKeydown = this.onDocumentKeydown.bind(this);
+    this.onDialogClose = this.onDialogClose.bind(this);
     this.onModalOpen = this.onModalOpen.bind(this);
     this.onBeforeCache = this.onBeforeCache.bind(this);
   }
@@ -55,7 +39,7 @@ export default class SidebarController extends Controller {
     this.restoreDesktopPreference();
     this.applyState({ shouldPersist: false });
 
-    document.addEventListener("keydown", this.onDocumentKeydown);
+    this.dialogTarget.addEventListener("close", this.onDialogClose);
     document.addEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.addEventListener("turbo:before-cache", this.onBeforeCache);
   }
@@ -69,10 +53,12 @@ export default class SidebarController extends Controller {
       }
     }
 
-    document.removeEventListener("keydown", this.onDocumentKeydown);
+    this.dialogTarget.removeEventListener("close", this.onDialogClose);
     document.removeEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.removeEventListener("turbo:before-cache", this.onBeforeCache);
-    this.deactivateModal();
+    this.closeDialog();
+    this.unlockBodyScroll();
+    this.movePanelOutsideDialog();
   }
 
   toggle(event) {
@@ -96,7 +82,7 @@ export default class SidebarController extends Controller {
     document.dispatchEvent(new CustomEvent(MODAL_OPEN_EVENT, { detail: { controller: this } }));
     this.offcanvasOpen = true;
     this.applyState({ shouldPersist: false });
-    this.focusDialog();
+    this.focusCloseControl();
   }
 
   closeOffcanvas(event, { restoreFocus = true } = {}) {
@@ -112,6 +98,19 @@ export default class SidebarController extends Controller {
     }
   }
 
+  closeOnBackdrop(event) {
+    if (event.target !== this.dialogTarget) return;
+
+    const bounds = this.dialogTarget.getBoundingClientRect();
+    const withinDialog =
+      event.clientX >= bounds.left &&
+      event.clientX <= bounds.right &&
+      event.clientY >= bounds.top &&
+      event.clientY <= bounds.bottom;
+
+    if (!withinDialog) this.closeOffcanvas(event);
+  }
+
   onModalOpen(event) {
     if (event.detail?.controller === this || !this.offcanvasOpen) {
       return;
@@ -121,15 +120,15 @@ export default class SidebarController extends Controller {
   }
 
   onBeforeCache() {
-    if (!this.offcanvasOpen) {
-      return;
+    if (this.offcanvasOpen) {
+      this.closeOffcanvas(null, { restoreFocus: false });
     }
 
-    this.closeOffcanvas(null, { restoreFocus: false });
+    this.movePanelOutsideDialog();
   }
 
   onBreakpointChange() {
-    const focusWasInDialog = this.hasDialogTarget && this.dialogTarget.contains(document.activeElement);
+    const focusWasInPanel = this.hasPanelTarget && this.panelTarget.contains(document.activeElement);
     const movingToDesktop = this.isDesktop();
 
     if (movingToDesktop) {
@@ -138,7 +137,7 @@ export default class SidebarController extends Controller {
 
     this.applyState({ shouldPersist: false });
 
-    if (!focusWasInDialog) {
+    if (!focusWasInPanel) {
       return;
     }
 
@@ -149,20 +148,12 @@ export default class SidebarController extends Controller {
     }
   }
 
-  onDocumentKeydown(event) {
-    if (!this.offcanvasOpen || this.isDesktop()) {
-      return;
-    }
+  onDialogClose() {
+    if (!this.offcanvasOpen) return;
 
-    if (event.key === "Escape") {
-      event.preventDefault();
-      this.closeOffcanvas();
-      return;
-    }
-
-    if (event.key === "Tab") {
-      this.trapFocus(event);
-    }
+    this.offcanvasOpen = false;
+    this.applyState({ shouldPersist: false });
+    this.restoreTriggerFocus();
   }
 
   isDesktop() {
@@ -193,11 +184,6 @@ export default class SidebarController extends Controller {
 
     this.syncDialogState({ desktop, visibleOpen });
 
-    if (this.hasOverlayTarget) {
-      this.overlayTarget.classList.toggle("hidden", desktop || !visibleOpen);
-      this.overlayTarget.setAttribute("aria-hidden", "true");
-    }
-
     this.syncHtmlOpenData();
     this.syncTriggerAttributes({ desktop, visibleOpen });
 
@@ -207,58 +193,43 @@ export default class SidebarController extends Controller {
   }
 
   syncDialogState({ desktop, visibleOpen }) {
-    if (!this.hasDialogTarget) {
+    if (!this.hasDialogTarget || !this.hasPanelTarget) {
       return;
     }
 
-    if (!desktop && visibleOpen) {
-      this.dialogTarget.removeAttribute("aria-hidden");
-      this.dialogTarget.removeAttribute("inert");
-      this.activateModal();
-      return;
-    }
-
-    this.deactivateModal();
     if (desktop) {
-      this.dialogTarget.removeAttribute("aria-hidden");
-      this.dialogTarget.removeAttribute("inert");
-    } else {
-      this.dialogTarget.setAttribute("aria-hidden", "true");
-      this.dialogTarget.setAttribute("inert", "");
+      this.closeDialog();
+      this.unlockBodyScroll();
+      this.movePanelOutsideDialog();
+      return;
     }
+
+    this.movePanelIntoDialog();
+
+    if (visibleOpen) {
+      this.copyNavigationNameToDialog();
+      if (!this.dialogTarget.open) this.dialogTarget.showModal();
+      this.lockBodyScroll();
+      return;
+    }
+
+    this.closeDialog();
+    this.unlockBodyScroll();
   }
 
-  activateModal() {
-    this.dialogTarget.setAttribute("role", "dialog");
-    this.dialogTarget.setAttribute("aria-modal", "true");
-    this.copyNavigationNameToDialog();
+  lockBodyScroll() {
+    if (this.scrollLocked) return;
 
-    if (this.modalActive) {
-      return;
-    }
-
-    this.modalActive = true;
-    this.inertOutsideDialog();
     this.originalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    this.scrollLocked = true;
   }
 
-  deactivateModal() {
-    if (this.hasDialogTarget) {
-      this.dialogTarget.removeAttribute("role");
-      this.dialogTarget.removeAttribute("aria-modal");
-      this.dialogTarget.removeAttribute("aria-label");
-      this.dialogTarget.removeAttribute("aria-labelledby");
-    }
+  unlockBodyScroll() {
+    if (!this.scrollLocked) return;
 
-    if (!this.modalActive) {
-      return;
-    }
-
-    this.inertedElements.forEach((element) => element.removeAttribute("inert"));
-    this.inertedElements.clear();
     document.body.style.overflow = this.originalBodyOverflow;
-    this.modalActive = false;
+    this.scrollLocked = false;
   }
 
   copyNavigationNameToDialog() {
@@ -275,26 +246,23 @@ export default class SidebarController extends Controller {
     }
   }
 
-  inertOutsideDialog() {
-    let branch = this.dialogTarget;
-    const overlay = this.hasOverlayTarget ? this.overlayTarget : null;
-
-    while (branch.parentElement) {
-      const parent = branch.parentElement;
-      Array.from(parent.children).forEach((sibling) => {
-        if (sibling === branch || sibling === overlay || sibling.hasAttribute("inert")) {
-          return;
-        }
-
-        sibling.setAttribute("inert", "");
-        this.inertedElements.add(sibling);
-      });
-
-      if (parent === document.body) {
-        break;
-      }
-      branch = parent;
+  movePanelIntoDialog() {
+    if (this.panelTarget.parentElement !== this.dialogTarget) {
+      this.dialogTarget.append(this.panelTarget);
     }
+  }
+
+  movePanelOutsideDialog() {
+    if (this.panelTarget.parentElement === this.dialogTarget && this.dialogTarget.parentElement) {
+      this.dialogTarget.after(this.panelTarget);
+    }
+  }
+
+  closeDialog() {
+    if (this.dialogTarget.open) this.dialogTarget.close();
+
+    this.dialogTarget.removeAttribute("aria-label");
+    this.dialogTarget.removeAttribute("aria-labelledby");
   }
 
   syncHtmlOpenData() {
@@ -304,10 +272,11 @@ export default class SidebarController extends Controller {
 
   syncTriggerAttributes({ desktop, visibleOpen }) {
     const label = this.currentTriggerLabel({ desktop, visibleOpen });
+    const controlledElement = desktop ? this.panelTarget : this.dialogTarget;
 
     this.triggerTargets.forEach((trigger) => {
-      if (this.hasDialogTarget && this.dialogTarget.id) {
-        trigger.setAttribute("aria-controls", this.dialogTarget.id);
+      if (controlledElement?.id) {
+        trigger.setAttribute("aria-controls", controlledElement.id);
       }
       trigger.setAttribute("aria-expanded", String(visibleOpen));
       trigger.setAttribute("aria-label", label);
@@ -336,13 +305,10 @@ export default class SidebarController extends Controller {
     }
   }
 
-  focusDialog() {
+  focusCloseControl() {
     if (this.hasCloseTarget) {
       this.closeTarget.focus();
-      return;
     }
-
-    this.dialogTarget?.focus();
   }
 
   restoreTriggerFocus() {
@@ -360,87 +326,14 @@ export default class SidebarController extends Controller {
   }
 
   focusFirstSidebarItem() {
-    const first = this.focusableIn(this.sidebarTarget)[0];
+    const first = this.sidebarTarget.querySelector(
+      "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])",
+    );
     if (first) {
       first.focus();
       return;
     }
 
     this.sidebarTarget?.focus();
-  }
-
-  trapFocus(event) {
-    if (!this.hasDialogTarget) {
-      return;
-    }
-
-    const focusable = this.focusableIn(this.dialogTarget);
-    if (focusable.length === 0) {
-      event.preventDefault();
-      this.dialogTarget.focus();
-      return;
-    }
-
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    if (!this.dialogTarget.contains(document.activeElement)) {
-      event.preventDefault();
-      first.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    } else if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    }
-  }
-
-  focusableIn(container) {
-    if (!container) {
-      return [];
-    }
-
-    const candidates = Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR)).filter((element) =>
-      this.isTabbable(element),
-    );
-
-    return candidates.filter((element) => {
-      if (element.tagName !== "INPUT" || element.type !== "radio" || !element.name) {
-        return true;
-      }
-
-      const group = candidates.filter(
-        (candidate) =>
-          candidate.tagName === "INPUT" &&
-          candidate.type === "radio" &&
-          candidate.name === element.name &&
-          candidate.form === element.form,
-      );
-      return (group.find((radio) => radio.checked) || group[0]) === element;
-    });
-  }
-
-  isTabbable(element) {
-    if (element.tabIndex < 0 || element.matches(":disabled") || element.closest("[hidden], [inert]")) {
-      return false;
-    }
-
-    const closedDetails = element.closest("details:not([open])");
-    if (closedDetails && closedDetails.querySelector(":scope > summary") !== element) {
-      return false;
-    }
-
-    for (
-      let current = element;
-      current && current !== this.dialogTarget.parentElement;
-      current = current.parentElement
-    ) {
-      const style = window.getComputedStyle(current);
-      if (style.display === "none" || style.visibility === "hidden") {
-        return false;
-      }
-    }
-
-    return true;
   }
 }
