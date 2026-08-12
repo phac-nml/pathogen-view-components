@@ -1,11 +1,6 @@
 <div class="space-y-4 p-4">
   <%= pathogen_sidebar_boot_tag(id: 'offcanvas-sidebar') %>
 
-  <%= pathogen_supporting(variant: :muted, class: 'px-1') do %>
-    Drag-resize the preview viewport narrower than the <%= pathogen_code { 'xl' } %> breakpoint to exercise off-canvas
-    mode.
-  <% end %>
-
   <%= render Pathogen::Sidebar::Provider.new(
     id: 'offcanvas-sidebar',
     class: 'h-[600px] !min-h-[600px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]'
@@ -17,13 +12,35 @@
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
-        <button type="button">
-          <span data-pathogen-sidebar-label="true">Overview</span>
-        </button>
+        <ul class="m-0 flex list-none flex-col gap-1 p-0">
+          <li>
+            <a
+              href="#run-summary"
+              class="
+                interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
+                rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
+                text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+              "
+            >
+              <span data-pathogen-sidebar-label="true">Overview</span>
+            </a>
+          </li>
 
-        <button type="button">
-          <span data-pathogen-sidebar-label="true">Monitoring</span>
-        </button>
+          <li>
+            <a
+              href="#monitoring"
+              class="
+                interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
+                rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
+                text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+              "
+            >
+              <span data-pathogen-sidebar-label="true">Monitoring</span>
+            </a>
+          </li>
+        </ul>
       <% end %>
     <% end %>
 
@@ -33,9 +50,11 @@
         <span class="text-[length:var(--type-control)] font-semibold">Host trigger</span>
       </div>
 
-      <main class="p-4">
-        <%= pathogen_supporting(variant: :muted) do %>
-          Escape and overlay click close the drawer on small viewports.
+      <main class="space-y-2 p-4">
+        <%= pathogen_heading(level: 2, id: 'run-summary') { 'Run summary' } %>
+
+        <%= pathogen_supporting do %>
+          RUN-2026-0812 started at 09:42 and is currently processing 48 samples.
         <% end %>
       </main>
     <% end %>
