@@ -438,9 +438,6 @@
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
   }
-  .ml-2 {
-    margin-left: calc(var(--spacing) * 2);
-  }
   .ml-8 {
     margin-left: calc(var(--spacing) * 8);
   }
@@ -2034,12 +2031,10 @@ input[role="switch"]:disabled ~ label {
   padding-inline: 0.25rem;
 }
 @media (min-width: 80rem) {
-  html[data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider[data-pathogen-sidebar-id="sidebar"] {
+  html[data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
     --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
   }
-  html[data-pathogen-sidebar-open="false"]
-    .pathogen-sidebar-provider[data-pathogen-sidebar-id="sidebar"]
-    [data-pathogen-sidebar-label="true"] {
+  html[data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider [data-pathogen-sidebar-label="true"] {
     display: none;
   }
 }

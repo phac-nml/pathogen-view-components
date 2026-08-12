@@ -70,12 +70,8 @@ module Pathogen
 
     private
 
-    # rubocop:disable Metrics/MethodLength
     def pathogen_sidebar_boot_script(sidebar_id)
       storage_key = "pathogen.sidebar.#{sidebar_id}.open"
-      token = sidebar_id.to_s.parameterize(separator: '-')
-      token = 'sidebar' if token.blank?
-      id_attribute = "data-pathogen-sidebar-open-#{token}"
 
       <<~JS
         (function() {
@@ -88,10 +84,8 @@ module Pathogen
             value = 'true';
           }
           document.documentElement.setAttribute('data-pathogen-sidebar-open', value);
-          document.documentElement.setAttribute(#{id_attribute.to_json}, value);
         })();
       JS
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end

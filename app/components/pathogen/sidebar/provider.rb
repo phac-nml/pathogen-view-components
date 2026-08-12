@@ -7,8 +7,6 @@ module Pathogen
       BASE_CLASSES = %w[
         pathogen-sidebar-provider
         relative flex min-h-screen w-full items-stretch
-        bg-[var(--pvc-color-surface-muted)]
-        text-[color:var(--pvc-color-text)]
       ].join(' ').freeze
 
       SIDEBAR_VALUE_DEFAULTS = {
@@ -38,7 +36,6 @@ module Pathogen
           class: class_names(BASE_CLASSES, @system_arguments[:class]),
           style: css_variables,
           data: root_data_attributes,
-          'data-pathogen-sidebar-id': @id,
           **@system_arguments.except(:class, :data, :style)
         }
       end
@@ -54,7 +51,6 @@ module Pathogen
 
         incoming.merge(
           'controller' => merged_controllers(incoming),
-          'pathogen--sidebar-id-value' => @id,
           'pathogen--sidebar-open-value' => @open,
           'pathogen--sidebar-storage-key-value' => "pathogen.sidebar.#{@id}.open"
         ).merge(SIDEBAR_VALUE_DEFAULTS).merge(translated_values)

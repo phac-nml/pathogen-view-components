@@ -2,42 +2,24 @@
   <%= pathogen_sidebar_boot_tag(id: 'overview-sidebar') %>
 
   <%= render Pathogen::Sidebar::Provider.new(id: 'overview-sidebar', class: 'h-[600px] !min-h-[600px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]') do %>
-    <%= render Pathogen::Sidebar.new(id: 'demo-sidebar', label: 'Primary navigation') do %>
+    <%= render Pathogen::Sidebar.new(id: 'overview-sidebar', label: 'Primary navigation') do %>
       <%= render Pathogen::Sidebar::Header.new do %>
         <%= render Pathogen::Sidebar::Trigger.new %>
         <span data-pathogen-sidebar-label="true" class="text-[length:var(--type-control)] font-semibold">Pathogen</span>
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
-        <button
-          type="button"
-          class="
-            interactive-hover:bg-[var(--pvc-color-surface-muted)] rounded-[var(--pvc-radius-control)] px-2 py-1
-            text-[length:var(--type-control)]
-          "
-        >
+        <button type="button">
           <span aria-hidden="true">D</span>
           <span data-pathogen-sidebar-label="true" class="ml-2">Dashboard</span>
         </button>
 
-        <button
-          type="button"
-          class="
-            interactive-hover:bg-[var(--pvc-color-surface-muted)] rounded-[var(--pvc-radius-control)] px-2 py-1
-            text-[length:var(--type-control)]
-          "
-        >
+        <button type="button">
           <span aria-hidden="true">S</span>
           <span data-pathogen-sidebar-label="true" class="ml-2">Samples</span>
         </button>
 
-        <button
-          type="button"
-          class="
-            interactive-hover:bg-[var(--pvc-color-surface-muted)] rounded-[var(--pvc-radius-control)] px-2 py-1
-            text-[length:var(--type-control)]
-          "
-        >
+        <button type="button">
           <span aria-hidden="true">C</span>
           <span data-pathogen-sidebar-label="true" class="ml-2">Settings</span>
         </button>
@@ -54,14 +36,19 @@
     <% end %>
 
     <%= render Pathogen::Sidebar::Inset.new do %>
-      <div class="flex items-center justify-between border-b border-[color:var(--pvc-color-border)] p-3 xl:hidden">
+      <div class="flex items-center gap-2 border-b border-[color:var(--pvc-color-border)] p-3 xl:hidden">
         <%= render Pathogen::Sidebar::Trigger.new %>
         <span class="text-[length:var(--type-control)] font-semibold">Run detail</span>
       </div>
 
       <main class="space-y-2 p-4">
         <%= pathogen_heading(level: 2) { 'Run overview' } %>
-        <%= pathogen_supporting(variant: :muted) { 'Host owns page composition and main landmark inside Sidebar::Inset.' } %>
+
+        <%= pathogen_supporting(variant: :muted) do %>
+          Host owns page composition and main landmark inside Sidebar::Inset. Use the sidebar trigger to collapse to the
+          icon rail — labels marked with <%= pathogen_code { 'data-pathogen-sidebar-label="true"' } %> hide
+          automatically.
+        <% end %>
       </main>
     <% end %>
   <% end %>

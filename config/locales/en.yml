@@ -39,7 +39,6 @@ en:
         open_label: Open sidebar
         overlay_label: Close sidebar
       trigger:
-        label: Toggle sidebar
         open_label: Open sidebar
     tooltip:
       portal:

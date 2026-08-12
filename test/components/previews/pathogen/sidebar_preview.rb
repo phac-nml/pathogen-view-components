@@ -7,12 +7,8 @@ module Pathogen
     # @!group Pathogen Sidebar
 
     # @label Overview
-    # Expanded desktop shell with in-sidebar trigger and host mobile trigger
+    # Desktop shell (expanded by default; trigger collapses to icon rail)
     def overview; end
-
-    # @label Rail
-    # Desktop rail mode restoration with label hiding
-    def rail; end
 
     # @label Off-canvas
     # Small viewport drawer behaviour and overlay dismissal

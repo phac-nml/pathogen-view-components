@@ -23,14 +23,9 @@ module Pathogen
       def attributes
         {
           class: class_names(BASE_CLASSES, @system_arguments[:class]),
-          data: data_attributes,
+          data: @system_arguments[:data] || {},
           **@system_arguments.except(:class, :data)
         }
-      end
-
-      def data_attributes
-        incoming = (@system_arguments[:data] || {}).deep_stringify_keys
-        incoming.merge('pathogen--sidebar-target' => 'inset')
       end
     end
   end

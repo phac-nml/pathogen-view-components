@@ -63,7 +63,6 @@ module Pathogen
 
       assert_includes html, 'pathogen.sidebar.lab-sidebar.open'
       assert_includes html, 'data-pathogen-sidebar-open'
-      assert_includes html, 'data-pathogen-sidebar-open-lab-sidebar'
     end
   end
 end
