@@ -139,7 +139,13 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
     ['Solid danger fill', '--pvc-color-danger-solid', 'var(--color-red-600)', '#dc2626', 'var(--color-red-600)', '#dc2626'],
     ['Solid danger hover', '--pvc-color-danger-solid-hover', 'var(--color-red-700)', '#b91c1c', 'var(--color-red-700)', '#b91c1c'],
     ['Success', '--pvc-color-success', 'var(--color-emerald-600)', '#059669', 'var(--color-emerald-400)', '#34d399'],
+    ['Strong success', '--pvc-color-success-strong', 'var(--color-emerald-700)', '#047857', 'var(--color-emerald-300)', '#6ee7b7'],
+    ['Solid success fill', '--pvc-color-success-solid', 'var(--color-emerald-700)', '#047857', 'var(--color-emerald-700)', '#047857'],
+    ['Solid success hover', '--pvc-color-success-solid-hover', 'var(--color-emerald-800)', '#065f46', 'var(--color-emerald-800)', '#065f46'],
     ['Warning', '--pvc-color-warning', 'var(--color-amber-600)', '#d97706', 'var(--color-amber-400)', '#fbbf24'],
+    ['Strong warning', '--pvc-color-warning-strong', 'var(--color-amber-700)', '#b45309', 'var(--color-amber-300)', '#fcd34d'],
+    ['Solid warning fill', '--pvc-color-warning-solid', 'var(--color-amber-700)', '#b45309', 'var(--color-amber-700)', '#b45309'],
+    ['Solid warning hover', '--pvc-color-warning-solid-hover', 'var(--color-amber-800)', '#92400e', 'var(--color-amber-800)', '#92400e'],
     ['Focus', '--pvc-color-focus', 'var(--color-primary-500)', '#3b82f6', 'var(--color-primary-500)', '#3b82f6']
   ].each do |label, token, light_fallback, light_swatch, dark_fallback, dark_swatch| %>
     <div role="cell"><%= label %><br><code><%= token %></code></div>
@@ -178,7 +184,13 @@ Live definitions today:
   --pvc-color-danger-solid: var(--color-red-600);
   --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-600);
+  --pvc-color-success-strong: var(--color-emerald-700);
+  --pvc-color-success-solid: var(--color-emerald-700);
+  --pvc-color-success-solid-hover: var(--color-emerald-800);
   --pvc-color-warning: var(--color-amber-600);
+  --pvc-color-warning-strong: var(--color-amber-700);
+  --pvc-color-warning-solid: var(--color-amber-700);
+  --pvc-color-warning-solid-hover: var(--color-amber-800);
   --pvc-color-focus: var(--color-primary-500);
 }
 
@@ -199,12 +211,18 @@ Live definitions today:
   --pvc-color-danger-solid: var(--color-red-600);
   --pvc-color-danger-solid-hover: var(--color-red-700);
   --pvc-color-success: var(--color-emerald-400);
+  --pvc-color-success-strong: var(--color-emerald-300);
+  --pvc-color-success-solid: var(--color-emerald-700);
+  --pvc-color-success-solid-hover: var(--color-emerald-800);
   --pvc-color-warning: var(--color-amber-400);
+  --pvc-color-warning-strong: var(--color-amber-300);
+  --pvc-color-warning-solid: var(--color-amber-700);
+  --pvc-color-warning-solid-hover: var(--color-amber-800);
   --pvc-color-focus: var(--color-primary-500);
 }
 ```
 
-### Choosing Accent And Danger Tokens
+### Choosing Colour Tokens
 
 | Situation | Tokens |
 |-----------|--------|
@@ -212,8 +230,13 @@ Live definitions today:
 | Filled primary button | `accent-solid`, `accent-solid-hover` |
 | Outline/ghost destructive | `danger-strong`, `danger` |
 | Filled destructive | `danger-solid`, `danger-solid-hover` |
+| Status text, borders, icons | `success` / `warning`, or `*-strong` when the base hue is too light on the surface |
+| Filled success | `success-solid`, `success-solid-hover` |
+| Filled warning | `warning-solid`, `warning-solid-hover` |
 
-In dark mode, accent text and borders lighten for contrast. Solid button fills stay saturated so action colour still feels deliberate. Focus is a separate role; the target is `primary-500` in both modes so focus does not collapse into accent.
+Solid success and warning use the lightest palette stop that meets WCAG AA with white text (`emerald-700` / `amber-700`), not the same stop as danger (`red-600`). Do not build those fills with raw `emerald-*` or `amber-*`.
+
+In dark mode, accent and status text and borders lighten for contrast. Solid fills stay saturated so the colour still feels deliberate. Focus is a separate role; the target is `primary-500` in both modes so focus does not collapse into accent.
 
 ## Type Scale
 
@@ -308,10 +331,4 @@ New work should follow `Button`.
 
 ## What's On Our List
 
-These rows are known gaps between shipped CSS and the intended system direction. Close each gap in CSS, then delete its row.
-
-| # | Token | Shipped now | Target | Why |
-|---|-------|-------------|--------|-----|
-| 1 | `success` / `warning` ladders | Base only | Full solid/outline set like accent | Solid success/warning buttons are not supported yet |
-
-Until this lands, success and warning should stay as text, border, or icon treatment. Do not build solid success or warning surfaces with hand-rolled `emerald-*` or `amber-*`.
+There are no open token gaps. Solid success and warning fills use `--pvc-color-success-solid` and `--pvc-color-warning-solid` (and their hover steps). Do not reach for raw `emerald-*` or `amber-*`.
