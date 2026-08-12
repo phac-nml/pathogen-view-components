@@ -3,15 +3,11 @@
 module Pathogen
   class Sidebar
     # Visual divider between sidebar regions.
-    class Separator < Pathogen::Component
+    class Separator < Region
       BASE_CLASSES = %w[
         pathogen-sidebar-separator
         my-2 border-0 border-t border-[color:var(--pvc-color-border)]
-      ].join(' ')
-
-      def initialize(**system_arguments)
-        @system_arguments = system_arguments
-      end
+      ].join(' ').freeze
 
       def call
         tag.hr(**attributes)
@@ -20,11 +16,7 @@ module Pathogen
       private
 
       def attributes
-        {
-          class: class_names(BASE_CLASSES, @system_arguments[:class]),
-          'aria-hidden': true,
-          data: @system_arguments[:data] || {}
-        }.merge(@system_arguments.except(:class, :data, :aria))
+        super.except(:aria).merge('aria-hidden': true)
       end
     end
   end
