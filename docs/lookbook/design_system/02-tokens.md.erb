@@ -54,6 +54,7 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
     padding: 0.625rem 0.75rem;
     border-bottom: 1px solid #e2e8f0;
     background: #ffffff;
+    color: #0f172a;
   }
 
   .pvc-token-table > div:nth-last-child(-n + 4) {
@@ -85,20 +86,29 @@ Swatches show Pathogen defaults. Hosts remap accent through `--color-primary-*`.
 
   .pvc-token-table code {
     white-space: nowrap;
+    color: inherit;
+    background: transparent;
   }
 
   html.dark .pvc-token-table {
     border-color: #334155;
+    color: #f1f5f9;
   }
 
   html.dark .pvc-token-table > div {
     border-bottom-color: #334155;
     background: #0f172a;
+    color: #f1f5f9;
   }
 
   html.dark .pvc-token-table__header {
     color: #f1f5f9;
     background: #1e293b !important;
+  }
+
+  html.dark .pvc-token-table code {
+    color: #e2e8f0;
+    background: transparent;
   }
 
   @media (max-width: 48rem) {
