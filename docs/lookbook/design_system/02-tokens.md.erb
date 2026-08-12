@@ -230,9 +230,21 @@ Live definitions today:
 | Filled primary button | `accent-solid`, `accent-solid-hover` |
 | Outline/ghost destructive | `danger-strong`, `danger` |
 | Filled destructive | `danger-solid`, `danger-solid-hover` |
-| Status text, borders, icons | `success` / `warning`, or `success-strong` / `warning-strong` when the base hue is too light on the surface |
+| Normal-sized status text | `success-strong`, `warning-strong` |
+| Status icons, borders, and large text | `success`, `warning` |
 | Filled success | `success-solid`, `success-solid-hover` |
 | Filled warning | `warning-solid`, `warning-solid-hover` |
+
+Base `success` and `warning` are not generally suitable for ordinary status text. WCAG AA needs 4.5:1 for normal text and 3:1 for large text and meaningful non-text.
+
+| Token on white | Contrast | Normal text |
+|----------------|----------|-------------|
+| `success` (`#059669`) | 3.77:1 | Fails |
+| `success-strong` (`#047857`) | 5.48:1 | Passes |
+| `warning` (`#d97706`) | 3.19:1 | Fails |
+| `warning-strong` (`#b45309`) | 5.02:1 | Passes |
+
+Use `success-strong` and `warning-strong` for normal-sized status text. Use base `success` and `warning` for icons, borders, and sufficiently large text. Always verify against the actual surface: dark-mode `success` is only 3.94:1 on the documented raised surface.
 
 Solid success and warning use the lightest palette stop that meets WCAG AA with white text (`emerald-700` / `amber-700`), not the same stop as danger (`red-600`). Do not build those fills with raw `emerald-*` or `amber-*`.
 
