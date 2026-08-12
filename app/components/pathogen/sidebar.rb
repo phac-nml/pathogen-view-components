@@ -1,15 +1,18 @@
 # frozen_string_literal: true
 
 module Pathogen
-  # Sidebar navigation column. Works within Pathogen::Sidebar::Provider.
+  # Sidebar navigation column. On mobile, the controller promotes the outer
+  # container to a modal dialog while preserving this component's nav landmark.
   class Sidebar < Pathogen::Component
     BASE_CLASSES = %w[
       pathogen-sidebar
-      relative flex min-h-full self-stretch flex-col
+      relative flex min-h-full w-full self-stretch flex-col
       border-r border-[color:var(--pvc-color-border)]
       bg-[var(--pvc-color-surface)]
       text-[color:var(--pvc-color-text)]
     ].join(' ').freeze
+
+    DIALOG_CLASSES = 'pathogen-sidebar-dialog'
 
     attr_reader :id
 
@@ -33,7 +36,9 @@ module Pathogen
     end
 
     def call
-      tag.nav(**attributes) { content }
+      tag.div(**dialog_attributes) do
+        safe_join([dialog_close_button, tag.nav(**attributes) { content }])
+      end
     end
 
     private
@@ -47,6 +52,32 @@ module Pathogen
         tabindex: -1,
         **@system_arguments.except(:class, :aria, :data, :id, :tabindex)
       }
+    end
+
+    def dialog_attributes
+      {
+        id: "#{@id}-dialog",
+        class: DIALOG_CLASSES,
+        tabindex: -1,
+        data: { 'pathogen--sidebar-target' => 'dialog' }
+      }
+    end
+
+    def dialog_close_button
+      label = I18n.t('pathogen.sidebar.provider.close_label')
+
+      tag.button(
+        type: 'button',
+        class: class_names(Pathogen::Sidebar::Trigger::BASE_CLASSES, 'pathogen-sidebar-dialog__close'),
+        aria: { label: label },
+        title: label,
+        data: {
+          action: 'click->pathogen--sidebar#closeOffcanvas',
+          'pathogen--sidebar-target' => 'close'
+        }
+      ) do
+        tag.span('', class: Pathogen::Sidebar::Trigger::ICON_CLASSES, aria: { hidden: true })
+      end
     end
 
     def aria_attributes
