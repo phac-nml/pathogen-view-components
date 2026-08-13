@@ -49,10 +49,13 @@ Use semantic roles (`--pvc-color-*`) in shared components. Palette stops such as
 | Accent solid / solid-hover | Filled primary action |
 | Danger / danger-strong | Error text, destructive outline and ghost actions |
 | Danger solid / solid-hover | Confirmed destructive action |
-| Success / warning | Status text, borders, icons |
+| Success-strong / warning-strong | Normal-sized status text |
+| Success / warning | Status icons, borders, large text, outline emphasis |
+| Success solid / solid-hover | Filled success surfaces |
+| Warning solid / solid-hover | Filled warning surfaces |
 | Focus | Keyboard focus, separate from accent |
 
-Accent and danger have four-step ladders: foreground pair for text and outlines, solid pair for filled buttons. Success and warning are base-only for now. Do not create solid success or warning buttons with raw `emerald-*` or `amber-*`.
+Accent, danger, success, and warning each have a four-step ladder: foreground pair for text and outlines, solid pair for filled surfaces. Use `success-strong` and `warning-strong` for ordinary status text; base `success` and `warning` are for icons, borders, and large text. Solid success and warning fills use `--pvc-color-success-solid` and `--pvc-color-warning-solid` (and their hover steps). Do not create those fills with raw `emerald-*` or `amber-*`.
 
 Host apps theme accent through `--color-primary-*`. Shared components should not hard-code IRIDA green, Pathogen blue, or any other host brand.
 
