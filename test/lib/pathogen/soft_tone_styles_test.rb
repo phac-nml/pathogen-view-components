@@ -16,12 +16,13 @@ module Pathogen
       end
     end
 
-    test 'success and warning avoid their base hue as a foreground' do
+    test 'success and warning use strong foreground tokens' do
       %i[success warning].each do |tone|
         tokens = soft_tone_classes(tone).split
 
-        assert_includes tokens, 'text-[var(--pvc-color-text)]'
+        assert_includes tokens, "text-[var(--pvc-color-#{tone}-strong)]"
         assert_not_includes tokens, "text-[var(--pvc-color-#{tone})]"
+        assert_not_includes tokens, 'text-[var(--pvc-color-text)]'
       end
     end
 

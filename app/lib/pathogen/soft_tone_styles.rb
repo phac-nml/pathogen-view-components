@@ -4,10 +4,8 @@ module Pathogen
   # Shared soft-fill tone recipe: a tinted surface, a tone-tinted hairline
   # border, and a foreground that holds WCAG AA on that fill.
   #
-  # Accent and danger have +*-strong+ foreground tokens. Success and warning are
-  # base-only tokens today (#96), and their base hues fail AA on a tinted fill at
-  # meta type size, so both fall back to +--pvc-color-text+ until that ladder
-  # exists.
+  # Status text uses the +*-strong+ steps. Base success and warning hues fail AA
+  # for ordinary (meta/control) text on a tinted fill.
   module SoftToneStyles
     DEFAULT_TONE = :neutral
     TONE_OPTIONS = %i[neutral accent success warning danger].freeze
@@ -25,12 +23,12 @@ module Pathogen
       ].join(' '),
       success: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-text)]
+        text-[var(--pvc-color-success-strong)]
         border-[color-mix(in_oklab,var(--pvc-color-success)_45%,var(--pvc-color-border))]
       ].join(' '),
       warning: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-warning)_18%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-text)]
+        text-[var(--pvc-color-warning-strong)]
         border-[color-mix(in_oklab,var(--pvc-color-warning)_45%,var(--pvc-color-border))]
       ].join(' '),
       danger: %w[
