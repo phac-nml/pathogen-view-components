@@ -71,13 +71,15 @@ module Pathogen
       assert_no_selector 'a[aria-describedby]'
     end
 
-    test 'with_tooltip keeps default association for generated external-link aria-labels' do
+    test 'with_tooltip keeps default association for external links' do
       render_inline(Pathogen::Link.new(href: 'https://example.org/samples')) do |component|
         component.with_tooltip(text: 'Samples')
         'Samples'
       end
 
-      assert_selector 'a[aria-label="Samples (opens in a new window)"][aria-describedby]'
+      assert_no_selector 'a[aria-label]'
+      assert_selector 'a[aria-describedby][target="_blank"]'
+      assert_selector 'a > span.sr-only', text: I18n.t('pathogen.link.new_window_label')
       assert_selector "div[data-controller='pathogen--tooltip']" \
                       "[data-pathogen--tooltip-describedby-value='true']"
     end
