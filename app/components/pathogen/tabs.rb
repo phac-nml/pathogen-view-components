@@ -11,9 +11,9 @@ module Pathogen
   #
   # This component requires the following CSS to be present in your application:
   #
-  # 1. **Pathogen tabs stylesheet**: app/assets/stylesheets/pathogen/components/tabs.css
-  #    - Namespaced tabs layout, tab, panel, and loading/error styles
-  #    - Data-state and ARIA driven visual states
+  # 1. **Pathogen stylesheet**: app/assets/stylesheets/pathogen_view_components.css
+  #    - Bundled tabs layout, tab, panel, and loading/error styles
+  #    - Data-state and ARIA-driven visual states
   #
   # 2. **JavaScript controller**: app/assets/javascripts/pathogen_view_components/tabs_controller.js
   #    - Handles ARIA state management
@@ -21,7 +21,7 @@ module Pathogen
   #    - Optional URL hash syncing
   #    - Turbo Frame lazy loading integration
   #
-  # @see app/assets/stylesheets/pathogen/components/tabs.css for required CSS rules
+  # @see app/assets/stylesheets/pathogen_view_components.css for required CSS rules
   # @see app/assets/javascripts/pathogen_view_components/tabs_controller.js for controller implementation
   #
   # @example Basic usage

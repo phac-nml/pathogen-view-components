@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs and tooltips.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, and DataGrid.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -24,8 +24,8 @@ JavaScript dependencies (importmap or package manager):
 
 - `@hotwired/stimulus` **^3.0.0**
 - `@hotwired/turbo-rails` **^8.0.0** (peer dependency)
-- `uuid` **^13.0.0**
-- `@floating-ui/dom` **^1.7.5**
+- `uuid` **^14.0.1**
+- `@floating-ui/dom` **^1.8.0**
 
 ## Installation
 
@@ -110,11 +110,15 @@ Sticky columns:
 #### Tabs
 
 ```erb
-<%= render Pathogen::TabsComponent.new(label: "Sample Tabs") do |tabs| %>
-  <% tabs.with_tab("Overview", id: "overview") do %>
+<%= render Pathogen::Tabs.new(id: "sample-tabs", label: "Sample tabs") do |tabs| %>
+  <% tabs.with_tab(id: "overview-tab", label: "Overview", selected: true) %>
+  <% tabs.with_tab(id: "details-tab", label: "Details") %>
+
+  <% tabs.with_panel(id: "overview-panel", tab_id: "overview-tab") do %>
     <p>Overview content</p>
   <% end %>
-  <% tabs.with_tab("Details", id: "details") do %>
+
+  <% tabs.with_panel(id: "details-panel", tab_id: "details-tab") do %>
     <p>Details content</p>
   <% end %>
 <% end %>
@@ -126,6 +130,39 @@ Sticky columns:
 <%= render Pathogen::Link.new(href: "/samples") do |link| %>
   <%= link.with_tooltip(text: "View all samples") %>
   Samples
+<% end %>
+```
+
+#### Disclosure
+
+```erb
+<%= render Pathogen::Disclosure.new(id: "advanced-options", label: "Advanced options") do %>
+  <p>Include quality metrics and protocol attachments.</p>
+<% end %>
+```
+
+`Pathogen::Disclosure` follows the WAI-ARIA disclosure pattern: a native `<button>` with
+`aria-expanded` / `aria-controls`, and a panel toggled with `hidden`. Stimulus updates
+`aria-expanded` on the focused control so screen readers announce expanded/collapsed on
+activation (including VoiceOver), not only when the control receives focus.
+
+- Default size is `:medium` (44px minimum target). Use `size: :small` for dense toolbars (24px).
+- Set `heading_level: 2..6` to wrap the button in a heading (APG FAQ pattern).
+- Prefer visible trigger text as the accessible name. Use `aria_label:` only when the trigger has
+  no usable text, or when you need a richer name that still includes the visible label (WCAG 2.5.3).
+- Do not put links, buttons, inputs, or other interactive elements in a trigger slot.
+- Pass `trigger_arguments:` / `panel_arguments:` to extend the button or panel without forking.
+
+```erb
+<%= render Pathogen::Disclosure.new(
+  id: "metadata-templates",
+  heading_level: 3,
+  aria_label: "Metadata templates, 3 available"
+) do |disclosure| %>
+  <% disclosure.with_trigger do %>
+    Metadata templates <span>(3)</span>
+  <% end %>
+  <p>Specimen, isolate, and outbreak templates.</p>
 <% end %>
 ```
 
@@ -170,6 +207,7 @@ registerPathogenControllers(application);
 
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
+- `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 
 ## Development
@@ -182,10 +220,11 @@ bin/setup
 
 Use `bin/setup --skip-demo` if you only want the library dependencies and hooks without preparing the Lookbook demo app.
 
-Run tests:
+Run checks:
 
 ```bash
-bin/test           # Ruby component tests
+bin/verify         # Generated CSS + shipped-file gates
+bin/test           # Ruby component tests (excludes shipped-file gates)
 pnpm test          # JavaScript controller tests (requires pnpm install)
 ```
 

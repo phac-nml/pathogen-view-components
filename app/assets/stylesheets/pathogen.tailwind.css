@@ -74,7 +74,13 @@
     --pvc-color-danger-solid: var(--color-red-600);
     --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-600);
+    --pvc-color-success-strong: var(--color-emerald-700);
+    --pvc-color-success-solid: var(--color-emerald-700);
+    --pvc-color-success-solid-hover: var(--color-emerald-800);
     --pvc-color-warning: var(--color-amber-600);
+    --pvc-color-warning-strong: var(--color-amber-700);
+    --pvc-color-warning-solid: var(--color-amber-700);
+    --pvc-color-warning-solid-hover: var(--color-amber-800);
     --pvc-color-focus: var(--color-primary-500);
 
     --type-meta: 0.75rem;
@@ -115,7 +121,13 @@
     --pvc-color-danger-solid: var(--color-red-600);
     --pvc-color-danger-solid-hover: var(--color-red-700);
     --pvc-color-success: var(--color-emerald-400);
+    --pvc-color-success-strong: var(--color-emerald-300);
+    --pvc-color-success-solid: var(--color-emerald-700);
+    --pvc-color-success-solid-hover: var(--color-emerald-800);
     --pvc-color-warning: var(--color-amber-400);
+    --pvc-color-warning-strong: var(--color-amber-300);
+    --pvc-color-warning-solid: var(--color-amber-700);
+    --pvc-color-warning-solid-hover: var(--color-amber-800);
     --pvc-color-focus: var(--color-primary-500);
   }
 }
@@ -142,3 +154,4 @@
 
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
+@import "./pathogen_disclosure_layer.css";

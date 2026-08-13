@@ -6,8 +6,10 @@ ENV['RAILS_ENV'] ||= 'test'
 ROOT = File.expand_path('..', __dir__)
 Dir.chdir(ROOT)
 BUNDLE_BIN = File.join(ROOT, 'bin/bundle')
+SHIPPED_FILES_PREFIX = 'test/shipped_files/'
 
 patterns = ARGV.empty? ? ['test/**/*_test.rb'] : ARGV
+default_run = ARGV.empty?
 
 test_files = patterns.flat_map do |pattern|
   if File.directory?(pattern)
@@ -23,6 +25,12 @@ test_files = test_files
              .uniq
              .select { |path| path.end_with?('_test.rb') && File.file?(path) }
              .sort
+
+# Plain `bin/test` (no args) skips test/shipped_files/.
+# Those checks belong to `bin/verify`. Keeping them separate avoids running the
+# same shipped-file suite twice when CI does: bin/verify && bin/test.
+# Pass a path explicitly if you want them: bin/test test/shipped_files
+test_files.reject! { |path| path.start_with?(SHIPPED_FILES_PREFIX) } if default_run
 
 abort('No test files matched.') if test_files.empty?
 

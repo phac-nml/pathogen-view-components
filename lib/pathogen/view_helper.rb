@@ -8,6 +8,7 @@ module Pathogen
       avatar: 'Pathogen::Avatar',
       badge: 'Pathogen::Badge',
       link: 'Pathogen::Link',
+      disclosure: 'Pathogen::Disclosure',
       radio_button: 'Pathogen::Form::RadioButton',
       switch: 'Pathogen::Form::Switch',
       heading: 'Pathogen::Typography::Heading',

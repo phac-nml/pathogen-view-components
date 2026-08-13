@@ -81,7 +81,10 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Verify bin scripts are executable
-        run: test -x bin/rails && test -x bin/test
+        run: test -x bin/rails && test -x bin/test && test -x bin/verify
+
+      - name: Verify shipped files
+        run: bin/verify
 
       - name: Test
         run: bin/test

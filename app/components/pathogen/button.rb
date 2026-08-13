@@ -1,15 +1,46 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/pathogen/button_styles'
+require_relative '../../lib/pathogen/tooltip_trigger'
 
 module Pathogen
   # Pathogen::Button — Tailwind-styled button (see also Pathogen::BaseButton).
   class Button < Pathogen::Component
     include Pathogen::ButtonSizes
     include Pathogen::ButtonStyles
+    include Pathogen::TooltipTrigger
 
     renders_one :leading_visual
     renders_one :trailing_visual
+
+    # The tooltip that appears on mouse hover or keyboard focus over the button. (optional)
+    #
+    # The button itself must still expose an accessible name (visible text, `text:`,
+    # `aria-label`, or `aria-labelledby`). Tooltip copy is supplementary for sighted users.
+    #
+    # Accessibility notes:
+    # - Tooltip copy is associated as a supplementary description by default (`describe: true`).
+    #   Pass `describe: false` for icon-only rails where the tooltip repeats the control name and
+    #   should stay visual-only.
+    # - A native `disabled` button cannot receive hover or focus, so a tooltip on it is
+    #   unreachable. Use `aria_disabled: true` when the control must stay focusable; attaching
+    #   a tooltip to a `disabled` button raises `ArgumentError`.
+    # - On touch devices the first tap reveals the tooltip (the button's own action fires on
+    #   the second tap), mirroring the shared tooltip pattern.
+    #
+    # @param placement [Symbol] Physical position of the tooltip (:top, :bottom, :left, :right).
+    #   These are physical, not logical, directions; in RTL layouts choose accordingly.
+    # @param describe [Boolean] Whether the tooltip is a supplementary description linked via
+    #   `aria-describedby` (`true`, default) or a visual-only affordance (`false`).
+    # @param system_arguments [Hash] HTML attributes to be included in the tooltip root element
+    renders_one :tooltip, lambda { |placement: :top, describe: true, **system_arguments|
+      build_tooltip_slot(
+        trigger_arguments: @system_arguments,
+        placement: placement,
+        describe: describe,
+        **system_arguments
+      )
+    }
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
     def initialize(base_button_class: Pathogen::BaseButton, tone: nil, emphasis: nil,
@@ -42,6 +73,8 @@ module Pathogen
     # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def before_render
+      validate_tooltip_target!
+      prime_tooltip_association
       validate_icon_only_content! if @icon_only
       return unless leading_visual.present? || trailing_visual.present?
       return if @icon_only && button_text.blank?
@@ -58,7 +91,25 @@ module Pathogen
       trimmed_content.presence || @text
     end
 
+    # Whether tooltip content is associated to the trigger through aria-describedby.
+    # Set when the tooltip slot is evaluated; nil when no tooltip is present.
+    attr_reader :tooltip_describedby
+
     private
+
+    # Reject the impossible combination early: a native `disabled` button receives no
+    # hover or keyboard focus, so its tooltip can never be triggered. `aria_disabled`
+    # keeps the control focusable and is the supported way to show a tooltip on an
+    # unavailable action.
+    def validate_tooltip_target!
+      return unless tooltip?
+      return unless @system_arguments[:disabled]
+
+      raise ArgumentError,
+            'Cannot attach a tooltip to a `disabled` button: a native disabled button ' \
+            'cannot receive hover or keyboard focus, so the tooltip is unreachable. ' \
+            'Use `aria_disabled: true` to keep the control focusable.'
+    end
 
     def resolve_tone_and_emphasis(tone, emphasis)
       resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
