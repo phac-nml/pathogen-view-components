@@ -31,6 +31,8 @@ module Pathogen
       name, options, html_options = normalize_button_to_args(name, options, html_options, block)
       pathogen_options, form_extra, method_override, button_options =
         ButtonHelperOptions.split_button_to_options(html_options)
+
+      validate_button_to_component_contract!(pathogen_options, block)
       pathogen_options[:text] = name.to_s if name.present?
 
       submit_button = build_pathogen_submit_button(pathogen_options, button_options, options)
@@ -49,6 +51,24 @@ module Pathogen
       end
 
       [name, options, html_options || {}]
+    end
+
+    def validate_button_to_component_contract!(pathogen_options, block)
+      if block && !block.arity.zero?
+        raise ArgumentError,
+              'pathogen_button_to only supports plain block content (no yielded component argument).'
+      end
+
+      if pathogen_options.key?(:base_button_class)
+        raise ArgumentError,
+              'pathogen_button_to does not support :base_button_class. ' \
+              'Use Pathogen::Button directly for custom wrappers.'
+      end
+
+      return unless pathogen_options[:icon_only]
+
+      raise ArgumentError,
+            'pathogen_button_to does not support icon_only. Use Pathogen::Button directly.'
     end
 
     def build_pathogen_submit_button(pathogen_options, button_options, url_options)

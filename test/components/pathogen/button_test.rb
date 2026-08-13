@@ -194,13 +194,15 @@ module Pathogen
     end
 
     test 'exposes HTML attributes without leaking mutable component state' do
-      button = Pathogen::Button.new(tag: :a, type: :submit, data: { action: 'click->form#submit' })
+      button = Pathogen::Button.new(tag: :a, type: :submit, class: 'custom-class',
+                                    data: { action: 'click->form#submit' })
 
       attributes = button.html_attributes
       attributes[:data][:action] = 'changed'
 
       assert_equal :submit, attributes[:type]
       assert attributes[:class].present?
+      assert_includes attributes[:class], 'custom-class'
       assert_equal 'click->form#submit', button.html_attributes.dig(:data, :action)
       assert_not button.html_attributes.key?(:tag)
       assert_not button.html_attributes.key?(:classes)

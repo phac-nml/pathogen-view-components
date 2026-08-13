@@ -98,7 +98,7 @@ module Pathogen
     # Returns HTML attributes for helpers that render the outer element.
     def html_attributes
       @system_arguments.deep_dup.except(:tag).tap do |attributes|
-        attributes[:class] = attributes.delete(:classes)
+        attributes[:class] = class_names(attributes.delete(:classes), attributes[:class])
       end
     end
 
