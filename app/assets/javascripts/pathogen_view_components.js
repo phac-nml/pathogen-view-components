@@ -23,4 +23,11 @@ function registerPathogenControllers(application) {
   }
 }
 
-export { TabsController, TooltipController, DisclosureController, DataGridController, ToolbarController, registerPathogenControllers };
+export {
+  TabsController,
+  TooltipController,
+  DisclosureController,
+  DataGridController,
+  ToolbarController,
+  registerPathogenControllers,
+};
