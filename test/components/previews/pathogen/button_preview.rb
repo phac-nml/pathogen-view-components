@@ -2,8 +2,6 @@
 
 module Pathogen
   class ButtonPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Button
 
     # @label Overview

@@ -2,8 +2,6 @@
 
 module Pathogen
   class DisclosurePreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Disclosure
 
     # @label Overview

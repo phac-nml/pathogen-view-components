@@ -2,8 +2,6 @@
 
 module Pathogen
   class TooltipPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Tooltip
 
     # @label Overview

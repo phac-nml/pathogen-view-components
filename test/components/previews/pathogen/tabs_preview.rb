@@ -3,8 +3,6 @@
 module Pathogen
   # ViewComponent preview for demonstrating Pathogen::Tabs usage
   class TabsPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Tabs Component
 
     # @label Overview

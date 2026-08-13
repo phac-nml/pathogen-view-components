@@ -2,8 +2,6 @@
 
 module Pathogen
   class FormPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Form
 
     # @label Overview

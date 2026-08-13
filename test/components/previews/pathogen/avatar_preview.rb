@@ -2,8 +2,6 @@
 
 module Pathogen
   class AvatarPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Avatar
 
     # @label Playground
@@ -14,7 +12,7 @@ module Pathogen
     def playground(size: :medium, shape: :circle, with_image: false, decorative: false)
       image_src = 'https://avatars.githubusercontent.com/u/9919?v=4'
 
-      pathogen_avatar(
+      render Pathogen::Avatar.new(
         label: 'Jane Doe',
         initials: 'JD',
         src: (with_image ? image_src : nil),
