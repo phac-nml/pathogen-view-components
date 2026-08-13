@@ -700,6 +700,9 @@
   .items-stretch {
     align-items: stretch;
   }
+  .justify-between {
+    justify-content: space-between;
+  }
   .justify-center {
     justify-content: center;
   }
@@ -2004,6 +2007,8 @@ input[role="switch"]:disabled ~ label {
     background: Highlight;
     color: HighlightText;
     forced-color-adjust: none;
+  }
+}
 .pvc-toaster {
   --pvc-toast-gap: 0.875rem;
   --pvc-toast-scale-step: 0.05;
