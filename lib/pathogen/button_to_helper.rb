@@ -32,7 +32,7 @@ module Pathogen
       pathogen_options, form_extra, method_override, button_options =
         ButtonHelperOptions.split_button_to_options(html_options)
 
-      validate_button_to_component_contract!(pathogen_options, block)
+      validate_button_to_usage!(pathogen_options, block)
       pathogen_options[:text] = name.to_s if name.present?
 
       submit_button = build_pathogen_submit_button(pathogen_options, button_options, options)
@@ -53,7 +53,7 @@ module Pathogen
       [name, options, html_options || {}]
     end
 
-    def validate_button_to_component_contract!(pathogen_options, block)
+    def validate_button_to_usage!(pathogen_options, block)
       if block && !block.arity.zero?
         raise ArgumentError,
               'pathogen_button_to only supports plain block content (no yielded component argument).'
