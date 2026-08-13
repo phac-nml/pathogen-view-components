@@ -112,7 +112,7 @@ module Pathogen
         Pathogen::Avatar.new(label: 'Ada Lovelace', colour_seed: 'Ada')
       ).css('span[role="img"]').first['class'].split
 
-      assert_includes classes, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]'
+      assert_includes classes, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]'
       assert_includes classes, 'text-[var(--pvc-color-success-strong)]'
       assert_not_includes classes, 'text-[var(--pvc-color-success)]'
       assert_not_includes classes, 'text-[var(--pvc-color-text)]'

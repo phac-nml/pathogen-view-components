@@ -37,8 +37,17 @@ module Pathogen
       render_inline(Pathogen::Badge.new(text: 'Ready', tone: :success))
 
       assert_includes root_class_list, 'text-[var(--pvc-color-success-strong)]'
-      assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]'
+      assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]'
       assert_not_includes root_class_list, 'text-[var(--pvc-color-success)]'
+      assert_not_includes root_class_list, 'text-[var(--pvc-color-text)]'
+    end
+
+    test 'warning soft fill uses the strong foreground for AA contrast' do
+      render_inline(Pathogen::Badge.new(text: 'Needs review', tone: :warning))
+
+      assert_includes root_class_list, 'text-[var(--pvc-color-warning-strong)]'
+      assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-warning)_8%,var(--pvc-color-surface))]'
+      assert_not_includes root_class_list, 'text-[var(--pvc-color-warning)]'
       assert_not_includes root_class_list, 'text-[var(--pvc-color-text)]'
     end
 
