@@ -1102,6 +1102,9 @@
   .text-\[var\(--pvc-color-danger-strong\)\] {
     color: var(--pvc-color-danger-strong);
   }
+  .text-\[var\(--pvc-color-success-strong\)\] {
+    color: var(--pvc-color-success-strong);
+  }
   .text-\[var\(--pvc-color-surface\)\] {
     color: var(--pvc-color-surface);
   }
@@ -1116,6 +1119,9 @@
     @supports (color: color-mix(in lab, red, red)) {
       color: color-mix(in oklab, var(--pvc-color-text-muted) 80%, transparent);
     }
+  }
+  .text-\[var\(--pvc-color-warning-strong\)\] {
+    color: var(--pvc-color-warning-strong);
   }
   .text-\[var\(--pvc-data-grid-text-color\)\] {
     color: var(--pvc-data-grid-text-color);
