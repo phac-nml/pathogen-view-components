@@ -32,7 +32,7 @@
     "chokidar": "^5.0.0",
     "eslint": "^10.8.0",
     "eslint-config-prettier": "^10.0.0",
-    "globals": "^17.9.0",
+    "globals": "^17.10.0",
     "jsdom": "^30.0.1",
     "msw": "2.15.0",
     "prettier": "^3.9.6",
