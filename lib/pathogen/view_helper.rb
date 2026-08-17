@@ -6,6 +6,7 @@ module Pathogen
     PATHOGEN_COMPONENT_HELPERS = {
       button: 'Pathogen::Button',
       avatar: 'Pathogen::Avatar',
+      badge: 'Pathogen::Badge',
       link: 'Pathogen::Link',
       disclosure: 'Pathogen::Disclosure',
       radio_button: 'Pathogen::Form::RadioButton',
