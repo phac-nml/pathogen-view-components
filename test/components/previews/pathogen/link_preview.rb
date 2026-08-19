@@ -2,8 +2,6 @@
 
 module Pathogen
   class LinkPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Link
 
     # @label Overview
