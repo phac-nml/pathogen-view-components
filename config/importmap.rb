@@ -31,7 +31,7 @@ pin 'pathogen_view_components/data_grid_controller/virtual_columns',
 pin 'pathogen_view_components', to: 'pathogen_view_components.js'
 
 # Controller dependencies
-pin 'uuid', to: 'https://cdn.jsdelivr.net/npm/uuid@14.0.1/+esm'
+pin 'uuid', to: 'https://cdn.jsdelivr.net/npm/uuid@14.0.2/+esm'
 pin '@floating-ui/dom', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.8.0/+esm'
 pin '@floating-ui/core', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/core@1.8.0/+esm'
 pin '@floating-ui/utils', to: 'https://cdn.jsdelivr.net/npm/@floating-ui/utils@0.2.12/+esm'
