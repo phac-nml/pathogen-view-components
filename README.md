@@ -24,7 +24,7 @@ JavaScript dependencies (importmap or package manager):
 
 - `@hotwired/stimulus` **^3.0.0**
 - `@hotwired/turbo-rails` **^8.0.0** (peer dependency)
-- `uuid` **^14.0.1**
+- `uuid` **^14.0.2**
 - `@floating-ui/dom` **^1.8.0**
 
 ## Installation
