@@ -69,7 +69,7 @@ module Pathogen
 
     IMAGE_CLASSES = %w[size-full object-cover object-center].join(' ').freeze
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable-next Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
     def initialize(label: nil, initials: nil, colour_seed: nil, color_seed: nil, src: nil, alt: nil, url: nil,
                    size: DEFAULT_SIZE, shape: DEFAULT_SHAPE, decorative: false, **system_arguments)
       @label = label&.to_s&.strip
@@ -105,7 +105,6 @@ module Pathogen
       @image_alt = image_alt_for(alt)
       @image_arguments = build_image_arguments
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
 
     private
 

@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Pathogen
   class TabsTest < ViewComponent::TestCase
-    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable-next Metrics/BlockLength
     test 'renders tabs layout and ARIA wiring' do
       render_inline(Pathogen::Tabs.new(id: 'docs-tabs', label: 'Documentation tabs')) do |tabs|
         tabs.with_tab(id: 'tab-overview', label: 'Overview')
@@ -44,7 +44,6 @@ module Pathogen
         visible: :all
       )
     end
-    # rubocop:enable Metrics/BlockLength
 
     test 'uses default_index to set initial selected tab and panel in vertical orientation' do
       render_inline(Pathogen::Tabs.new(id: 'settings-tabs', label: 'Settings tabs', default_index: 1,

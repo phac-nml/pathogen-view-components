@@ -306,7 +306,7 @@ module Pathogen
       )
     end
 
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable-next Metrics/MethodLength
     def interactive_actions(row)
       sample_id = row[:sample_id]
 
@@ -333,6 +333,5 @@ module Pathogen
         ' '
       )
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
