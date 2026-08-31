@@ -42,7 +42,7 @@ module Pathogen
       )
     }
 
-    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength
+    # rubocop:disable-next Metrics/ParameterLists, Metrics/MethodLength
     def initialize(base_button_class: Pathogen::BaseButton, tone: nil, emphasis: nil,
                    size: DEFAULT_SIZE, block: false, icon_only: false, text: nil, disabled: false,
                    aria_disabled: false, **system_arguments)
@@ -70,7 +70,6 @@ module Pathogen
         'flex w-full' => block
       )
     end
-    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def before_render
       validate_tooltip_target!

@@ -109,7 +109,7 @@ module Pathogen
 
       private
 
-      # rubocop:disable Metrics/ParameterLists
+      # rubocop:disable-next Metrics/ParameterLists
       def attributes_for(header:, row_index:, column_index:, aria_column_index:, active: false, interactive: false,
                          virtual_column_index: nil)
         attributes = {
@@ -123,9 +123,8 @@ module Pathogen
         attributes['data-pvc-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
         attributes
       end
-      # rubocop:enable Metrics/ParameterLists
 
-      # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       def cell_classes(header:)
         parts = [*COLUMN_CELL_BASE, 'pvc-data-grid__cell', @system_arguments[:class]]
         if header
@@ -142,7 +141,6 @@ module Pathogen
         parts << COLUMN_ALIGN[@align.to_s] if @align && COLUMN_ALIGN[@align.to_s]
         class_names(*parts.compact)
       end
-      # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
         data_attributes = @system_arguments[:data]&.dup || {}

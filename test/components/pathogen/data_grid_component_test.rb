@@ -5,7 +5,7 @@ require 'view_component_test_case'
 module Pathogen
   # Tests for Pathogen::DataGridComponent rendering behavior.
   class DataGridComponentTest < ViewComponentTestCase
-    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable-next Metrics/BlockLength
     test 'renders grid with caption and sticky columns' do
       render_inline(Pathogen::DataGridComponent.new(
                       caption: 'Sample grid',
@@ -38,7 +38,6 @@ module Pathogen
       assert_selector '.pvc-data-grid__keyboard-help',
                       text: 'Keyboard: Arrow keys move cells; Enter or F2 enters controls; Escape returns to the grid.'
     end
-    # rubocop:enable Metrics/BlockLength
 
     test 'adds multi sticky class when more than one sticky column is active' do
       render_inline(Pathogen::DataGridComponent.new(
@@ -356,7 +355,7 @@ module Pathogen
       assert_selector 'td[data-pathogen--data-grid-has-interactive="true"]'
     end
 
-    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable-next Metrics/BlockLength
     test 'renders live region, metadata warning, and footer slots outside scroll container' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,
@@ -389,7 +388,6 @@ module Pathogen
       assert_no_selector '.pvc-data-grid__scroll .test-metadata-warning'
       assert_no_selector '.pvc-data-grid__scroll .test-footer'
     end
-    # rubocop:enable Metrics/BlockLength
 
     # === Virtual mode tests ===
 
@@ -427,7 +425,7 @@ module Pathogen
       assert_selector '.pvc-data-grid__caption', text: 'Virtual grid'
     end
 
-    # rubocop:disable Metrics/BlockLength
+    # rubocop:disable-next Metrics/BlockLength
     test 'virtual and non-virtual variants keep column and row content parity' do
       rows = [
         { sample_id: 'S-501', name: 'Aurora basin', status: 'Ready' },
@@ -462,7 +460,6 @@ module Pathogen
         virtual.css('[role="row"][aria-rowindex="2"] [role="gridcell"]').map { |node| node.text.strip }
       )
     end
-    # rubocop:enable Metrics/BlockLength
 
     test 'virtual mode localizes status copy and exposes translated data attributes' do
       I18n.with_locale(:fr) do

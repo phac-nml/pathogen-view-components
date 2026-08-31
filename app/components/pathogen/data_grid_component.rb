@@ -30,7 +30,7 @@ module Pathogen
   #   <% end %>
   #
   # CSS dependency: pathogen/pathogen.css
-  # rubocop:disable Metrics/ClassLength
+  # rubocop:disable-next Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
 
@@ -531,5 +531,4 @@ module Pathogen
       @system_arguments[:class] = class_names(@system_arguments[:class], *component_classes)
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
