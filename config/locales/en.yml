@@ -27,6 +27,14 @@ en:
       title: required
     link:
       aria-label: "%{content} (opens in a new window)"
+    sidebar:
+      provider:
+        close_label: Close sidebar
+        collapse_label: Collapse sidebar
+        expand_label: Expand sidebar
+        open_label: Open sidebar
+      trigger:
+        open_label: Open sidebar
     tooltip:
       portal:
         aria_label: Tooltips
