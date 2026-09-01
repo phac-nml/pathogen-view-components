@@ -27,6 +27,24 @@ en:
       title: required
     link:
       aria-label: "%{content} (opens in a new window)"
+    toast:
+      dismiss: Dismiss notification
+      dismiss_all: Dismiss all
+      more_notifications: "+%{count} more"
+      region_label: Notifications
+      settings:
+        description: Choose how long status notifications stay on screen before they
+          disappear.
+        label: Notification timing
+        options:
+          default: Default (6 seconds)
+          extend: 20 seconds
+          forever: Keep until I dismiss them
+      type:
+        error: Error
+        info: Information
+        success: Success
+        warning: Warning
     tooltip:
       portal:
         aria_label: Tooltips

@@ -1,0 +1,46 @@
+<%# herb:formatter ignore %>
+
+<div class="flex max-w-4xl flex-col gap-4 p-4">
+  <%= pathogen_heading(level: 3, class: "mb-2") { "Anchor positions" } %>
+
+  <%= pathogen_supporting(variant: :muted) do %>
+    Default is <%= pathogen_code { "top_center" } %>. Previews use <%= pathogen_code { "strategy: :absolute" } %>;
+    production hosts use <%= pathogen_code { "strategy: :fixed" } %>.
+  <% end %>
+
+  <div class="grid gap-4 lg:grid-cols-2">
+    <% {
+      top_center: 'Top center',
+      top_right: 'Top right',
+      bottom_center: 'Bottom center',
+      bottom_right: 'Bottom right'
+    }.each do |position, label| %>
+      <div
+        class="
+          relative min-h-56 overflow-hidden rounded-(--pvc-radius-panel) border
+          border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+        "
+      >
+        <%= pathogen_heading(level: 4, class: "mb-1") { label } %>
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          <%= pathogen_code { "position: :#{position}" } %>
+        <% end %>
+
+        <%= render Pathogen::Toaster.new(
+          position:,
+          strategy: :absolute,
+          turbo_permanent: false,
+          max_visible: 1,
+          list_id: "flashes-#{position}"
+        ) do %>
+          <%= render Pathogen::Toast.new(
+            type: :success,
+            message: "#{label} anchor",
+            description: 'Dismissible so the specimen stays inspectable.',
+            dismissible: true
+          ) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
