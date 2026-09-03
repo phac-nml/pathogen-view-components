@@ -29,7 +29,7 @@ fr:
       required_indicator: "*"
       title: obligatoire
     link:
-      aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+      new_window_label: "(s’ouvre dans une nouvelle fenêtre)"
     tooltip:
       portal:
         aria_label: Info-bulles

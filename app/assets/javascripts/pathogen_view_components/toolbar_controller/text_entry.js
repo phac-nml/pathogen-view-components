@@ -1,0 +1,32 @@
+import { MOVE_FORWARD, NAVIGATION_OWNER_SELECTOR } from "pathogen_view_components/toolbar_controller/constants";
+
+export function textEntryControl(item) {
+  if (item instanceof HTMLInputElement || item instanceof HTMLTextAreaElement) {
+    return item;
+  }
+
+  if (!(item instanceof Element)) {
+    return null;
+  }
+
+  const input = item.querySelector("input, textarea");
+  return input instanceof HTMLInputElement || input instanceof HTMLTextAreaElement ? input : null;
+}
+
+export function placeTextEntryCaret(item, moveDirection) {
+  const input = textEntryControl(item);
+  if (!input || input.selectionStart === null || input.selectionEnd === null) {
+    return;
+  }
+
+  const position = moveDirection === MOVE_FORWARD ? input.value.length : 0;
+  input.setSelectionRange(position, position);
+}
+
+export function ownsToolbarNavigationKeys(target) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+
+  return Boolean(target.closest(NAVIGATION_OWNER_SELECTOR));
+}

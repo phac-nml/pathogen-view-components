@@ -31,6 +31,14 @@ module Pathogen
       assert_selector 'a.my-custom.font-semibold'
     end
 
+    test 'keeps visible text in the accessible name and announces a new window for external links' do
+      render_inline(Pathogen::Link.new(href: 'https://www.w3.org/WAI/')) { 'Accessibility guidance' }
+
+      assert_selector 'a[target="_blank"][rel="noopener noreferrer"]', text: 'Accessibility guidance'
+      assert_no_selector 'a[aria-label]'
+      assert_selector 'a > span.sr-only', text: I18n.t('pathogen.link.new_window_label')
+    end
+
     test 'renders translated portal aria-label on tooltip controller wrapper' do
       render_inline(Pathogen::Link.new(href: '/samples')) do |component|
         component.with_tooltip(text: 'More info') { 'Samples' }
@@ -63,13 +71,15 @@ module Pathogen
       assert_no_selector 'a[aria-describedby]'
     end
 
-    test 'with_tooltip keeps default association for generated external-link aria-labels' do
+    test 'with_tooltip keeps default association for external links' do
       render_inline(Pathogen::Link.new(href: 'https://example.org/samples')) do |component|
         component.with_tooltip(text: 'Samples')
         'Samples'
       end
 
-      assert_selector 'a[aria-label="Samples (opens in a new window)"][aria-describedby]'
+      assert_no_selector 'a[aria-label]'
+      assert_selector 'a[aria-describedby][target="_blank"]'
+      assert_selector 'a > span.sr-only', text: I18n.t('pathogen.link.new_window_label')
       assert_selector "div[data-controller='pathogen--tooltip']" \
                       "[data-pathogen--tooltip-describedby-value='true']"
     end
