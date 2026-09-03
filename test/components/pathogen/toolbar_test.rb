@@ -134,7 +134,7 @@ module Pathogen
       render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
 
       assert_selector "button[class*='text-xs'][class*='px-2'][class*='py-1']"
-      assert_selector "button[class*='bg-transparent'][class*='border-transparent']"
+      assert_selector "button[class*='bg-[var(--pvc-color-surface)]'][class*='border-[var(--pvc-color-border-strong)]']"
     end
 
     test 'renders aria-pressed with visible pressed styling' do
