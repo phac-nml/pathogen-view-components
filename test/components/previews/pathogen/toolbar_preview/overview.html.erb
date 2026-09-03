@@ -5,9 +5,9 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Data grid toolbar' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Data grid toolbar' } %>
 
-    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Default <code class="font-mono">variant: :table</code> for full-width action rows above a data grid. Group related
       actions with <code class="font-mono">Toolbar::Group</code>, push end groups with
       <code class="font-mono">Toolbar::Spacer</code>, and keep text-entry controls outside the element with
@@ -104,9 +104,9 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Responsive full-width reflow' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Responsive full-width reflow' } %>
 
-    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Resize the preview below the <code class="font-mono">sm</code> breakpoint (640px). The spacer collapses, each
       <code class="font-mono">Toolbar::Group</code> takes a full row, and the search field expands to fill the available
       width.
@@ -184,9 +184,9 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Chip toolbar' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Chip toolbar' } %>
 
-    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Use <code class="font-mono">variant: :chip</code> for compact bordered toolbars in dialogs, panels, or inline
       editor contexts. Use a toolbar only when grouping three or more controls.
     <% end %>
@@ -211,9 +211,9 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Toggle and disabled states' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Toggle and disabled states' } %>
 
-    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Pressed state is consumer-owned; the toolbar reflects it through <code class="font-mono">aria-pressed</code>, an
       accent-tinted fill, and an accent border. Unavailable actions use <code class="font-mono">aria-disabled</code> so
       they stay focusable and discoverable.
@@ -255,11 +255,11 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 2, id: 'toolbar-preview-a11y-title', class: 'mb-2') do %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, id: 'toolbar-preview-a11y-title', class: 'mb-2') do %>
       Keyboard and custom controls
     <% end %>
 
-    <%= pathogen_supporting(variant: :muted, class: 'mb-4') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Tab into the toolbar once, then use
       <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">←</kbd>
       <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">→</kbd>
@@ -302,7 +302,7 @@
       p-4 text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
     "
   >
-    <%= pathogen_heading(level: 2, class: 'mb-2') { 'Usage notes' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Usage notes' } %>
 
     <ul class="list-disc space-y-2 pl-5">
       <li>

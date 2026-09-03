@@ -12,7 +12,7 @@ module Pathogen
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(label: nil, pressed: nil, disabled: false, aria_disabled: false, tag: :button, tone: :neutral,
-                   emphasis: :ghost, size: :small, **system_arguments)
+                   emphasis: :outline, size: :small, **system_arguments)
       @label = label
       @pressed = pressed
       @disabled = disabled || system_arguments.delete('disabled') == true
