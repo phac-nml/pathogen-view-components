@@ -10,7 +10,7 @@ module Pathogen
     renders_one :leading_visual
     renders_one :trailing_visual
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(label: nil, pressed: nil, disabled: false, aria_disabled: false, tag: :button, tone: :neutral,
                    emphasis: :outline, size: :small, **system_arguments)
       @label = label
@@ -29,7 +29,6 @@ module Pathogen
 
       build_button_arguments!
     end
-    # rubocop:enable Metrics/ParameterLists
 
     private
 
