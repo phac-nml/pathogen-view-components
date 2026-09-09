@@ -7,7 +7,8 @@ module Pathogen
     def initialize(**system_arguments)
       @system_arguments = system_arguments
       @system_arguments[:role] = 'presentation'
-      @system_arguments[:aria] = { hidden: true }
+      @system_arguments[:aria] ||= {}
+      @system_arguments[:aria][:hidden] = true
       @system_arguments[:data] ||= {}
       @system_arguments[:data][:'pathogen--toolbar-spacer'] = true
       @system_arguments[:class] = class_names(@system_arguments[:class])
