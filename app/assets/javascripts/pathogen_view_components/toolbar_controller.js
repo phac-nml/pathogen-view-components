@@ -23,19 +23,16 @@ export default class extends Controller {
   #lastFocusedToolbarItemId = null;
 
   connect() {
-    if (this.itemTargets.length === 0) {
-      // Invalid configuration is a development error per the v1 contract: fail
-      // fast without mutating consumer markup and without claiming a connection.
-      console.error("[pathogen--toolbar] At least one toolbar item target is required.");
-      return;
-    }
-
     this.#bindDomSync();
     this.#boundHandleSubmitEnd = this.handleSubmitEnd.bind(this);
     document.addEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
 
+    if (this.itemTargets.length === 0) {
+      // Keep the controller connected so late-mounted items can hydrate.
+      console.warn("[pathogen--toolbar] No toolbar item targets were found at connect().");
+    }
+
     this.#syncItemsAfterDomChange();
-    this.element.dataset.controllerConnected = "true";
   }
 
   itemTargetConnected() {
@@ -143,7 +140,6 @@ export default class extends Controller {
   disconnect() {
     this.#unbindDomSync();
     document.removeEventListener("turbo:submit-end", this.#boundHandleSubmitEnd);
-    delete this.element.dataset.controllerConnected;
     this.#items = [];
     this.#lastFocusedToolbarItemId = null;
   }
@@ -175,11 +171,11 @@ export default class extends Controller {
 
   #syncItemsAfterDomChange() {
     const nextItems = [...this.itemTargets];
+    this.#items = nextItems;
+
     if (nextItems.length === 0) {
       return;
     }
-
-    this.#items = nextItems;
 
     const focusedItem = connectedItemForTarget(this.#items, document.activeElement);
     if (focusedItem && isNavigableItem(focusedItem)) {

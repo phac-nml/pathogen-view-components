@@ -50,9 +50,7 @@ describe("toolbar_controller", () => {
     const disabled = document.querySelector("#item-disabled");
     const enabled = document.querySelector("#item-enabled");
     const third = document.querySelector("#item-third");
-    const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
 
-    expect(toolbar.dataset.controllerConnected).toBe("true");
     expect(disabled.tabIndex).toBe(-1);
     expect(enabled.tabIndex).toBe(0);
     expect(third.tabIndex).toBe(-1);
@@ -370,20 +368,30 @@ describe("toolbar_controller", () => {
     expect(custom.tabIndex).toBe(0);
   });
 
-  it("fails fast without mutating markup when no toolbar item targets are present", async () => {
-    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  it("warns when no toolbar item targets are present, then hydrates late-added items", async () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     await startToolbar(`
         <span>No controls</span>
     `);
 
     const toolbar = document.querySelector('[data-controller="pathogen--toolbar"]');
+    const lateItem = document.createElement("button");
+    lateItem.type = "button";
+    lateItem.id = "late-item";
+    lateItem.textContent = "Late";
+    lateItem.tabIndex = -1;
+    lateItem.setAttribute("data-pathogen--toolbar-target", "item");
+    toolbar.append(lateItem);
 
-    expect(toolbar.dataset.controllerConnected).toBeUndefined();
+    await flush();
+
     expect(toolbar.textContent).toContain("No controls");
-    expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining("At least one toolbar item target is required"));
+    expect(document.activeElement).not.toBe(lateItem);
+    expect(lateItem.tabIndex).toBe(0);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("No toolbar item targets were found"));
 
-    errorSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   it("includes newly connected toolbar items after the DOM changes", async () => {
