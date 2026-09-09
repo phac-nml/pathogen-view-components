@@ -4,6 +4,11 @@
   border-width: 0;
 }
 
+.pvc-data-grid--with-toolbar > .pvc-data-grid__scroll {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
 [role="toolbar"][data-pathogen--toolbar-variant="table"] {
   display: flex;
   flex-wrap: wrap;
