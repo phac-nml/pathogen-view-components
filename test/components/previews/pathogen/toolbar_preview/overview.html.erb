@@ -30,77 +30,62 @@
 
     <%= form_tag '#', method: :get, id: 'toolbar-preview-deselect-all', class: 'hidden', data: { turbo_frame: 'selected' } %>
 
-    <div
-      class="
-        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)]
-      "
-      data-pathogen--toolbar-surface
-    >
-      <div
-        class="
-          grid grid-cols-1 items-center gap-2 border-b border-[var(--pvc-color-border)]
-          bg-[var(--pvc-color-surface-muted)] px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]
-        "
-      >
-        <%= render Pathogen::Toolbar.new(label: 'Sample grid actions', controls: 'toolbar-preview-grid') do %>
-          <%= render Pathogen::Toolbar::Group.new do %>
-            <%= render Pathogen::Toolbar::Button.new(
-              form: 'toolbar-preview-select-all',
-              label: 'Select all samples in this project'
-            ) do %>
-              Select all
-            <% end %>
-
-            <%= render Pathogen::Toolbar::Button.new(
-              form: 'toolbar-preview-deselect-all',
-              label: 'Deselect all samples in this project'
-            ) do %>
-              Deselect all
-            <% end %>
+    <%= render Pathogen::DataGridComponent.new(
+      id: 'toolbar-preview-grid',
+      caption: 'Sample inventory',
+      rows: rows
+    ) do |grid| %>
+      <% grid.with_toolbar(label: 'Sample grid actions') do %>
+        <%= render Pathogen::Toolbar::Group.new do %>
+          <%= render Pathogen::Toolbar::Button.new(
+            form: 'toolbar-preview-select-all',
+            label: 'Select all samples in this project'
+          ) do %>
+            Select all
           <% end %>
 
-          <%= render Pathogen::Toolbar::Spacer.new %>
-
-          <%= render Pathogen::Toolbar::Group.new do %>
-            <%= render Pathogen::Toolbar::Button.new do %>
-              Columns
-            <% end %>
-
-            <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: 'Export selected samples') do %>
-              Export
-            <% end %>
+          <%= render Pathogen::Toolbar::Button.new(
+            form: 'toolbar-preview-deselect-all',
+            label: 'Deselect all samples in this project'
+          ) do %>
+            Deselect all
           <% end %>
         <% end %>
 
-        <div class="min-w-0">
-          <label class="sr-only" for="toolbar-preview-search">Search samples by ID or name</label>
+        <%= render Pathogen::Toolbar::Spacer.new %>
 
-          <input
-            id="toolbar-preview-search"
-            type="search"
-            autocomplete="off"
-            placeholder="Search samples by ID or name"
-            class="
-              w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-              bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
-              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-              focus-visible:outline-[var(--pvc-color-focus)]
-            "
-          >
-        </div>
-      </div>
+        <%= render Pathogen::Toolbar::Group.new do %>
+          <%= render Pathogen::Toolbar::Button.new do %>
+            Columns
+          <% end %>
 
-      <%= render Pathogen::DataGridComponent.new(
-        id: 'toolbar-preview-grid',
-        caption: 'Sample inventory',
-        rows: rows
-      ) do |grid| %>
-        <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
-        <% grid.with_column('Name', key: :name) %>
-        <% grid.with_column('Status', key: :status, width: 140) %>
+          <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: 'Export selected samples') do %>
+            Export
+          <% end %>
+        <% end %>
       <% end %>
-    </div>
+
+      <% grid.with_toolbar_complement do %>
+        <label class="sr-only" for="toolbar-preview-search">Search samples by ID or name</label>
+
+        <input
+          id="toolbar-preview-search"
+          type="search"
+          autocomplete="off"
+          placeholder="Search samples by ID or name"
+          class="
+            w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+            bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+            focus-visible:outline-[var(--pvc-color-focus)]
+          "
+        >
+      <% end %>
+
+      <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+      <% grid.with_column('Name', key: :name) %>
+      <% grid.with_column('Status', key: :status, width: 140) %>
+    <% end %>
   </section>
 
   <section>
@@ -112,75 +97,60 @@
       width.
     <% end %>
 
-    <div
-      class="
-        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)]
-      "
-      data-pathogen--toolbar-surface
-    >
-      <div
-        class="
-          grid grid-cols-1 items-center gap-2 border-b border-[var(--pvc-color-border)]
-          bg-[var(--pvc-color-surface-muted)] px-4 py-3 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]
-        "
-      >
-        <%= render Pathogen::Toolbar.new(label: 'Responsive sample grid actions', controls: 'toolbar-reflow-grid') do %>
-          <%= render Pathogen::Toolbar::Group.new do %>
-            <%= render Pathogen::Toolbar::Button.new(label: 'Select all samples in this project') do %>
-              Select all
-            <% end %>
-
-            <%= render Pathogen::Toolbar::Button.new(label: 'Deselect all samples in this project') do %>
-              Deselect all
-            <% end %>
+    <%= render Pathogen::DataGridComponent.new(
+      id: 'toolbar-reflow-grid',
+      caption: 'Responsive sample inventory',
+      rows: rows
+    ) do |grid| %>
+      <% grid.with_toolbar(label: 'Responsive sample grid actions') do %>
+        <%= render Pathogen::Toolbar::Group.new do %>
+          <%= render Pathogen::Toolbar::Button.new(label: 'Select all samples in this project') do %>
+            Select all
           <% end %>
 
-          <%= render Pathogen::Toolbar::Spacer.new %>
-
-          <%= render Pathogen::Toolbar::Group.new do %>
-            <%= render Pathogen::Toolbar::Button.new(label: 'Filter samples') do %>
-              Filter
-            <% end %>
-
-            <%= render Pathogen::Toolbar::Button.new(label: 'Choose visible columns') do %>
-              Columns
-            <% end %>
-
-            <%= render Pathogen::Toolbar::Button.new(label: 'Export selected samples') do %>
-              Export
-            <% end %>
+          <%= render Pathogen::Toolbar::Button.new(label: 'Deselect all samples in this project') do %>
+            Deselect all
           <% end %>
         <% end %>
 
-        <div class="min-w-0">
-          <label class="sr-only" for="toolbar-reflow-search">Search samples by ID or name</label>
+        <%= render Pathogen::Toolbar::Spacer.new %>
 
-          <input
-            id="toolbar-reflow-search"
-            type="search"
-            autocomplete="off"
-            placeholder="Search samples by ID or name"
-            class="
-              w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-              bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
-              focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-              focus-visible:outline-[var(--pvc-color-focus)]
-            "
-          >
-        </div>
-      </div>
+        <%= render Pathogen::Toolbar::Group.new do %>
+          <%= render Pathogen::Toolbar::Button.new(label: 'Filter samples') do %>
+            Filter
+          <% end %>
 
-      <%= render Pathogen::DataGridComponent.new(
-        id: 'toolbar-reflow-grid',
-        caption: 'Responsive sample inventory',
-        rows: rows
-      ) do |grid| %>
-        <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
-        <% grid.with_column('Name', key: :name) %>
-        <% grid.with_column('Status', key: :status, width: 140) %>
+          <%= render Pathogen::Toolbar::Button.new(label: 'Choose visible columns') do %>
+            Columns
+          <% end %>
+
+          <%= render Pathogen::Toolbar::Button.new(label: 'Export selected samples') do %>
+            Export
+          <% end %>
+        <% end %>
       <% end %>
-    </div>
+
+      <% grid.with_toolbar_complement do %>
+        <label class="sr-only" for="toolbar-reflow-search">Search samples by ID or name</label>
+
+        <input
+          id="toolbar-reflow-search"
+          type="search"
+          autocomplete="off"
+          placeholder="Search samples by ID or name"
+          class="
+            w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+            bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+            focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+            focus-visible:outline-[var(--pvc-color-focus)]
+          "
+        >
+      <% end %>
+
+      <% grid.with_column('Sample ID', key: :sample_id, width: 160) %>
+      <% grid.with_column('Name', key: :name) %>
+      <% grid.with_column('Status', key: :status, width: 140) %>
+    <% end %>
   </section>
 
   <section>
