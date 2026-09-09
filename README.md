@@ -149,8 +149,8 @@ Table action row (default `variant: :table`):
 </form>
 <form id="deselect-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get"></form>
 
-<div class="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]">
-  <%= render Pathogen::Toolbar.new(label: "Sample grid actions", controls: "samples-grid") do %>
+<%= render Pathogen::DataGridComponent.new(id: "samples-grid", rows: @rows, caption: "Samples") do |grid| %>
+  <%= grid.with_toolbar(label: "Sample grid actions") do %>
     <%= render Pathogen::Toolbar::Group.new do %>
       <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
       <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
@@ -165,11 +165,14 @@ Table action row (default `variant: :table`):
   <% end %>
 
   <%# Search is visually adjacent, but outside role="toolbar" and its roving focus. %>
-  <div>
+  <%= grid.with_toolbar_complement do %>
     <label class="sr-only" for="sample-search">Search samples</label>
     <input id="sample-search" type="search" placeholder="Search samples">
-  </div>
-</div>
+  <% end %>
+
+  <% grid.with_column("ID", key: :id) %>
+  <% grid.with_column("Name", key: :name) %>
+<% end %>
 ```
 
 Toolbar buttons associated with a detached form default to `type="submit"`. Pass an explicit `type:` to override that default.
@@ -187,7 +190,8 @@ Compact inline toolbar (`variant: :chip`):
 
 - Use `Toolbar::Group` so related toolbar controls reflow together. Use `reflow: :alone` only when an actual toolbar control should wrap independently.
 - Use `Toolbar::Spacer` between start and end groups on wide viewports; it collapses on narrow screens.
-- When composing a toolbar above a data grid, wrap both in one framed surface (`data-pathogen--toolbar-surface`) so the grid omits its outer border; separate the toolbar band with a single `border-b`.
+- For table action rows, prefer `DataGridComponent#with_toolbar` and `#with_toolbar_complement`; this renders the canonical action band and keeps one framed surface around toolbar + grid.
+- `with_toolbar` defaults `aria-controls` to the grid root `id` when present; pass `controls:` explicitly to override.
 - Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
 - Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
 - Use `disabled: true` for native, unfocusable buttons. Use `aria_disabled: true` only when an unavailable action must remain focusable for discoverability.
