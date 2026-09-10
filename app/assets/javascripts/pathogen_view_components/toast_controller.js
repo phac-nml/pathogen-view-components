@@ -1,5 +1,10 @@
 import { Controller } from "@hotwired/stimulus";
 
+import {
+  QUEUED_DURATION_PREFERENCE_ATTRIBUTE,
+  parseDurationPreference,
+} from "pathogen_view_components/toast_duration_preference";
+
 export default class extends Controller {
   static targets = ["message", "description", "dismiss", "action", "dialog", "typeLabel"];
   static values = {
@@ -22,7 +27,7 @@ export default class extends Controller {
 
   connect() {
     const serverRenderedDialog = this.dialogMode;
-    this.#applyHostDurationPreference();
+    this.#applyQueuedDurationPreference();
     this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
     this.#bindEvents();
     this.#startTimer();
@@ -71,6 +76,28 @@ export default class extends Controller {
     this.#dismiss({ reason: "manual", restoreFocus: true });
   }
 
+  applyDurationPreference(preference, { focus = false } = {}) {
+    const parsedPreference = parseDurationPreference(preference);
+    if (parsedPreference === null) return;
+    if (this.#state !== "open") return;
+
+    if (parsedPreference === 0) {
+      this.promoteToDialog({ focus });
+      return;
+    }
+
+    if (this.dialogMode) return;
+
+    this.timeoutValue = parsedPreference;
+    this.#remainingMs = parsedPreference;
+    this.#clearTimer();
+
+    if (this.element.contains(document.activeElement)) return;
+    if (this.element.matches(":hover")) return;
+
+    this.#startTimer();
+  }
+
   /** Host / toaster may promote a status toast to a persistent dialog (e.g. duration forever). */
   promoteToDialog({ focus = true } = {}) {
     if (this.dialogMode) return;
@@ -115,10 +142,8 @@ export default class extends Controller {
     }
   }
 
-  #applyHostDurationPreference() {
-    if (this.dialogMode) return;
-
-    const preference = this.#hostDurationPreference();
+  #applyQueuedDurationPreference() {
+    const preference = this.#consumeQueuedDurationPreference();
     if (preference === null) return;
 
     if (preference === 0) {
@@ -126,29 +151,15 @@ export default class extends Controller {
       return;
     }
 
-    if (preference > 0) {
+    if (!this.dialogMode) {
       this.timeoutValue = preference;
     }
   }
 
-  #hostDurationPreference() {
-    const host = this.element.closest("[data-controller~='pathogen--toaster']");
-    const attr = host?.getAttribute("data-pathogen--toaster-duration-preference-value");
-    if (attr !== null && attr !== undefined && attr !== "") {
-      const fromHost = Number(attr);
-      if (Number.isFinite(fromHost) && fromHost >= 0) return fromHost;
-    }
-
-    try {
-      const raw = window.localStorage?.getItem("pathogen.toast.durationMs");
-      if (raw === null || raw === undefined || raw === "") return null;
-      if (raw === "forever") return 0;
-      const parsed = Number(raw);
-      if (!Number.isFinite(parsed) || parsed < 0) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
+  #consumeQueuedDurationPreference() {
+    const raw = this.element.getAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE);
+    this.element.removeAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE);
+    return parseDurationPreference(raw);
   }
 
   #bindEvents() {
