@@ -167,6 +167,8 @@ describe("toaster_controller", () => {
     vi.useRealTimers();
     application?.stop();
     document.body.innerHTML = "";
+    window.localStorage?.removeItem("pathogen.toast.durationMs");
+    window.localStorage?.removeItem("app.toastDuration");
   });
 
   it("hides overflow toasts while collapsed", async () => {
@@ -559,5 +561,48 @@ describe("toaster_controller", () => {
     await waitForController();
     await flushAnnouncements();
     expect(assertive.textContent).toBe("Error: Upload failed");
+  });
+
+  it("queues forever preference for unconnected toast controllers without mutating dialog roles", async () => {
+    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
+    const { list } = buildToaster({ maxVisible: 3, count: 1 });
+    await waitForController();
+
+    const toast = list.querySelector("li");
+    expect(toast.getAttribute("data-pathogen--toast-duration-preference-value")).toBe("0");
+    expect(toast.getAttribute("role")).not.toBe("dialog");
+    expect(toast.getAttribute("data-pathogen--toast-mode-value")).toBe("status");
+  });
+
+  it("promotes connected status toasts through toast controller when preference is forever", async () => {
+    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
+    const { list } = buildToaster({ maxVisible: 3, count: 0 });
+    const toast = buildConnectedToast({
+      message: "Saved",
+      type: "success",
+      typeLabel: "Success",
+      mode: "status",
+      timeout: 6000,
+    });
+    list.appendChild(toast);
+
+    await waitForController();
+    await waitForAnimationFrame();
+
+    expect(toast.getAttribute("data-pathogen--toast-mode-value")).toBe("dialog");
+    expect(toast.getAttribute("data-pathogen--toast-dismissible-value")).toBe("true");
+    expect(toast.getAttribute("role")).toBe("listitem");
+    expect(toast.querySelector('[data-pathogen--toast-target="dialog"]')).not.toBeNull();
+  });
+
+  it("reads duration preference from the configured storage key", async () => {
+    window.localStorage.setItem("app.toastDuration", "20000");
+    const { section, list } = buildToaster({ maxVisible: 3, count: 1 });
+    section.setAttribute("data-pathogen--toaster-duration-storage-key-value", "app.toastDuration");
+
+    await waitForController();
+
+    const toast = list.querySelector("li");
+    expect(toast.getAttribute("data-pathogen--toast-timeout-value")).toBe("20000");
   });
 });
