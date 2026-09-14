@@ -5,16 +5,14 @@ const SCROLL_SETTLE_MS = 150;
 export class PaginatedVirtualRows {
   #source;
   #placeholderTemplate;
-  #fetchAbort = null;
-  #activeFetches = new Set();
+  #fetchAbort = new AbortController();
   #failedPages = new Set();
   #fetchTimerId = null;
-  #disconnected = false;
-  #scrolling = false;
   #cellSelector;
   #rowHeight;
   #visibleRange;
   #renderedRange = null;
+  #onCacheChanged;
   #onRowsChanged;
   #onVisibleRowsChanged;
   #setBusy;
@@ -27,6 +25,7 @@ export class PaginatedVirtualRows {
     rowHeight,
     visibleRange,
     retainedRowIndex = () => null,
+    onCacheChanged = () => {},
     onRowsChanged,
     onVisibleRowsChanged,
     setBusy,
@@ -40,10 +39,11 @@ export class PaginatedVirtualRows {
       retainedRowIndex,
     });
     this.#source.seedFromRows(rows);
-    this.#placeholderTemplate = rows[0]?.cloneNode(true) ?? null;
     this.#cellSelector = cellSelector;
+    this.#placeholderTemplate = this.#createPlaceholderTemplate(rows[0]);
     this.#rowHeight = rowHeight;
     this.#visibleRange = visibleRange;
+    this.#onCacheChanged = onCacheChanged;
     this.#onRowsChanged = onRowsChanged;
     this.#onVisibleRowsChanged = onVisibleRowsChanged;
     this.#setBusy = setBusy;
@@ -68,18 +68,16 @@ export class PaginatedVirtualRows {
 
   afterRender(startIndex, endIndex, bufferRows) {
     this.#renderedRange = { startIndex, endIndex, bufferRows };
-    this.#evictRows();
+    if (this.#evictRows()) this.#onCacheChanged();
   }
 
   handleScroll() {
-    if (this.#disconnected) return;
+    if (this.#fetchAbort.signal.aborted) return;
 
-    this.#scrolling = true;
     this.#scheduleScrollSettledFetch();
   }
 
   handleScrollEnd() {
-    this.#scrolling = false;
     if (this.#fetchTimerId) {
       clearTimeout(this.#fetchTimerId);
       this.#fetchTimerId = null;
@@ -96,28 +94,24 @@ export class PaginatedVirtualRows {
   }
 
   flushRange(startIndex, endIndex) {
-    if (this.#disconnected || startIndex < 0 || endIndex <= startIndex) return;
+    if (this.#fetchAbort.signal.aborted || startIndex < 0 || endIndex <= startIndex) return;
 
     const missingPages = this.#source.missingPagesForRange(startIndex, endIndex);
     if (missingPages.length === 0) return;
 
-    if (!this.#fetchAbort) {
-      this.#fetchAbort = new AbortController();
-    }
-
     const signal = this.#fetchAbort.signal;
+    if (!this.#source.isFetching) this.#setBusy(true);
 
     missingPages.forEach((page) => {
       const request = this.#source.fetchPage(page, { signal });
-      this.#activeFetches.add(request);
-      this.#setBusy(true);
 
       request
         .then((result) => {
-          if (this.#disconnected || result.aborted) return;
+          if (signal.aborted || result.aborted) return;
 
           this.#failedPages.delete(page);
-          this.#evictRows();
+          const evicted = this.#evictRows();
+          if (result.cacheChanged || evicted) this.#onCacheChanged();
           this.#onRowsChanged({ hasPageErrors: this.#failedPages.size > 0 });
 
           const pageStart = (page - 1) * this.pageSize;
@@ -128,48 +122,40 @@ export class PaginatedVirtualRows {
           if (overlapsVisible) this.#onVisibleRowsChanged();
         })
         .catch((error) => {
-          if (this.#disconnected || error.name === "AbortError") return;
+          if (signal.aborted || error.name === "AbortError") return;
 
           this.#failedPages.add(page);
           this.#handleError(error);
         })
         .finally(() => {
-          if (this.#disconnected) return;
+          if (signal.aborted) return;
 
-          this.#activeFetches.delete(request);
-          this.#setBusy(this.#activeFetches.size > 0);
+          this.#setBusy(this.#source.isFetching);
         });
     });
   }
 
   disconnect() {
-    if (this.#disconnected) return;
+    if (this.#fetchAbort.signal.aborted) return;
 
-    this.#disconnected = true;
-    if (this.#fetchAbort) this.#fetchAbort.abort();
-    this.#fetchAbort = null;
+    this.#fetchAbort.abort();
     if (this.#fetchTimerId) clearTimeout(this.#fetchTimerId);
     this.#fetchTimerId = null;
-    this.#scrolling = false;
-    this.#activeFetches.clear();
     this.#setBusy(false);
   }
 
   #evictRows() {
-    if (!this.#renderedRange) return;
+    if (!this.#renderedRange) return false;
 
     // Controller range indexes may be invalid while the next render is scheduled.
     const { startIndex, endIndex, bufferRows } = this.#renderedRange;
-    this.#source.evictOutsideRange(startIndex, endIndex, bufferRows);
+    return this.#source.evictOutsideRange(startIndex, endIndex, bufferRows);
   }
 
   #scheduleScrollSettledFetch() {
     if (this.#fetchTimerId) clearTimeout(this.#fetchTimerId);
     this.#fetchTimerId = setTimeout(() => {
       this.#fetchTimerId = null;
-      if (!this.#scrolling) return;
-
-      this.#scrolling = false;
       this.#flushCurrentRange();
     }, SCROLL_SETTLE_MS);
   }
@@ -177,6 +163,18 @@ export class PaginatedVirtualRows {
   #flushCurrentRange() {
     const { startIndex, endIndex } = this.#visibleRange();
     this.flushRange(startIndex, endIndex);
+  }
+
+  #createPlaceholderTemplate(firstRow) {
+    if (!firstRow) return null;
+
+    const template = firstRow.cloneNode(true);
+    template.querySelectorAll(this.#cellSelector).forEach((cell) => {
+      cell.textContent = "";
+      cell.setAttribute("tabindex", "-1");
+      cell.removeAttribute("data-pathogen--data-grid-active");
+    });
+    return template;
   }
 
   #createPlaceholderRow(globalIndex) {
@@ -192,10 +190,7 @@ export class PaginatedVirtualRows {
       row.style.height = `${rowHeight}px`;
       row.style.minHeight = `${rowHeight}px`;
       row.querySelectorAll(this.#cellSelector).forEach((cell) => {
-        cell.textContent = "";
-        cell.setAttribute("tabindex", "-1");
         cell.setAttribute("data-pathogen--data-grid-row-index", String(dataRowIndex));
-        cell.removeAttribute("data-pathogen--data-grid-active");
       });
       return row;
     }

@@ -251,6 +251,20 @@ describe("page_cache", () => {
     expect(cache.getCachedRows().map((row) => row.dataset.pvcDataGridGlobalRowIndex)).toEqual(["0", "20", "40"]);
   });
 
+  it("reports changed row elements while preserving an unchanged retained row", () => {
+    const cache = new PageCache();
+    const originalRow = document.createElement("div");
+    const replacementRow = document.createElement("div");
+
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(true);
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(false);
+    expect(cache.storeRows(new Map([[0, replacementRow]]), 0)).toBe(false);
+    expect(cache.getRow(0)).toBe(originalRow);
+
+    expect(cache.storeRows(new Map([[0, replacementRow]]))).toBe(true);
+    expect(cache.getRow(0)).toBe(replacementRow);
+  });
+
   it("preserves the initial row offset in the pagination contract", () => {
     const grid = document.createElement("div");
     grid.dataset.pvcDataGridTotalCount = "5000";

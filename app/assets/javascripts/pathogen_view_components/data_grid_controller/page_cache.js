@@ -77,12 +77,16 @@ export class PageCache {
   }
 
   storeRows(rows, retainedRowIndex = null) {
+    let changed = false;
     rows.forEach((row, globalIndex) => {
       const retainedRow = globalIndex === retainedRowIndex ? this.#rowsByIndex.get(globalIndex) : null;
       if (retainedRow && retainedRow.getAttribute("aria-busy") !== "true") return;
+      if (this.#rowsByIndex.get(globalIndex) === row) return;
 
       this.#rowsByIndex.set(globalIndex, row);
+      changed = true;
     });
+    return changed;
   }
 
   hasAllRowsForPage(page, pageSize, totalRows) {
@@ -97,14 +101,7 @@ export class PageCache {
     return true;
   }
 
-  isPageWithinRange(page, pageSize, totalRows) {
-    const start = (page - 1) * pageSize;
-    return start < totalRows;
-  }
-
   needsPage(page, pageSize, totalRows) {
-    if (!this.isPageWithinRange(page, pageSize, totalRows)) return false;
-
     return this.hasAllRowsForPage(page, pageSize, totalRows) === false;
   }
 
@@ -119,13 +116,16 @@ export class PageCache {
   evictOutsideRange(startIndex, endIndex, bufferRows, totalRows, retainedRowIndex = null) {
     const retainStart = Math.max(0, startIndex - bufferRows);
     const retainEnd = Math.min(totalRows, endIndex + bufferRows);
+    let changed = false;
 
     this.#rowsByIndex.forEach((_, globalIndex) => {
       if (globalIndex === retainedRowIndex) return;
 
       if (globalIndex < retainStart || globalIndex >= retainEnd) {
         this.#rowsByIndex.delete(globalIndex);
+        changed = true;
       }
     });
+    return changed;
   }
 }
