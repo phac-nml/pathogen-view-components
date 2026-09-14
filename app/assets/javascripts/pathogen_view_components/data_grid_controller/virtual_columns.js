@@ -14,6 +14,11 @@ export class CenterColumnWindow {
     this.#cache = new WeakMap();
   }
 
+  restore(row) {
+    const centerLane = row?.querySelector('[data-pvc-data-grid-lane="center"]');
+    if (centerLane) centerLane.replaceChildren(...this.#centerLaneCells(centerLane));
+  }
+
   allCellsForRow(row) {
     if (!row) return [];
 
@@ -34,7 +39,7 @@ export class CenterColumnWindow {
     return cells;
   }
 
-  apply(row, columnRange) {
+  apply(row, columnRange, retainedCell = null) {
     if (!row || !columnRange) return;
 
     const centerLane = row.querySelector('[data-pvc-data-grid-lane="center"]');
@@ -52,12 +57,25 @@ export class CenterColumnWindow {
       const centerTrack = columnIndex - pinnedCount + 1;
       if (centerTrack > 0) cell.style.gridColumn = `${centerTrack}`;
 
-      if (columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex) {
+      if (cell === retainedCell || (columnIndex >= columnRange.startIndex && columnIndex < columnRange.endIndex)) {
         visibleCells.push(cell);
       }
     });
 
-    centerLane.replaceChildren(...visibleCells);
+    if (!retainedCell || retainedCell.parentElement !== centerLane) {
+      centerLane.replaceChildren(...visibleCells);
+      return;
+    }
+
+    // Keep a focused cell connected while replacing the surrounding columns.
+    Array.from(centerLane.childNodes).forEach((node) => {
+      if (node !== retainedCell) node.remove();
+    });
+    let nextCell = retainedCell;
+    visibleCells.forEach((cell) => {
+      if (cell === nextCell) nextCell = cell.nextSibling;
+      else centerLane.insertBefore(cell, nextCell);
+    });
   }
 
   #centerLaneCells(centerLane) {

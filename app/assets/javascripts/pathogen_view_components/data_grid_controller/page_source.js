@@ -45,6 +45,7 @@ export class PaginatedRowSource {
   #origin;
   #parseRows;
   #prefetchPages;
+  #retainedRowIndex;
   #searchParams;
   #totalRows;
   #url;
@@ -56,6 +57,7 @@ export class PaginatedRowSource {
     totalRows,
     searchParams = null,
     prefetchPages = DEFAULT_PREFETCH_PAGES,
+    retainedRowIndex = () => null,
     cache = new PageCache(),
     fetchFn = (...args) => fetch(...args),
     origin = window.location.origin,
@@ -66,6 +68,7 @@ export class PaginatedRowSource {
     this.#origin = origin;
     this.#parseRows = rowParser;
     this.#prefetchPages = prefetchPages;
+    this.#retainedRowIndex = retainedRowIndex;
     this.#searchParams = new URLSearchParams(searchParams || undefined);
     this.#totalRows = totalRows;
     this.#url = url;
@@ -106,7 +109,7 @@ export class PaginatedRowSource {
     // range's offset from a page boundary so every prefetched page is kept whole.
     const prefetchBuffer = (this.#prefetchPages + 1) * this.#pageSize;
     const retainRows = Math.max(bufferRows, prefetchBuffer);
-    this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows);
+    this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows, this.#retainedRowIndex());
   }
 
   missingPagesForRange(startIndex, endIndex) {
@@ -183,12 +186,14 @@ export class PaginatedRowSource {
       }
 
       const payload = await response.json();
+      if (signal?.aborted) return { rows: new Map(), aborted: true };
+
       const rows = this.#parseRows(payload);
-      this.#cache.storeRows(rows);
+      this.#cache.storeRows(rows, this.#retainedRowIndex());
 
       return { rows, aborted: false };
     } catch (error) {
-      if (error.name === "AbortError") {
+      if (signal?.aborted || error.name === "AbortError") {
         return { rows: new Map(), aborted: true };
       }
 

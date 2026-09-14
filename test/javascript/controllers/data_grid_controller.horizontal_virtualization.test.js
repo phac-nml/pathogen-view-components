@@ -184,6 +184,39 @@ describe("data_grid_controller horizontal virtualization", () => {
     };
   };
 
+  it("restores all rows and columns after disconnect and reconnect", async () => {
+    await mountGrid();
+    const root = document.querySelector('[data-controller="pathogen--data-grid"]');
+    root.remove();
+    await flush();
+    document.body.append(root);
+    await flush();
+
+    expect(root.querySelector(".pvc-data-grid__spacer").style.height).toBe("1200px");
+    const firstCell = root.querySelector('[role="gridcell"]');
+    firstCell.focus();
+    firstCell.dispatchEvent(
+      new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "End", ctrlKey: true }),
+    );
+    expect(document.activeElement.textContent.trim()).toBe("R30-C3");
+  });
+
+  it("stops pending renders before Turbo takes a complete snapshot", async () => {
+    vi.useFakeTimers();
+    const { scrollContainer } = await mountGrid();
+    scrollContainer.scrollTop = 800;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    window.dispatchEvent(new Event("resize"));
+    document.dispatchEvent(new Event("turbo:before-cache"));
+    await vi.advanceTimersByTimeAsync(180);
+    const snapshot = document.querySelector('[data-controller="pathogen--data-grid"]').cloneNode(true);
+    const rows = snapshot.querySelectorAll('[role="row"]');
+    expect(rows).toHaveLength(31);
+    rows.forEach((row) => expect(row.querySelectorAll('[data-pathogen--data-grid-target="cell"]')).toHaveLength(4));
+    expect(snapshot.hasAttribute("data-virtual-ready")).toBe(false);
+    vi.useRealTimers();
+  });
+
   it("keeps center-window slicing bounded while pinned lane cells remain mounted", async () => {
     const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback();

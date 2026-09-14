@@ -2118,6 +2118,74 @@ describe("data_grid_controller (virtual mode)", () => {
     rafSpy.mockRestore();
   });
 
+  it("keeps loading cells and refetches after reconnecting with an empty page cache", async () => {
+    vi.useFakeTimers();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(
+      (_url, { signal }) =>
+        new Promise((_resolve, reject) => {
+          signal.addEventListener("abort", () => reject(new DOMException("Aborted", "AbortError")));
+        }),
+    );
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 1000, seedRows: 20 });
+    const root = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const scroll = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scroll, "clientHeight", { configurable: true, value: 200 });
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await vi.advanceTimersByTimeAsync(20);
+    scroll.scrollTop = 20000;
+    scroll.dispatchEvent(new Event("scroll"));
+    await vi.advanceTimersByTimeAsync(180);
+    const requestsBeforeReconnect = fetchSpy.mock.calls.length;
+
+    root.remove();
+    await flush();
+    document.body.append(root);
+    await vi.advanceTimersByTimeAsync(30);
+
+    expect(root.querySelector('[role="row"][aria-busy="true"] [role="gridcell"]')).not.toBeNull();
+    expect(root.querySelectorAll('[role="gridcell"][tabindex="0"]')).toHaveLength(1);
+    expect(fetchSpy.mock.calls.length).toBeGreaterThan(requestsBeforeReconnect);
+    vi.useRealTimers();
+  });
+
+  it("fetches newly visible pages after the viewport grows", async () => {
+    vi.useFakeTimers();
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
+      const page = Number(new URL(url).searchParams.get("page"));
+      const rowIndex = page - 1;
+      return {
+        ok: true,
+        json: async () => ({
+          rows: [
+            {
+              index: rowIndex,
+              html: `<div role="row" data-pvc-data-grid-global-row-index="${rowIndex}" style="height:40px"><div role="gridcell" tabindex="-1" data-pathogen--data-grid-target="cell" data-pathogen--data-grid-row-index="${page}" data-pathogen--data-grid-column-index="0">Row ${page}</div></div>`,
+            },
+          ],
+        }),
+      };
+    });
+    document.body.innerHTML = virtualPaginatedGridHTML({ totalRows: 100, seedRows: 1 }).replace(
+      'data-pvc-data-grid-page-size="20"',
+      'data-pvc-data-grid-page-size="1"',
+    );
+    const scroll = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    Object.defineProperty(scroll, "clientHeight", { configurable: true, value: 200 });
+    application = Application.start();
+    application.register("pathogen--data-grid", DataGridController);
+    await vi.advanceTimersByTimeAsync(30);
+    const previousRequests = fetchSpy.mock.calls.length;
+
+    Object.defineProperty(scroll, "clientHeight", { configurable: true, value: 800 });
+    window.dispatchEvent(new Event("resize"));
+    await vi.advanceTimersByTimeAsync(180);
+
+    expect(fetchSpy.mock.calls.length).toBeGreaterThan(previousRequests);
+    expect(document.querySelector('[role="row"][aria-busy="true"]')).toBeNull();
+    vi.useRealTimers();
+  });
+
   it("updates row measurements on debounced resize", async () => {
     vi.useFakeTimers();
     const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
