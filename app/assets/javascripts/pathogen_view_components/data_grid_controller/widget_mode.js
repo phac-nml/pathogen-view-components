@@ -39,11 +39,11 @@ function isAvailableWidget(element) {
   if (element.matches(":disabled") || element.closest("[hidden], [inert]")) return false;
 
   const view = element.ownerDocument.defaultView;
-  const visibility = view.getComputedStyle(element).visibility;
-  if (visibility === "hidden" || visibility === "collapse") return false;
+  const elementStyle = view.getComputedStyle(element);
+  if (elementStyle.visibility === "hidden" || elementStyle.visibility === "collapse") return false;
 
   for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
-    const style = view.getComputedStyle(ancestor);
+    const style = ancestor === element ? elementStyle : view.getComputedStyle(ancestor);
     if (style.display === "none" || style.contentVisibility === "hidden") return false;
     if (ancestor.matches("details:not([open])")) {
       const summary = ancestor.querySelector(":scope > summary");
@@ -84,9 +84,9 @@ export function resolveInteractiveTarget(target, cell) {
  * All other interactive elements in the cell get tabindex="-1".
  * @param {HTMLElement} cell
  * @param {HTMLElement} targetElement
+ * @param {HTMLElement[]} [elements] - Available widgets already checked for this interaction
  */
-export function activateInteractiveElement(cell, targetElement) {
-  const elements = interactiveElements(cell);
+export function activateInteractiveElement(cell, targetElement, elements = interactiveElements(cell)) {
   if (!elements.includes(targetElement)) return;
 
   cell.tabIndex = -1;
@@ -100,10 +100,10 @@ export function activateInteractiveElement(cell, targetElement) {
  * @param {HTMLElement} cell
  * @param {HTMLElement|null} targetElement  - specific element to focus, or null for first
  * @param {function} onVisible  - called after focus to ensure the cell is scrolled into view
+ * @param {HTMLElement[]} [elements] - Available widgets already checked for this interaction
  * @returns {boolean} Whether focus moved to the requested widget
  */
-export function focusInteractiveElement(cell, targetElement, onVisible) {
-  const elements = interactiveElements(cell);
+export function focusInteractiveElement(cell, targetElement, onVisible, elements = interactiveElements(cell)) {
   if (elements.length === 0) return false;
 
   const next = targetElement && elements.includes(targetElement) ? targetElement : elements[0];
@@ -111,7 +111,7 @@ export function focusInteractiveElement(cell, targetElement, onVisible) {
   next.focus({ preventScroll: true });
   if (next.ownerDocument.activeElement !== next) return false;
 
-  activateInteractiveElement(cell, next);
+  activateInteractiveElement(cell, next, elements);
   onVisible?.(cell);
   return true;
 }
@@ -159,9 +159,10 @@ export function handleInteractiveKeydown(event, activeCell, { exitWidgetMode, mo
 export function handleTab(event, activeCell, { moveToInteractiveCell }) {
   if (!hasInteractiveElements(activeCell)) return;
 
-  const elements = interactiveElements(activeCell);
-
   const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
+  if (!focused || !activeCell.contains(focused)) return;
+
+  const elements = interactiveElements(activeCell);
   const activeIndex = elements.indexOf(focused);
 
   // Only act when an interactive element already has focus (widget mode).
@@ -171,7 +172,7 @@ export function handleTab(event, activeCell, { moveToInteractiveCell }) {
   if (event.shiftKey) {
     if (activeIndex > 0) {
       const previous = elements[activeIndex - 1];
-      if (focusInteractiveElement(activeCell, previous)) event.preventDefault();
+      if (focusInteractiveElement(activeCell, previous, null, elements)) event.preventDefault();
       return;
     }
 
@@ -183,7 +184,7 @@ export function handleTab(event, activeCell, { moveToInteractiveCell }) {
 
   if (activeIndex < elements.length - 1) {
     const next = elements[activeIndex + 1];
-    if (focusInteractiveElement(activeCell, next)) event.preventDefault();
+    if (focusInteractiveElement(activeCell, next, null, elements)) event.preventDefault();
     return;
   }
 
@@ -203,19 +204,21 @@ export function handleWidgetArrow(event, activeCell) {
   if (event.altKey || event.ctrlKey || event.metaKey) return;
   if (!hasInteractiveElements(activeCell)) return;
 
+  const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
+  if (!focused || !activeCell.contains(focused) || consumesArrowKeys(focused)) return;
+
   const elements = interactiveElements(activeCell);
   if (elements.length < 2) return;
 
-  const focused = event.target instanceof HTMLElement ? event.target.closest(INTERACTIVE_SELECTOR) : null;
   const activeIndex = elements.indexOf(focused);
-  if (activeIndex < 0 || consumesArrowKeys(focused)) return;
+  if (activeIndex < 0) return;
 
   const direction = WIDGET_NEXT_KEYS.has(event.key) ? 1 : -1;
   const nextIndex = activeIndex + direction;
   if (nextIndex < 0 || nextIndex >= elements.length) return;
 
   const next = elements[nextIndex];
-  if (focusInteractiveElement(activeCell, next)) event.preventDefault();
+  if (focusInteractiveElement(activeCell, next, null, elements)) event.preventDefault();
 }
 
 function consumesArrowKeys(element) {
