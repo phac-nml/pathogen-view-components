@@ -5,7 +5,7 @@
 // descendant. Escape returns focus to the cell. Tab cycles between multiple
 // interactive elements within the cell while in widget mode.
 
-const INTERACTIVE_SELECTOR = "a, button, input, select, textarea";
+const INTERACTIVE_SELECTOR = 'a[href], button, input:not([type="hidden"]), select, textarea';
 const WIDGET_NEXT_KEYS = new Set(["ArrowRight", "ArrowDown"]);
 const WIDGET_PREVIOUS_KEYS = new Set(["ArrowLeft", "ArrowUp"]);
 const ARROW_CONSUMING_INPUT_TYPES = new Set([
@@ -16,6 +16,7 @@ const ARROW_CONSUMING_INPUT_TYPES = new Set([
   "month",
   "number",
   "password",
+  "radio",
   "range",
   "search",
   "tel",
@@ -26,12 +27,31 @@ const ARROW_CONSUMING_INPUT_TYPES = new Set([
 ]);
 
 /**
- * Returns all interactive descendants of a cell.
+ * Returns interactive descendants that can receive focus in widget mode.
  * @param {HTMLElement} cell
  * @returns {HTMLElement[]}
  */
 export function interactiveElements(cell) {
-  return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR));
+  return Array.from(cell.querySelectorAll(INTERACTIVE_SELECTOR)).filter(isAvailableWidget);
+}
+
+function isAvailableWidget(element) {
+  if (element.matches(":disabled") || element.closest("[hidden], [inert]")) return false;
+
+  const view = element.ownerDocument.defaultView;
+  const visibility = view.getComputedStyle(element).visibility;
+  if (visibility === "hidden" || visibility === "collapse") return false;
+
+  for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+    const style = view.getComputedStyle(ancestor);
+    if (style.display === "none" || style.contentVisibility === "hidden") return false;
+    if (ancestor.matches("details:not([open])")) {
+      const summary = ancestor.querySelector(":scope > summary");
+      if (!summary?.contains(element)) return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -56,7 +76,7 @@ export function resolveInteractiveTarget(target, cell) {
   const match = target.closest(INTERACTIVE_SELECTOR);
   if (!match) return null;
 
-  return cell.contains(match) ? match : null;
+  return cell.contains(match) && isAvailableWidget(match) ? match : null;
 }
 
 /**
@@ -67,7 +87,7 @@ export function resolveInteractiveTarget(target, cell) {
  */
 export function activateInteractiveElement(cell, targetElement) {
   const elements = interactiveElements(cell);
-  if (elements.length === 0 || !targetElement) return;
+  if (!elements.includes(targetElement)) return;
 
   cell.tabIndex = -1;
   elements.forEach((el) => {
@@ -80,16 +100,20 @@ export function activateInteractiveElement(cell, targetElement) {
  * @param {HTMLElement} cell
  * @param {HTMLElement|null} targetElement  - specific element to focus, or null for first
  * @param {function} onVisible  - called after focus to ensure the cell is scrolled into view
+ * @returns {boolean} Whether focus moved to the requested widget
  */
 export function focusInteractiveElement(cell, targetElement, onVisible) {
   const elements = interactiveElements(cell);
-  if (elements.length === 0) return;
+  if (elements.length === 0) return false;
 
   const next = targetElement && elements.includes(targetElement) ? targetElement : elements[0];
 
-  activateInteractiveElement(cell, next);
   next.focus({ preventScroll: true });
+  if (next.ownerDocument.activeElement !== next) return false;
+
+  activateInteractiveElement(cell, next);
   onVisible?.(cell);
+  return true;
 }
 
 /**
@@ -106,8 +130,8 @@ export function focusInteractiveElement(cell, targetElement, onVisible) {
  */
 export function handleInteractiveKeydown(event, activeCell, { exitWidgetMode, moveToInteractiveCell }) {
   if (event.key === "Escape") {
-    event.preventDefault();
     exitWidgetMode(activeCell);
+    if (activeCell.ownerDocument.activeElement === activeCell) event.preventDefault();
     return;
   }
 
@@ -146,10 +170,8 @@ export function handleTab(event, activeCell, { moveToInteractiveCell }) {
 
   if (event.shiftKey) {
     if (activeIndex > 0) {
-      event.preventDefault();
       const previous = elements[activeIndex - 1];
-      activateInteractiveElement(activeCell, previous);
-      previous.focus({ preventScroll: true });
+      if (focusInteractiveElement(activeCell, previous)) event.preventDefault();
       return;
     }
 
@@ -160,10 +182,8 @@ export function handleTab(event, activeCell, { moveToInteractiveCell }) {
   }
 
   if (activeIndex < elements.length - 1) {
-    event.preventDefault();
     const next = elements[activeIndex + 1];
-    activateInteractiveElement(activeCell, next);
-    next.focus({ preventScroll: true });
+    if (focusInteractiveElement(activeCell, next)) event.preventDefault();
     return;
   }
 
@@ -194,10 +214,8 @@ export function handleWidgetArrow(event, activeCell) {
   const nextIndex = activeIndex + direction;
   if (nextIndex < 0 || nextIndex >= elements.length) return;
 
-  event.preventDefault();
   const next = elements[nextIndex];
-  activateInteractiveElement(activeCell, next);
-  next.focus({ preventScroll: true });
+  if (focusInteractiveElement(activeCell, next)) event.preventDefault();
 }
 
 function consumesArrowKeys(element) {

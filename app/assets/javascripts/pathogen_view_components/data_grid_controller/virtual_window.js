@@ -53,39 +53,55 @@ export function renderVirtualWindow({
     columnEnd: columnRange ? columnRange.endIndex : -1,
   });
 
-  const spacer = viewport.querySelector(".pvc-data-grid__spacer");
   const pendingFocus = getPendingFocusCoordinate?.() ?? null;
   const focusedCell = pendingFocus ? null : resolveCell(document.activeElement);
   const focusedRowIndex = pendingFocus?.rowIndex ?? (focusedCell ? rowIndexOf(focusedCell) : null);
   const focusedColumnIndex = pendingFocus?.columnIndex ?? (focusedCell ? columnIndexOf(focusedCell) : null);
   const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
+  const focusedRow = focusedCell?.closest('[role="row"]');
   let didRestoreCellFocus = false;
 
-  viewport.querySelectorAll('[role="row"]').forEach((row) => row.remove());
+  viewport.querySelectorAll('[role="row"]').forEach((row) => {
+    if (row !== focusedRow) row.remove();
+  });
 
-  const fragment = document.createDocumentFragment();
+  const renderedRows = [];
   for (let globalIndex = startIndex; globalIndex < endIndex; globalIndex += 1) {
     const row = rowSource.rowAt(globalIndex);
     if (!row) continue;
 
     row.style.top = `${globalIndex * rowHeight}px`;
-    applyColumnWindow(row, columnRange);
-    fragment.appendChild(row);
+    applyColumnWindow(row, columnRange, focusedCell);
+    renderedRows.push(row);
   }
 
-  if (spacer) {
-    spacer.after(fragment);
-  } else {
-    viewport.appendChild(fragment);
+  if (focusedRow && viewport.contains(focusedRow) && !renderedRows.includes(focusedRow)) {
+    const globalIndex = focusedRowIndex - 1;
+    if (globalIndex < startIndex || globalIndex >= endIndex) {
+      applyColumnWindow(focusedRow, columnRange, focusedCell);
+      if (globalIndex < startIndex) renderedRows.unshift(focusedRow);
+      else renderedRows.push(focusedRow);
+    } else {
+      // A loaded row can replace a focused loading placeholder.
+      focusedRow.remove();
+    }
   }
 
-  applyColumnWindow(headerRow(), columnRange);
+  let nextNode = focusedRow?.parentElement === viewport ? focusedRow : null;
+  renderedRows.forEach((row) => {
+    if (row === nextNode) nextNode = row.nextSibling;
+    else viewport.insertBefore(row, nextNode);
+  });
+
+  applyColumnWindow(headerRow(), columnRange, focusedCell);
 
   if (shouldRestoreCellFocus) {
     const mappedCell = resolveFocusCell(focusedRowIndex, focusedColumnIndex);
     if (mappedCell && mappedCell.isConnected) {
-      setActiveCell(mappedCell);
-      mappedCell.focus({ preventScroll: true });
+      if (!mappedCell.contains(document.activeElement)) {
+        setActiveCell(mappedCell);
+        mappedCell.focus({ preventScroll: true });
+      }
       didRestoreCellFocus = true;
     }
   }
