@@ -199,7 +199,46 @@ describe("data_grid_controller focus restore", () => {
     return { scrollContainer };
   };
 
-  it("restores focus across virtual rerender cascades and requires Enter/F2 to re-enter widgets", async () => {
+  it("keeps the focused row and column mounted outside the visible window", async () => {
+    vi.useFakeTimers();
+    const { scrollContainer } = await mountGrid();
+    const cell = document.querySelector(
+      '[data-pathogen--data-grid-row-index="1"][data-pathogen--data-grid-column-index="1"]',
+    );
+    cell.focus();
+    scrollContainer.scrollTop = 1200;
+    scrollContainer.scrollLeft = 400;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await vi.advanceTimersByTimeAsync(20);
+
+    expect(document.activeElement).toBe(cell);
+    expect(cell.isConnected).toBe(true);
+    expect(scrollContainer.scrollTop).toBe(1200);
+    expect(scrollContainer.scrollLeft).toBe(400);
+    const rows = document.querySelectorAll('[data-pathogen--data-grid-target="viewport"] [role="row"]');
+    expect(rows.length).toBeLessThanOrEqual(26);
+    expect(document.querySelectorAll('[tabindex="0"]')).toHaveLength(1);
+  });
+
+  it("does not move focus from another grid during a virtual render", async () => {
+    vi.useFakeTimers();
+    const { scrollContainer } = await mountGrid();
+    const otherCell = document.createElement("div");
+    otherCell.tabIndex = 0;
+    otherCell.setAttribute("data-pathogen--data-grid-target", "cell");
+    otherCell.setAttribute("data-pathogen--data-grid-row-index", "1");
+    otherCell.setAttribute("data-pathogen--data-grid-column-index", "0");
+    document.body.append(otherCell);
+    otherCell.focus();
+
+    scrollContainer.scrollLeft = 400;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await vi.advanceTimersByTimeAsync(20);
+
+    expect(document.activeElement).toBe(otherCell);
+  });
+
+  it("keeps widget focus across horizontal scrolling and resize", async () => {
     vi.useFakeTimers();
     const rafSpy = vi.spyOn(window, "requestAnimationFrame").mockImplementation((callback) => {
       callback();
@@ -226,12 +265,11 @@ describe("data_grid_controller focus restore", () => {
       vi.advanceTimersByTime(120);
       await flush();
 
-      expect(document.activeElement).toBe(interactiveCell);
-      expect(link.tabIndex).toBe(-1);
-
-      dispatchKey(interactiveCell, "F2");
       expect(document.activeElement).toBe(link);
       expect(link.tabIndex).toBe(0);
+
+      dispatchKey(link, "Escape");
+      expect(document.activeElement).toBe(interactiveCell);
     } finally {
       rafSpy.mockRestore();
     }

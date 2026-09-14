@@ -7,11 +7,14 @@ export class PaginatedVirtualRows {
   #placeholderTemplate;
   #fetchAbort = null;
   #activeFetches = new Set();
+  #failedPages = new Set();
   #fetchTimerId = null;
+  #disconnected = false;
   #scrolling = false;
   #cellSelector;
   #rowHeight;
   #visibleRange;
+  #renderedRange = null;
   #onRowsChanged;
   #onVisibleRowsChanged;
   #setBusy;
@@ -23,6 +26,7 @@ export class PaginatedVirtualRows {
     cellSelector,
     rowHeight,
     visibleRange,
+    retainedRowIndex = () => null,
     onRowsChanged,
     onVisibleRowsChanged,
     setBusy,
@@ -33,6 +37,7 @@ export class PaginatedVirtualRows {
       pageSize: contract.pageSize,
       totalRows: contract.totalRows,
       searchParams: contract.searchParams,
+      retainedRowIndex,
     });
     this.#source.seedFromRows(rows);
     this.#placeholderTemplate = rows[0]?.cloneNode(true) ?? null;
@@ -62,10 +67,13 @@ export class PaginatedVirtualRows {
   }
 
   afterRender(startIndex, endIndex, bufferRows) {
-    this.#source.evictOutsideRange(startIndex, endIndex, bufferRows);
+    this.#renderedRange = { startIndex, endIndex, bufferRows };
+    this.#evictRows();
   }
 
   handleScroll() {
+    if (this.#disconnected) return;
+
     this.#scrolling = true;
     this.#scheduleScrollSettledFetch();
   }
@@ -88,7 +96,7 @@ export class PaginatedVirtualRows {
   }
 
   flushRange(startIndex, endIndex) {
-    if (startIndex < 0 || endIndex <= startIndex) return;
+    if (this.#disconnected || startIndex < 0 || endIndex <= startIndex) return;
 
     const missingPages = this.#source.missingPagesForRange(startIndex, endIndex);
     if (missingPages.length === 0) return;
@@ -106,9 +114,11 @@ export class PaginatedVirtualRows {
 
       request
         .then((result) => {
-          if (result.aborted) return;
+          if (this.#disconnected || result.aborted) return;
 
-          this.#onRowsChanged();
+          this.#failedPages.delete(page);
+          this.#evictRows();
+          this.#onRowsChanged({ hasPageErrors: this.#failedPages.size > 0 });
 
           const pageStart = (page - 1) * this.pageSize;
           const pageEnd = pageStart + this.pageSize;
@@ -118,10 +128,14 @@ export class PaginatedVirtualRows {
           if (overlapsVisible) this.#onVisibleRowsChanged();
         })
         .catch((error) => {
-          if (error.name === "AbortError") return;
+          if (this.#disconnected || error.name === "AbortError") return;
+
+          this.#failedPages.add(page);
           this.#handleError(error);
         })
         .finally(() => {
+          if (this.#disconnected) return;
+
           this.#activeFetches.delete(request);
           this.#setBusy(this.#activeFetches.size > 0);
         });
@@ -129,6 +143,9 @@ export class PaginatedVirtualRows {
   }
 
   disconnect() {
+    if (this.#disconnected) return;
+
+    this.#disconnected = true;
     if (this.#fetchAbort) this.#fetchAbort.abort();
     this.#fetchAbort = null;
     if (this.#fetchTimerId) clearTimeout(this.#fetchTimerId);
@@ -136,6 +153,14 @@ export class PaginatedVirtualRows {
     this.#scrolling = false;
     this.#activeFetches.clear();
     this.#setBusy(false);
+  }
+
+  #evictRows() {
+    if (!this.#renderedRange) return;
+
+    // Controller range indexes may be invalid while the next render is scheduled.
+    const { startIndex, endIndex, bufferRows } = this.#renderedRange;
+    this.#source.evictOutsideRange(startIndex, endIndex, bufferRows);
   }
 
   #scheduleScrollSettledFetch() {

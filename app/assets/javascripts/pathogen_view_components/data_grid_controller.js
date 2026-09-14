@@ -15,6 +15,7 @@ import {
   focusInteractiveElement,
   handleInteractiveKeydown,
   hasInteractiveElements,
+  interactiveElements,
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
@@ -79,6 +80,7 @@ export default class extends Controller {
   #visibleColumnStartIndex = -1;
   #visibleColumnEndIndex = -1;
   #rafId = null;
+  #fetchAfterRender = false;
   #resizeTimerId = null;
   #virtualColumnWidths = [];
   #virtualColumnOffsets = [];
@@ -120,12 +122,18 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.#teardown();
+  }
+
+  #teardown() {
     this.#abortController?.abort();
     this.#abortController = null;
     if (this.#rafId) cancelAnimationFrame(this.#rafId);
     this.#rafId = null;
+    this.#fetchAfterRender = false;
     if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
     this.#resizeTimerId = null;
+    this.#restoreVirtualContent();
     this.#allRowElements = null;
     this.#virtualAllCells = null;
     this.#virtualColumnWidths = [];
@@ -134,6 +142,8 @@ export default class extends Controller {
     this.#virtualPinnedWidth = 0;
     this.#virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
     this.#virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
+    this.#visibleStartIndex = -1;
+    this.#visibleEndIndex = -1;
     this.#visibleColumnStartIndex = -1;
     this.#visibleColumnEndIndex = -1;
     this.#centerColumnWindow.reset();
@@ -141,6 +151,7 @@ export default class extends Controller {
     this.#pagination?.disconnect();
     this.#pagination = null;
     this.#pendingFocusCoordinate = null;
+    this.#lastActiveCell = null;
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
@@ -205,8 +216,9 @@ export default class extends Controller {
     }
 
     if (hasInteractiveElements(activeCell) && ENTER_WIDGET_MODE_KEYS.has(event.key)) {
-      event.preventDefault();
-      focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell));
+      if (focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell))) {
+        event.preventDefault();
+      }
       return;
     }
 
@@ -371,7 +383,7 @@ export default class extends Controller {
     let index = startIndex + direction;
     while (index >= 0 && index < cells.length) {
       const candidate = cells[index];
-      if (hasInteractiveElements(candidate)) {
+      if (hasInteractiveElements(candidate) && interactiveElements(candidate).length > 0) {
         const rowIndex = rowIndexOf(candidate);
         const columnIndex = columnIndexOf(candidate);
         this.#focusCell(candidate);
@@ -386,12 +398,12 @@ export default class extends Controller {
           continue;
         }
 
-        focusInteractiveElement(
+        const focused = focusInteractiveElement(
           focusCandidate,
           direction < 0 ? this.#lastInteractiveElement(focusCandidate) : null,
           (activeCandidate) => this.#scrollCellIntoView(activeCandidate),
         );
-        return true;
+        if (focused) return true;
       }
       index += direction;
     }
@@ -419,7 +431,8 @@ export default class extends Controller {
 
   #resolveCell(target) {
     if (!(target instanceof HTMLElement)) return null;
-    return target.closest(CELL_SELECTOR);
+    const cell = target.closest(CELL_SELECTOR);
+    return cell && this.element.contains(cell) ? cell : null;
   }
 
   #setActiveCell(cell) {
@@ -535,11 +548,11 @@ export default class extends Controller {
   }
 
   #lastInteractiveElement(cell) {
-    const interactiveElements = cell.querySelectorAll("a, button, input, select, textarea");
-    return interactiveElements[interactiveElements.length - 1] || null;
+    return interactiveElements(cell).at(-1) || null;
   }
 
   #bindEvents(signal) {
+    document.addEventListener("turbo:before-cache", () => this.#teardown(), { signal });
     this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
       signal,
       capture: true,
@@ -613,6 +626,27 @@ export default class extends Controller {
     return this.hasViewportTarget;
   }
 
+  #restoreVirtualContent() {
+    if (!this.#isVirtual()) return;
+
+    let rows = this.#pagination ? this.#pagination.getCachedRows() : this.#allRowElements;
+    if (!rows) return;
+    if (rows.length === 0 && this.#pagination) {
+      // Preserve loading-row shape and height when every cached page was evicted.
+      rows = Array.from(this.viewportTarget.querySelectorAll('[role="row"]'));
+    }
+
+    this.#centerColumnWindow.restore(this.#virtualHeaderRow());
+    const fragment = document.createDocumentFragment();
+    rows.forEach((row) => {
+      this.#centerColumnWindow.restore(row);
+      fragment.appendChild(row);
+    });
+    this.viewportTarget.querySelectorAll('[role="row"]').forEach((row) => row.remove());
+    this.viewportTarget.appendChild(fragment);
+    this.element.removeAttribute("data-virtual-ready");
+  }
+
   #isPaginatedVirtual() {
     if (!this.hasGridTarget) return false;
 
@@ -677,10 +711,15 @@ export default class extends Controller {
       cellSelector: CELL_SELECTOR,
       rowHeight: () => this.#rowHeight,
       visibleRange: () => ({ startIndex: this.#visibleStartIndex, endIndex: this.#visibleEndIndex }),
-      onRowsChanged: () => {
+      retainedRowIndex: () => {
+        const cell = this.#resolveCell(document.activeElement);
+        const index = cell ? rowIndexOf(cell) : null;
+        return index === null || index < 1 ? null : index - 1;
+      },
+      onRowsChanged: ({ hasPageErrors }) => {
         this.#updateVirtualAllCellsFromCache();
         this.#invalidateCellCaches();
-        this.#hideErrorState();
+        if (!hasPageErrors) this.#hideErrorState();
         this.#restorePendingFocus();
       },
       onVisibleRowsChanged: () => {
@@ -736,16 +775,20 @@ export default class extends Controller {
       this.#resizeTimerId = null;
       this.#refreshVirtualMeasurements();
       this.#syncScrollAffordance();
-      this.#scheduleVirtualRender();
+      this.#scheduleVirtualRender(true);
     }, RESIZE_DEBOUNCE_MS);
   }
 
-  #scheduleVirtualRender() {
+  #scheduleVirtualRender(fetchPages = false) {
+    this.#fetchAfterRender ||= fetchPages;
     if (this.#rafId) return;
     this.#rafId = requestAnimationFrame(() => {
       this.#rafId = null;
+      const shouldFetch = this.#fetchAfterRender;
+      this.#fetchAfterRender = false;
       try {
         this.#renderVisibleRows();
+        if (shouldFetch) this.#flushPageFetches(this.#visibleStartIndex, this.#visibleEndIndex);
       } catch (error) {
         this.#reportError(error);
       }
@@ -790,7 +833,8 @@ export default class extends Controller {
         this.#visibleColumnEndIndex = columnEnd;
       },
       computeColumnRange: () => this.#computeVisibleColumnRange(),
-      applyColumnWindow: (row, columnRange) => this.#centerColumnWindow.apply(row, columnRange),
+      applyColumnWindow: (row, columnRange, retainedCell) =>
+        this.#centerColumnWindow.apply(row, columnRange, retainedCell),
       headerRow: () => this.#virtualHeaderRow(),
       resolveCell: (target) => this.#resolveCell(target),
       resolveFocusCell: (rowIndex, columnIndex) => this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex),
