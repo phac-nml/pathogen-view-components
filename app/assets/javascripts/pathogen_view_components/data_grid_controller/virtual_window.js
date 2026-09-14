@@ -17,13 +17,14 @@ export function renderVirtualWindow({
   computeColumnRange,
   applyColumnWindow,
   headerRow,
+  onCellsChanged,
   resolveCell,
   resolveFocusCell,
   getPendingFocusCoordinate,
   setActiveCell,
   ensureFocusableCell,
 }) {
-  if (!rowSource) return;
+  if (!rowSource) return false;
 
   const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
   const containerHeight = scrollContainer ? scrollContainer.clientHeight : 0;
@@ -44,7 +45,7 @@ export function renderVirtualWindow({
     (columnRange !== null &&
       columnRange.startIndex === currentRange.columnStart &&
       columnRange.endIndex === currentRange.columnEnd);
-  if (rowRangeUnchanged && columnRangeUnchanged) return;
+  if (rowRangeUnchanged && columnRangeUnchanged) return false;
 
   setCurrentRange({
     rowStart: startIndex,
@@ -61,16 +62,13 @@ export function renderVirtualWindow({
   const focusedRow = focusedCell?.closest('[role="row"]');
   let didRestoreCellFocus = false;
 
-  viewport.querySelectorAll('[role="row"]').forEach((row) => {
-    if (row !== focusedRow) row.remove();
-  });
-
   const renderedRows = [];
   for (let globalIndex = startIndex; globalIndex < endIndex; globalIndex += 1) {
     const row = rowSource.rowAt(globalIndex);
     if (!row) continue;
 
-    row.style.top = `${globalIndex * rowHeight}px`;
+    const top = `${globalIndex * rowHeight}px`;
+    if (row.style.top !== top) row.style.top = top;
     applyColumnWindow(row, columnRange, focusedCell);
     renderedRows.push(row);
   }
@@ -81,19 +79,22 @@ export function renderVirtualWindow({
       applyColumnWindow(focusedRow, columnRange, focusedCell);
       if (globalIndex < startIndex) renderedRows.unshift(focusedRow);
       else renderedRows.push(focusedRow);
-    } else {
-      // A loaded row can replace a focused loading placeholder.
-      focusedRow.remove();
     }
   }
 
-  let nextNode = focusedRow?.parentElement === viewport ? focusedRow : null;
+  const desiredRows = new Set(renderedRows);
+  Array.from(viewport.children).forEach((row) => {
+    if (row.matches('[role="row"]') && !desiredRows.has(row)) row.remove();
+  });
+  const spacer = viewport.querySelector(".pvc-data-grid__spacer");
+  let nextNode = spacer ? spacer.nextElementSibling : viewport.firstElementChild;
   renderedRows.forEach((row) => {
-    if (row === nextNode) nextNode = row.nextSibling;
+    if (row === nextNode) nextNode = row.nextElementSibling;
     else viewport.insertBefore(row, nextNode);
   });
 
   applyColumnWindow(headerRow(), columnRange, focusedCell);
+  onCellsChanged?.();
 
   if (shouldRestoreCellFocus) {
     const mappedCell = resolveFocusCell(focusedRowIndex, focusedColumnIndex);
@@ -109,6 +110,7 @@ export function renderVirtualWindow({
   if (!didRestoreCellFocus && !pendingFocus) ensureFocusableCell();
 
   rowSource.afterRender?.(startIndex, endIndex, rowOverscan * 2);
+  return true;
 }
 
 export function ensureVirtualCellVisible({
