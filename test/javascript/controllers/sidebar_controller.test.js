@@ -94,8 +94,6 @@ describe("sidebar_controller", () => {
   let application;
 
   beforeEach(() => {
-    document.documentElement.removeAttribute("data-pathogen-sidebar-open");
-    document.documentElement.removeAttribute("data-pathogen-sidebar-viewport");
     document.body.removeAttribute("style");
     window.localStorage.clear();
     HTMLDialogElement.prototype.showModal = vi.fn(function showModal() {
@@ -126,7 +124,6 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
-    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("desktop");
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(trigger.getAttribute("aria-label")).toBe("Collapse sidebar");
   });
@@ -140,7 +137,6 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("rail");
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
-    expect(document.documentElement.getAttribute("data-pathogen-sidebar-open")).toBe("false");
   });
 
   it("keeps the configured desktop state when localStorage is inaccessible", async () => {
@@ -194,7 +190,6 @@ describe("sidebar_controller", () => {
     const { provider, dialog, panel, closeButton, trigger, inset, nav } = appendSidebar({ open: true });
     await waitForController();
 
-    expect(document.documentElement.getAttribute("data-pathogen-sidebar-viewport")).toBe("mobile");
     expect(dialog.open).toBe(false);
     expect(panel.parentElement).toBe(dialog);
 
@@ -303,6 +298,20 @@ describe("sidebar_controller", () => {
     expect(trigger.getAttribute("aria-controls")).toBe(dialog.id);
   });
 
+  it("moves focus to the provider when no external trigger exists", async () => {
+    const media = setupMatchMedia({ matches: true });
+    const { provider, panel, nav } = appendSidebar({ open: true });
+    panel.append(provider.querySelector('[data-pathogen--sidebar-target="trigger"]'));
+    await waitForController();
+
+    nav.querySelector("a").focus();
+    media.setMatches(false);
+    await waitForController();
+
+    expect(provider.getAttribute("tabindex")).toBe("-1");
+    expect(document.activeElement).toBe(provider);
+  });
+
   it("cleans global modal state when the controller disconnects", async () => {
     setupMatchMedia({ matches: false });
     const outside = document.createElement("button");
@@ -368,6 +377,16 @@ describe("sidebar_controller", () => {
     expect(first.dialog.open).toBe(false);
     expect(second.dialog.open).toBe(true);
     expect(second.trigger.getAttribute("aria-controls")).toBe(second.dialog.id);
+  });
+
+  it("keeps independent desktop state for multiple sidebars", async () => {
+    setupMatchMedia({ matches: true });
+    const first = appendSidebar({ id: "first-sidebar", open: true });
+    const second = appendSidebar({ id: "second-sidebar", open: false });
+    await waitForController();
+
+    expect(first.provider.dataset.pathogenSidebarMode).toBe("expanded");
+    expect(second.provider.dataset.pathogenSidebarMode).toBe("rail");
   });
 
   it("passes axe scans in desktop expanded, desktop rail, mobile closed, and mobile open states", async () => {

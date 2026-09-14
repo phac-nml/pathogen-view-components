@@ -62,8 +62,9 @@ module Pathogen
       html = helper.pathogen_sidebar_boot_tag(id: 'lab-sidebar')
 
       assert_includes html, 'pathogen.sidebar.lab-sidebar.open'
-      assert_includes html, 'data-pathogen-sidebar-open'
-      assert_includes html, 'data-pathogen-sidebar-viewport'
+      assert_includes html, 'data-pathogen-sidebar-id'
+      assert_includes html, 'data-pathogen-sidebar-boot-open'
+      assert_includes html, 'data-pathogen-sidebar-boot-viewport'
       assert_includes html, '(min-width: 80rem)'
     end
 

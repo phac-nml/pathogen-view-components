@@ -8,6 +8,7 @@ module Pathogen
       render_inline(Pathogen::Sidebar::Provider.new(id: 'lab-sidebar')) { 'Provider content' }
 
       assert_selector 'div.pathogen-sidebar-provider[data-controller~="pathogen--sidebar"]'
+      assert_selector 'div[data-pathogen-sidebar-id="lab-sidebar"]'
       assert_selector 'div[data-pathogen--sidebar-storage-key-value="pathogen.sidebar.lab-sidebar.open"]'
       assert_no_selector '.pathogen-sidebar-overlay', visible: :all
       assert_no_selector '[data-pathogen--sidebar-target="liveRegion"]', visible: :all
