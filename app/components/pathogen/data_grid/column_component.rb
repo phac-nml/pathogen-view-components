@@ -37,6 +37,12 @@ module Pathogen
       'left' => nil
     }.freeze
 
+    COLUMN_OWNED_ATTRIBUTES = %i[
+      aria-colindex aria-sort data-sticky-cell data-pvc-data-grid-virtual-col-index
+      data-pathogen--data-grid-target data-pathogen--data-grid-row-index
+      data-pathogen--data-grid-column-index data-pathogen--data-grid-has-interactive
+    ].freeze
+
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
     class ColumnComponent < Pathogen::Component
       attr_accessor :sticky, :sticky_left
@@ -54,7 +60,7 @@ module Pathogen
         @sticky_left = sticky_left
         @header_content = header_content
         @interactive = interactive
-        @system_arguments = system_arguments
+        @system_arguments = system_arguments.symbolize_keys
         @renderer = renderer || (block ? ->(row, index) { block.call(row, index) } : nil)
       end
 
@@ -112,16 +118,23 @@ module Pathogen
       # rubocop:disable-next Metrics/ParameterLists
       def attributes_for(header:, row_index:, column_index:, aria_column_index:, active: false, interactive: false,
                          virtual_column_index: nil)
-        attributes = {
+        attributes = @system_arguments.except(*COLUMN_OWNED_ATTRIBUTES).merge(
           class: class_names(*cell_classes(header:)),
           data: cell_data_attributes(row_index:, column_index:, interactive:),
           role: cell_role(header:),
           style: cell_styles,
-          tabindex: cell_tabindex(header:, active:)
-        }
-        attributes[:aria] = { colindex: aria_column_index } unless aria_column_index.nil?
+          tabindex: cell_tabindex(header:, active:),
+          aria: cell_aria_attributes(header:, aria_column_index:)
+        )
         attributes['data-pvc-data-grid-virtual-col-index'] = virtual_column_index unless virtual_column_index.nil?
         attributes
+      end
+
+      def cell_aria_attributes(header:, aria_column_index:)
+        attributes = (@system_arguments[:aria] || {}).symbolize_keys.except(:colindex)
+        attributes[:sort] ||= @system_arguments[:'aria-sort'] if @system_arguments.key?(:'aria-sort')
+        attributes.delete(:sort) unless header
+        attributes.merge(aria_column_index.nil? ? {} : { colindex: aria_column_index })
       end
 
       # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -143,9 +156,9 @@ module Pathogen
       end
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
-        data_attributes = @system_arguments[:data]&.dup || {}
-        existing_targets = data_attributes.delete(:'pathogen--data-grid-target') ||
-                           data_attributes.delete('pathogen--data-grid-target')
+        data_attributes = (@system_arguments[:data] || {}).transform_keys { |key| key.to_s.dasherize.to_sym }
+                                                          .except(:'sticky-cell', :'pvc-data-grid-virtual-col-index')
+        existing_targets = data_attributes.delete(:'pathogen--data-grid-target')
         merged_targets = [existing_targets, 'cell'].compact.join(' ').split.uniq.join(' ')
 
         out = data_attributes.merge(
@@ -162,6 +175,7 @@ module Pathogen
 
       def cell_styles
         styles = []
+        styles << "#{@system_arguments[:style].to_s.delete_suffix(';')};" if @system_arguments[:style].present?
         styles << "--pvc-data-grid-col-width: #{@width};" if @width
         styles << "--pvc-data-grid-sticky-left: #{sticky_left_value};" if @sticky
         styles.join(' ')
@@ -171,11 +185,7 @@ module Pathogen
         @sticky_left.is_a?(Numeric) ? "#{@sticky_left}px" : @sticky_left
       end
 
-      def cell_tabindex(header:, active:)
-        return -1 if header
-
-        active ? 0 : -1
-      end
+      def cell_tabindex(header:, active:) = !header && active ? 0 : -1
 
       def value_for(row, index)
         return row[index] if row.is_a?(Array)

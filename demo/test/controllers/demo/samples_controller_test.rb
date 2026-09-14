@@ -67,5 +67,13 @@ module Demo
       assert_operator payload.dig('pagy', 'count'), :<, Demo::SampleDataset::COUNT
       assert(payload.fetch('rows').all? { |row| row.fetch('html').include?('North Basin') })
     end
+
+    test 'rows returns zero-count metadata when a filter matches nothing' do
+      get rows_demo_samples_path, params: { page: 1, limit: 20, name_cont: 'No matching sample' }, as: :json
+
+      assert_response :success
+      assert_equal 0, response.parsed_body.dig('pagy', 'count')
+      assert_equal [], response.parsed_body.fetch('rows')
+    end
   end
 end

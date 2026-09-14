@@ -137,7 +137,9 @@ module Pathogen
     #   (numeric values become "px"; strings allow CSS units);
     #   can enable sticky without width.
     # @param header_content [String, Proc, nil] Custom header content to replace the label.
-    # @param system_arguments [Hash] Additional HTML attributes for the cell.
+    # @param system_arguments [Hash] Additional HTML attributes for header and body cells.
+    #   Grid roles, focus targets, and row/column indexes are managed internally.
+    #   `aria: { sort: ... }` applies to header cells only.
     # @yieldparam row [Hash, Array, Object] Row data for the current cell.
     # @yieldparam index [Integer] Column index.
     # @return [Pathogen::DataGrid::ColumnComponent]
@@ -373,9 +375,17 @@ module Pathogen
       apply_fill_container_class!
       apply_dense_class!
       apply_virtual_class!
-      apply_column_defaults!
+      prepare_columns!
       apply_responsive_sticky_class!
       apply_data_grid_controller!
+    end
+
+    # @private Shared by full-grid and standalone row rendering.
+    def prepare_columns!
+      return if @columns_prepared
+
+      apply_column_defaults!
+      @columns_prepared = true
     end
 
     private
@@ -384,7 +394,7 @@ module Pathogen
       return nil if config.nil?
 
       values = virtual_pagination_values(config)
-      total_count = positive_virtual_pagination_integer!(values, :total_count)
+      total_count = virtual_pagination_total_count!(values)
       rows_url = virtual_pagination_rows_url!(values)
       page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
       row_offset = virtual_pagination_row_offset!(values)
@@ -405,6 +415,13 @@ module Pathogen
       return value if value.positive?
 
       raise ArgumentError, "virtual_pagination requires a positive #{key}"
+    end
+
+    def virtual_pagination_total_count!(values)
+      total_count = Integer(virtual_pagination_value(values, :total_count).to_s, 10, exception: false)
+      return total_count if total_count && !total_count.negative?
+
+      raise ArgumentError, 'virtual_pagination requires a non-negative total_count'
     end
 
     def virtual_pagination_rows_url!(values)
