@@ -83,6 +83,10 @@ export class PaginatedRowSource {
     return this.#pageSize;
   }
 
+  get isFetching() {
+    return this.#inFlight.size > 0;
+  }
+
   seedFromRows(rows) {
     this.#cache.seedFromRows(rows);
   }
@@ -109,7 +113,7 @@ export class PaginatedRowSource {
     // range's offset from a page boundary so every prefetched page is kept whole.
     const prefetchBuffer = (this.#prefetchPages + 1) * this.#pageSize;
     const retainRows = Math.max(bufferRows, prefetchBuffer);
-    this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows, this.#retainedRowIndex());
+    return this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows, this.#retainedRowIndex());
   }
 
   missingPagesForRange(startIndex, endIndex) {
@@ -134,23 +138,18 @@ export class PaginatedRowSource {
   }
 
   async fetchPage(page, { signal } = {}) {
-    const cacheKey = this.#generateCacheKey(page);
-    if (this.#inFlight.has(cacheKey)) return this.#inFlight.get(cacheKey);
+    if (this.#inFlight.has(page)) return this.#inFlight.get(page);
 
     const request = this.#requestPage(page, signal).finally(() => {
-      this.#inFlight.delete(cacheKey);
+      this.#inFlight.delete(page);
     });
 
-    this.#inFlight.set(cacheKey, request);
+    this.#inFlight.set(page, request);
     return request;
   }
 
-  #generateCacheKey(page) {
-    return `${page}:${this.#pageSize}`;
-  }
-
   #needsPage(page) {
-    if (this.#inFlight.has(this.#generateCacheKey(page))) return false;
+    if (this.#inFlight.has(page)) return false;
 
     return this.#cache.needsPage(page, this.#pageSize, this.#totalRows);
   }
@@ -189,9 +188,9 @@ export class PaginatedRowSource {
       if (signal?.aborted) return { rows: new Map(), aborted: true };
 
       const rows = this.#parseRows(payload);
-      this.#cache.storeRows(rows, this.#retainedRowIndex());
+      const cacheChanged = this.#cache.storeRows(rows, this.#retainedRowIndex());
 
-      return { rows, aborted: false };
+      return { rows, aborted: false, cacheChanged };
     } catch (error) {
       if (signal?.aborted || error.name === "AbortError") {
         return { rows: new Map(), aborted: true };
