@@ -145,6 +145,55 @@ describe("scrollTopForRow", () => {
 });
 
 describe("computeVisibleColumnRange", () => {
+  it.each([
+    [0, 300, 0, 1, 3],
+    [120, 300, 0, 2, 4],
+    [119.5, 300, 0, 1, 4],
+    [260, 300, 0, 3, 5],
+    [260, 300, 1, 2, 5],
+    [1000, 300, 0, 4, 5],
+    [120, 80, 0, 2, 3],
+    [-100, 300, 0, 1, 3],
+  ])(
+    "uses precomputed offsets at scroll %s, viewport %s, and overscan %s",
+    (scrollLeft, viewportWidth, overscan, startIndex, endIndex) => {
+      expect(
+        computeVisibleColumnRange({
+          scrollLeft,
+          viewportWidth,
+          columnWidths: Object.freeze([100, 120, 140, 160, 180]),
+          columnOffsets: Object.freeze([0, 100, 220, 360, 520]),
+          pinnedCount: 1,
+          pinnedWidth: 100,
+          overscan,
+        }),
+      ).toEqual({ startIndex, endIndex, pinnedCount: 1 });
+    },
+  );
+
+  it("reuses precomputed positions without scanning every column width", () => {
+    let widthReads = 0;
+    const columnWidths = new Proxy(Array(1000).fill(100), {
+      get(target, key) {
+        if (/^\d+$/.test(String(key))) widthReads += 1;
+        return target[key];
+      },
+    });
+
+    const result = computeVisibleColumnRange({
+      scrollLeft: 50_000,
+      viewportWidth: 800,
+      columnWidths,
+      columnOffsets: Array.from({ length: 1000 }, (_, index) => index * 100),
+      pinnedCount: 2,
+      pinnedWidth: 200,
+      overscan: 0,
+    });
+
+    expect(result).toEqual({ startIndex: 502, endIndex: 508, pinnedCount: 2 });
+    expect(widthReads).toBeLessThan(50);
+  });
+
   it("computes center-lane range from scrollLeft and pinned width", () => {
     const result = computeVisibleColumnRange({
       scrollLeft: 50,
