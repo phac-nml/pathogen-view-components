@@ -75,21 +75,51 @@ module Pathogen
     private
 
     def pathogen_sidebar_boot_script(sidebar_id, breakpoint)
-      storage_key = Pathogen::Sidebar.storage_key(sidebar_id)
-
       <<~JS.squish
         (function() {
-          var breakpoint = #{breakpoint.to_json};
-          var desktop = window.matchMedia(breakpoint).matches;
-          document.documentElement.setAttribute('data-pathogen-sidebar-viewport', desktop ? 'desktop' : 'mobile');
-          var value = 'true';
-          try {
-            var stored = window.localStorage.getItem(#{storage_key.to_json});
-            if (stored === 'false') value = 'false';
-            if (stored === 'true') value = 'true';
-          } catch (error) { value = 'true'; }
-          if (desktop) document.documentElement.setAttribute('data-pathogen-sidebar-open', value);
+          #{sidebar_boot_configuration(sidebar_id, breakpoint)}
+          #{sidebar_boot_observer(sidebar_id)}
         })();
+      JS
+    end
+
+    def sidebar_boot_configuration(sidebar_id, breakpoint)
+      storage_key = Pathogen::Sidebar.storage_key(sidebar_id)
+
+      <<~JS
+        const desktop = window.matchMedia(#{breakpoint.to_json}).matches;
+        let value = 'true';
+        try {
+          const stored = window.localStorage.getItem(#{storage_key.to_json});
+          if (stored === 'false') value = 'false';
+          if (stored === 'true') value = 'true';
+        } catch (error) { value = 'true'; }
+      JS
+    end
+
+    def sidebar_boot_observer(sidebar_id)
+      <<~JS
+        const applyState = function(root) {
+          const sidebars = root.matches && root.matches('[data-pathogen-sidebar-id]')
+            ? [root]
+            : root.querySelectorAll('[data-pathogen-sidebar-id]');
+          sidebars.forEach(function(sidebar) {
+            if (sidebar.getAttribute('data-pathogen-sidebar-id') !== #{sidebar_id.to_json}) return;
+            sidebar.setAttribute('data-pathogen-sidebar-boot-open', desktop ? value : 'false');
+            sidebar.setAttribute('data-pathogen-sidebar-boot-viewport', desktop ? 'desktop' : 'mobile');
+          });
+        };
+
+        applyState(document);
+        const observer = new MutationObserver(function(records) {
+          records.forEach(function(record) {
+            record.addedNodes.forEach(function(node) {
+              if (node.nodeType === Node.ELEMENT_NODE) applyState(node);
+            });
+          });
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener('DOMContentLoaded', function() { observer.disconnect(); }, { once: true });
       JS
     end
 

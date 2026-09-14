@@ -2029,12 +2029,11 @@ input[role="switch"]:disabled ~ label {
   bottom: 4px;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"],
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"] {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"],
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
   [data-pathogen-sidebar-label="true"] {
   position: absolute;
   width: 1px;
@@ -2058,11 +2057,11 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   padding-inline: 0.25rem;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"],
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider > .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   position: fixed;
   inset-block: 0;
@@ -2084,8 +2083,9 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider > .path
   width: 100%;
   min-height: 100%;
 }
-html[data-pathogen-sidebar-viewport="mobile"]
-  .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"][data-pathogen-sidebar-boot-open="true"]
+  > .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   .pathogen-sidebar-dialog {
@@ -2094,7 +2094,7 @@ html[data-pathogen-sidebar-viewport="mobile"]
   transform: translateX(0);
   transition-delay: 0s;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-dialog__close,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar-dialog__close,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog__close {
   position: absolute;
   inset-block-start: 0.5rem;
@@ -2102,21 +2102,22 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-dialog__close,
   z-index: 1;
   display: inline-flex;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-trigger,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-trigger,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-trigger {
   display: none;
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-header,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-header,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-header {
   min-height: 3.75rem;
   padding-inline-end: 3.5rem;
 }
-html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider > .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] > .pathogen-sidebar-panel,
 :dir(rtl) .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   transform: translateX(100%);
 }
-html:dir(rtl)[data-pathogen-sidebar-viewport="mobile"]
-  .pathogen-sidebar-provider[data-pathogen-sidebar-open="true"]
+.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"][data-pathogen-sidebar-boot-open="true"]
+  > .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   > .pathogen-sidebar-panel,
 :dir(rtl)
   .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]

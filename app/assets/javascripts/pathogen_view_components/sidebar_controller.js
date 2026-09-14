@@ -184,8 +184,10 @@ export default class SidebarController extends Controller {
 
     this.syncDialogState({ desktop, visibleOpen });
 
-    this.syncHtmlOpenData();
     this.syncTriggerAttributes({ desktop, visibleOpen });
+
+    this.element.removeAttribute("data-pathogen-sidebar-boot-open");
+    this.element.removeAttribute("data-pathogen-sidebar-boot-viewport");
 
     if (shouldPersist && desktop) {
       this.persistDesktopPreference();
@@ -265,11 +267,6 @@ export default class SidebarController extends Controller {
     this.dialogTarget.removeAttribute("aria-labelledby");
   }
 
-  syncHtmlOpenData() {
-    document.documentElement.setAttribute("data-pathogen-sidebar-open", String(this.openValue));
-    document.documentElement.setAttribute("data-pathogen-sidebar-viewport", this.isDesktop() ? "desktop" : "mobile");
-  }
-
   syncTriggerAttributes({ desktop, visibleOpen }) {
     const label = this.currentTriggerLabel({ desktop, visibleOpen });
     const controlledElement = desktop ? this.panelTarget : this.dialogTarget;
@@ -322,7 +319,15 @@ export default class SidebarController extends Controller {
 
   focusAvailableExternalTrigger() {
     const trigger = this.triggerTargets.find((candidate) => !this.dialogTarget?.contains(candidate));
-    trigger?.focus();
+    if (trigger) {
+      trigger.focus();
+      return;
+    }
+
+    if (!this.element.hasAttribute("tabindex")) {
+      this.element.setAttribute("tabindex", "-1");
+    }
+    this.element.focus({ preventScroll: true });
   }
 
   focusFirstSidebarItem() {

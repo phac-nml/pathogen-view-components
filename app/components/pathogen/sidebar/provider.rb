@@ -52,6 +52,7 @@ module Pathogen
           .merge(incoming)
           .merge(
             'controller' => merged_controllers(incoming),
+            'pathogen-sidebar-id' => @id,
             'pathogen--sidebar-open-value' => @open,
             'pathogen--sidebar-storage-key-value' => Pathogen::Sidebar.storage_key(@id)
           )
