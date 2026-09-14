@@ -88,3 +88,23 @@ jobs:
 
       - name: Test
         run: bin/test
+
+  demo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+          working-directory: demo
+
+      - name: Test the Pagy rows endpoint
+        working-directory: demo
+        env:
+          PARALLEL_WORKERS: 4
+        run: bin/rails test test/controllers/demo/samples_controller_test.rb
