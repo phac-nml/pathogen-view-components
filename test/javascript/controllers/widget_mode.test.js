@@ -22,6 +22,50 @@ function dispatchKey(cell, target, key, options = {}, callbacks = {}) {
 }
 
 describe("data_grid_controller/widget_mode", () => {
+  it("checks available widgets once when entering widget mode", () => {
+    const cell = renderCell('<button tabindex="-1">Open</button><button tabindex="-1">Edit</button>');
+    const query = vi.spyOn(cell, "querySelectorAll");
+
+    expect(focusInteractiveElement(cell, null)).toBe(true);
+    expect(document.activeElement.textContent).toBe("Open");
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(["Tab", "ArrowRight"])("checks available widgets once during %s traversal", (key) => {
+    const cell = renderCell('<button tabindex="-1">Open</button><button tabindex="-1">Edit</button>');
+    const first = cell.querySelector("button");
+    focusInteractiveElement(cell, first);
+    const query = vi.spyOn(cell, "querySelectorAll");
+
+    const event = dispatchKey(cell, first, key);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(document.activeElement.textContent).toBe("Edit");
+    expect(query).toHaveBeenCalledTimes(1);
+  });
+
+  it("rechecks changed disabled and hidden states on the next interaction", () => {
+    const cell = renderCell(`
+      <button id="first" tabindex="-1">Open</button>
+      <button id="second" disabled tabindex="-1">Edit</button>
+      <button id="third" hidden tabindex="-1">Save</button>
+    `);
+    const first = cell.querySelector("#first");
+    const second = cell.querySelector("#second");
+    const third = cell.querySelector("#third");
+    focusInteractiveElement(cell, first);
+
+    second.disabled = false;
+    expect(dispatchKey(cell, first, "Tab").defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(second);
+
+    focusInteractiveElement(cell, first);
+    second.style.display = "none";
+    third.hidden = false;
+    expect(dispatchKey(cell, first, "Tab").defaultPrevented).toBe(true);
+    expect(document.activeElement).toBe(third);
+  });
+
   it.each([
     ["disabled button", "<button disabled>Unavailable</button>"],
     ["disabled fieldset", "<fieldset disabled><button>Unavailable</button></fieldset>"],
@@ -148,11 +192,13 @@ describe("data_grid_controller/widget_mode", () => {
     const cell = renderCell(`<input type="${type}" tabindex="-1"><button tabindex="-1">Apply</button>`);
     const input = cell.querySelector("input");
     focusInteractiveElement(cell, input);
+    const query = vi.spyOn(cell, "querySelectorAll");
 
     const event = dispatchKey(cell, input, "ArrowRight");
 
     expect(event.defaultPrevented).toBe(false);
     expect(document.activeElement).toBe(input);
+    expect(query).not.toHaveBeenCalled();
   });
 
   it("only consumes Escape after focus returns to the cell", () => {
