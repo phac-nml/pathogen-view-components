@@ -59,6 +59,7 @@ describe("paginated virtual rows", () => {
   let pagination;
 
   afterEach(async () => {
+    vi.useRealTimers();
     pagination?.disconnect();
     document.body.innerHTML = "";
     await settle();
@@ -75,6 +76,7 @@ describe("paginated virtual rows", () => {
       cellSelector,
       rowHeight: () => 40,
       visibleRange: () => ({ startIndex: 0, endIndex: 20 }),
+      onCacheChanged: vi.fn(),
       onRowsChanged: vi.fn(),
       onVisibleRowsChanged: vi.fn(),
       setBusy: vi.fn(),
@@ -143,6 +145,102 @@ describe("paginated virtual rows", () => {
     await vi.waitFor(() => {
       expect(document.querySelector('[data-pvc-data-grid-global-row-index="60"]').textContent).toContain("Sample 61");
     });
+  });
+
+  it("invalidates cached cells synchronously when eviction removes a retained row", () => {
+    let retainedRowIndex = 2;
+    const onCacheChanged = vi.fn();
+    const rows = buildPagination({ retainedRowIndex: () => retainedRowIndex, onCacheChanged });
+    rows.afterRender(0, 20, 20);
+    expect(onCacheChanged).not.toHaveBeenCalled();
+
+    rows.afterRender(400, 420, 20);
+    expect(onCacheChanged).toHaveBeenCalledTimes(1);
+    expect(rows.getCachedRows()).toEqual([rows.rowAt(2)]);
+    rows.afterRender(400, 420, 20);
+    expect(onCacheChanged).toHaveBeenCalledTimes(1);
+
+    retainedRowIndex = null;
+    rows.afterRender(400, 420, 20);
+    expect(onCacheChanged).toHaveBeenCalledTimes(2);
+    expect(rows.getCachedRows()).toEqual([]);
+  });
+
+  it("invalidates each completed page before its consumer reads a lazily rebuilt cache", async () => {
+    const requests = mockPageRequests();
+    let cachedRows = null;
+    const onCacheChanged = vi.fn(() => {
+      cachedRows = null;
+    });
+    const onRowsChanged = vi.fn();
+    const rows = buildPagination({ onCacheChanged, onRowsChanged });
+    const getCachedRows = vi.spyOn(rows, "getCachedRows");
+    const readRows = () => (cachedRows ??= rows.getCachedRows());
+    expect(readRows()).toHaveLength(20);
+    rows.flushRange(0, 20);
+    completePage(requests, 2);
+    completePage(requests, 3);
+    await settle();
+
+    expect(onCacheChanged).toHaveBeenCalledTimes(2);
+    expect(onRowsChanged).toHaveBeenCalledTimes(2);
+    expect(getCachedRows).toHaveBeenCalledTimes(1);
+    expect(readRows()).toHaveLength(60);
+    expect(readRows()).toHaveLength(60);
+    expect(getCachedRows).toHaveBeenCalledTimes(2);
+    expect(onCacheChanged.mock.invocationCallOrder[0]).toBeLessThan(onRowsChanged.mock.invocationCallOrder[0]);
+  });
+
+  it("clones empty placeholder cells without repeatedly cloning their discarded widgets", () => {
+    const seededRow = seedRows(1)[0];
+    const cell = seededRow.querySelector(cellSelector);
+    cell.innerHTML = '<button><svg><path d="M0 0"></path></svg>Inspect</button>';
+    cell.setAttribute("data-pathogen--data-grid-active", "true");
+    const rows = buildPagination({ rows: [seededRow] });
+    const cloneNode = Node.prototype.cloneNode;
+    const clonedWidgetCounts = [];
+    vi.spyOn(Node.prototype, "cloneNode").mockImplementation(function (deep) {
+      clonedWidgetCounts.push(this.querySelectorAll("button, svg, path").length);
+      return cloneNode.call(this, deep);
+    });
+
+    const firstPlaceholder = rows.rowAt(20);
+    const secondPlaceholder = rows.rowAt(21);
+
+    expect(clonedWidgetCounts).toEqual([0, 0]);
+    expect(firstPlaceholder.getAttribute("aria-rowindex")).toBe("22");
+    expect(secondPlaceholder.querySelector(cellSelector).getAttribute("data-pathogen--data-grid-row-index")).toBe("22");
+    expect(firstPlaceholder.querySelector(cellSelector).tabIndex).toBe(-1);
+    expect(firstPlaceholder.querySelector(cellSelector).hasAttribute("data-pathogen--data-grid-active")).toBe(false);
+    expect(cell.querySelector("button")).not.toBeNull();
+  });
+
+  it("fetches once after scrolling settles even when a native scrollend follows", async () => {
+    vi.useFakeTimers();
+    mockPageRequests();
+    const rows = buildPagination({ visibleRange: () => ({ startIndex: 20, endIndex: 40 }) });
+    rows.handleScroll();
+    await vi.advanceTimersByTimeAsync(100);
+    rows.handleScroll();
+    await vi.advanceTimersByTimeAsync(149);
+    expect(fetch).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetch).toHaveBeenCalledTimes(3);
+    rows.handleScrollEnd();
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it("keeps busy state until the final in-flight page settles", async () => {
+    const requests = mockPageRequests();
+    const setBusy = vi.fn();
+    const rows = buildPagination({ setBusy });
+    rows.flushRange(0, 20);
+    completePage(requests, 2);
+    await settle();
+    expect(setBusy).toHaveBeenLastCalledWith(true);
+    completePage(requests, 3);
+    await settle();
+    expect(setBusy).toHaveBeenLastCalledWith(false);
   });
 
   it("evicts late responses using the current viewport without retaining the gap to a focused row", async () => {
