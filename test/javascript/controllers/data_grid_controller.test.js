@@ -84,6 +84,19 @@ describe("data_grid_controller", () => {
     expect(firstCell.getAttribute("data-pathogen--data-grid-active")).toBe("true");
   });
 
+  it("does not navigate the grid from an input outside a cell", () => {
+    const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
+    const search = document.createElement("input");
+    search.type = "search";
+    gridRoot.prepend(search);
+    search.focus();
+
+    const event = dispatchKey(search, "ArrowRight");
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(document.activeElement).toBe(search);
+  });
+
   it("shows the error state when a runtime error event is dispatched", () => {
     const gridRoot = document.querySelector('[data-controller="pathogen--data-grid"]');
     const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
