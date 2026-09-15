@@ -15,6 +15,7 @@ const waitForAnimationFrame = () =>
     requestAnimationFrame(() => resolve());
   });
 const flushAnnouncements = async () => {
+  await waitForAnimationFrame();
   await vi.advanceTimersByTimeAsync(ANNOUNCE_DEBOUNCE_MS);
   await waitForAnimationFrame();
   await waitForAnimationFrame();
@@ -26,6 +27,7 @@ const TOASTER_ACTIONS = [
   "focusin->pathogen--toaster#expand",
   "focusout->pathogen--toaster#collapseIfIdle",
   "pathogen:toast:announce->pathogen--toaster#announce",
+  "pathogen:toast:ready->pathogen--toaster#presentToast",
   "pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed",
 ].join(" ");
 
@@ -74,12 +76,22 @@ const buildConnectedToast = ({
   toast.setAttribute("data-pathogen--toast-mode-value", mode);
   toast.setAttribute("data-pathogen--toast-interrupt-value", String(interrupt));
   toast.setAttribute("data-pathogen--toast-dismiss-duration-value", "0");
-  toast.setAttribute("role", mode === "dialog" ? "dialog" : "listitem");
+  toast.setAttribute("data-pathogen--toast-dismissible-value", String(mode === "dialog"));
+  toast.setAttribute("role", "listitem");
+
+  const shell = document.createElement("div");
+  shell.setAttribute("data-pathogen--toast-target", "dialog");
+  if (mode === "dialog") {
+    shell.setAttribute("role", "dialog");
+    shell.setAttribute("aria-modal", "false");
+    shell.tabIndex = -1;
+  }
+  toast.appendChild(shell);
 
   const messageText = document.createElement("span");
   messageText.setAttribute("data-pathogen--toast-target", "message");
   messageText.textContent = message;
-  toast.appendChild(messageText);
+  shell.appendChild(messageText);
 
   return toast;
 };
@@ -94,6 +106,9 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   const more = document.createElement("button");
   more.type = "button";
   more.setAttribute("data-pathogen--toaster-target", "more");
+  more.setAttribute("data-action", "click->pathogen--toaster#expandFromControl");
+  more.setAttribute("aria-controls", "flashes");
+  more.setAttribute("aria-expanded", "false");
   more.dataset.template = "+%{count} more";
   more.hidden = true;
   section.appendChild(more);
@@ -346,6 +361,60 @@ describe("toaster_controller", () => {
     expect(list.style.getPropertyValue("--stack-height")).not.toBe("");
   });
 
+  it("keeps More visible and focused when keyboard focus and activation expand the stack", async () => {
+    const { section, list, more } = buildToaster({ maxVisible: 2, count: 4 });
+    for (const toast of list.children) {
+      toast.getBoundingClientRect = () => ({ width: 280, height: 72 });
+    }
+    await waitForController();
+    const collapsedLabel = more.textContent;
+
+    more.focus();
+
+    expect(section.dataset.expanded).toBe("true");
+    expect(more.hidden).toBe(false);
+    expect(document.activeElement).toBe(more);
+    expect(more.getAttribute("aria-expanded")).toBe("true");
+    expect(more.textContent).toBe(collapsedLabel);
+    for (const toast of list.children) {
+      expect(toast.hidden).toBe(false);
+      expect(toast.hasAttribute("inert")).toBe(false);
+    }
+
+    more.click();
+
+    expect(more.hidden).toBe(false);
+    expect(document.activeElement).toBe(more);
+  });
+
+  it("updates visibility, inert state and controls together when a dialog changes peek to flat", async () => {
+    const { section, list, more } = buildToaster({ maxVisible: 2, count: 3 });
+    for (const toast of list.children) {
+      toast.getBoundingClientRect = () => ({ width: 280, height: 72 });
+    }
+    await waitForController();
+    const [overflow, behind, front] = list.children;
+    expect(behind.getAttribute("aria-hidden")).toBe("true");
+    expect(behind.hasAttribute("inert")).toBe(true);
+
+    const dialog = buildToast({ text: "Action required", mode: "dialog", timeout: 0 });
+    list.appendChild(dialog);
+    await waitForController();
+    await waitForAnimationFrame();
+
+    expect(section.dataset.stack).toBe("flat");
+    expect(overflow.hidden).toBe(true);
+    for (const toast of [behind, front, dialog]) {
+      expect(toast.hidden).toBe(false);
+      expect(toast.hasAttribute("inert")).toBe(false);
+      expect(toast.getAttribute("aria-hidden")).toBe("false");
+      expect(toast.hasAttribute("data-behind")).toBe(false);
+      expect(toast.style.getPropertyValue("--toast-offset")).toBe("");
+    }
+    expect(more.textContent).toBe("+1 more");
+    expect(list.style.getPropertyValue("--front-height")).toBe("");
+  });
+
   it("marks peek-behind dismiss buttons as inert so they leave the tab order", async () => {
     const { list, section } = buildToaster({ maxVisible: 3, count: 0 });
     const measureBox = () => ({
@@ -527,6 +596,114 @@ describe("toaster_controller", () => {
     await waitForController();
     await flushAnnouncements();
     expect(polite.textContent).toBe("Success: Saved");
+  });
+
+  it("focuses only the first dialog in a batch and announces the remaining dialogs", async () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { list, polite } = buildToaster({ count: 0 });
+    const dialogs = ["First", "Second", "Third"].map((message) =>
+      buildConnectedToast({ message, mode: "dialog", type: "warning", typeLabel: "Warning", timeout: 0 }),
+    );
+    list.append(...dialogs);
+    await waitForController();
+    await waitForAnimationFrame();
+
+    expect(document.activeElement).toBe(dialogs[0].querySelector('[role="dialog"]'));
+    await flushAnnouncements();
+    expect(polite.textContent).toBe("Warning: Second. Warning: Third");
+    expect(document.activeElement).toBe(dialogs[0].querySelector('[role="dialog"]'));
+  });
+
+  it("presents existing toasts when controllers register into an already-running application", async () => {
+    application.stop();
+    application = new Application();
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { list, polite } = buildToaster({ count: 0 });
+    const dialog = buildConnectedToast({ message: "Review needed", mode: "dialog", timeout: 0 });
+    list.append(buildConnectedToast({ message: "Saved" }), dialog);
+
+    await application.start();
+    application.register("pathogen--toast", ToastController);
+    application.register("pathogen--toaster", ToasterController);
+    await flushAnnouncements();
+
+    expect(document.activeElement).toBe(dialog.querySelector('[role="dialog"]'));
+    expect(polite.textContent).toBe("Success: Saved");
+  });
+
+  it("presents pending toasts after toaster-only reconnect without replaying old dialogs", async () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { section, list, polite } = buildToaster({ count: 0 });
+    list.appendChild(buildConnectedToast({ message: "Old dialog", mode: "dialog", timeout: 0 }));
+    await waitForController();
+    await waitForAnimationFrame();
+
+    trigger.focus();
+    section.removeAttribute("data-controller");
+    await waitForController();
+    const pending = buildConnectedToast({ message: "New dialog", mode: "dialog", timeout: 0 });
+    list.appendChild(pending);
+    await waitForController();
+    section.setAttribute("data-controller", "pathogen--toaster");
+    await waitForController();
+    await flushAnnouncements();
+
+    expect(document.activeElement).toBe(pending.querySelector('[role="dialog"]'));
+    expect(polite.textContent).toBe("");
+  });
+
+  it("checks active text entry when the arrival frame runs", async () => {
+    const { list, polite } = buildToaster({ count: 0 });
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    list.appendChild(
+      buildConnectedToast({ message: "Review needed", mode: "dialog", typeLabel: "Warning", timeout: 0 }),
+    );
+    await waitForController();
+    input.focus();
+    await waitForAnimationFrame();
+    await flushAnnouncements();
+
+    expect(document.activeElement).toBe(input);
+    expect(polite.textContent).toBe("Warning: Review needed");
+  });
+
+  it("rechecks focus after an earlier announcement triggers a host focus change", async () => {
+    const { section, list, polite } = buildToaster({ count: 0 });
+    const input = document.createElement("input");
+    document.body.appendChild(input);
+    section.addEventListener("pathogen:toast:announce", () => input.focus(), { once: true });
+    list.append(
+      buildConnectedToast({ message: "Saved" }),
+      buildConnectedToast({ message: "Review needed", mode: "dialog", typeLabel: "Warning", timeout: 0 }),
+    );
+    await waitForController();
+    await flushAnnouncements();
+
+    expect(document.activeElement).toBe(input);
+    expect(polite.textContent).toBe("Success: Saved. Warning: Review needed");
+  });
+
+  it("cancels queued arrival presentation when the toaster disconnects", async () => {
+    const trigger = document.createElement("button");
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const { section, list, polite } = buildToaster({ count: 0 });
+    list.appendChild(buildConnectedToast({ message: "Review needed", mode: "dialog", timeout: 0 }));
+    await waitForController();
+    section.removeAttribute("data-controller");
+    await waitForController();
+    await waitForAnimationFrame();
+    await flushAnnouncements();
+
+    expect(document.activeElement).toBe(trigger);
+    expect(polite.textContent).toBe("");
   });
 
   it("does not live-announce dialog-mode error toasts", async () => {
