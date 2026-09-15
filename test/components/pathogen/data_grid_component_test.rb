@@ -69,6 +69,57 @@ module Pathogen
       assert_selector '.pvc-data-grid--fill > .pvc-data-grid__scroll'
     end
 
+    test 'renders canonical toolbar band and defaults toolbar controls to grid id' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      id: 'samples-grid',
+                      rows: [
+                        { id: 'S-061', name: 'Sample sixty-one' }
+                      ]
+                    )) do |grid|
+        grid.with_toolbar(label: 'Sample actions') do
+          ActionController::Base.helpers.tag.button(
+            'Select all',
+            type: 'button',
+            tabindex: -1,
+            data: { 'pathogen--toolbar-target': 'item' }
+          )
+        end
+        grid.with_toolbar_complement do
+          ActionController::Base.helpers.tag.input(type: 'search', id: 'grid-search')
+        end
+        grid.with_column('ID', key: :id, width: 120)
+        grid.with_column('Name', key: :name)
+      end
+
+      assert_selector '.pvc-data-grid.pvc-data-grid--with-toolbar'
+      assert_selector '.pvc-data-grid__toolbar-band'
+      assert_selector '.pvc-data-grid__toolbar-band [role="toolbar"][aria-controls="samples-grid"]'
+      assert_selector '.pvc-data-grid__toolbar-complement #grid-search[type="search"]'
+      assert_selector '.pvc-data-grid--with-toolbar > .pvc-data-grid__scroll.rounded-t-none'
+    end
+
+    test 'uses explicit toolbar controls when provided through data grid toolbar slot' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      id: 'samples-grid',
+                      rows: [
+                        { id: 'S-062', name: 'Sample sixty-two' }
+                      ]
+                    )) do |grid|
+        grid.with_toolbar(label: 'Sample actions', controls: 'selection-grid') do
+          ActionController::Base.helpers.tag.button(
+            'Select all',
+            type: 'button',
+            tabindex: -1,
+            data: { 'pathogen--toolbar-target': 'item' }
+          )
+        end
+        grid.with_column('ID', key: :id, width: 120)
+      end
+
+      assert_selector '.pvc-data-grid__toolbar-band [role="toolbar"][aria-controls="selection-grid"]'
+      assert_no_selector '.pvc-data-grid__toolbar-band [role="toolbar"][aria-controls="samples-grid"]'
+    end
+
     test 'uses default aria-label when no caption is provided' do
       render_inline(Pathogen::DataGridComponent.new(
                       sticky_columns: 0,

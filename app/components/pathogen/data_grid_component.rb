@@ -33,6 +33,7 @@ module Pathogen
   # rubocop:disable-next Metrics/ClassLength
   class DataGridComponent < Pathogen::Component
     include DataGrid::InteractiveContent
+    include Pathogen::StimulusDataMerge
 
     ROOT_CLASSES = %w[
       max-w-full rounded-[var(--pvc-radius-panel)] isolate [container-type:inline-size]
@@ -120,11 +121,39 @@ module Pathogen
       leading-[var(--pvc-data-grid-line-height)]
     ].freeze
 
+    TOOLBAR_BAND_CLASSES = %w[
+      grid grid-cols-1 items-center gap-2
+      border-b border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface-muted)] px-4 py-3
+    ].freeze
+
+    TOOLBAR_BAND_WITH_COMPLEMENT_CLASSES = %w[
+      sm:grid-cols-[minmax(0,1fr)_minmax(12rem,16rem)]
+    ].freeze
+
+    TOOLBAR_COMPLEMENT_CLASSES = %w[
+      min-w-0
+    ].freeze
+
     renders_one :empty_state
     renders_one :error_state
     renders_one :footer
     renders_one :live_region
     renders_one :metadata_warning
+    renders_one :toolbar, lambda { |label: nil, labelled_by: nil, controls: nil,
+                                   variant: Pathogen::ToolbarStyles::DEFAULT_VARIANT, **system_arguments, &block|
+      toolbar_controls = controls.presence || @system_arguments[:id]
+
+      Pathogen::Toolbar.new(
+        label:,
+        labelled_by:,
+        controls: toolbar_controls,
+        variant:,
+        **system_arguments,
+        &block
+      )
+    }
+    renders_one :toolbar_complement
 
     # Renders an individual column definition for the grid.
     #
@@ -283,8 +312,19 @@ module Pathogen
 
     def scroll_container_classes
       classes = ['pvc-data-grid__scroll', *SCROLL_CONTAINER_CLASSES]
+      classes << 'rounded-t-none' if toolbar?
       classes.concat(FILL_SCROLL_CLASSES) if @fill_container
       class_names(*classes)
+    end
+
+    def toolbar_band_classes
+      classes = ['pvc-data-grid__toolbar-band', *TOOLBAR_BAND_CLASSES]
+      classes.concat(TOOLBAR_BAND_WITH_COMPLEMENT_CLASSES) if toolbar_complement?
+      class_names(*classes)
+    end
+
+    def toolbar_complement_classes
+      class_names('pvc-data-grid__toolbar-complement', *TOOLBAR_COMPLEMENT_CLASSES)
     end
 
     def error_state_classes
@@ -376,6 +416,7 @@ module Pathogen
       apply_column_defaults!
       apply_responsive_sticky_class!
       apply_data_grid_controller!
+      apply_toolbar_class!
     end
 
     private
@@ -486,8 +527,11 @@ module Pathogen
 
     def apply_data_grid_controller!
       @system_arguments[:data] ||= {}
-      existing = @system_arguments[:data][:controller] || @system_arguments[:data]['controller']
-      @system_arguments[:data][:controller] = [existing, 'pathogen--data-grid'].compact.join(' ').split.uniq.join(' ')
+      merge_stimulus_data!(@system_arguments[:data], :controller, 'pathogen--data-grid')
+    end
+
+    def apply_toolbar_class!
+      append_component_class!('pvc-data-grid--with-toolbar') if toolbar?
     end
 
     def virtual_metadata_attributes
