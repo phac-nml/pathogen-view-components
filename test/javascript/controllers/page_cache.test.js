@@ -59,6 +59,22 @@ describe("page_cache", () => {
     expect(cache.needsPage(101, 50, 5000)).toBe(false);
   });
 
+  it("requests loading rows again when reconnecting from placeholder seeds", () => {
+    const placeholder = document.createElement("div");
+    placeholder.dataset.pvcDataGridGlobalRowIndex = "0";
+    placeholder.setAttribute("aria-busy", "true");
+    const loadedRow = document.createElement("div");
+    loadedRow.dataset.pvcDataGridGlobalRowIndex = "1";
+    const source = new PaginatedRowSource({ url: "/samples/rows.json", pageSize: 1, totalRows: 2 });
+
+    source.seedFromRows([placeholder, loadedRow]);
+
+    expect(source.needsRow(0)).toBe(true);
+    expect(source.getRow(0)).toBeNull();
+    expect(source.getRow(1)).toBe(loadedRow);
+    expect(source.missingPagesForRange(0, 1)).toEqual([1]);
+  });
+
   it("parses row HTML payloads by global index", () => {
     const rows = parseRows({
       rows: [
@@ -233,6 +249,20 @@ describe("page_cache", () => {
     });
 
     expect(cache.getCachedRows().map((row) => row.dataset.pvcDataGridGlobalRowIndex)).toEqual(["0", "20", "40"]);
+  });
+
+  it("reports changed row elements while preserving an unchanged retained row", () => {
+    const cache = new PageCache();
+    const originalRow = document.createElement("div");
+    const replacementRow = document.createElement("div");
+
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(true);
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(false);
+    expect(cache.storeRows(new Map([[0, replacementRow]]), 0)).toBe(false);
+    expect(cache.getRow(0)).toBe(originalRow);
+
+    expect(cache.storeRows(new Map([[0, replacementRow]]))).toBe(true);
+    expect(cache.getRow(0)).toBe(replacementRow);
   });
 
   it("preserves the initial row offset in the pagination contract", () => {

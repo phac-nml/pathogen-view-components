@@ -789,6 +789,41 @@ module Pathogen
       assert_equal 'virtual_pagination requires rows_url', error.message
     end
 
+    test 'virtual pagination renders the empty state for a zero total count' do
+      render_inline(Pathogen::DataGridComponent.new(
+                      virtual: true,
+                      virtual_pagination: { total_count: 0, rows_url: '/samples/rows.json' },
+                      rows: []
+                    )) do |grid|
+        grid.with_column('ID', key: :id)
+      end
+
+      assert_selector '.pvc-data-grid__empty-state-text'
+      assert_no_selector '[role="grid"]'
+    end
+
+    test 'virtual pagination accepts integer strings for total counts' do
+      grid = Pathogen::DataGridComponent.new(
+        virtual: true,
+        virtual_pagination: { total_count: '0', rows_url: '/samples/rows.json' },
+        rows: []
+      )
+
+      assert_equal 0, grid.virtual_total_count
+    end
+
+    test 'virtual pagination rejects missing negative and malformed total counts' do
+      [nil, -1, 'not-a-count', '3.5'].each do |total_count|
+        assert_raises(ArgumentError) do
+          Pathogen::DataGridComponent.new(
+            virtual: true,
+            virtual_pagination: { total_count: total_count, rows_url: '/samples/rows.json' },
+            rows: []
+          )
+        end
+      end
+    end
+
     test 'virtual pagination with row offset keeps global indexes on seed rows' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,

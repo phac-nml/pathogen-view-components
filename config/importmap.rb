@@ -27,6 +27,11 @@ pin 'pathogen_view_components/data_grid_controller/virtual_window',
 pin 'pathogen_view_components/data_grid_controller/virtual_columns',
     to: 'pathogen_view_components/data_grid_controller/virtual_columns.js'
 
+pin 'pathogen_view_components/data_grid_controller/cell_index',
+    to: 'pathogen_view_components/data_grid_controller/cell_index.js'
+pin 'pathogen_view_components/data_grid_controller/virtual_viewport',
+    to: 'pathogen_view_components/data_grid_controller/virtual_viewport.js'
+
 # Pin main entry point
 pin 'pathogen_view_components', to: 'pathogen_view_components.js'
 
