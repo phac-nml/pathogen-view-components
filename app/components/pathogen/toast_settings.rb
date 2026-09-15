@@ -10,6 +10,8 @@ module Pathogen
   # (Timing Adjustable) when a status toast is the only place information appears.
   # Render it anywhere in the app's settings/preferences UI.
   class ToastSettings < Pathogen::Component
+    include Pathogen::DataAttributesHelper
+
     STORAGE_KEY = 'pathogen.toast.durationMs'
 
     # Ordered option keys → the value written to storage.
@@ -86,11 +88,10 @@ module Pathogen
 
     def apply_system_arguments
       @system_arguments[:class] = class_names('pvc-toast-settings flex flex-col gap-1', @system_arguments[:class])
-      @system_arguments[:'data-controller'] = class_names(
-        @system_arguments[:'data-controller'],
-        'pathogen--toast-settings'
-      )
-      @system_arguments[:'data-pathogen--toast-settings-storage-key-value'] = @storage_key
+      data = extract_data_attributes(@system_arguments)
+      data['controller'] = class_names(data['controller'], 'pathogen--toast-settings')
+      data['pathogen--toast-settings-storage-key-value'] = @storage_key
+      @system_arguments[:data] = data
     end
   end
 end
