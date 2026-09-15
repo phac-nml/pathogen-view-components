@@ -38,6 +38,12 @@ export default defineConfig({
         jsRoot,
         "data_grid_controller/virtual_columns.js",
       ),
+      "pathogen_view_components/toast_duration_preference": resolve(jsRoot, "toast_duration_preference.js"),
+      "pathogen_view_components/toaster_controller/live_region_announcer": resolve(
+        jsRoot,
+        "toaster_controller/live_region_announcer.js",
+      ),
+      "pathogen_view_components/toaster_controller/stack_plan": resolve(jsRoot, "toaster_controller/stack_plan.js"),
     },
   },
   test: {

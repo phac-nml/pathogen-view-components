@@ -6,6 +6,14 @@ pin 'pathogen_view_components/tabs_controller', to: 'pathogen_view_components/ta
 pin 'pathogen_view_components/tooltip_controller', to: 'pathogen_view_components/tooltip_controller.js'
 pin 'pathogen_view_components/disclosure_controller', to: 'pathogen_view_components/disclosure_controller.js'
 pin 'pathogen_view_components/data_grid_controller', to: 'pathogen_view_components/data_grid_controller.js'
+pin 'pathogen_view_components/toast_controller', to: 'pathogen_view_components/toast_controller.js'
+pin 'pathogen_view_components/toaster_controller', to: 'pathogen_view_components/toaster_controller.js'
+pin 'pathogen_view_components/toast_settings_controller', to: 'pathogen_view_components/toast_settings_controller.js'
+pin 'pathogen_view_components/toast_duration_preference', to: 'pathogen_view_components/toast_duration_preference.js'
+pin 'pathogen_view_components/toaster_controller/live_region_announcer',
+    to: 'pathogen_view_components/toaster_controller/live_region_announcer.js'
+pin 'pathogen_view_components/toaster_controller/stack_plan',
+    to: 'pathogen_view_components/toaster_controller/stack_plan.js'
 pin 'pathogen_view_components/data_grid_controller/navigation',
     to: 'pathogen_view_components/data_grid_controller/navigation.js'
 pin 'pathogen_view_components/data_grid_controller/scroll',

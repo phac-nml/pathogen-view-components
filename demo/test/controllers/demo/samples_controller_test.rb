@@ -5,6 +5,24 @@ require 'test_helper'
 module Demo
   # Request tests for the paginated virtual DataGrid rows endpoint.
   class SamplesControllerTest < ActionDispatch::IntegrationTest
+    test 'flash_toast returns a turbo stream append with flash-backed toast markup' do
+      post flash_toast_demo_samples_path, headers: { 'Accept' => Mime[:turbo_stream].to_s }
+
+      assert_response :success
+      assert_equal Mime[:turbo_stream].to_s, response.media_type
+
+      body = response.body
+      assert_includes body, '<turbo-stream action="append" target="flashes">'
+
+      assert_includes body, 'Samples saved from server response.'
+      assert_includes body, 'data-pathogen--toast-type-value="info"'
+      assert_includes body, 'data-pathogen--toast-mode-value="status"'
+
+      assert_includes body, 'Upload failed from server response.'
+      assert_includes body, 'data-pathogen--toast-type-value="error"'
+      assert_includes body, 'data-pathogen--toast-mode-value="dialog"'
+    end
+
     test 'rows returns paginated JSON with global indexes and metadata' do
       get rows_demo_samples_path, params: { page: 2, limit: 20 }, as: :json
 
