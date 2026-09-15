@@ -161,6 +161,109 @@ describe("copyable_value_controller", () => {
     expect(announcement.textContent).toBe("Copied to clipboard");
   });
 
+  it.each([
+    { outcome: "success", reconnect: false },
+    { outcome: "failure", reconnect: false },
+    { outcome: "success", reconnect: true },
+    { outcome: "failure", reconnect: true },
+  ])("ignores pending clipboard $outcome after disconnect (reconnect: $reconnect)", async ({ outcome, reconnect }) => {
+    const { container, announcement } = appendCopyableValue();
+    let resolveClipboard;
+    let rejectClipboard;
+    const pendingClipboard = new Promise((resolve, reject) => {
+      resolveClipboard = resolve;
+      rejectClipboard = reject;
+    });
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockReturnValue(pendingClipboard) },
+    });
+
+    await waitForController();
+    vi.useFakeTimers();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    const copying = controller.copy();
+
+    container.remove();
+    await Promise.resolve();
+    expect(container.dataset.controllerConnected).toBeUndefined();
+
+    if (reconnect) {
+      document.body.appendChild(container);
+      await Promise.resolve();
+      expect(container.dataset.controllerConnected).toBe("true");
+    }
+
+    if (outcome === "success") {
+      resolveClipboard();
+    } else {
+      rejectClipboard(new Error("Clipboard permission denied"));
+    }
+    await copying;
+
+    expect(container.dataset.state).toBe("idle");
+    expect(announcement.textContent).toBe("");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("clears completed feedback when the element reconnects", async () => {
+    const { container, announcement } = appendCopyableValue();
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+
+    await waitForController();
+    vi.useFakeTimers();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+
+    container.remove();
+    await Promise.resolve();
+    document.body.appendChild(container);
+    await Promise.resolve();
+
+    expect(container.dataset.state).toBe("idle");
+    expect(announcement.textContent).toBe("");
+    expect(vi.getTimerCount()).toBe(0);
+
+    await controller.copy();
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
+  });
+
+  it("extends success feedback from the most recent copy", async () => {
+    const { container, announcement } = appendCopyableValue();
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn().mockResolvedValue(undefined) },
+    });
+
+    await waitForController();
+    vi.useFakeTimers();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+    vi.advanceTimersByTime(1000);
+    await controller.copy();
+    vi.advanceTimersByTime(1000);
+
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
+    expect(vi.getTimerCount()).toBe(1);
+
+    vi.advanceTimersByTime(1000);
+
+    expect(container.dataset.state).toBe("idle");
+    expect(announcement.textContent).toBe("");
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it("respects resetDelay value for success feedback", async () => {
     const { container, announcement } = appendCopyableValue();
     container.setAttribute("data-pathogen--copyable-value-reset-delay-value", "500");
