@@ -30,6 +30,14 @@ fr:
       title: obligatoire
     link:
       aria-label: "%{content} (s’ouvre dans une nouvelle fenêtre)"
+    sidebar:
+      provider:
+        close_label: Fermer la barre latérale
+        collapse_label: Réduire la barre latérale
+        expand_label: Développer la barre latérale
+        open_label: Ouvrir la barre latérale
+      trigger:
+        open_label: Ouvrir la barre latérale
     tooltip:
       portal:
         aria_label: Info-bulles
