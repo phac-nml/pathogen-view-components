@@ -65,6 +65,7 @@ export default defineConfig({
         jsRoot,
         "toaster_controller/live_region_announcer.js",
       ),
+      "pathogen_view_components/toaster_controller/stack_plan": resolve(jsRoot, "toaster_controller/stack_plan.js"),
     },
   },
   test: {
