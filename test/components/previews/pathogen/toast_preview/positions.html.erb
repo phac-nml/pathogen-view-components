@@ -1,11 +1,11 @@
 <%# herb:formatter ignore %>
 
 <div class="flex max-w-4xl flex-col gap-4 p-4">
-  <%= pathogen_heading(level: 3, class: "mb-2") { "Anchor positions" } %>
+  <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Anchor positions" } %>
 
-  <%= pathogen_supporting(variant: :muted) do %>
-    Default is <%= pathogen_code { "top_center" } %>. Previews use <%= pathogen_code { "strategy: :absolute" } %>;
-    production hosts use <%= pathogen_code { "strategy: :fixed" } %>.
+  <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) do %>
+    Default is <%= render(Pathogen::Typography::Code.new) { "top_center" } %>. Previews use <%= render(Pathogen::Typography::Code.new) { "strategy: :absolute" } %>;
+    production hosts use <%= render(Pathogen::Typography::Code.new) { "strategy: :fixed" } %>.
   <% end %>
 
   <div class="grid gap-4 lg:grid-cols-2">
@@ -21,9 +21,9 @@
           border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
         "
       >
-        <%= pathogen_heading(level: 4, class: "mb-1") { label } %>
-        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
-          <%= pathogen_code { "position: :#{position}" } %>
+        <%= render(Pathogen::Typography::Heading.new(level: 4, class: "mb-1")) { label } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-3")) do %>
+          <%= render(Pathogen::Typography::Code.new) { "position: :#{position}" } %>
         <% end %>
 
         <%= render Pathogen::Toaster.new(
