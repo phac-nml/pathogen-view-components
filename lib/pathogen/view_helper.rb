@@ -94,6 +94,8 @@ module Pathogen
           if (stored === 'false') value = 'false';
           if (stored === 'true') value = 'true';
         } catch (error) { value = 'true'; }
+        document.documentElement.setAttribute('data-pathogen-sidebar-viewport', desktop ? 'desktop' : 'mobile');
+        document.documentElement.setAttribute('data-pathogen-sidebar-open', desktop ? value : 'false');
       JS
     end
 
