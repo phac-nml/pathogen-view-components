@@ -153,6 +153,45 @@ const appendSidebarWithRailFlyout = ({ id = "specimen-sidebar" } = {}) => {
   };
 };
 
+const appendSidebarWithClonedFlyout = ({ id = "specimen-sidebar" } = {}) => {
+  const sidebar = appendSidebar({ id, open: false });
+  sidebar.nav.innerHTML = `
+    <li class="pathogen-sidebar-item pathogen-sidebar-item--parent">
+      <div class="pathogen-sidebar-item__expanded">
+        <ul class="pathogen-sidebar-item__children">
+          <li id="${id}-profile"><a href="#profile" data-controller="pathogen--tooltip">Profile</a></li>
+          <li id="${id}-access"><a href="#access" aria-current="page">Access</a></li>
+        </ul>
+      </div>
+      <button
+        type="button"
+        data-pathogen--sidebar-target="submenuTrigger"
+        data-pathogen-sidebar-flyout-id="${id}-settings-flyout"
+        data-action="click->pathogen--sidebar#toggleFlyout keydown->pathogen--sidebar#handleFlyoutTriggerKeydown"
+        aria-controls="${id}-settings-flyout"
+        aria-expanded="false"
+      >
+        Settings
+      </button>
+      <div
+        id="${id}-settings-flyout"
+        class="pathogen-sidebar-flyout"
+        data-pathogen--sidebar-target="flyout"
+        role="group"
+        hidden
+      >
+        <p>Settings</p>
+        <ul class="pathogen-sidebar-item__children"></ul>
+      </div>
+    </li>
+  `;
+
+  const flyoutTrigger = sidebar.nav.querySelector("[data-pathogen--sidebar-target='submenuTrigger']");
+  const flyout = sidebar.nav.querySelector("[data-pathogen--sidebar-target='flyout']");
+
+  return { ...sidebar, flyout, flyoutTrigger };
+};
+
 describe("sidebar_controller", () => {
   let application;
 
@@ -540,6 +579,31 @@ describe("sidebar_controller", () => {
 
     expect(flyout.hidden).toBe(true);
     expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("populates the flyout from the expanded panel once, without duplicate ids", async () => {
+    setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger } = appendSidebarWithClonedFlyout();
+    await waitForController();
+
+    const list = flyout.querySelector("ul.pathogen-sidebar-item__children");
+    expect(list.children.length).toBe(0);
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    const links = list.querySelectorAll("a");
+    expect(Array.from(links).map((link) => link.getAttribute("href"))).toEqual(["#profile", "#access"]);
+    expect(list.querySelectorAll("[id]").length).toBe(0);
+    expect(list.querySelectorAll("[data-controller]").length).toBe(0);
+    expect(document.querySelectorAll("#specimen-sidebar-profile").length).toBe(1);
+
+    flyoutTrigger.click();
+    await waitForController();
+    flyoutTrigger.click();
+    await waitForController();
+
+    expect(list.querySelectorAll("a").length).toBe(2);
   });
 
   it("passes axe scans in desktop expanded, desktop rail, mobile closed, and mobile open states", async () => {

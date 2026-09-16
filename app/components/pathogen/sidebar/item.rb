@@ -166,7 +166,9 @@ module Pathogen
         ) do
           safe_join([
                       tag.p(@label, id: flyout_heading_id, class: FLYOUT_HEADING_CLASSES),
-                      tag.ul(class: CHILDREN_LIST_CLASSES, role: 'list') { children_markup }
+                      # Populated from the expanded panel by the controller so child
+                      # ids are never duplicated in the server-rendered markup.
+                      tag.ul(class: CHILDREN_LIST_CLASSES, role: 'list')
                     ])
         end
       end
