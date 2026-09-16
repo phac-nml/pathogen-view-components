@@ -24,12 +24,6 @@ class PathogenTestApplication < Rails::Application
   config.hosts << 'www.example.com'
 end
 
-# `Pathogen::ViewComponents::Engine` expects importmap config to be present.
-# In this standalone gem test app we provide a minimal stub.
-PathogenTestApplication.config.importmap = ActiveSupport::OrderedOptions.new
-PathogenTestApplication.config.importmap.paths = []
-PathogenTestApplication.config.importmap.cache_sweepers = []
-
 require_relative '../lib/pathogen/view_components'
 
 PathogenTestApplication.initialize!

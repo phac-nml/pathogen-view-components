@@ -11,7 +11,7 @@ class ShippedFilesGemTest < ActiveSupport::TestCase
   # installs break in an obvious way.
   REQUIRED_FILES = %w[
     app/assets/stylesheets/pathogen_view_components.css
-    config/importmap.rb
+    app/assets/javascripts/pathogen_view_components.js
   ].freeze
   # Folders that must ship at least one file. We do not list every file here;
   # we only fail if a whole public area disappears from the built gem.
@@ -47,5 +47,16 @@ class ShippedFilesGemTest < ActiveSupport::TestCase
 
     assert_empty missing_files, "Gem is missing shipped files:\n#{missing_files.join("\n")}"
     assert_empty missing_roots, "Gem is missing shipped roots:\n#{missing_roots.join("\n")}"
+  end
+
+  test 'packaged JavaScript runs in an esbuild host' do
+    extracted_root = File.join(@temporary_directory, 'extracted')
+    Gem::Package.new(@gem_path).extract_files(extracted_root)
+    stdout, stderr, status = Open3.capture3(
+      'node', 'scripts/check-packaged-javascript.mjs', extracted_root,
+      chdir: PROJECT_ROOT.to_s
+    )
+
+    assert status.success?, "Packaged JavaScript failed:\n#{stdout}#{stderr}"
   end
 end

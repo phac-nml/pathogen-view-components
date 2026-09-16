@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Packaged Pathogen host</title>
+  </head>
+  <body>
+    <div data-controller="pathogen--disclosure">
+      <button
+        type="button"
+        data-pathogen--disclosure-target="button"
+        data-action="click->pathogen--disclosure#toggle"
+        aria-expanded="false"
+        aria-controls="details"
+      >
+        Details
+      </button>
+      <div id="details" data-pathogen--disclosure-target="panel" hidden>Packaged component content</div>
+    </div>
+  </body>
+</html>

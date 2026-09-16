@@ -13,6 +13,13 @@ class ShippedFilesDocumentationTest < ActiveSupport::TestCase
   REMOVED_COMPONENTS = {
     'Pathogen::Typography::Eyebrow' => 'documented as a removed component in the typography migration table'
   }.freeze
+  # These paths belong to the host application in README's esbuild setup example.
+  HOST_APPLICATION_PATHS = %w[
+    app/javascript/application.js
+    app/assets/builds
+    config/initializers/assets.rb
+    app/javascript
+  ].freeze
   FILE_PATH_PATTERN = %r{(?<![.\w/])(?:app|config|docs|lib|scripts|test)/[A-Za-z0-9_./-]+}
 
   test 'component names in docs exist' do
@@ -31,6 +38,8 @@ class ShippedFilesDocumentationTest < ActiveSupport::TestCase
     missing = DOCUMENTATION_FILES.flat_map do |documentation_file|
       documentation_file.read.scan(FILE_PATH_PATTERN).filter_map do |reference|
         reference = reference.delete_suffix('.')
+        next if documentation_file == PROJECT_ROOT.join('README.md') && HOST_APPLICATION_PATHS.include?(reference)
+
         reference unless PROJECT_ROOT.join(reference).exist?
       end
     end.uniq
