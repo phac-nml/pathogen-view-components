@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 namespace :javascript do
-  desc 'Build demo JavaScript using the repository package and lockfile'
+  desc 'Build demo JavaScript using the canonical demo entrypoint'
   task :build do # rubocop:disable Rails/RakeEnvironment
-    sh 'pnpm', '--dir', Rails.root.parent.to_s, 'run', 'build:js'
+    sh Rails.root.join('bin/build-javascript').to_s
   end
 end
 

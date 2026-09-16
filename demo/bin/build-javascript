@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+set -eu
+
+cd "$(dirname "$0")/.."
+
+if [ "${1:-}" = "--watch" ]; then
+  exec pnpm --dir .. run build:js:watch
+fi
+
+exec pnpm --dir .. run build:js

@@ -1,4 +1,4 @@
 web: bin/rails server -p $PORT -b 0.0.0.0
-javascript: pnpm --dir .. run build:js:watch
+javascript: bin/build-javascript --watch
 pathogen-css: pnpm --dir .. run build:css:watch
 tailwindcss: bin/rails tailwindcss:watch

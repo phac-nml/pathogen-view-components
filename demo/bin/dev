@@ -23,7 +23,7 @@ export RUBY_DEBUG_OPEN="true"
 export RUBY_DEBUG_LAZY="true"
 
 # Build assets before Rails starts so the first request has complete bundles.
-pnpm --dir .. run build:js || exit 1
+bin/build-javascript || exit 1
 bin/rails tailwindcss:build || exit 1
 
 exec foreman start -f Procfile.dev "$@"
