@@ -7,7 +7,6 @@ const root = fileURLToPath(new URL("../", import.meta.url));
 const production = process.env.NODE_ENV === "production" || process.env.RAILS_ENV === "production";
 const options = {
   ...pathogenBuildOptions({ pathogenRoot: root, hostRoot: root, production }),
-  absWorkingDir: root,
   entryPoints: {
     application: "demo/app/javascript/application.js",
     lookbook_preview: "demo/app/javascript/lookbook_preview.js",
