@@ -142,6 +142,8 @@ export default class extends Controller {
     // - true (default): the trigger must reference the tooltip via aria-describedby.
     // - false: visual-only affordance for sighted users; no aria-describedby required.
     describedby: { type: Boolean, default: true },
+    // Optional integration hook: when true, tooltip interactions stay inert.
+    disabled: { type: Boolean, default: false },
   };
 
   // Private fields - store direct references since tooltip may be portaled while open
@@ -233,7 +235,7 @@ export default class extends Controller {
    * Visual-only tooltips stay aria-hidden while displayed.
    */
   show() {
-    if (!this.#tooltipElement || this.#escapeDismissed) return;
+    if (!this.#tooltipElement || this.#escapeDismissed || this.disabledValue) return;
 
     this.#hideOtherTooltips();
     this.#clearHideAfterTransitionTimeout();
@@ -245,6 +247,12 @@ export default class extends Controller {
 
     this.#startAutoUpdate();
     this.#positionTooltip();
+  }
+
+  disabledValueChanged(nextDisabled) {
+    if (nextDisabled) {
+      this.hide();
+    }
   }
 
   /**
