@@ -1,3 +1,4 @@
+import "application";
 import { enableTabsLazyLoadMocks } from "lookbook_mocks/tabs_lazy_load";
 
 try {
@@ -5,5 +6,3 @@ try {
 } catch (error) {
   console.warn("[pathogen lookbook] Lazy-load mocks are unavailable.", error);
 }
-
-await import("application");
