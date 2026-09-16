@@ -2144,17 +2144,10 @@ input[role="switch"]:disabled ~ label {
 .pathogen-sidebar-trigger__icon::after {
   bottom: 4px;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"],
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"],
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"] .pathogen-sidebar-provider {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width-rail);
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"],
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  [data-pathogen-sidebar-label="true"],
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  [data-pathogen-sidebar-label="true"] {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] [data-pathogen-sidebar-label="true"] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -2165,61 +2158,35 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
   white-space: nowrap;
   border: 0;
 }
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]
+  .pathogen-sidebar-flyout
+  [data-pathogen-sidebar-label="true"] {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-content,
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-footer,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-content,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-footer {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   align-items: center;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__expanded,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-item__expanded,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-item__expanded {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__expanded {
   display: none;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__rail-trigger-wrap,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-item__rail-trigger-wrap,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-item__rail-trigger-wrap {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__rail-trigger-wrap {
   display: block;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-item__action,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-item__action {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action {
   justify-content: center;
   padding-inline: 0.25rem;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action[aria-current="page"],
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-item__action[aria-current="page"],
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-item__action[aria-current="page"] {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action[aria-current="page"] {
   background: transparent;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]
-  .pathogen-sidebar-item__action[aria-current="page"]
-  .pathogen-sidebar-item__content,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-item__action[aria-current="page"]
-  .pathogen-sidebar-item__content,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
   .pathogen-sidebar-item__action[aria-current="page"]
   .pathogen-sidebar-item__content {
   width: 2rem;
@@ -2231,49 +2198,35 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
     background: color-mix(in oklab, var(--pvc-color-accent) 14%, var(--pvc-color-surface));
   }
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-flyout .pathogen-sidebar-item__action,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-flyout
-  .pathogen-sidebar-item__action,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-flyout
-  .pathogen-sidebar-item__action {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-flyout .pathogen-sidebar-item__action {
   justify-content: flex-start;
   padding-inline: 0.5rem;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-header,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-header,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-header {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]
+  .pathogen-sidebar-flyout
+  .pathogen-sidebar-item__action[aria-current="page"]
+  .pathogen-sidebar-item__content {
+  width: auto;
+  min-height: 0;
+  justify-content: flex-start;
+  border-radius: 0;
+  background: transparent;
+}
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-header {
   justify-content: center;
   padding-inline: 0.25rem;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-content,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="desktop"][data-pathogen-sidebar-boot-open="false"]
-  .pathogen-sidebar-footer,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-content,
-html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false"]
-  .pathogen-sidebar-provider
-  .pathogen-sidebar-footer {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   padding-inline: 0.25rem;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"],
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-flyout,
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar-flyout {
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-flyout {
   display: none !important;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] > .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   position: fixed;
   inset-block: 0;
@@ -2295,8 +2248,6 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
   width: 100%;
   min-height: 100%;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"][data-pathogen-sidebar-boot-open="true"]
-  > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   > .pathogen-sidebar-panel,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
@@ -2306,7 +2257,6 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
   transform: translateX(0);
   transition-delay: 0s;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar-dialog__close,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog__close {
   position: absolute;
   inset-block-start: 0.5rem;
@@ -2314,29 +2264,25 @@ html[data-pathogen-sidebar-viewport="desktop"][data-pathogen-sidebar-open="false
   z-index: 1;
   display: inline-flex;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-trigger,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-trigger {
   display: none;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] .pathogen-sidebar .pathogen-sidebar-header,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar .pathogen-sidebar-header {
   min-height: 3.75rem;
   padding-inline-end: 3.5rem;
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"] > .pathogen-sidebar-panel,
+:dir(rtl) .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] > .pathogen-sidebar-panel,
 :dir(rtl) .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
   transform: translateX(100%);
 }
-.pathogen-sidebar-provider[data-pathogen-sidebar-boot-viewport="mobile"][data-pathogen-sidebar-boot-open="true"]
-  > .pathogen-sidebar-panel,
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
+:dir(rtl)
+  .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   > .pathogen-sidebar-panel,
 :dir(rtl)
   .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"][data-pathogen-sidebar-open="true"]
   .pathogen-sidebar-dialog {
   transform: translateX(0);
 }
-html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathogen-sidebar-inset,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-inset {
   width: 100%;
 }
