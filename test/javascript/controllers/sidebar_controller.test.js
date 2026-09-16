@@ -96,6 +96,7 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   nav.innerHTML = `
     <button type="button">first</button>
     <a href="#">second</a>
+    <div class="pathogen-sidebar-item__tooltip-root" data-pathogen--tooltip-disabled-value="true"></div>
   `;
   panel.append(closeButton, nav);
 
@@ -112,6 +113,44 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   document.body.append(provider);
 
   return { provider, dialog, panel, closeButton, nav, trigger, inset };
+};
+
+const appendSidebarWithRailFlyout = ({ id = "specimen-sidebar" } = {}) => {
+  const sidebar = appendSidebar({ id, open: false });
+  sidebar.nav.innerHTML = `
+    <button
+      type="button"
+      data-pathogen--sidebar-target="submenuTrigger"
+      data-pathogen-sidebar-flyout-id="${id}-settings-flyout"
+      data-action="click->pathogen--sidebar#toggleFlyout keydown->pathogen--sidebar#handleFlyoutTriggerKeydown"
+      aria-controls="${id}-settings-flyout"
+      aria-expanded="false"
+    >
+      Settings
+    </button>
+    <div
+      id="${id}-settings-flyout"
+      data-pathogen--sidebar-target="flyout"
+      role="group"
+      hidden
+      aria-labelledby="${id}-settings-flyout-heading"
+    >
+      <p id="${id}-settings-flyout-heading">Settings</p>
+      <ul>
+        <li><a href="#profile">Profile</a></li>
+        <li><a href="#access">Access</a></li>
+      </ul>
+    </div>
+  `;
+
+  const flyoutTrigger = sidebar.nav.querySelector("[data-pathogen--sidebar-target='submenuTrigger']");
+  const flyout = sidebar.nav.querySelector("[data-pathogen--sidebar-target='flyout']");
+
+  return {
+    ...sidebar,
+    flyout,
+    flyoutTrigger,
+  };
 };
 
 describe("sidebar_controller", () => {
@@ -152,6 +191,11 @@ describe("sidebar_controller", () => {
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(trigger.getAttribute("aria-label")).toBe("Collapse sidebar");
+    expect(
+      provider
+        .querySelector(".pathogen-sidebar-item__tooltip-root")
+        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+    ).toBe("true");
   });
 
   it("restores desktop rail preference from localStorage", async () => {
@@ -163,6 +207,11 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("rail");
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
+    expect(
+      provider
+        .querySelector(".pathogen-sidebar-item__tooltip-root")
+        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+    ).toBe("false");
   });
 
   it("keeps the configured desktop state when localStorage is inaccessible", async () => {
@@ -189,6 +238,21 @@ describe("sidebar_controller", () => {
     expect(provider.dataset.pathogenSidebarMode).toBe("rail");
     expect(window.localStorage.getItem("pathogen.sidebar.specimen-sidebar.open")).toBe("false");
     expect(provider.querySelector("[aria-live]")).toBeNull();
+    expect(
+      provider
+        .querySelector(".pathogen-sidebar-item__tooltip-root")
+        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+    ).toBe("false");
+
+    trigger.click();
+    await waitForController();
+
+    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+    expect(
+      provider
+        .querySelector(".pathogen-sidebar-item__tooltip-root")
+        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+    ).toBe("true");
   });
 
   it("keeps multiple triggers synchronized to the same controlled region", async () => {
@@ -413,6 +477,69 @@ describe("sidebar_controller", () => {
 
     expect(first.provider.dataset.pathogenSidebarMode).toBe("expanded");
     expect(second.provider.dataset.pathogenSidebarMode).toBe("rail");
+  });
+
+  it("opens rail flyouts from a parent trigger and updates aria-expanded", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+    expect(flyout.hidden).toBe(true);
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    expect(flyout.hidden).toBe(false);
+    expect(flyout.dataset.state).toBe("open");
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("true");
+    expect(flyout.style.top).toMatch(/px$/);
+  });
+
+  it("closes an open rail flyout on Escape and restores focus to the trigger", async () => {
+    setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    await waitForController();
+
+    expect(flyout.hidden).toBe(true);
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(flyoutTrigger);
+  });
+
+  it("closes an open rail flyout when clicking outside the flyout and trigger", async () => {
+    setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger, inset } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    inset.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    await waitForController();
+
+    expect(flyout.hidden).toBe(true);
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("closes rail flyouts when leaving rail mode", async () => {
+    const media = setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    media.setMatches(false);
+    await waitForController();
+
+    expect(flyout.hidden).toBe(true);
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
   });
 
   it("passes axe scans in desktop expanded, desktop rail, mobile closed, and mobile open states", async () => {
