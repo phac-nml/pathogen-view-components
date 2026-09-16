@@ -4,6 +4,32 @@ require 'json'
 require 'test_helper'
 
 class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
+  JAVASCRIPT_ROOT = PROJECT_ROOT.join('app/assets/javascripts')
+  MAIN_JAVASCRIPT_FILE = JAVASCRIPT_ROOT.join('pathogen_view_components.js')
+
+  test 'shipped controllers are imported, exported, and registered by the main entrypoint' do
+    source = MAIN_JAVASCRIPT_FILE.read
+    imports = source.scan(/import\s+(\w+)\s+from\s+"([^"]+)"/).to_h
+    registrations = source.scan(/application\.register\("([^"]+)",\s*(\w+)\)/).to_h
+    exports = source.scan(/export\s*\{([^}]+)\}/m).flat_map { |match| match.first.split(',') }.map(&:strip)
+
+    expected_imports = {}
+    expected_registrations = {}
+
+    JAVASCRIPT_ROOT.glob('pathogen_view_components/*_controller.js').each do |path|
+      module_name = path.relative_path_from(JAVASCRIPT_ROOT).to_s.delete_suffix('.js')
+      basename = path.basename('.js').to_s.delete_suffix('_controller')
+      class_name = "#{basename.camelize}Controller"
+      expected_imports[class_name] = module_name
+      expected_registrations["pathogen--#{basename.dasherize}"] = class_name
+    end
+
+    assert_equal expected_imports, imports
+    assert_equal expected_registrations, registrations
+    assert_empty expected_imports.keys - exports
+    assert_includes exports, 'registerPathogenControllers'
+  end
+
   test 'README dependency versions match package.json' do
     package = JSON.parse(PROJECT_ROOT.join('package.json').read)
     package_requirements = package.fetch('dependencies').merge(package.fetch('peerDependencies'))

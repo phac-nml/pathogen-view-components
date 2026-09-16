@@ -63,12 +63,6 @@ async function verifyBundledHost(bundleSource, shippedControllers) {
     const settle = () => new Promise((done) => dom.window.setTimeout(done, 0));
     await settle();
     await settle();
-    assert.deepEqual(Array.from(registrations).sort(), [
-      "pathogen--data-grid",
-      "pathogen--disclosure",
-      "pathogen--tabs",
-      "pathogen--tooltip",
-    ]);
     assert.deepEqual(Array.from(registrations).sort(), shippedControllers);
     for (const exportedController of Object.values(controllerExports)) {
       assert.ok(exportedController.prototype instanceof Controller, "Named controllers must use host Stimulus");
@@ -108,5 +102,5 @@ const shippedControllers = await shippedControllerIdentifiers(javascriptRoot);
 await verifyBundledHost(result.outputFiles[0].text, shippedControllers);
 
 console.log(
-  "Packaged JavaScript verified: four controllers, working disclosure, shared Stimulus, no unresolved imports.",
+  `Packaged JavaScript verified: ${shippedControllers.length} controllers, working disclosure, shared Stimulus, no unresolved imports.`,
 );
