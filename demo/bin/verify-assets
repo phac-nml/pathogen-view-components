@@ -1,0 +1,34 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative '../config/environment'
+require 'json'
+
+abort('Run with RAILS_ENV=production after assets:precompile.') unless Rails.env.production?
+
+manifest_path = Rails.application.config.assets.manifest_path
+abort('Precompiled asset manifest is missing.') unless manifest_path.file?
+
+manifest = JSON.parse(manifest_path.read)
+%w[application.js lookbook_preview.js pathogen_view_components.css tailwind.css].each do |name|
+  entry = manifest.fetch(name) { abort("Precompiled asset is missing: #{name}") }
+  output = manifest_path.dirname.join(entry.fetch('digested_path'))
+  abort("Precompiled asset file is missing: #{output}") unless output.file? && output.size.positive?
+
+  next unless name.end_with?('.js')
+
+  source = Rails.application.assets.load_path.find(name)
+  abort("Raw source shadows the built entry: #{name}") unless source.path == Rails.root.join('app/assets/builds', name)
+  abort("Precompiled entry differs from the bundle: #{name}") unless output.binread == source.path.binread
+end
+
+source_root = Pathogen::ViewComponents::Engine.root.join('app/assets/javascripts')
+source_root.glob('**/*.js').each do |path|
+  name = path.relative_path_from(source_root).to_s
+  abort("Unbundled library source was published: #{name}") if manifest.key?(name)
+end
+
+abort('Importmap unexpectedly loaded.') if Rails.application.config.respond_to?(:importmap) ||
+                                         Gem.loaded_specs.key?('importmap-rails')
+
+puts 'Production boots without importmap and resolves the precompiled JavaScript and CSS assets.'
