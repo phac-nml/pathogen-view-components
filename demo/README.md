@@ -30,7 +30,7 @@ This builds JavaScript and demo CSS, then starts Rails on port 3001 with an esbu
 
 ## JavaScript development
 
-`pnpm --dir .. run build:js` builds both application and Lookbook preview entries. `bin/dev` runs `pnpm --dir .. run build:js:watch` to rebuild on changes. The demo uses esbuild only; there is no importmap setup.
+`bin/build-javascript` builds both application and Lookbook preview entries. `bin/dev` runs `bin/build-javascript --watch` to rebuild on changes. The demo uses esbuild only; there is no importmap setup.
 
 `bin/rails assets:precompile` and `bin/rails test` build JavaScript automatically. To check deployment assets:
 
