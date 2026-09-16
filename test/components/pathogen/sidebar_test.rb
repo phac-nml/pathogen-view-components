@@ -15,6 +15,14 @@ module Pathogen
       assert_selector 'div.pathogen-sidebar-provider', text: 'Provider content'
     end
 
+    test 'provider seeds resting mode and an anti-flash script' do
+      render_inline(Pathogen::Sidebar::Provider.new(id: 'lab-sidebar', open: false)) { 'Provider content' }
+
+      assert_selector 'div.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]' \
+                      '[data-pathogen-sidebar-open="false"]'
+      assert_selector 'script', visible: :all, text: /data-pathogen-sidebar-mode/
+    end
+
     test 'provider allows breakpoint override via data attributes' do
       render_inline(
         Pathogen::Sidebar::Provider.new(
