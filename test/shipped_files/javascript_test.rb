@@ -32,4 +32,23 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     )
     assert_match(/^registerPathogenControllers\(application\);$/, example)
   end
+
+  test 'README esbuild example aliases match the shipped host packages' do
+    shipped_aliases = PROJECT_ROOT.join('scripts/pathogen-esbuild-options.mjs').read[
+      /alias:\s*\{(?<block>.*?)\}/m,
+      :block
+    ]
+    assert shipped_aliases, 'pathogen-esbuild-options.mjs must define an alias block'
+    # Identity aliases (key mapped to the same quoted string) are the host-owned packages.
+    shipped_host_packages = shipped_aliases
+                            .scan(/(?:"([^"]+)"|(\w+)):\s*"([^"]+)"/)
+                            .filter_map { |quoted_key, bare_key, value| value if (quoted_key || bare_key) == value }
+                            .sort
+
+    documented = PROJECT_ROOT.join('README.md').read[/const hostPackages = \[(?<list>[^\]]*)\]/, :list]
+    assert documented, 'README esbuild example must define a hostPackages array'
+    documented_host_packages = documented.scan(/"([^"]+)"/).flatten.sort
+
+    assert_equal shipped_host_packages, documented_host_packages
+  end
 end
