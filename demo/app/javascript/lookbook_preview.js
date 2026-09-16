@@ -1,5 +1,5 @@
-import "application";
-import { enableTabsLazyLoadMocks } from "lookbook_mocks/tabs_lazy_load";
+import "./application.js";
+import { enableTabsLazyLoadMocks } from "./lookbook_mocks/tabs_lazy_load.js";
 
 try {
   await enableTabsLazyLoadMocks();

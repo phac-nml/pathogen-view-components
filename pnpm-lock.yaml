@@ -53,6 +53,9 @@ importers:
       chokidar:
         specifier: ^5.0.0
         version: 5.0.0
+      esbuild:
+        specifier: ^0.28.1
+        version: 0.28.1
       eslint:
         specifier: ^10.10.0
         version: 10.10.0(jiti@2.7.0)

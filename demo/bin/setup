@@ -15,6 +15,9 @@ FileUtils.chdir APP_ROOT do
   puts "== Installing dependencies =="
   system("bundle check") || system!("bundle install")
 
+  puts "\n== Building JavaScript =="
+  system!("pnpm", "--dir", "..", "run", "build:js")
+
   puts "\n== Syncing icon assets =="
   phosphor_path = File.join(APP_ROOT, "app/assets/svg/icons/phosphor")
   phosphor_svgs = Dir.glob(File.join(phosphor_path, "**/*.svg"))

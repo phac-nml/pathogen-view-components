@@ -22,8 +22,8 @@ export PORT="${PORT:-3001}"
 export RUBY_DEBUG_OPEN="true"
 export RUBY_DEBUG_LAZY="true"
 
-# Build Tailwind once before boot to avoid first-request races where
-# lookbook preview renders before the watcher emits app/assets/builds/tailwind.css.
-bin/rails tailwindcss:build
+# Build assets before Rails starts so the first request has complete bundles.
+pnpm --dir .. run build:js || exit 1
+bin/rails tailwindcss:build || exit 1
 
 exec foreman start -f Procfile.dev "$@"

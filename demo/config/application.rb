@@ -26,6 +26,11 @@ module Demo
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.1
 
+    # Register the output path before the first build creates the directory.
+    config.assets.paths << root.join('app/assets/builds')
+    # Serve the esbuild outputs, not the unbundled entrypoints with the same names.
+    config.assets.excluded_paths << root.join('app/javascript')
+
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
