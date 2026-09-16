@@ -160,14 +160,20 @@ module Pathogen
         'div#settings-item-disclosure-panel ul.pathogen-sidebar-item__children a[href="/settings/profile"]',
         visible: :all
       )
+      assert_selector(
+        'div#settings-item-disclosure-panel ul.pathogen-sidebar-item__children a[href="/settings/access"]',
+        visible: :all
+      )
 
       assert_selector 'button.pathogen-sidebar-item__rail-trigger[data-pathogen--sidebar-target="submenuTrigger"]' \
                       '[data-pathogen-sidebar-flyout-id="settings-item-flyout"]' \
                       '[aria-controls="settings-item-flyout"][aria-expanded="false"]'
       assert_selector 'div#settings-item-flyout.pathogen-sidebar-flyout[role="group"][hidden]', visible: :all
       assert_selector 'p#settings-item-flyout-heading.pathogen-sidebar-flyout__heading', text: 'Settings', visible: :all
-      assert_selector 'div#settings-item-flyout ul.pathogen-sidebar-item__children a[href="/settings/access"]',
-                      visible: :all
+      # The flyout list is populated client-side from the expanded panel, so it
+      # ships empty and never duplicates child ids in the server-rendered markup.
+      assert_selector 'div#settings-item-flyout ul.pathogen-sidebar-item__children', visible: :all
+      assert_no_selector 'div#settings-item-flyout ul.pathogen-sidebar-item__children a', visible: :all
     end
 
     test 'item validates parent and leaf input combinations' do
