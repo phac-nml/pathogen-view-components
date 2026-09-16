@@ -10,35 +10,15 @@
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
-        <ul class="m-0 flex list-none flex-col gap-1 p-0">
-          <li>
-            <a
-              href="#run-summary"
-              class="
-                interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
-                rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
-                text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
-                focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
-              "
-            >
-              <span data-pathogen-sidebar-label="true">Overview</span>
-            </a>
-          </li>
+        <%= render Pathogen::Sidebar::Group.new(label: 'Run detail') do %>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Overview', href: '#run-summary', current: true, tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('chart-bar', class: 'size-4') } %>
+          <% end %>
 
-          <li>
-            <a
-              href="#monitoring"
-              class="
-                interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
-                rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
-                text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
-                focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
-              "
-            >
-              <span data-pathogen-sidebar-label="true">Monitoring</span>
-            </a>
-          </li>
-        </ul>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Monitoring', href: '#monitoring', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('arrow-clockwise', class: 'size-4') } %>
+          <% end %>
+        <% end %>
       <% end %>
     <% end %>
 

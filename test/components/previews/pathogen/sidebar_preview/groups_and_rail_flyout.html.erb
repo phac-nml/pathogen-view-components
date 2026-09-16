@@ -1,0 +1,68 @@
+<div class="space-y-4 p-4">
+  <%= render Pathogen::Sidebar::Provider.new(
+    id: 'groups-rail-sidebar',
+    open: false,
+    class: 'h-[640px] !min-h-[640px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]'
+  ) do %>
+    <%= render Pathogen::Sidebar.new(id: 'groups-rail-sidebar', label: 'Primary navigation') do %>
+      <%= render Pathogen::Sidebar::Header.new do %>
+        <%= render Pathogen::Sidebar::Trigger.new %>
+        <span data-pathogen-sidebar-label="true" class="text-[length:var(--type-control)] font-semibold">Navigation</span>
+      <% end %>
+
+      <%= render Pathogen::Sidebar::Content.new do %>
+        <%= render Pathogen::Sidebar::Group.new(label: 'Laboratory workflow') do %>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Dashboard', href: '#dashboard', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('squares-four', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Settings', open: true, tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('gear', class: 'size-4') } %>
+
+            <%= render Pathogen::Sidebar::Item.new(label: 'Profile', href: '#profile') do |child| %>
+              <% child.with_leading_visual { icon('user-circle', class: 'size-4') } %>
+            <% end %>
+
+            <%= render Pathogen::Sidebar::Item.new(label: 'Access', href: '#access', current: true) do |child| %>
+              <% child.with_leading_visual { icon('key', class: 'size-4') } %>
+            <% end %>
+
+            <%= render Pathogen::Sidebar::Item.new(label: 'Notifications', href: '#notifications') do |child| %>
+              <% child.with_leading_visual { icon('bell', class: 'size-4') } %>
+            <% end %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Reports', href: '#reports', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('file-text', class: 'size-4') } %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
+
+    <%= render Pathogen::Sidebar::Inset.new do %>
+      <div class="flex items-center gap-2 border-b border-[color:var(--pvc-color-border)] p-3 xl:hidden">
+        <%= render Pathogen::Sidebar::Trigger.new %>
+        <span class="text-[length:var(--type-control)] font-semibold">Host trigger</span>
+      </div>
+
+      <main class="space-y-3 p-4">
+        <%= pathogen_heading(level: 2, id: 'dashboard') { 'Dashboard' } %>
+
+        <%= pathogen_supporting do %>
+          This preview starts in desktop rail mode to demonstrate icon-only navigation with flyout sub-links for parent
+          items.
+        <% end %>
+
+        <%= pathogen_supporting do %>
+          Keyboard check: move focus to Settings, activate the rail trigger, then press Escape to close and return
+          focus.
+        <% end %>
+
+        <%= pathogen_heading(level: 3, id: 'profile') { 'Profile' } %>
+        <%= pathogen_heading(level: 3, id: 'access') { 'Access' } %>
+        <%= pathogen_heading(level: 3, id: 'notifications') { 'Notifications' } %>
+        <%= pathogen_heading(level: 3, id: 'reports') { 'Reports' } %>
+      </main>
+    <% end %>
+  <% end %>
+</div>
