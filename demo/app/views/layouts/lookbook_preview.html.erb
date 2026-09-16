@@ -25,19 +25,63 @@
           "data-pathogen-sidebar-viewport",
           desktop ? "desktop" : "mobile"
         );
-        if (!desktop) return;
-        var value = "true";
-        try {
-          for (var i = 0; i < window.localStorage.length; i++) {
-            var key = window.localStorage.key(i);
-            if (!key || key.indexOf("pathogen.sidebar.") !== 0 || key.slice(-5) !== ".open") continue;
+
+        var readDesktopPreference = function (sidebarId) {
+          if (!desktop) return "false";
+
+          var key = "pathogen.sidebar." + (sidebarId || "sidebar") + ".open";
+          var value = "true";
+          try {
             var stored = window.localStorage.getItem(key);
             if (stored === "false" || stored === "true") value = stored;
+          } catch (error) {
+            value = "true";
           }
-        } catch (error) {
-          value = "true";
-        }
-        document.documentElement.setAttribute("data-pathogen-sidebar-open", value);
+          return value;
+        };
+
+        var applyState = function (root) {
+          var sidebars = root.matches && root.matches("[data-pathogen-sidebar-id]")
+            ? [root]
+            : root.querySelectorAll("[data-pathogen-sidebar-id]");
+
+          for (var i = 0; i < sidebars.length; i++) {
+            var sidebar = sidebars[i];
+            var sidebarId = sidebar.getAttribute("data-pathogen-sidebar-id") || "sidebar";
+            var value = readDesktopPreference(sidebarId);
+
+            sidebar.setAttribute("data-pathogen-sidebar-boot-open", value);
+            sidebar.setAttribute(
+              "data-pathogen-sidebar-boot-viewport",
+              desktop ? "desktop" : "mobile"
+            );
+          }
+        };
+
+        applyState(document);
+
+        var observer = new MutationObserver(function (records) {
+          for (var i = 0; i < records.length; i++) {
+            var record = records[i];
+            for (var j = 0; j < record.addedNodes.length; j++) {
+              var node = record.addedNodes[j];
+              if (node.nodeType === Node.ELEMENT_NODE) applyState(node);
+            }
+          }
+        });
+
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+        document.addEventListener(
+          "DOMContentLoaded",
+          function () {
+            observer.disconnect();
+          },
+          { once: true }
+        );
+
+        var firstSidebar = document.querySelector("[data-pathogen-sidebar-id]");
+        var htmlValue = readDesktopPreference(firstSidebar && firstSidebar.getAttribute("data-pathogen-sidebar-id"));
+        document.documentElement.setAttribute("data-pathogen-sidebar-open", htmlValue);
       })();
     </script>
 
