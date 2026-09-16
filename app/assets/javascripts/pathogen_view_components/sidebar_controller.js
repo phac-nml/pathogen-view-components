@@ -1,5 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
+import { SidebarFlyout } from "pathogen_view_components/sidebar_controller/flyout";
+
 const MODAL_OPEN_EVENT = "pathogen:sidebar:modal-open";
 
 export default class SidebarController extends Controller {
@@ -21,12 +23,8 @@ export default class SidebarController extends Controller {
     this.matchMediaList = null;
     this.scrollLocked = false;
     this.originalBodyOverflow = "";
-    this.activeFlyout = null;
-    this.activeFlyoutTrigger = null;
+    this.flyout = new SidebarFlyout(this);
     this.onBreakpointChange = this.onBreakpointChange.bind(this);
-    this.onDocumentPointerDown = this.onDocumentPointerDown.bind(this);
-    this.onDocumentKeyDown = this.onDocumentKeyDown.bind(this);
-    this.onViewportReflow = this.onViewportReflow.bind(this);
     this.onDialogClose = this.onDialogClose.bind(this);
     this.onModalOpen = this.onModalOpen.bind(this);
     this.onBeforeCache = this.onBeforeCache.bind(this);
@@ -45,12 +43,9 @@ export default class SidebarController extends Controller {
     this.applyState({ shouldPersist: false });
 
     this.dialogTarget.addEventListener("close", this.onDialogClose);
-    document.addEventListener("pointerdown", this.onDocumentPointerDown);
-    document.addEventListener("keydown", this.onDocumentKeyDown);
-    window.addEventListener("resize", this.onViewportReflow, { passive: true });
-    window.addEventListener("scroll", this.onViewportReflow, true);
     document.addEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.addEventListener("turbo:before-cache", this.onBeforeCache);
+    this.flyout.connect();
   }
 
   disconnect() {
@@ -63,53 +58,20 @@ export default class SidebarController extends Controller {
     }
 
     this.dialogTarget.removeEventListener("close", this.onDialogClose);
-    document.removeEventListener("pointerdown", this.onDocumentPointerDown);
-    document.removeEventListener("keydown", this.onDocumentKeyDown);
-    window.removeEventListener("resize", this.onViewportReflow);
-    window.removeEventListener("scroll", this.onViewportReflow, true);
     document.removeEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.removeEventListener("turbo:before-cache", this.onBeforeCache);
-    this.closeFlyout({ restoreFocus: false });
+    this.flyout.disconnect();
     this.closeDialog();
     this.unlockBodyScroll();
     this.movePanelOutsideDialog();
   }
 
   toggleFlyout(event) {
-    event?.preventDefault();
-    if (!this.isRailMode()) return;
-
-    const trigger = event?.currentTarget;
-    const flyout = this.findFlyoutForTrigger(trigger);
-    if (!trigger || !flyout) return;
-
-    if (this.activeFlyout === flyout) {
-      this.closeFlyout({ restoreFocus: true });
-      return;
-    }
-
-    this.openFlyout(trigger, flyout);
+    this.flyout.toggle(event);
   }
 
   handleFlyoutTriggerKeydown(event) {
-    if (!this.isRailMode()) return;
-
-    const openDirection = this.isRtl() ? "ArrowLeft" : "ArrowRight";
-    const closeDirection = this.isRtl() ? "ArrowRight" : "ArrowLeft";
-
-    if (event.key === openDirection) {
-      event.preventDefault();
-      this.toggleFlyout(event);
-      this.focusFirstFlyoutItem();
-      return;
-    }
-
-    if (event.key === closeDirection || event.key === "Escape") {
-      if (!this.activeFlyout) return;
-
-      event.preventDefault();
-      this.closeFlyout({ restoreFocus: true });
-    }
+    this.flyout.handleTriggerKeydown(event);
   }
 
   toggle(event) {
@@ -175,7 +137,7 @@ export default class SidebarController extends Controller {
       this.closeOffcanvas(null, { restoreFocus: false });
     }
 
-    this.closeFlyout({ restoreFocus: false });
+    this.flyout.close({ restoreFocus: false });
 
     this.movePanelOutsideDialog();
   }
@@ -209,34 +171,6 @@ export default class SidebarController extends Controller {
     this.restoreTriggerFocus();
   }
 
-  onDocumentPointerDown(event) {
-    if (!this.activeFlyout) return;
-    if (this.activeFlyout.contains(event.target)) return;
-    if (this.activeFlyoutTrigger?.contains(event.target)) return;
-
-    this.closeFlyout({ restoreFocus: false });
-  }
-
-  onDocumentKeyDown(event) {
-    if (event.key !== "Escape" || !this.activeFlyout) return;
-
-    event.preventDefault();
-    this.closeFlyout({ restoreFocus: true });
-  }
-
-  onViewportReflow() {
-    if (!this.activeFlyout || !this.activeFlyoutTrigger) {
-      return;
-    }
-
-    if (!this.isRailMode()) {
-      this.closeFlyout({ restoreFocus: false });
-      return;
-    }
-
-    this.positionFlyout(this.activeFlyoutTrigger, this.activeFlyout);
-  }
-
   isDesktop() {
     return this.matchMediaList?.matches;
   }
@@ -261,7 +195,7 @@ export default class SidebarController extends Controller {
     const mode = desktop ? (visibleOpen ? "expanded" : "rail") : "offcanvas";
 
     if (mode !== "rail") {
-      this.closeFlyout({ restoreFocus: false });
+      this.flyout.close({ restoreFocus: false });
     }
 
     this.element.dataset.pathogenSidebarMode = mode;
@@ -271,9 +205,6 @@ export default class SidebarController extends Controller {
 
     this.syncTriggerAttributes({ desktop, visibleOpen });
     this.syncSidebarTooltips({ mode });
-
-    this.element.removeAttribute("data-pathogen-sidebar-boot-open");
-    this.element.removeAttribute("data-pathogen-sidebar-boot-viewport");
 
     if (shouldPersist && desktop) {
       this.persistDesktopPreference();
@@ -372,8 +303,8 @@ export default class SidebarController extends Controller {
     });
 
     this.submenuTriggerTargets.forEach((trigger) => {
-      const flyout = this.findFlyoutForTrigger(trigger);
-      trigger.setAttribute("aria-expanded", String(this.activeFlyout === flyout));
+      const flyout = this.flyout.findFlyoutForTrigger(trigger);
+      trigger.setAttribute("aria-expanded", String(this.flyout.isActiveFor(flyout)));
       if (flyout?.id) {
         trigger.setAttribute("aria-controls", flyout.id);
       }
@@ -445,88 +376,7 @@ export default class SidebarController extends Controller {
     });
   }
 
-  openFlyout(trigger, flyout) {
-    this.closeFlyout({ restoreFocus: false });
-
-    this.activeFlyout = flyout;
-    this.activeFlyoutTrigger = trigger;
-
-    flyout.hidden = false;
-    flyout.dataset.state = "open";
-    trigger.setAttribute("aria-expanded", "true");
-    this.positionFlyout(trigger, flyout);
-  }
-
-  closeFlyout({ restoreFocus } = { restoreFocus: false }) {
-    if (!this.activeFlyout) {
-      return;
-    }
-
-    const trigger = this.activeFlyoutTrigger;
-
-    this.activeFlyout.hidden = true;
-    delete this.activeFlyout.dataset.state;
-    this.activeFlyout.style.removeProperty("top");
-    this.activeFlyout.style.removeProperty("left");
-    this.activeFlyout.style.removeProperty("right");
-
-    if (trigger?.isConnected) {
-      trigger.setAttribute("aria-expanded", "false");
-      if (restoreFocus && typeof trigger.focus === "function") {
-        trigger.focus();
-      }
-    }
-
-    this.activeFlyout = null;
-    this.activeFlyoutTrigger = null;
-  }
-
-  focusFirstFlyoutItem() {
-    if (!this.activeFlyout) return;
-
-    const first = this.activeFlyout.querySelector("a[href], button:not(:disabled), [tabindex]:not([tabindex='-1'])");
-    first?.focus();
-  }
-
-  findFlyoutForTrigger(trigger) {
-    const id = trigger?.dataset?.pathogenSidebarFlyoutId;
-    if (!id) return null;
-
-    return this.flyoutTargets.find((candidate) => candidate.id === id) || null;
-  }
-
   isRailMode() {
     return this.isDesktop() && this.element.dataset.pathogenSidebarMode === "rail";
-  }
-
-  positionFlyout(trigger, flyout) {
-    const triggerRect = trigger.getBoundingClientRect();
-    const gap = 8;
-    const viewportPadding = 8;
-    const isRtl = this.isRtl();
-
-    const width = Math.min(288, window.innerWidth - viewportPadding * 2);
-    flyout.style.maxWidth = `${width}px`;
-
-    const measuredHeight = flyout.getBoundingClientRect().height;
-    const maxTop = Math.max(viewportPadding, window.innerHeight - measuredHeight - viewportPadding);
-    const top = Math.min(Math.max(triggerRect.top, viewportPadding), maxTop);
-
-    flyout.style.top = `${top}px`;
-
-    if (isRtl) {
-      const right = Math.max(viewportPadding, window.innerWidth - triggerRect.left + gap);
-      flyout.style.right = `${right}px`;
-      flyout.style.removeProperty("left");
-      return;
-    }
-
-    const left = Math.max(viewportPadding, triggerRect.right + gap);
-    flyout.style.left = `${left}px`;
-    flyout.style.removeProperty("right");
-  }
-
-  isRtl() {
-    return document.documentElement.dir === "rtl";
   }
 }
