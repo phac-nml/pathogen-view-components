@@ -7,6 +7,7 @@ pin 'pathogen_view_components/tooltip_controller', to: 'pathogen_view_components
 pin 'pathogen_view_components/disclosure_controller', to: 'pathogen_view_components/disclosure_controller.js'
 pin 'pathogen_view_components/data_grid_controller', to: 'pathogen_view_components/data_grid_controller.js'
 pin 'pathogen_view_components/sidebar_controller', to: 'pathogen_view_components/sidebar_controller.js'
+pin 'pathogen_view_components/sidebar_controller/flyout', to: 'pathogen_view_components/sidebar_controller/flyout.js'
 pin 'pathogen_view_components/data_grid_controller/navigation',
     to: 'pathogen_view_components/data_grid_controller/navigation.js'
 pin 'pathogen_view_components/data_grid_controller/scroll',

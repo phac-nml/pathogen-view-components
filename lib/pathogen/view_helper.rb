@@ -36,9 +36,13 @@ module Pathogen
     # Must be rendered inside the document <head> (alongside any dark-mode check)
     # so it runs before the sidebar paints. Placed in <body> it runs after the
     # first paint — under Turbo the default-open sidebar flashes before collapsing.
-    def pathogen_sidebar_boot_tag(id: 'sidebar', breakpoint: default_sidebar_breakpoint)
-      sidebar_id = id.presence || 'sidebar'
-      javascript_tag(pathogen_sidebar_boot_script(sidebar_id, breakpoint))
+    #
+    # A single tag configures every sidebar on the page: each provider is read for
+    # its own storage key, breakpoint, and default open state, so hosts with more
+    # than one sidebar need only one boot tag. The +breakpoint:+ argument is the
+    # fallback used for providers that do not declare their own.
+    def pathogen_sidebar_boot_tag(breakpoint: default_sidebar_breakpoint, **)
+      javascript_tag(pathogen_sidebar_boot_script(breakpoint))
     end
 
     # Render typography with a preset configuration
@@ -74,49 +78,56 @@ module Pathogen
 
     private
 
-    def pathogen_sidebar_boot_script(sidebar_id, breakpoint)
+    # Pre-paint anti-flash script. Sets the same `data-pathogen-sidebar-mode` and
+    # `data-pathogen-sidebar-open` attributes the Stimulus controller keeps in
+    # sync, so the CSS needs only one selector family for boot and connected
+    # states. Providers already parsed run synchronously; later ones are caught
+    # by a MutationObserver microtask before first paint.
+    def pathogen_sidebar_boot_script(breakpoint)
       <<~JS.squish
         (function() {
-          #{sidebar_boot_configuration(sidebar_id, breakpoint)}
-          #{sidebar_boot_observer(sidebar_id)}
+          var fallbackBreakpoint = #{breakpoint.to_json};
+          #{sidebar_boot_configure}
+          #{sidebar_boot_observer}
         })();
       JS
     end
 
-    def sidebar_boot_configuration(sidebar_id, breakpoint)
-      storage_key = Pathogen::Sidebar.storage_key(sidebar_id)
-
+    def sidebar_boot_configure
       <<~JS
-        const desktop = window.matchMedia(#{breakpoint.to_json}).matches;
-        let value = 'true';
-        try {
-          const stored = window.localStorage.getItem(#{storage_key.to_json});
-          if (stored === 'false') value = 'false';
-          if (stored === 'true') value = 'true';
-        } catch (error) { value = 'true'; }
+        var configure = function(sidebar) {
+          var breakpoint = sidebar.getAttribute('data-pathogen--sidebar-breakpoint-value') || fallbackBreakpoint;
+          var desktop = window.matchMedia(breakpoint).matches;
+          var storageKey = sidebar.getAttribute('data-pathogen--sidebar-storage-key-value');
+          var open = sidebar.getAttribute('data-pathogen--sidebar-open-value') !== 'false';
+          try {
+            var stored = storageKey ? window.localStorage.getItem(storageKey) : null;
+            if (stored === 'false') open = false;
+            else if (stored === 'true') open = true;
+          } catch (error) { /* storage may be unavailable */ }
+          var mode = desktop ? (open ? 'expanded' : 'rail') : 'offcanvas';
+          sidebar.setAttribute('data-pathogen-sidebar-mode', mode);
+          sidebar.setAttribute('data-pathogen-sidebar-open', String(desktop ? open : false));
+        };
       JS
     end
 
-    def sidebar_boot_observer(sidebar_id)
+    def sidebar_boot_observer
       <<~JS
-        const applyState = function(root) {
-          const sidebars = root.matches && root.matches('[data-pathogen-sidebar-id]')
-            ? [root]
-            : root.querySelectorAll('[data-pathogen-sidebar-id]');
-          sidebars.forEach(function(sidebar) {
-            if (sidebar.getAttribute('data-pathogen-sidebar-id') !== #{sidebar_id.to_json}) return;
-            sidebar.setAttribute('data-pathogen-sidebar-boot-open', desktop ? value : 'false');
-            sidebar.setAttribute('data-pathogen-sidebar-boot-viewport', desktop ? 'desktop' : 'mobile');
-          });
+        var applyState = function(root) {
+          if (root.matches && root.matches('[data-pathogen-sidebar-id]')) { configure(root); return; }
+          var nodes = root.querySelectorAll ? root.querySelectorAll('[data-pathogen-sidebar-id]') : [];
+          for (var i = 0; i < nodes.length; i++) configure(nodes[i]);
         };
 
         applyState(document);
-        const observer = new MutationObserver(function(records) {
-          records.forEach(function(record) {
-            record.addedNodes.forEach(function(node) {
-              if (node.nodeType === Node.ELEMENT_NODE) applyState(node);
-            });
-          });
+        var observer = new MutationObserver(function(records) {
+          for (var i = 0; i < records.length; i++) {
+            var added = records[i].addedNodes;
+            for (var j = 0; j < added.length; j++) {
+              if (added[j].nodeType === Node.ELEMENT_NODE) applyState(added[j]);
+            }
+          }
         });
         observer.observe(document.documentElement, { childList: true, subtree: true });
         document.addEventListener('DOMContentLoaded', function() { observer.disconnect(); }, { once: true });
