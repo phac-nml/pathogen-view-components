@@ -60,6 +60,8 @@ export default defineConfig({
       ],
       reporter: ["text-summary", "json-summary", "html", "lcov"],
       reportsDirectory: "coverage",
+      // Aspirational ratchet: opt-in via test:coverage:strict; fails until every
+      // included file reaches 100%. Not wired into CI yet.
       thresholds:
         process.env.VITEST_STRICT_COVERAGE === "1"
           ? {
