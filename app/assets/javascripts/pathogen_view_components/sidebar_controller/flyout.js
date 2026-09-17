@@ -133,6 +133,7 @@ export class SidebarFlyout {
     const clones = Array.from(source.children).map((child) => {
       const clone = child.cloneNode(true);
       if (clone.id) clone.removeAttribute("id");
+      if (clone.hasAttribute("data-controller")) clone.removeAttribute("data-controller");
       clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
       clone.querySelectorAll("[data-controller]").forEach((node) => node.removeAttribute("data-controller"));
       return clone;
