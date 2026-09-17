@@ -143,7 +143,7 @@ Sticky columns:
 Table action row (default `variant: :table`):
 
 ```erb
-<%# Hidden forms + detached submit buttons (see IRIDA shared/selection_buttons). %>
+<%# Hidden forms + detached submit buttons (see IRIDA Next shared/selection_buttons). %>
 <form id="select-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get">
   <input type="hidden" name="select" value="on">
 </form>
