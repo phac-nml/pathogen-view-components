@@ -19,8 +19,8 @@
     "build:css": "node scripts/build-pathogen-tailwind.mjs",
     "build:css:check": "node scripts/build-pathogen-tailwind.mjs --check",
     "build:css:watch": "node scripts/watch-pathogen-css.mjs",
-    "build:js": "node scripts/build-pathogen-demo.mjs",
-    "build:js:watch": "node scripts/build-pathogen-demo.mjs --watch"
+    "build:js": "node scripts/build-demo-javascript.mjs",
+    "build:js:watch": "node scripts/build-demo-javascript.mjs --watch"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
