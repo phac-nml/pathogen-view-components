@@ -261,6 +261,8 @@ export default class extends Controller {
 
   disabledValueChanged(nextDisabled) {
     if (nextDisabled) {
+      this.#touchStarted = false;
+      this.#touchPrimed = false;
       this.hide();
     }
   }
@@ -426,13 +428,13 @@ export default class extends Controller {
 
   #handleTouchStart() {
     /* v8 ignore next -- defensive guard: handler is bound only when both elements exist */
-    if (!this.#tooltipElement || !this.#triggerElement) return;
+    if (!this.#tooltipElement || !this.#triggerElement || this.disabledValue) return;
     this.#touchStarted = true;
   }
 
   #handleClick(event) {
     /* v8 ignore next -- defensive guard: handler is bound only when both elements exist */
-    if (!this.#tooltipElement || !this.#triggerElement || !this.#touchStarted) return;
+    if (!this.#tooltipElement || !this.#triggerElement || this.disabledValue || !this.#touchStarted) return;
 
     this.#touchStarted = false;
 
