@@ -1,0 +1,9 @@
+# pnpm 11 defaults this to `install`, which prints status lines on stdout
+# before `pnpm exec`/`pnpm run` and can hang nested invocations in CI.
+verifyDepsBeforeRun: false
+allowBuilds:
+  esbuild: true
+overrides:
+  vite: "^7.3.6"
+  undici: "^7.28.0"
+  esbuild: "^0.28.1"

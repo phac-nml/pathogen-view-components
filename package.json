@@ -4,7 +4,7 @@
   "description": "Stimulus controllers for Pathogen ViewComponents library",
   "main": "app/assets/javascripts/pathogen_view_components.js",
   "type": "module",
-  "packageManager": "pnpm@10.25.0",
+  "packageManager": "pnpm@11.22.0+sha512.1ff870c4c6133dfd88fb2afc46dd13d47f09c9794b438c6fdb47ca98caf3bc16381ee0be93a091b8e3824cf01f889f46d7d9e20910fb0be1ab0fb5baa80dd621",
   "scripts": {
     "format": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
     "format:changed": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
@@ -50,13 +50,6 @@
   },
   "peerDependencies": {
     "@hotwired/turbo-rails": "^8.0.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "vite": "^7.3.6",
-      "undici": "^7.28.0",
-      "esbuild": "^0.28.1"
-    }
   },
   "license": "MIT",
   "msw": {

@@ -14,19 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+      - name: Set up pnpm and install dependencies
+        uses: pnpm/setup@v2
         with:
-          version: 10.25.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Verify lockfile
-        run: pnpm install --frozen-lockfile
+          runtime: node@24.14.1
+          cache: true
 
       - name: Lint JavaScript and ERB
         run: pnpm lint
@@ -66,19 +58,11 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+      - name: Set up pnpm and install dependencies
+        uses: pnpm/setup@v2
         with:
-          version: 10.25.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install JavaScript dependencies
-        run: pnpm install --frozen-lockfile
+          runtime: node@24.14.1
+          cache: true
 
       - name: Verify bin scripts are executable
         run: test -x bin/rails && test -x bin/test && test -x bin/verify
@@ -104,19 +88,11 @@ jobs:
           ruby-version: .ruby-version
           bundler-cache: true
 
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v6
+      - name: Set up pnpm and install dependencies
+        uses: pnpm/setup@v2
         with:
-          version: 10.25.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-
-      - name: Install JavaScript dependencies
-        run: pnpm install --frozen-lockfile
+          runtime: node@24.14.1
+          cache: true
 
       - name: Precompile production assets
         working-directory: demo
