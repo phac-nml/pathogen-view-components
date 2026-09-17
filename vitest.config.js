@@ -51,5 +51,25 @@ export default defineConfig({
     passWithNoTests: true,
     clearMocks: true,
     restoreMocks: true,
+    coverage: {
+      provider: "v8",
+      all: true,
+      include: [
+        "app/assets/javascripts/pathogen_view_components/**/*.js",
+        "app/assets/javascripts/pathogen_view_components.js",
+      ],
+      reporter: ["text-summary", "json-summary", "html", "lcov"],
+      reportsDirectory: "coverage",
+      thresholds:
+        process.env.VITEST_STRICT_COVERAGE === "1"
+          ? {
+              lines: 100,
+              functions: 100,
+              branches: 100,
+              statements: 100,
+              perFile: true,
+            }
+          : undefined,
+    },
   },
 });

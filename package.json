@@ -14,6 +14,8 @@
     "herb:lint:fix": "herb-lint --fix",
     "test": "vitest run",
     "test:unit": "vitest run test/javascript",
+    "test:coverage": "vitest run --coverage",
+    "test:coverage:strict": "VITEST_STRICT_COVERAGE=1 vitest run --coverage",
     "lint": "prettier --check . && eslint app/assets/javascripts test/javascript && pnpm herb:lint && pnpm herb:format:check",
     "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
     "build:css": "node scripts/build-pathogen-tailwind.mjs",
@@ -41,7 +43,8 @@
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
     "vite": "^7.3.6",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.0"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
