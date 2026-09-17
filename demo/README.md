@@ -6,7 +6,7 @@ A self-contained Rails app that runs [Lookbook](https://lookbook.build) so you c
 
 - Ruby 3.3+
 - Bundler
-- Node.js 24 and pnpm 10.25 (for esbuild and the CSS builds)
+- Node.js 24 and pnpm 11.22 (for esbuild and the CSS builds)
 
 ## Getting started
 

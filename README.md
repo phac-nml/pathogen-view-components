@@ -19,7 +19,7 @@ For developing this repository:
 - Ruby **3.3+**
 - Rails **8.1+**
 - `view_component` **>= 4.0, < 5.0**
-- Node.js **24** and pnpm **10.25**
+- Node.js **24** and pnpm **11.22**
 
 JavaScript dependencies (installed by the host application):
 
