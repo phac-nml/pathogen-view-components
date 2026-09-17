@@ -11,6 +11,7 @@ export function pathogenBuildOptions({ pathogenRoot, hostRoot, production = fals
     format: "esm",
     target: "es2022",
     minify: production,
+    sourcemap: !production,
     splitting: false,
     define: {
       "import.meta.env.DEV": JSON.stringify(!production),
