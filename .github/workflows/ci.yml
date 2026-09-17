@@ -11,7 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write
+    outputs:
+      coverage-table: ${{ steps.coverage.outputs.table }}
 
     steps:
       - name: Checkout
@@ -29,57 +30,67 @@ jobs:
       - name: Run JavaScript tests with coverage
         run: pnpm test:coverage
 
-      - name: Capture JavaScript coverage metrics
+      - name: Capture JavaScript coverage table
         id: coverage
         run: |
           node <<'NODE' >> "$GITHUB_OUTPUT"
           const fs = require("fs");
-          const summaryPath = "coverage/coverage-summary.json";
-          const summary = JSON.parse(fs.readFileSync(summaryPath, "utf8")).total;
-
-          const toFixed = (metric) => Number(summary[metric].pct).toFixed(2);
-          console.log(`lines=${toFixed("lines")}`);
-          console.log(`statements=${toFixed("statements")}`);
-          console.log(`functions=${toFixed("functions")}`);
-          console.log(`branches=${toFixed("branches")}`);
+          const summary = JSON.parse(fs.readFileSync("coverage/coverage-summary.json", "utf8")).total;
+          const pct = (metric) => Number(summary[metric].pct).toFixed(2);
+          const table = [
+            "### JavaScript Coverage",
+            "",
+            "| Metric | Coverage |",
+            "| --- | ---: |",
+            `| Lines | ${pct("lines")}% |`,
+            `| Statements | ${pct("statements")}% |`,
+            `| Functions | ${pct("functions")}% |`,
+            `| Branches | ${pct("branches")}% |`,
+          ].join("\n");
+          console.log("table<<PVC_COVERAGE_EOF");
+          console.log(table);
+          console.log("PVC_COVERAGE_EOF");
           NODE
 
       - name: Publish JavaScript coverage summary
-        run: |
-          {
-            echo "### JavaScript Coverage"
-            echo
-            echo "| Metric | Coverage |"
-            echo "| --- | ---: |"
-            echo "| Lines | ${{ steps.coverage.outputs.lines }}% |"
-            echo "| Statements | ${{ steps.coverage.outputs.statements }}% |"
-            echo "| Functions | ${{ steps.coverage.outputs.functions }}% |"
-            echo "| Branches | ${{ steps.coverage.outputs.branches }}% |"
-          } >> "$GITHUB_STEP_SUMMARY"
+        run: echo "${{ steps.coverage.outputs.table }}" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Upload JavaScript coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: javascript-coverage
+          path: coverage
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload coverage to Codecov
+        continue-on-error: true
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          flags: javascript
+          fail_ci_if_error: false
+          verbose: true
+
+  # Isolated so the pull-requests:write token is never exposed to build/test steps.
+  coverage-comment:
+    needs: javascript
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
       - name: Comment JavaScript coverage on PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         continue-on-error: true
         uses: actions/github-script@v8
         env:
-          COVERAGE_LINES: ${{ steps.coverage.outputs.lines }}
-          COVERAGE_STATEMENTS: ${{ steps.coverage.outputs.statements }}
-          COVERAGE_FUNCTIONS: ${{ steps.coverage.outputs.functions }}
-          COVERAGE_BRANCHES: ${{ steps.coverage.outputs.branches }}
+          COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
         with:
           script: |
             const marker = "<!-- pvc-javascript-coverage -->";
-            const body = [
-              marker,
-              "### JavaScript Coverage",
-              "",
-              "| Metric | Coverage |",
-              "| --- | ---: |",
-              `| Lines | ${process.env.COVERAGE_LINES}% |`,
-              `| Statements | ${process.env.COVERAGE_STATEMENTS}% |`,
-              `| Functions | ${process.env.COVERAGE_FUNCTIONS}% |`,
-              `| Branches | ${process.env.COVERAGE_BRANCHES}% |`,
-            ].join("\n");
+            const body = [marker, process.env.COVERAGE_TABLE].join("\n");
 
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
@@ -109,23 +120,6 @@ jobs:
                 body,
               });
             }
-
-      - name: Upload JavaScript coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: javascript-coverage
-          path: coverage
-          if-no-files-found: error
-          retention-days: 14
-
-      - name: Upload coverage to Codecov
-        continue-on-error: true
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./coverage/lcov.info
-          flags: javascript
-          fail_ci_if_error: false
-          verbose: true
 
   lint:
     runs-on: ubuntu-latest
