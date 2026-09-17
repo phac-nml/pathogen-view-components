@@ -1,4 +1,4 @@
-// Import all Pathogen controllers using importmap-mapped paths
+// Import all Pathogen controllers for the host application bundle
 import TabsController from "pathogen_view_components/tabs_controller";
 import TooltipController from "pathogen_view_components/tooltip_controller";
 import DisclosureController from "pathogen_view_components/disclosure_controller";

@@ -40,20 +40,16 @@ module Pathogen
 
       initializer 'pathogen_view_components.assets' do |app|
         if app.config.respond_to?(:assets)
-          app.config.assets.precompile += %w[
-            pathogen_view_components.js pathogen_view_components.css
-          ]
+          app.config.assets.precompile += %w[pathogen_view_components.css]
 
-          # Keep source CSS as implementation detail; publish bundled asset only.
+          # Hosts bundle JavaScript; publish only the precompiled component CSS.
           if app.config.assets.respond_to?(:excluded_paths)
-            app.config.assets.excluded_paths << root.join('app/assets/stylesheets/pathogen').to_s
+            app.config.assets.excluded_paths += [
+              root.join('app/assets/stylesheets/pathogen').to_s,
+              root.join('app/assets/javascripts').to_s
+            ]
           end
         end
-      end
-
-      initializer 'pathogen_view_components.importmap', before: 'importmap' do |app|
-        app.config.importmap.paths << root.join('config/importmap.rb')
-        app.config.importmap.cache_sweepers << Engine.root.join('app/assets/javascripts')
       end
     end
   end

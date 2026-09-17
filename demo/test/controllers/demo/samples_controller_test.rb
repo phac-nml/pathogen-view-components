@@ -6,7 +6,7 @@ module Demo
   # Request tests for the paginated virtual DataGrid rows endpoint.
   class SamplesControllerTest < ActionDispatch::IntegrationTest
     test 'rows returns paginated JSON with global indexes and metadata' do
-      get rows_demo_samples_path, params: { page: 2, limit: 20 }, as: :json
+      get rows_demo_samples_path, params: { page: 2, limit: 20 }
 
       assert_response :success
 
@@ -28,14 +28,14 @@ module Demo
     end
 
     test 'rows clamps oversized limit values' do
-      get rows_demo_samples_path, params: { page: 1, limit: 500 }, as: :json
+      get rows_demo_samples_path, params: { page: 1, limit: 500 }
 
       assert_response :success
       assert_equal 100, response.parsed_body.dig('pagy', 'limit')
     end
 
     test 'rows returns the final page without error' do
-      get rows_demo_samples_path, params: { page: 100, limit: 50 }, as: :json
+      get rows_demo_samples_path, params: { page: 100, limit: 50 }
 
       assert_response :success
 
@@ -48,7 +48,7 @@ module Demo
     end
 
     test 'rows returns empty rows for out-of-range pages' do
-      get rows_demo_samples_path, params: { page: 101, limit: 50 }, as: :json
+      get rows_demo_samples_path, params: { page: 101, limit: 50 }
 
       assert_response :success, -> { "body: #{response.body}" }
 
@@ -59,7 +59,7 @@ module Demo
     end
 
     test 'rows supports optional name filter' do
-      get rows_demo_samples_path, params: { page: 1, limit: 20, name_cont: 'North Basin' }, as: :json
+      get rows_demo_samples_path, params: { page: 1, limit: 20, name_cont: 'North Basin' }
 
       assert_response :success
 

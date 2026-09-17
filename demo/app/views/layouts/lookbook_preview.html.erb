@@ -8,7 +8,7 @@
     <%= stylesheet_link_tag "pathogen_view_components" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "lookbook_preview" %>
-    <%= javascript_importmap_tags "lookbook_preview" %>
+    <%= javascript_include_tag "lookbook_preview", type: "module", "data-turbo-track": "reload" %>
 
     <%#
       Demo-only anti-flash shim. In a real host, place `pathogen_sidebar_boot_tag`

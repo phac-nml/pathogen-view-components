@@ -2,24 +2,12 @@
 
 require 'json'
 require 'test_helper'
-require 'yaml'
 
 class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
   JAVASCRIPT_ROOT = PROJECT_ROOT.join('app/assets/javascripts')
   MAIN_JAVASCRIPT_FILE = JAVASCRIPT_ROOT.join('pathogen_view_components.js')
-  CDN_PACKAGE_PATTERN = %r{/npm/(?<package>@[^/]+/[^@]+|[^@/]+)@(?<version>[^/]+)}
-  IMPORTMAP_PIN_PATTERN = /pin\s+['"]([^'"]+)['"]\s*,\s*to:\s*['"]([^'"]+)['"]/m
 
-  test 'every shipped JavaScript file has an importmap pin' do
-    expected_pins = JAVASCRIPT_ROOT.glob('**/*.js').to_h do |path|
-      relative_path = path.relative_path_from(JAVASCRIPT_ROOT).to_s
-      [relative_path.delete_suffix('.js'), relative_path]
-    end
-
-    assert_equal expected_pins, local_importmap_pins
-  end
-
-  test 'shipped controllers are imported, exported, registered, and pinned' do
+  test 'shipped controllers are imported, exported, and registered by the main entrypoint' do
     source = MAIN_JAVASCRIPT_FILE.read
     imports = source.scan(/import\s+(\w+)\s+from\s+"([^"]+)"/).to_h
     registrations = source.scan(/application\.register\("([^"]+)",\s*(\w+)\)/).to_h
@@ -28,10 +16,6 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     expected_imports = {}
     expected_registrations = {}
 
-    # Naming rule from each *_controller.js file, e.g. tabs_controller.js:
-    #   import/export class  -> TabsController
-    #   Stimulus registration -> pathogen--tabs
-    #   importmap module      -> pathogen_view_components/tabs_controller
     JAVASCRIPT_ROOT.glob('pathogen_view_components/*_controller.js').each do |path|
       module_name = path.relative_path_from(JAVASCRIPT_ROOT).to_s.delete_suffix('.js')
       basename = path.basename('.js').to_s.delete_suffix('_controller')
@@ -44,28 +28,6 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     assert_equal expected_registrations, registrations
     assert_empty expected_imports.keys - exports
     assert_includes exports, 'registerPathogenControllers'
-    assert_empty expected_imports.values - local_importmap_pins.keys
-  end
-
-  test 'JavaScript imports from this gem have importmap pins' do
-    local_imports = JAVASCRIPT_ROOT.glob('**/*.js').flat_map do |path|
-      path.read.scan(%r{from\s+"(pathogen_view_components(?:/[^"]+)?)"}).flatten
-    end.uniq
-
-    assert_empty local_imports - local_importmap_pins.keys
-  end
-
-  test 'importmap package versions match the pnpm lockfile' do
-    packages = YAML.safe_load(PROJECT_ROOT.join('pnpm-lock.yaml').read).fetch('packages')
-
-    mismatched = external_importmap_versions.filter_map do |name, package_version|
-      package, version = package_version.values_at(:package, :version)
-      next if packages.key?("#{package}@#{version}")
-
-      "#{name} (#{package}@#{version})"
-    end
-
-    assert_empty mismatched, "Importmap CDN pins missing from pnpm-lock.yaml:\n#{mismatched.join("\n")}"
   end
 
   test 'README dependency versions match package.json' do
@@ -97,24 +59,22 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     assert_match(/^registerPathogenControllers\(application\);$/, example)
   end
 
-  private
+  test 'README esbuild example aliases match the shipped host packages' do
+    shipped_aliases = PROJECT_ROOT.join('scripts/pathogen-esbuild-options.mjs').read[
+      /alias:\s*\{(?<block>.*?)\}/m,
+      :block
+    ]
+    assert shipped_aliases, 'pathogen-esbuild-options.mjs must define an alias block'
+    # Identity aliases (key mapped to the same quoted string) are the host-owned packages.
+    shipped_host_packages = shipped_aliases
+                            .scan(/(?:"([^"]+)"|(\w+)):\s*"([^"]+)"/)
+                            .filter_map { |quoted_key, bare_key, value| value if (quoted_key || bare_key) == value }
+                            .sort
 
-  def importmap_pins
-    PROJECT_ROOT.join('config/importmap.rb').read.scan(IMPORTMAP_PIN_PATTERN).to_h
-  end
+    documented = PROJECT_ROOT.join('README.md').read[/const hostPackages = \[(?<list>[^\]]*)\]/, :list]
+    assert documented, 'README esbuild example must define a hostPackages array'
+    documented_host_packages = documented.scan(/"([^"]+)"/).flatten.sort
 
-  def local_importmap_pins
-    importmap_pins.reject { |_name, target| target.start_with?('http') }
-  end
-
-  def external_importmap_versions
-    importmap_pins.filter_map do |name, target|
-      next unless target.start_with?('https://cdn.jsdelivr.net/npm/')
-
-      match = target.match(CDN_PACKAGE_PATTERN)
-      next unless match
-
-      [name, { package: match[:package], version: match[:version] }]
-    end.to_h
+    assert_equal shipped_host_packages, documented_host_packages
   end
 end

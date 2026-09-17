@@ -8,7 +8,6 @@ lib.mkMerge [
       libyaml
       openssl
       nodejs_24
-      pnpm_10
     ];
 
     # https://devenv.sh/languages/
