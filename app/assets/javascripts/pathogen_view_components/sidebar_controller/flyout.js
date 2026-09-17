@@ -94,6 +94,7 @@ export class SidebarFlyout {
     this.active.style.removeProperty("top");
     this.active.style.removeProperty("left");
     this.active.style.removeProperty("right");
+    this.active.style.removeProperty("max-height");
 
     if (trigger?.isConnected) {
       trigger.setAttribute("aria-expanded", "false");
@@ -179,6 +180,9 @@ export class SidebarFlyout {
     const maxTop = Math.max(VIEWPORT_PADDING, window.innerHeight - measuredHeight - VIEWPORT_PADDING);
     const top = Math.min(Math.max(triggerRect.top, VIEWPORT_PADDING), maxTop);
     flyout.style.top = `${top}px`;
+
+    const maxHeight = Math.max(0, window.innerHeight - top - VIEWPORT_PADDING);
+    flyout.style.maxHeight = `${maxHeight}px`;
 
     if (isRtl) {
       const right = Math.max(VIEWPORT_PADDING, window.innerWidth - triggerRect.left + FLYOUT_GAP);
