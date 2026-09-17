@@ -105,6 +105,22 @@ describe("data_grid_controller/pagination_mode", () => {
       expect(status.hidden).toBe(false);
     });
 
+    it("sets busy state when status element is missing", () => {
+      const grid = document.createElement("div");
+
+      setPaginationBusy(
+        {
+          grid,
+          status: null,
+          loadingMoreText: "Loading more rows",
+          loadedText: "Loaded rows",
+        },
+        true,
+      );
+
+      expect(grid.getAttribute("aria-busy")).toBe("true");
+    });
+
     it("keeps status untouched while busy when loading text is unavailable", () => {
       const grid = document.createElement("div");
       const status = document.createElement("p");
