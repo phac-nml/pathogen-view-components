@@ -12,6 +12,12 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toast_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toaster_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toast_settings_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toast_duration_preference.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toaster_controller/live_region_announcer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toaster_controller/stack_plan.js": FULL_COVERAGE,
 };
 
 export default defineConfig({
@@ -60,12 +66,17 @@ export default defineConfig({
       "pathogen_view_components/data_grid_controller": resolve(jsRoot, "data_grid_controller.js"),
       "pathogen_view_components/sidebar_controller": resolve(jsRoot, "sidebar_controller.js"),
       "pathogen_view_components/toolbar_controller": resolve(jsRoot, "toolbar_controller.js"),
+      // Subpath aliases must precede their base controller alias so Vite matches
+      // the more specific path first (base matches any importee with a trailing slash).
       "pathogen_view_components/toast_duration_preference": resolve(jsRoot, "toast_duration_preference.js"),
       "pathogen_view_components/toaster_controller/live_region_announcer": resolve(
         jsRoot,
         "toaster_controller/live_region_announcer.js",
       ),
       "pathogen_view_components/toaster_controller/stack_plan": resolve(jsRoot, "toaster_controller/stack_plan.js"),
+      "pathogen_view_components/toast_controller": resolve(jsRoot, "toast_controller.js"),
+      "pathogen_view_components/toaster_controller": resolve(jsRoot, "toaster_controller.js"),
+      "pathogen_view_components/toast_settings_controller": resolve(jsRoot, "toast_settings_controller.js"),
     },
   },
   test: {

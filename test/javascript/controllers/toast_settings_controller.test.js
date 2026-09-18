@@ -111,4 +111,45 @@ describe("toast_settings_controller", () => {
     expect(listener).toHaveBeenCalledTimes(1);
     expect(listener.mock.calls[0][0].detail.value).toBe("forever");
   });
+
+  it("falls back to the default storage key when the key value is blank", async () => {
+    const { select } = buildSettings({ storageKey: "" });
+    await waitForController();
+
+    select.value = "20000";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe("20000");
+  });
+
+  it("no-ops without a select target on connect and save", async () => {
+    const root = document.createElement("div");
+    root.setAttribute("data-controller", "pathogen--toast-settings");
+    document.body.appendChild(root);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(root, "pathogen--toast-settings");
+    expect(controller).not.toBeNull();
+    expect(() => controller.save()).not.toThrow();
+  });
+
+  it("survives storage errors while reflecting the stored preference", async () => {
+    const getItem = vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    const { select } = buildSettings({ selected: "20000" });
+    await waitForController();
+
+    expect(select.value).toBe("20000");
+    expect(getItem).toHaveBeenCalled();
+  });
+
+  it("keeps the server-rendered selection when the stored value matches no option", async () => {
+    window.localStorage.setItem(STORAGE_KEY, "99999");
+    const { select } = buildSettings({ selected: "20000" });
+    await waitForController();
+
+    expect(select.value).toBe("20000");
+  });
 });

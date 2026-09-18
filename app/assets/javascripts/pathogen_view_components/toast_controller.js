@@ -206,7 +206,6 @@ export default class extends Controller {
   #startTimer() {
     if (!this.#connected || this.#timerId !== null) return;
     if (this.dialogMode || this.timeoutValue <= 0) return;
-    if (this.#state !== "open") return;
 
     this.#startedAt = Date.now();
     this.#timerId = window.setTimeout(() => {
@@ -252,7 +251,6 @@ export default class extends Controller {
 
     this.#dismissTimerId = window.setTimeout(() => {
       this.#dismissTimerId = null;
-      if (!this.#connected) return;
       const parent = this.element.parentElement;
       if (parent) {
         this.dispatch("dismissed", {
