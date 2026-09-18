@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
+require_relative '../../lib/pathogen/inline_code_styles'
+
 module Pathogen
   # Pathogen::CopyableValue renders a compact, accessible inline display of a short
   # copyable text value with an integrated clipboard button.
+  #
+  # Shares the inline code surface recipe with {Pathogen::Typography::Code} and adds
+  # a grouped copy action sized for dense grids (24px minimum target).
   #
   # The value is always rendered in monospace. Clicking the copy button writes the
   # value to the clipboard via `navigator.clipboard.writeText()` and provides
@@ -15,35 +20,37 @@ module Pathogen
   #   render Pathogen::CopyableValue.new(value: "abc123", copied_message: "ID copied!")
   #
   class CopyableValue < Pathogen::Component
-    CONTAINER_CLASSES = %w[
-      inline-flex items-center align-middle
-      py-1 pl-2
-      font-mono text-[length:var(--type-meta)] leading-4 font-normal
-      rounded-[var(--pvc-radius-action)]
-      border border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface-muted)]
-      text-[var(--pvc-color-text)]
-    ].join(' ').freeze
+    CONTAINER_CLASSES = [
+      Pathogen::InlineCodeStyles::SURFACE_CLASSES,
+      %w[
+        inline-flex items-center align-middle
+        py-1 pl-2
+        font-mono text-[length:var(--type-meta)] leading-4 font-normal
+      ]
+    ].flatten.join(' ').freeze
 
     BUTTON_CLASSES = %w[
       inline-flex shrink-0 items-center justify-center self-stretch
-      -my-1 py-1 px-1.5
+      -my-1 min-h-6 min-w-6 p-0
       rounded-r-[calc(var(--pvc-radius-action)-1px)]
-      cursor-pointer
+      cursor-pointer border border-transparent
       text-[var(--pvc-color-text-muted)]
-      interactive-hover:bg-[var(--pvc-color-surface-muted)]
+      interactive-hover:bg-[var(--pvc-color-surface-raised)]
+      interactive-hover:text-[var(--pvc-color-text)]
+      interactive-hover:border-[var(--pvc-color-border-strong)]
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-[-2px]
-      transition-[color,background-color] duration-[var(--pvc-duration-fast)] ease-out
+      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:z-10
+      transition-[color,background-color,border-color] duration-[var(--pvc-duration-fast)] ease-out
     ].join(' ').freeze
 
     VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
 
-    ICON_SLOT_CLASSES = 'relative inline-flex size-3 shrink-0'
+    ICON_SLOT_CLASSES = 'relative inline-flex size-4 shrink-0'
 
-    ICON_CLASSES = 'absolute inset-0 size-3 shrink-0'
+    ICON_CLASSES = 'absolute inset-0 size-4 shrink-0'
 
-    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-3 shrink-0 text-[var(--pvc-color-success)]'
+    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-4 shrink-0 text-[var(--pvc-color-success)]'
 
     attr_reader :value
 
