@@ -10,6 +10,7 @@ const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.m
 const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
 const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/disclosure_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/sidebar_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/navigation.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source.js": FULL_COVERAGE,

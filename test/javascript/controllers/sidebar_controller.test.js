@@ -36,6 +36,30 @@ const setupMatchMedia = ({ matches }) => {
   return media;
 };
 
+const setupLegacyMatchMedia = ({ matches }) => {
+  let listeners = [];
+
+  const media = {
+    matches,
+    addListener: (callback) => {
+      listeners.push(callback);
+    },
+    removeListener: (callback) => {
+      listeners = listeners.filter((listener) => listener !== callback);
+    },
+    setMatches(nextMatches) {
+      this.matches = nextMatches;
+      listeners.forEach((listener) => listener({ matches: nextMatches }));
+    },
+  };
+
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => media),
+  );
+  return media;
+};
+
 const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   const provider = document.createElement("div");
   provider.className = "pathogen-sidebar-provider";
@@ -92,6 +116,8 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
 
 describe("sidebar_controller", () => {
   let application;
+
+  const getController = (provider) => application.getControllerForElementAndIdentifier(provider, "pathogen--sidebar");
 
   beforeEach(() => {
     document.body.removeAttribute("style");
@@ -404,5 +430,240 @@ describe("sidebar_controller", () => {
       const results = await axe.run(sidebar.provider);
       expect(results.violations, state).toEqual([]);
     }
+  });
+
+  it("supports legacy matchMedia addListener/removeListener APIs", async () => {
+    setupLegacyMatchMedia({ matches: true });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+
+    provider.remove();
+    await waitForController();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("skips media cleanup when the media list is absent on disconnect", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    controller.matchMediaList = null;
+
+    provider.remove();
+    await waitForController();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("toggles desktop state when invoked without an event target", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    controller.toggle();
+    await waitForController();
+    expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+
+    controller.toggle(new Event("click"));
+    await waitForController();
+    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+  });
+
+  it("ignores closeOffcanvas on desktop or when already closed", async () => {
+    const media = setupMatchMedia({ matches: true });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    expect(() => controller.closeOffcanvas()).not.toThrow();
+
+    media.setMatches(false);
+    await waitForController();
+    controller.offcanvasOpen = false;
+    expect(() => controller.closeOffcanvas()).not.toThrow();
+  });
+
+  it("ignores backdrop interactions on inner content and within the dialog bounds", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider, dialog, panel, trigger } = appendSidebar({ open: true });
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    const controller = getController(provider);
+    const closeSpy = vi.spyOn(controller, "closeOffcanvas");
+    vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue({ left: 0, right: 320, top: 0, bottom: 800 });
+
+    const backdrop = (clientX, clientY, target = dialog) =>
+      controller.closeOnBackdrop({ target, clientX, clientY, preventDefault: () => {} });
+
+    backdrop(100, 100, panel);
+    backdrop(100, 100);
+    expect(closeSpy).not.toHaveBeenCalled();
+
+    backdrop(-10, 100);
+    backdrop(500, 100);
+    backdrop(100, -10);
+    backdrop(100, 900);
+    expect(closeSpy).toHaveBeenCalledTimes(4);
+  });
+
+  it("restores desktop expanded preference from localStorage", async () => {
+    setupMatchMedia({ matches: true });
+    window.localStorage.setItem("pathogen.sidebar.specimen-sidebar.open", "true");
+
+    const { provider } = appendSidebar({ open: false });
+    await waitForController();
+
+    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+  });
+
+  it("skips dialog sync when dialog or panel targets are missing", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+
+    Object.defineProperty(controller, "hasPanelTarget", { value: false, configurable: true });
+    expect(() => controller.syncDialogState({ desktop: true, visibleOpen: true })).not.toThrow();
+
+    Object.defineProperty(controller, "hasPanelTarget", { value: true, configurable: true });
+    Object.defineProperty(controller, "hasDialogTarget", { value: false, configurable: true });
+    expect(() => controller.syncDialogState({ desktop: true, visibleOpen: true })).not.toThrow();
+
+    Object.defineProperty(controller, "hasDialogTarget", { value: true, configurable: true });
+  });
+
+  it("does not reopen a dialog that is already open", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider, dialog, trigger } = appendSidebar({ open: true });
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    const controller = getController(provider);
+    dialog.showModal.mockClear();
+    controller.syncDialogState({ desktop: false, visibleOpen: true });
+
+    expect(dialog.showModal).not.toHaveBeenCalled();
+  });
+
+  it("locks the body scroll only once", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider, trigger } = appendSidebar({ open: true });
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    const controller = getController(provider);
+    const overflow = document.body.style.overflow;
+    controller.lockBodyScroll();
+    expect(document.body.style.overflow).toBe(overflow);
+  });
+
+  it("skips copying a dialog name when the sidebar target is missing", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    Object.defineProperty(controller, "hasSidebarTarget", { value: false, configurable: true });
+    expect(() => controller.copyNavigationNameToDialog()).not.toThrow();
+  });
+
+  it("copies aria-labelledby onto the dialog when the sidebar uses it", async () => {
+    setupMatchMedia({ matches: false });
+    const { dialog, nav, trigger } = appendSidebar({ open: true });
+    nav.removeAttribute("aria-label");
+    nav.setAttribute("aria-labelledby", "nav-heading");
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    expect(dialog.getAttribute("aria-labelledby")).toBe("nav-heading");
+  });
+
+  it("leaves the dialog unnamed when the sidebar has neither label", async () => {
+    setupMatchMedia({ matches: false });
+    const { dialog, nav, trigger } = appendSidebar({ open: true });
+    nav.removeAttribute("aria-label");
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    expect(dialog.hasAttribute("aria-label")).toBe(false);
+    expect(dialog.hasAttribute("aria-labelledby")).toBe(false);
+  });
+
+  it("omits aria-controls when the controlled element has no id", async () => {
+    setupMatchMedia({ matches: true });
+    const { panel, trigger } = appendSidebar({ open: true });
+    panel.removeAttribute("id");
+    await waitForController();
+
+    expect(trigger.hasAttribute("aria-controls")).toBe(false);
+  });
+
+  it("does not focus a missing close control", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    Object.defineProperty(controller, "hasCloseTarget", { value: false, configurable: true });
+    expect(() => controller.focusCloseControl()).not.toThrow();
+  });
+
+  it("falls back to an external trigger when no invoking trigger was recorded", async () => {
+    setupMatchMedia({ matches: false });
+    const { provider, trigger } = appendSidebar({ open: true });
+    await waitForController();
+
+    const controller = getController(provider);
+    controller.lastTrigger = null;
+    controller.restoreTriggerFocus();
+
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it("keeps an existing provider tabindex when falling back to it", async () => {
+    const media = setupMatchMedia({ matches: true });
+    const { provider, panel } = appendSidebar({ open: true });
+    provider.setAttribute("tabindex", "0");
+    panel.append(provider.querySelector('[data-pathogen--sidebar-target="trigger"]'));
+    await waitForController();
+
+    provider.querySelector("nav a").focus();
+    media.setMatches(false);
+    await waitForController();
+
+    expect(provider.getAttribute("tabindex")).toBe("0");
+    expect(document.activeElement).toBe(provider);
+  });
+
+  it("focuses the sidebar itself when it has no focusable items", async () => {
+    const media = setupMatchMedia({ matches: false });
+    const { provider, nav, trigger } = appendSidebar({ open: true });
+    nav.innerHTML = "<span>no focusable</span>";
+    await waitForController();
+
+    trigger.click();
+    await waitForController();
+
+    const controller = getController(provider);
+    const focusSpy = vi.spyOn(controller.sidebarTarget, "focus");
+    media.setMatches(true);
+    await waitForController();
+
+    expect(focusSpy).toHaveBeenCalled();
   });
 });
