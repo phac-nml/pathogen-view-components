@@ -201,6 +201,7 @@ export function handleWidgetArrow(event, activeCell) {
 }
 
 function consumesArrowKeys(element) {
+  /* v8 ignore next -- defensive guard; callers only pass resolved interactive elements */
   if (!(element instanceof HTMLElement)) return false;
   if (element.isContentEditable) return true;
 
