@@ -154,4 +154,55 @@ describe("disclosure_controller", () => {
     expect(opened).toHaveLength(1);
     expect(closed).toHaveLength(1);
   });
+
+  it("clears hasConnected on disconnect", async () => {
+    const { container } = appendDisclosure();
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
+    expect(controller.hasConnected).toBe(true);
+
+    container.remove();
+    await waitForController();
+
+    expect(controller.hasConnected).toBe(false);
+  });
+
+  it("no-ops applyDom when a target is missing", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--disclosure");
+    const button = document.createElement("button");
+    button.setAttribute("data-pathogen--disclosure-target", "button");
+    container.appendChild(button);
+    document.body.appendChild(container);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
+    expect(controller.hasPanelTarget).toBe(false);
+
+    controller.open();
+    await waitForController();
+
+    expect(button.hasAttribute("aria-expanded")).toBe(false);
+  });
+
+  it("skips aria-controls when the panel has no id", async () => {
+    const container = document.createElement("div");
+    container.setAttribute("data-controller", "pathogen--disclosure");
+    const button = document.createElement("button");
+    button.setAttribute("data-pathogen--disclosure-target", "button");
+    const panel = document.createElement("div");
+    panel.setAttribute("data-pathogen--disclosure-target", "panel");
+    container.appendChild(button);
+    container.appendChild(panel);
+    document.body.appendChild(container);
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--disclosure");
+    controller.open();
+    await waitForController();
+
+    expect(button.getAttribute("aria-expanded")).toBe("true");
+    expect(button.hasAttribute("aria-controls")).toBe(false);
+  });
 });
