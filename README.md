@@ -21,6 +21,8 @@ JavaScript coverage runs in CI and is surfaced in two places for pull requests:
 - Sticky PR comment with lines, statements, functions, and branches coverage.
 - Workflow summary plus uploaded `javascript-coverage` artifact containing HTML, LCOV, and JSON reports.
 
+Running `pnpm test:coverage` locally prints a per-file table with uncovered line numbers, making it easy to see exactly what to test next.
+
 ## Requirements
 
 For developing this repository:

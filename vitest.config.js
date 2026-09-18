@@ -58,7 +58,9 @@ export default defineConfig({
         "app/assets/javascripts/pathogen_view_components/**/*.js",
         "app/assets/javascripts/pathogen_view_components.js",
       ],
-      reporter: ["text-summary", "json-summary", "html", "lcov"],
+      // "text" prints the per-file table with uncovered line numbers plus a
+      // summary; "json-summary" feeds the CI PR comment and "lcov" feeds Codecov.
+      reporter: ["text", "json-summary", "html", "lcov"],
       reportsDirectory: "coverage",
       // Aspirational ratchet: opt-in via test:coverage:strict; fails until every
       // included file reaches 100%. Not wired into CI yet.
