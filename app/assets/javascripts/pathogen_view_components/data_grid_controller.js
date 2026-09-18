@@ -1,7 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
 import {
-  buildCellMap,
   columnIndexOf,
   firstDataCell,
   nextCellForKey,
@@ -15,22 +14,13 @@ import {
   focusInteractiveElement,
   handleInteractiveKeydown,
   hasInteractiveElements,
+  interactiveElements,
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
-import { computeVisibleColumnRange, measureRowHeight } from "pathogen_view_components/data_grid_controller/virtualizer";
-
-import {
-  cachedVirtualCells,
-  paginationContract,
-  setPaginationBusy,
-} from "pathogen_view_components/data_grid_controller/pagination_mode";
-import { PaginatedVirtualRows } from "pathogen_view_components/data_grid_controller/paginated_virtual_rows";
-import { CenterColumnWindow } from "pathogen_view_components/data_grid_controller/virtual_columns";
-import {
-  ensureVirtualCellVisible,
-  renderVirtualWindow,
-} from "pathogen_view_components/data_grid_controller/virtual_window";
+import { setPaginationBusy } from "pathogen_view_components/data_grid_controller/pagination_mode";
+import { VirtualViewport } from "pathogen_view_components/data_grid_controller/virtual_viewport";
+import { CellIndex } from "pathogen_view_components/data_grid_controller/cell_index";
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 const ACTIVE_CELL_SELECTOR = `${CELL_SELECTOR}[data-pathogen--data-grid-active="true"]`;
@@ -49,12 +39,6 @@ const NAVIGATION_KEYS = new Set([
 
 const ENTER_WIDGET_MODE_KEYS = new Set(["Enter", "F2"]);
 const GRID_EDGE_SHORTCUT_KEYS = new Set(["Home", "End"]);
-const RESIZE_DEBOUNCE_MS = 120;
-const DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2;
-const DEFAULT_VIRTUAL_COLUMN_WIDTH = 120;
-const DEFAULT_VIRTUAL_ROW_HEIGHT = 40;
-const DEFAULT_VIRTUAL_ROW_OVERSCAN = 10;
-const DEFAULT_VIRTUAL_PAGE_SIZE = 20;
 
 export default class extends Controller {
   static targets = [
@@ -72,35 +56,9 @@ export default class extends Controller {
   #lastActiveCell = null;
   #pendingFocusCoordinate = null;
 
-  #allRowElements = null; // Detached row elements (only in virtual mode)
-  #rowHeight = 0;
-  #visibleStartIndex = -1;
-  #visibleEndIndex = -1;
-  #visibleColumnStartIndex = -1;
-  #visibleColumnEndIndex = -1;
-  #rafId = null;
-  #resizeTimerId = null;
-  #virtualColumnWidths = [];
-  #virtualColumnOffsets = [];
-  #virtualPinnedCount = 0;
-  #virtualPinnedWidth = 0;
-  #virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
-  #virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
-  #virtualAllCells = null;
-  #centerColumnWindow = new CenterColumnWindow({
-    pinnedCount: () => this.#virtualPinnedCount,
-    cellSelector: CELL_SELECTOR,
-  });
+  #virtualViewport = null;
 
-  #virtualRows = null;
-
-  #pagination = null;
-
-  #allCellsCache = null;
-  #cellSetCache = null;
-  #cellIndexCache = new WeakMap();
-  #coordinateCellCache = null;
-  #navigationCellMapCache = null;
+  #cellIndex = new CellIndex(() => this.#readCells());
 
   connect() {
     this.#abortController?.abort();
@@ -120,37 +78,26 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.#teardown();
+  }
+
+  #teardown() {
     this.#abortController?.abort();
     this.#abortController = null;
-    if (this.#rafId) cancelAnimationFrame(this.#rafId);
-    this.#rafId = null;
-    if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
-    this.#resizeTimerId = null;
-    this.#allRowElements = null;
-    this.#virtualAllCells = null;
-    this.#virtualColumnWidths = [];
-    this.#virtualColumnOffsets = [];
-    this.#virtualPinnedCount = 0;
-    this.#virtualPinnedWidth = 0;
-    this.#virtualColumnOverscan = DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
-    this.#virtualRowOverscan = DEFAULT_VIRTUAL_ROW_OVERSCAN;
-    this.#visibleColumnStartIndex = -1;
-    this.#visibleColumnEndIndex = -1;
-    this.#centerColumnWindow.reset();
-    this.#virtualRows = null;
-    this.#pagination?.disconnect();
-    this.#pagination = null;
+    this.#virtualViewport?.disconnect();
+    this.#virtualViewport = null;
     this.#pendingFocusCoordinate = null;
+    this.#lastActiveCell = null;
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
   }
 
   cellTargetConnected() {
-    this.#invalidateCellCaches();
+    if (!this.#virtualViewport) this.#invalidateCellCaches();
   }
 
   cellTargetDisconnected() {
-    this.#invalidateCellCaches();
+    if (!this.#virtualViewport) this.#invalidateCellCaches();
   }
 
   handleFocusin(event) {
@@ -205,8 +152,9 @@ export default class extends Controller {
     }
 
     if (hasInteractiveElements(activeCell) && ENTER_WIDGET_MODE_KEYS.has(event.key)) {
-      event.preventDefault();
-      focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell));
+      if (focusInteractiveElement(activeCell, null, (cell) => this.#scrollCellIntoView(cell))) {
+        event.preventDefault();
+      }
       return;
     }
 
@@ -220,12 +168,11 @@ export default class extends Controller {
     this.#focusCell(nextCell);
 
     if ((event.ctrlKey || event.metaKey) && event.key === "Home" && this.hasScrollContainerTarget) {
-      this.scrollContainerTarget.scrollTop = 0;
-      this.scrollContainerTarget.scrollLeft = 0;
-      if (this.#isVirtual()) {
-        this.#visibleStartIndex = -1;
-        this.#renderVisibleRows();
-        this.#flushPageFetches(this.#visibleStartIndex, this.#visibleEndIndex);
+      if (this.#virtualViewport) {
+        this.#virtualViewport.resetScroll();
+      } else {
+        this.scrollContainerTarget.scrollTop = 0;
+        this.scrollContainerTarget.scrollLeft = 0;
       }
     }
   }
@@ -238,6 +185,7 @@ export default class extends Controller {
   }
 
   #activeCell() {
+    /* v8 ignore next -- defensive: handleKeydown verifies hasGridTarget before resolving the active cell */
     if (!this.hasGridTarget) return null;
 
     if (this.#lastActiveCell && this.#hasCachedCell(this.#lastActiveCell)) return this.#lastActiveCell;
@@ -249,6 +197,7 @@ export default class extends Controller {
       const columnIndex = columnIndexOf(fromFocused);
       if (rowIndex !== null && columnIndex !== null) {
         const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+        /* v8 ignore next -- defensive: a cached focused cell always resolves to a mapped coordinate */
         return mappedCell || fromFocused;
       }
       return fromFocused;
@@ -262,57 +211,28 @@ export default class extends Controller {
   }
 
   #allCells() {
-    if (this.#allCellsCache) return this.#allCellsCache;
+    return this.#cellIndex.cells;
+  }
 
-    let cells;
-    if (this.#isPaginatedVirtual() && this.#pagination) {
-      const cachedCells = this.#virtualAllCells ? [...this.#virtualAllCells] : [];
-      const renderedCells = this.hasViewportTarget
-        ? Array.from(this.viewportTarget.querySelectorAll(CELL_SELECTOR))
-        : this.hasCellTarget
-          ? [...this.cellTargets]
-          : [];
-
-      if (cachedCells.length === 0) {
-        cells = renderedCells;
-      } else {
-        const cachedSet = new Set(cachedCells);
-        cells = [...cachedCells, ...renderedCells.filter((cell) => !cachedSet.has(cell))];
-      }
-    } else if (this.#isVirtual() && this.#virtualAllCells) {
-      // Virtual mode must use stable logical ordering (row-major across all rows),
-      // not current DOM window ordering, so interactive traversal is deterministic.
-      cells = [...this.#virtualAllCells];
-    } else if (this.#isVirtual() && this.#allRowElements) {
-      const headerCells = this.hasGridTarget
-        ? Array.from(this.gridTarget.querySelectorAll(`${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"]`))
-        : [];
-      const bodyCells = [];
-      this.#allRowElements.forEach((row) => {
-        row.querySelectorAll(CELL_SELECTOR).forEach((cell) => {
-          bodyCells.push(cell);
-        });
-      });
-      cells = [...headerCells, ...bodyCells];
-    } else {
-      cells = this.hasCellTarget ? [...this.cellTargets] : [];
-    }
-
-    this.#primeCellCaches(cells);
-    return cells;
+  #readCells() {
+    if (this.#virtualViewport) return this.#virtualViewport.cells;
+    /* v8 ignore next -- defensive: a keyboard target only resolves when cell targets exist */
+    return this.hasCellTarget ? [...this.cellTargets] : [];
   }
 
   #absoluteVirtualEdgeCell(event) {
     if (!this.#isVirtual() || !(event.ctrlKey || event.metaKey) || event.key !== "End") return null;
-    if (!this.#virtualRows || this.#virtualRows.totalRows < 1) return null;
+    /* v8 ignore next -- defensive: virtual mode always has a viewport with at least one row here */
+    if (!this.#virtualViewport || this.#virtualViewport.totalRows < 1) return null;
 
-    const rowIndex = this.#virtualRows.totalRows;
+    const rowIndex = this.#virtualViewport.totalRows;
     const columnIndex = this.#lastColumnIndex();
+    /* v8 ignore next -- defensive: a virtual grid always exposes at least one column */
     if (columnIndex < 0) return null;
 
-    this.#ensureVirtualRowVisible(rowIndex - 1, columnIndex);
-    this.#invalidateCellCaches();
+    this.#virtualViewport.ensureVisible(rowIndex - 1, columnIndex);
 
+    /* v8 ignore next 5 -- defensive: ensureVisible renders the requested edge cell before this lookup */
     return (
       this.viewportTarget.querySelector(
         `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="${rowIndex}"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
@@ -321,10 +241,11 @@ export default class extends Controller {
   }
 
   #lastColumnIndex() {
-    if (this.#virtualColumnWidths.length > 0) return this.#virtualColumnWidths.length - 1;
-
+    /* v8 ignore start -- defensive: only reached from the virtual edge-cell path; the non-virtual fallback is unused */
+    if (this.#virtualViewport) return this.#virtualViewport.lastColumnIndex;
     const ariaColumnCount = Number.parseInt(this.gridTarget?.getAttribute("aria-colcount") || "", 10);
     return Number.isFinite(ariaColumnCount) && ariaColumnCount > 0 ? ariaColumnCount - 1 : -1;
+    /* v8 ignore stop */
   }
 
   #focusCell(cell) {
@@ -336,14 +257,15 @@ export default class extends Controller {
     }
 
     if (this.#isVirtual()) {
+      /* v8 ignore next -- defensive: navigation always targets a cell with a numeric row index */
       const virtualRowIndex = rowIndex === null ? null : rowIndex - 1;
-      this.#ensureVirtualRowVisible(virtualRowIndex, columnIndex);
-      this.#invalidateCellCaches();
+      this.#virtualViewport?.ensureVisible(virtualRowIndex, columnIndex);
     }
 
     const targetCell =
       rowIndex !== null && columnIndex !== null ? this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex) : cell;
 
+    /* v8 ignore next -- defensive: the resolved coordinate cell is connected when navigation reaches it */
     if (!targetCell?.isConnected) return;
 
     this.#pendingFocusCoordinate = null;
@@ -356,42 +278,50 @@ export default class extends Controller {
     ensureCellFullyVisible(
       cell,
       this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      /* v8 ignore next -- defensive: the grid target is always present when a cell is scrolled into view */
       this.hasGridTarget ? this.gridTarget : null,
       {
-        pinnedWidth: this.#isVirtual() ? this.#virtualPinnedWidth : null,
+        pinnedWidth: this.#virtualViewport?.pinnedWidth ?? null,
       },
     );
   }
 
   #focusAdjacentInteractiveCell(cell, direction) {
     const cells = this.#allCells();
-    const startIndex = this.#cellIndex(cell);
+    const startIndex = this.#cellPosition(cell);
+    /* v8 ignore next -- defensive: the active cell is always present in the cell index */
     if (startIndex === -1) return false;
 
     let index = startIndex + direction;
     while (index >= 0 && index < cells.length) {
       const candidate = cells[index];
-      if (hasInteractiveElements(candidate)) {
+      if (hasInteractiveElements(candidate) && interactiveElements(candidate).length > 0) {
         const rowIndex = rowIndexOf(candidate);
         const columnIndex = columnIndexOf(candidate);
         this.#focusCell(candidate);
 
         let focusCandidate = candidate;
+        /* v8 ignore next 3 -- defensive: interactive candidates carry numeric coordinates and stay mapped */
         if (rowIndex !== null && columnIndex !== null) {
           const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
           if (mappedCell) focusCandidate = mappedCell;
         }
+        /* v8 ignore next 4 -- defensive: guards a candidate detached by a re-render triggered while focusing */
         if (!focusCandidate.isConnected) {
           index += direction;
           continue;
         }
 
-        focusInteractiveElement(
+        // Rendering a detached candidate can change widget visibility. Check
+        // the connected cell once, then share that list with focus placement.
+        const elements = interactiveElements(focusCandidate);
+        const focused = focusInteractiveElement(
           focusCandidate,
-          direction < 0 ? this.#lastInteractiveElement(focusCandidate) : null,
+          direction < 0 ? elements.at(-1) : null,
           (activeCandidate) => this.#scrollCellIntoView(activeCandidate),
+          elements,
         );
-        return true;
+        if (focused) return true;
       }
       index += direction;
     }
@@ -401,7 +331,8 @@ export default class extends Controller {
 
   #pageSize() {
     const rowHeight = this.#isVirtual()
-      ? this.#rowHeight || 40
+      ? /* v8 ignore next -- defensive: the virtual viewport always reports a positive row height */
+        this.#virtualViewport?.rowHeight || 40
       : this.gridTarget.querySelector("tbody tr")?.offsetHeight || 1;
 
     const hasStickyHeader = this.hasGridTarget && this.gridTarget.querySelector('[role="columnheader"]') !== null;
@@ -419,7 +350,8 @@ export default class extends Controller {
 
   #resolveCell(target) {
     if (!(target instanceof HTMLElement)) return null;
-    return target.closest(CELL_SELECTOR);
+    const cell = target.closest(CELL_SELECTOR);
+    return cell && this.element.contains(cell) ? cell : null;
   }
 
   #setActiveCell(cell) {
@@ -452,48 +384,20 @@ export default class extends Controller {
     this.#lastActiveCell = cell;
   }
 
-  #primeCellCaches(cells) {
-    this.#allCellsCache = cells;
-    this.#cellSetCache = new Set(cells);
-    this.#coordinateCellCache = new Map();
-    this.#navigationCellMapCache = buildCellMap(cells);
-    this.#cellIndexCache = new WeakMap();
-
-    cells.forEach((cell, index) => {
-      this.#cellIndexCache.set(cell, index);
-
-      const rowIndex = rowIndexOf(cell);
-      const columnIndex = columnIndexOf(cell);
-      if (rowIndex === null || columnIndex === null) return;
-
-      this.#coordinateCellCache.set(`${rowIndex}:${columnIndex}`, cell);
-    });
-  }
-
   #invalidateCellCaches() {
-    this.#allCellsCache = null;
-    this.#cellSetCache = null;
-    this.#coordinateCellCache = null;
-    this.#navigationCellMapCache = null;
-    this.#cellIndexCache = new WeakMap();
+    this.#cellIndex.invalidate();
   }
 
   #navigationCellMap() {
-    if (this.#navigationCellMapCache) return this.#navigationCellMapCache;
-
-    this.#allCells();
-    return this.#navigationCellMapCache || new Map();
+    return this.#cellIndex.rows;
   }
 
   #hasCachedCell(cell) {
-    if (!this.#cellSetCache) this.#allCells();
-    return this.#cellSetCache ? this.#cellSetCache.has(cell) : false;
+    return this.#cellIndex.has(cell);
   }
 
   #cellByCoordinate(rowIndex, columnIndex) {
-    if (!this.#coordinateCellCache) this.#allCells();
-    if (!this.#coordinateCellCache) return null;
-    return this.#coordinateCellCache.get(`${rowIndex}:${columnIndex}`) || null;
+    return this.#cellIndex.at(rowIndex, columnIndex);
   }
 
   #resolveConnectedCellByCoordinate(rowIndex, columnIndex) {
@@ -508,10 +412,12 @@ export default class extends Controller {
       const headerCell = this.gridTarget.querySelector(
         `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
       );
+      /* v8 ignore next -- defensive: a header row always exposes the requested column cell */
       if (headerCell) return headerCell;
     }
 
     const cachedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+    /* v8 ignore next -- defensive: cached coordinate cells are connected during focus resolution */
     return cachedCell?.isConnected ? cachedCell : null;
   }
 
@@ -520,6 +426,7 @@ export default class extends Controller {
 
     const { rowIndex, columnIndex } = this.#pendingFocusCoordinate;
     const cell = this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex);
+    /* v8 ignore next -- defensive: pending focus is cleared before its cell can disconnect */
     if (!cell?.isConnected) return;
 
     this.#pendingFocusCoordinate = null;
@@ -527,19 +434,12 @@ export default class extends Controller {
     cell.focus({ preventScroll: true });
   }
 
-  #cellIndex(cell) {
-    if (this.#cellIndexCache.has(cell)) return this.#cellIndexCache.get(cell);
-
-    this.#allCells();
-    return this.#cellIndexCache.has(cell) ? this.#cellIndexCache.get(cell) : -1;
-  }
-
-  #lastInteractiveElement(cell) {
-    const interactiveElements = cell.querySelectorAll("a, button, input, select, textarea");
-    return interactiveElements[interactiveElements.length - 1] || null;
+  #cellPosition(cell) {
+    return this.#cellIndex.indexOf(cell);
   }
 
   #bindEvents(signal) {
+    document.addEventListener("turbo:before-cache", () => this.#teardown(), { signal });
     this.element.addEventListener("keydown", (event) => this.handleKeydown(event), {
       signal,
       capture: true,
@@ -567,11 +467,8 @@ export default class extends Controller {
       scrollContainer.addEventListener(
         "scroll",
         () => {
-          if (this.#isVirtual()) {
-            this.#onScroll();
-          } else {
-            this.#syncScrollAffordance();
-          }
+          this.#syncScrollAffordance();
+          this.#virtualViewport?.handleScroll();
         },
         {
           signal,
@@ -582,9 +479,7 @@ export default class extends Controller {
       scrollContainer.addEventListener(
         "scrollend",
         () => {
-          if (this.#isPaginatedVirtual()) {
-            this.#onScrollEnd();
-          }
+          this.#virtualViewport?.handleScrollEnd();
         },
         {
           signal,
@@ -597,7 +492,7 @@ export default class extends Controller {
       "resize",
       () => {
         if (this.#isVirtual()) {
-          this.#onResize();
+          this.#virtualViewport?.handleResize();
         } else {
           this.#syncScrollAffordance();
         }
@@ -613,204 +508,57 @@ export default class extends Controller {
     return this.hasViewportTarget;
   }
 
-  #isPaginatedVirtual() {
-    if (!this.hasGridTarget) return false;
-
-    const totalCount = Number.parseInt(this.gridTarget.dataset.pvcDataGridTotalCount || "", 10);
-    const rowsUrl = this.gridTarget.dataset.pvcDataGridRowsUrl || "";
-
-    return Number.isFinite(totalCount) && totalCount > 0 && rowsUrl.length > 0;
-  }
-
   #initVirtualMode() {
     const loadingText = this.#virtualStatusMessage(
       "loadingText",
-      this.virtualStatusTarget?.textContent?.trim() || null,
+      this.hasVirtualStatusTarget ? this.virtualStatusTarget.textContent.trim() : null,
     );
     const loadedText = this.#virtualStatusMessage("loadedText", null);
+    this.gridTarget.setAttribute("aria-busy", "true");
+    if (this.hasVirtualStatusTarget && loadingText) this.virtualStatusTarget.textContent = loadingText;
 
-    if (this.hasGridTarget) {
-      this.gridTarget.setAttribute("aria-busy", "true");
-    }
-    if (this.hasVirtualStatusTarget && loadingText) {
-      this.virtualStatusTarget.textContent = loadingText;
-    }
-
-    const viewport = this.viewportTarget;
-    const spacer = viewport.querySelector(".pvc-data-grid__spacer");
-
-    const rows = Array.from(viewport.querySelectorAll('[role="row"]'));
-
-    if (this.#isPaginatedVirtual()) {
-      this.#initPaginatedVirtualMode(rows, spacer, viewport, loadedText);
-      return;
-    }
-
-    this.#allRowElements = rows;
-    this.#virtualRows = {
-      totalRows: rows.length,
-      rowAt: (index) => this.#allRowElements[index],
-    };
-    this.#virtualAllCells = this.hasGridTarget ? Array.from(this.gridTarget.querySelectorAll(CELL_SELECTOR)) : null;
-    this.#readVirtualColumnContract();
-    this.#invalidateCellCaches();
-
-    this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
-
-    const totalHeight = rows.length * this.#rowHeight;
-    if (spacer) spacer.style.height = `${totalHeight}px`;
-
-    rows.forEach((row) => row.remove());
-
-    this.#renderVisibleRows();
-
-    this.#revealVirtualMode(loadedText);
-  }
-
-  #initPaginatedVirtualMode(rows, spacer, viewport, loadedText) {
-    const contract = paginationContract(this.gridTarget, DEFAULT_VIRTUAL_PAGE_SIZE);
-    this.#readVirtualColumnContract();
-
-    this.#pagination = new PaginatedVirtualRows({
-      rows,
-      contract,
-      cellSelector: CELL_SELECTOR,
-      rowHeight: () => this.#rowHeight,
-      visibleRange: () => ({ startIndex: this.#visibleStartIndex, endIndex: this.#visibleEndIndex }),
-      onRowsChanged: () => {
-        this.#updateVirtualAllCellsFromCache();
-        this.#invalidateCellCaches();
-        this.#hideErrorState();
-        this.#restorePendingFocus();
-      },
-      onVisibleRowsChanged: () => {
-        this.#visibleStartIndex = -1;
-        this.#visibleEndIndex = -1;
-        this.#scheduleVirtualRender();
-      },
-      setBusy: (isBusy) => this.#setPaginationBusy(isBusy),
-      handleError: (error) => this.#handlePaginationError(error),
-    });
-    this.#allRowElements = null;
-    this.#virtualRows = this.#pagination;
-
-    this.#rowHeight = measureRowHeight(viewport) || this.#rowHeight || DEFAULT_VIRTUAL_ROW_HEIGHT;
-    if (
-      contract.rowOffset > 0 &&
-      rows.length > 0 &&
-      this.hasScrollContainerTarget &&
-      this.scrollContainerTarget.scrollTop === 0
-    ) {
-      this.scrollContainerTarget.scrollTop = contract.rowOffset * this.#rowHeight;
-    }
-    if (spacer) spacer.style.height = `${contract.totalRows * this.#rowHeight}px`;
-
-    rows.forEach((row) => row.remove());
-    this.#updateVirtualAllCellsFromCache();
-    this.#invalidateCellCaches();
-    this.#renderVisibleRows();
-    this.#revealVirtualMode(loadedText);
-    this.#flushPageFetches(this.#visibleStartIndex, this.#visibleEndIndex);
-  }
-
-  #revealVirtualMode(loadedText) {
-    this.element.setAttribute("data-virtual-ready", "");
-    if (this.hasGridTarget) {
-      this.gridTarget.setAttribute("aria-busy", "false");
-    }
-    if (this.hasVirtualStatusTarget && loadedText) {
-      this.virtualStatusTarget.textContent = loadedText;
-    }
-  }
-
-  #onScroll() {
-    this.#syncScrollAffordance();
-    this.#scheduleVirtualRender();
-
-    if (this.#pagination) this.#pagination.handleScroll();
-  }
-
-  #onResize() {
-    if (this.#resizeTimerId) clearTimeout(this.#resizeTimerId);
-    this.#resizeTimerId = setTimeout(() => {
-      this.#resizeTimerId = null;
-      this.#refreshVirtualMeasurements();
-      this.#syncScrollAffordance();
-      this.#scheduleVirtualRender();
-    }, RESIZE_DEBOUNCE_MS);
-  }
-
-  #scheduleVirtualRender() {
-    if (this.#rafId) return;
-    this.#rafId = requestAnimationFrame(() => {
-      this.#rafId = null;
-      try {
-        this.#renderVisibleRows();
-      } catch (error) {
-        this.#reportError(error);
-      }
-    });
-  }
-
-  #refreshVirtualMeasurements() {
-    if (!this.#isVirtual()) return;
-    if (!this.#isPaginatedVirtual() && !this.#allRowElements) return;
-
-    this.#rowHeight = measureRowHeight(this.viewportTarget) || this.#rowHeight;
-
-    const spacer = this.viewportTarget.querySelector(".pvc-data-grid__spacer");
-    if (spacer) {
-      const totalRows = this.#virtualRows ? this.#virtualRows.totalRows : this.#allRowElements.length;
-      spacer.style.height = `${totalRows * this.#rowHeight}px`;
-    }
-
-    this.#visibleStartIndex = -1;
-    this.#visibleEndIndex = -1;
-    this.#visibleColumnStartIndex = -1;
-    this.#visibleColumnEndIndex = -1;
-  }
-
-  #renderVisibleRows() {
-    renderVirtualWindow({
-      rowSource: this.#virtualRows,
-      rowHeight: this.#rowHeight,
-      rowOverscan: this.#virtualRowOverscan,
-      scrollContainer: this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+    this.#virtualViewport = new VirtualViewport({
+      element: this.element,
+      grid: this.gridTarget,
       viewport: this.viewportTarget,
-      currentRange: {
-        rowStart: this.#visibleStartIndex,
-        rowEnd: this.#visibleEndIndex,
-        columnStart: this.#visibleColumnStartIndex,
-        columnEnd: this.#visibleColumnEndIndex,
+      scrollContainer: this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      cellSelector: CELL_SELECTOR,
+      focus: {
+        resolveCell: (target) => this.#resolveCell(target),
+        resolveFocusCell: (row, column) => this.#resolveConnectedCellByCoordinate(row, column),
+        getPendingFocusCoordinate: () => this.#pendingFocusCoordinate,
+        setActiveCell: (cell) => this.#setActiveCell(cell),
+        ensureFocusableCell: () => this.#ensureRenderedFocusableCell(),
+        restorePendingFocus: () => this.#restorePendingFocus(),
       },
-      setCurrentRange: ({ rowStart, rowEnd, columnStart, columnEnd }) => {
-        this.#visibleStartIndex = rowStart;
-        this.#visibleEndIndex = rowEnd;
-        this.#visibleColumnStartIndex = columnStart;
-        this.#visibleColumnEndIndex = columnEnd;
+      onCellsChanged: () => this.#invalidateCellCaches(),
+      /* v8 ignore next -- defensive: forwards asynchronous virtual render errors to the shared error surface */
+      onError: (error) => this.#reportError(error),
+      syncScrollAffordance: () => this.#syncScrollAffordance(),
+      setBusy: (busy) => this.#setPaginationBusy(busy),
+      onPageError: (error) => this.#handlePaginationError(error),
+      onPageSuccess: (hasPageErrors) => {
+        if (!hasPageErrors) this.#hideErrorState();
       },
-      computeColumnRange: () => this.#computeVisibleColumnRange(),
-      applyColumnWindow: (row, columnRange) => this.#centerColumnWindow.apply(row, columnRange),
-      headerRow: () => this.#virtualHeaderRow(),
-      resolveCell: (target) => this.#resolveCell(target),
-      resolveFocusCell: (rowIndex, columnIndex) => this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex),
-      getPendingFocusCoordinate: () => this.#pendingFocusCoordinate,
-      setActiveCell: (cell) => this.#setActiveCell(cell),
-      ensureFocusableCell: () => this.#ensureRenderedFocusableCell(),
     });
-    this.#restorePendingFocus();
-  }
-  #onScrollEnd() {
-    this.#pagination?.handleScrollEnd();
+    this.#virtualViewport.connect();
+    this.element.setAttribute("data-virtual-ready", "");
+    this.gridTarget.setAttribute("aria-busy", "false");
+    if (this.hasVirtualStatusTarget && loadedText) this.virtualStatusTarget.textContent = loadedText;
+    this.#virtualViewport.fetchVisiblePages();
   }
 
-  #flushPageFetches(startIndex, endIndex) {
-    this.#pagination?.flushRange(startIndex, endIndex);
+  #ensureRenderedFocusableCell() {
+    if (this.viewportTarget.querySelector(FOCUSABLE_CELL_SELECTOR)) return;
+    const fallbackCell = this.viewportTarget.querySelector(CELL_SELECTOR);
+    /* v8 ignore next -- defensive: a rendered virtual window always contains at least one cell */
+    if (fallbackCell) this.#setActiveCell(fallbackCell);
   }
 
   #setPaginationBusy(isBusy) {
     setPaginationBusy(
       {
+        /* v8 ignore next -- defensive: pagination only runs when the grid target is present */
         grid: this.hasGridTarget ? this.gridTarget : null,
         status: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
         loadingMoreText: this.#virtualStatusMessage("loadingMoreText", null),
@@ -822,144 +570,9 @@ export default class extends Controller {
 
   #handlePaginationError(error) {
     console.error("[pathogen--data-grid] Pagination fetch error", error);
-
-    const fetchErrorText = this.#virtualStatusMessage("fetchErrorText", null);
-    if (fetchErrorText) this.#showErrorState(fetchErrorText);
+    const message = this.#virtualStatusMessage("fetchErrorText", null);
+    if (message) this.#showErrorState(message);
     else this.#reportError(error);
-  }
-
-  #updateVirtualAllCellsFromCache() {
-    if (!this.hasGridTarget || !this.#pagination) return;
-
-    this.#virtualAllCells = cachedVirtualCells({
-      grid: this.gridTarget,
-      rows: this.#pagination.getCachedRows(),
-      cellSelector: CELL_SELECTOR,
-      allCellsForRow: (row) => this.#centerColumnWindow.allCellsForRow(row),
-    });
-  }
-
-  #ensureRenderedFocusableCell() {
-    if (this.viewportTarget.querySelector(FOCUSABLE_CELL_SELECTOR)) return;
-
-    const fallbackCell = this.viewportTarget.querySelector(CELL_SELECTOR);
-    if (fallbackCell) this.#setActiveCell(fallbackCell);
-  }
-
-  /**
-   * Ensures a virtual cell's logical row/column are rendered before focusing.
-   * @param {number|null} rowIndex - 0-based virtual row index
-   * @param {number|null} columnIndex - absolute logical column index
-   */
-  #ensureVirtualRowVisible(rowIndex, columnIndex = null) {
-    if (!this.#isVirtual()) return;
-    if (!this.#isPaginatedVirtual() && !this.#allRowElements) return;
-
-    ensureVirtualCellVisible({
-      rowIndex,
-      columnIndex,
-      rowHeight: this.#rowHeight,
-      scrollContainer: this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
-      visibleRange: { startIndex: this.#visibleStartIndex, endIndex: this.#visibleEndIndex },
-      pinnedCount: this.#virtualPinnedCount,
-      columnWidths: this.#virtualColumnWidths,
-      columnOffsets: this.#virtualColumnOffsets,
-      pinnedWidth: this.#virtualPinnedWidth,
-      isColumnRendered: (index) => this.#isColumnRendered(index),
-      prefetchRow: (index) => {
-        if (this.#isPaginatedVirtual()) this.#pagination?.ensureRowLoaded(index);
-      },
-      cancelScheduledRender: () => {
-        if (this.#rafId) {
-          cancelAnimationFrame(this.#rafId);
-          this.#rafId = null;
-        }
-      },
-      renderNow: () => this.#renderVisibleRows(),
-      reportError: (error) => this.#reportError(error),
-    });
-  }
-  #readVirtualColumnContract() {
-    if (!this.hasGridTarget) return;
-
-    const widthsValue = this.gridTarget.dataset.pvcDataGridColumnWidths || "";
-    let widths = widthsValue
-      .split(",")
-      .map((value) => Number(value.trim()))
-      .filter((value) => Number.isFinite(value) && value > 0);
-
-    if (widths.length === 0 && this.#virtualAllCells) {
-      const maxColumnIndex = this.#virtualAllCells.reduce((maxIndex, cell) => {
-        const columnIndex = columnIndexOf(cell);
-        return columnIndex === null ? maxIndex : Math.max(maxIndex, columnIndex);
-      }, -1);
-      if (maxColumnIndex >= 0) {
-        widths = Array.from({ length: maxColumnIndex + 1 }, () => DEFAULT_VIRTUAL_COLUMN_WIDTH);
-      }
-    }
-
-    this.#virtualColumnWidths = widths;
-
-    const totalColumns = this.#virtualColumnWidths.length;
-    const pinnedCountValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridPinnedCount || "0", 10);
-    this.#virtualPinnedCount =
-      Number.isFinite(pinnedCountValue) && totalColumns > 0 ? Math.max(0, Math.min(totalColumns, pinnedCountValue)) : 0;
-
-    const overscanValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridColumnOverscan || "", 10);
-    this.#virtualColumnOverscan =
-      Number.isFinite(overscanValue) && overscanValue >= 0 ? overscanValue : DEFAULT_VIRTUAL_COLUMN_OVERSCAN;
-
-    const rowHeightValue = Number.parseFloat(this.gridTarget.dataset.pvcDataGridRowHeight || "");
-    if (Number.isFinite(rowHeightValue) && rowHeightValue > 0) {
-      this.#rowHeight = rowHeightValue;
-    }
-
-    const rowOverscanValue = Number.parseInt(this.gridTarget.dataset.pvcDataGridRowOverscan || "", 10);
-    this.#virtualRowOverscan =
-      Number.isFinite(rowOverscanValue) && rowOverscanValue >= 0 ? rowOverscanValue : DEFAULT_VIRTUAL_ROW_OVERSCAN;
-
-    this.#virtualColumnOffsets = [];
-    let runningOffset = 0;
-    this.#virtualColumnWidths.forEach((width) => {
-      this.#virtualColumnOffsets.push(runningOffset);
-      runningOffset += width;
-    });
-
-    this.#virtualPinnedWidth = this.#virtualColumnWidths
-      .slice(0, this.#virtualPinnedCount)
-      .reduce((sum, width) => sum + width, 0);
-  }
-
-  #computeVisibleColumnRange() {
-    if (
-      !this.hasScrollContainerTarget ||
-      this.#virtualColumnWidths.length === 0 ||
-      this.#virtualPinnedCount >= this.#virtualColumnWidths.length
-    ) {
-      return null;
-    }
-
-    const viewportWidth =
-      this.scrollContainerTarget.clientWidth > 0 ? this.scrollContainerTarget.clientWidth : window.innerWidth;
-    return computeVisibleColumnRange({
-      scrollLeft: this.scrollContainerTarget.scrollLeft,
-      viewportWidth,
-      columnWidths: this.#virtualColumnWidths,
-      pinnedCount: this.#virtualPinnedCount,
-      overscan: this.#virtualColumnOverscan,
-    });
-  }
-
-  #isColumnRendered(columnIndex) {
-    if (columnIndex === null || columnIndex < this.#virtualPinnedCount) return true;
-    if (this.#visibleColumnStartIndex === -1 && this.#visibleColumnEndIndex === -1) return true;
-
-    return columnIndex >= this.#visibleColumnStartIndex && columnIndex < this.#visibleColumnEndIndex;
-  }
-
-  #virtualHeaderRow() {
-    if (!this.hasGridTarget) return null;
-    return this.gridTarget.querySelector('.pvc-data-grid__row--header[role="row"]');
   }
 
   #syncScrollAffordance() {

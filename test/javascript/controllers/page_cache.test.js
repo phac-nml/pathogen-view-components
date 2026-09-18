@@ -59,6 +59,22 @@ describe("page_cache", () => {
     expect(cache.needsPage(101, 50, 5000)).toBe(false);
   });
 
+  it("requests loading rows again when reconnecting from placeholder seeds", () => {
+    const placeholder = document.createElement("div");
+    placeholder.dataset.pvcDataGridGlobalRowIndex = "0";
+    placeholder.setAttribute("aria-busy", "true");
+    const loadedRow = document.createElement("div");
+    loadedRow.dataset.pvcDataGridGlobalRowIndex = "1";
+    const source = new PaginatedRowSource({ url: "/samples/rows.json", pageSize: 1, totalRows: 2 });
+
+    source.seedFromRows([placeholder, loadedRow]);
+
+    expect(source.needsRow(0)).toBe(true);
+    expect(source.getRow(0)).toBeNull();
+    expect(source.getRow(1)).toBe(loadedRow);
+    expect(source.missingPagesForRange(0, 1)).toEqual([1]);
+  });
+
   it("parses row HTML payloads by global index", () => {
     const rows = parseRows({
       rows: [
@@ -235,6 +251,20 @@ describe("page_cache", () => {
     expect(cache.getCachedRows().map((row) => row.dataset.pvcDataGridGlobalRowIndex)).toEqual(["0", "20", "40"]);
   });
 
+  it("reports changed row elements while preserving an unchanged retained row", () => {
+    const cache = new PageCache();
+    const originalRow = document.createElement("div");
+    const replacementRow = document.createElement("div");
+
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(true);
+    expect(cache.storeRows(new Map([[0, originalRow]]))).toBe(false);
+    expect(cache.storeRows(new Map([[0, replacementRow]]), 0)).toBe(false);
+    expect(cache.getRow(0)).toBe(originalRow);
+
+    expect(cache.storeRows(new Map([[0, replacementRow]]))).toBe(true);
+    expect(cache.getRow(0)).toBe(replacementRow);
+  });
+
   it("preserves the initial row offset in the pagination contract", () => {
     const grid = document.createElement("div");
     grid.dataset.pvcDataGridTotalCount = "5000";
@@ -249,6 +279,80 @@ describe("page_cache", () => {
       pageSize: 20,
       rowOffset: 40,
     });
+  });
+
+  it("returns no pages when the dataset or page size is not a positive number", () => {
+    expect(maxPageForCount(0, 50)).toBe(0);
+    expect(maxPageForCount(5000, 0)).toBe(0);
+    expect(pagesForRowRange(0, 5, 0)).toEqual([]);
+  });
+
+  it("returns the visible pages unchanged when prefetch is disabled", () => {
+    expect(pagesForRowRangeWithPrefetch(40, 61, 20, 0)).toEqual([3, 4]);
+  });
+
+  it("exposes the number of cached rows", () => {
+    const cache = new PageCache();
+    expect(cache.size).toBe(0);
+
+    cache.storeRows(new Map([[0, document.createElement("div")]]));
+
+    expect(cache.size).toBe(1);
+  });
+
+  it("ignores busy placeholders and rows without a finite global index when seeding", () => {
+    const cache = new PageCache();
+
+    const busyRow = document.createElement("div");
+    busyRow.dataset.pvcDataGridGlobalRowIndex = "0";
+    busyRow.setAttribute("aria-busy", "true");
+
+    const unindexedRow = document.createElement("div");
+
+    const loadedRow = document.createElement("div");
+    loadedRow.dataset.pvcDataGridGlobalRowIndex = "1";
+
+    cache.seedFromRows([busyRow, unindexedRow, loadedRow]);
+
+    expect(cache.getRow(0)).toBeNull();
+    expect(cache.getRow(1)).toBe(loadedRow);
+    expect(cache.size).toBe(1);
+  });
+
+  it("returns an empty row map when the payload is missing or malformed", () => {
+    expect(parseRows(null).size).toBe(0);
+    expect(parseRows({ rows: "not-an-array" }).size).toBe(0);
+  });
+
+  it("skips payload entries whose HTML does not contain a row element", () => {
+    const rows = parseRows({
+      rows: [
+        {
+          index: 5,
+          html: '<div role="row" data-pvc-data-grid-global-row-index="5"><div role="gridcell">Row</div></div>',
+        },
+        { index: 6, html: "<span>not a row</span>" },
+      ],
+    });
+
+    expect(rows.size).toBe(1);
+    expect(rows.get(5)?.getAttribute("role")).toBe("row");
+    expect(rows.has(6)).toBe(false);
+  });
+
+  it("never needs rows outside the dataset bounds", () => {
+    const source = new PaginatedRowSource({ url: "/rows.json", pageSize: 20, totalRows: 100 });
+
+    expect(source.needsRow(-1)).toBe(false);
+    expect(source.needsRow(Number.NaN)).toBe(false);
+    expect(source.needsRow(100)).toBe(false);
+  });
+
+  it("returns no missing pages for an invalid row range", () => {
+    const source = new PaginatedRowSource({ url: "/rows.json", pageSize: 20, totalRows: 100 });
+
+    expect(source.missingPagesForRange(-1, 5)).toEqual([]);
+    expect(source.missingPagesForRange(5, 5)).toEqual([]);
   });
 });
 

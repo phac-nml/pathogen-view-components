@@ -15,7 +15,6 @@ module Demo
         rows: [],
         pagination: { total_count: dataset.size, row_offset: @pagy.offset }
       )
-      @grid.before_render
 
       respond_to do |format|
         format.json

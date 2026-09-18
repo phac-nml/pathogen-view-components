@@ -45,6 +45,7 @@ export class PaginatedRowSource {
   #origin;
   #parseRows;
   #prefetchPages;
+  #retainedRowIndex;
   #searchParams;
   #totalRows;
   #url;
@@ -56,6 +57,7 @@ export class PaginatedRowSource {
     totalRows,
     searchParams = null,
     prefetchPages = DEFAULT_PREFETCH_PAGES,
+    retainedRowIndex = () => null,
     cache = new PageCache(),
     fetchFn = (...args) => fetch(...args),
     origin = window.location.origin,
@@ -66,6 +68,7 @@ export class PaginatedRowSource {
     this.#origin = origin;
     this.#parseRows = rowParser;
     this.#prefetchPages = prefetchPages;
+    this.#retainedRowIndex = retainedRowIndex;
     this.#searchParams = new URLSearchParams(searchParams || undefined);
     this.#totalRows = totalRows;
     this.#url = url;
@@ -78,6 +81,10 @@ export class PaginatedRowSource {
 
   get pageSize() {
     return this.#pageSize;
+  }
+
+  get isFetching() {
+    return this.#inFlight.size > 0;
   }
 
   seedFromRows(rows) {
@@ -106,7 +113,7 @@ export class PaginatedRowSource {
     // range's offset from a page boundary so every prefetched page is kept whole.
     const prefetchBuffer = (this.#prefetchPages + 1) * this.#pageSize;
     const retainRows = Math.max(bufferRows, prefetchBuffer);
-    this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows);
+    return this.#cache.evictOutsideRange(startIndex, endIndex, retainRows, this.#totalRows, this.#retainedRowIndex());
   }
 
   missingPagesForRange(startIndex, endIndex) {
@@ -131,23 +138,18 @@ export class PaginatedRowSource {
   }
 
   async fetchPage(page, { signal } = {}) {
-    const cacheKey = this.#generateCacheKey(page);
-    if (this.#inFlight.has(cacheKey)) return this.#inFlight.get(cacheKey);
+    if (this.#inFlight.has(page)) return this.#inFlight.get(page);
 
     const request = this.#requestPage(page, signal).finally(() => {
-      this.#inFlight.delete(cacheKey);
+      this.#inFlight.delete(page);
     });
 
-    this.#inFlight.set(cacheKey, request);
+    this.#inFlight.set(page, request);
     return request;
   }
 
-  #generateCacheKey(page) {
-    return `${page}:${this.#pageSize}`;
-  }
-
   #needsPage(page) {
-    if (this.#inFlight.has(this.#generateCacheKey(page))) return false;
+    if (this.#inFlight.has(page)) return false;
 
     return this.#cache.needsPage(page, this.#pageSize, this.#totalRows);
   }
@@ -183,12 +185,14 @@ export class PaginatedRowSource {
       }
 
       const payload = await response.json();
-      const rows = this.#parseRows(payload);
-      this.#cache.storeRows(rows);
+      if (signal?.aborted) return { rows: new Map(), aborted: true };
 
-      return { rows, aborted: false };
+      const rows = this.#parseRows(payload);
+      const cacheChanged = this.#cache.storeRows(rows, this.#retainedRowIndex());
+
+      return { rows, aborted: false, cacheChanged };
     } catch (error) {
-      if (error.name === "AbortError") {
+      if (signal?.aborted || error.name === "AbortError") {
         return { rows: new Map(), aborted: true };
       }
 

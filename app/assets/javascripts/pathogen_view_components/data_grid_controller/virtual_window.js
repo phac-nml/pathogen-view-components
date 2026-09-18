@@ -17,13 +17,14 @@ export function renderVirtualWindow({
   computeColumnRange,
   applyColumnWindow,
   headerRow,
+  onCellsChanged,
   resolveCell,
   resolveFocusCell,
   getPendingFocusCoordinate,
   setActiveCell,
   ensureFocusableCell,
 }) {
-  if (!rowSource) return;
+  if (!rowSource) return false;
 
   const scrollTop = scrollContainer ? scrollContainer.scrollTop : 0;
   const containerHeight = scrollContainer ? scrollContainer.clientHeight : 0;
@@ -44,7 +45,7 @@ export function renderVirtualWindow({
     (columnRange !== null &&
       columnRange.startIndex === currentRange.columnStart &&
       columnRange.endIndex === currentRange.columnEnd);
-  if (rowRangeUnchanged && columnRangeUnchanged) return;
+  if (rowRangeUnchanged && columnRangeUnchanged) return false;
 
   setCurrentRange({
     rowStart: startIndex,
@@ -53,39 +54,55 @@ export function renderVirtualWindow({
     columnEnd: columnRange ? columnRange.endIndex : -1,
   });
 
-  const spacer = viewport.querySelector(".pvc-data-grid__spacer");
   const pendingFocus = getPendingFocusCoordinate?.() ?? null;
   const focusedCell = pendingFocus ? null : resolveCell(document.activeElement);
   const focusedRowIndex = pendingFocus?.rowIndex ?? (focusedCell ? rowIndexOf(focusedCell) : null);
   const focusedColumnIndex = pendingFocus?.columnIndex ?? (focusedCell ? columnIndexOf(focusedCell) : null);
   const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
+  const focusedRow = focusedCell?.closest('[role="row"]');
   let didRestoreCellFocus = false;
 
-  viewport.querySelectorAll('[role="row"]').forEach((row) => row.remove());
-
-  const fragment = document.createDocumentFragment();
+  const renderedRows = [];
   for (let globalIndex = startIndex; globalIndex < endIndex; globalIndex += 1) {
     const row = rowSource.rowAt(globalIndex);
     if (!row) continue;
 
-    row.style.top = `${globalIndex * rowHeight}px`;
-    applyColumnWindow(row, columnRange);
-    fragment.appendChild(row);
+    const top = `${globalIndex * rowHeight}px`;
+    if (row.style.top !== top) row.style.top = top;
+    applyColumnWindow(row, columnRange, focusedCell);
+    renderedRows.push(row);
   }
 
-  if (spacer) {
-    spacer.after(fragment);
-  } else {
-    viewport.appendChild(fragment);
+  if (focusedRow && viewport.contains(focusedRow) && !renderedRows.includes(focusedRow)) {
+    const globalIndex = focusedRowIndex - 1;
+    if (globalIndex < startIndex || globalIndex >= endIndex) {
+      applyColumnWindow(focusedRow, columnRange, focusedCell);
+      if (globalIndex < startIndex) renderedRows.unshift(focusedRow);
+      else renderedRows.push(focusedRow);
+    }
   }
 
-  applyColumnWindow(headerRow(), columnRange);
+  const desiredRows = new Set(renderedRows);
+  Array.from(viewport.children).forEach((row) => {
+    if (row.matches('[role="row"]') && !desiredRows.has(row)) row.remove();
+  });
+  const spacer = viewport.querySelector(".pvc-data-grid__spacer");
+  let nextNode = spacer ? spacer.nextElementSibling : viewport.firstElementChild;
+  renderedRows.forEach((row) => {
+    if (row === nextNode) nextNode = row.nextElementSibling;
+    else viewport.insertBefore(row, nextNode);
+  });
+
+  applyColumnWindow(headerRow(), columnRange, focusedCell);
+  onCellsChanged?.();
 
   if (shouldRestoreCellFocus) {
     const mappedCell = resolveFocusCell(focusedRowIndex, focusedColumnIndex);
     if (mappedCell && mappedCell.isConnected) {
-      setActiveCell(mappedCell);
-      mappedCell.focus({ preventScroll: true });
+      if (!mappedCell.contains(document.activeElement)) {
+        setActiveCell(mappedCell);
+        mappedCell.focus({ preventScroll: true });
+      }
       didRestoreCellFocus = true;
     }
   }
@@ -93,6 +110,7 @@ export function renderVirtualWindow({
   if (!didRestoreCellFocus && !pendingFocus) ensureFocusableCell();
 
   rowSource.afterRender?.(startIndex, endIndex, rowOverscan * 2);
+  return true;
 }
 
 export function ensureVirtualCellVisible({

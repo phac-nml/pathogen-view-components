@@ -9,9 +9,17 @@ const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.m
 // allowlist below, and then fail CI if they ever regress.
 const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
 const RATCHET_ALLOWLIST = {
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/cell_index.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/paginated_virtual_rows.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_viewport.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
 };
 
 export default defineConfig({
@@ -19,6 +27,11 @@ export default defineConfig({
     alias: {
       application: resolve(demoJsRoot, "application.js"),
       "lookbook_mocks/tabs_lazy_load": resolve(demoJsRoot, "lookbook_mocks/tabs_lazy_load.js"),
+      "pathogen_view_components/data_grid_controller/virtual_viewport": resolve(
+        jsRoot,
+        "data_grid_controller/virtual_viewport.js",
+      ),
+      "pathogen_view_components/data_grid_controller/cell_index": resolve(jsRoot, "data_grid_controller/cell_index.js"),
       "pathogen_view_components/data_grid_controller/navigation": resolve(jsRoot, "data_grid_controller/navigation.js"),
       "pathogen_view_components/data_grid_controller/scroll": resolve(jsRoot, "data_grid_controller/scroll.js"),
       "pathogen_view_components/data_grid_controller/widget_mode": resolve(
