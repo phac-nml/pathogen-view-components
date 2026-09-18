@@ -4,6 +4,7 @@ import TooltipController from "pathogen_view_components/tooltip_controller";
 import DisclosureController from "pathogen_view_components/disclosure_controller";
 import DataGridController from "pathogen_view_components/data_grid_controller";
 import SidebarController from "pathogen_view_components/sidebar_controller";
+import ToolbarController from "pathogen_view_components/toolbar_controller";
 
 function registerPathogenControllers(application) {
   if (!application || typeof application.register !== "function") {
@@ -16,10 +17,11 @@ function registerPathogenControllers(application) {
   application.register("pathogen--disclosure", DisclosureController);
   application.register("pathogen--data-grid", DataGridController);
   application.register("pathogen--sidebar", SidebarController);
+  application.register("pathogen--toolbar", ToolbarController);
 
   if (import.meta.env?.DEV) {
     // eslint-disable-next-line no-console
-    console.debug("[pathogen] Registered 5 Stimulus controllers");
+    console.debug("[pathogen] Registered 6 Stimulus controllers");
   }
 }
 
@@ -29,5 +31,6 @@ export {
   DisclosureController,
   DataGridController,
   SidebarController,
+  ToolbarController,
   registerPathogenControllers,
 };

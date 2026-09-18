@@ -185,6 +185,9 @@ export default class extends Controller {
   handleKeydown(event) {
     if (!this.hasGridTarget) return;
 
+    const targetCell = this.#resolveCell(event.target);
+    if (!targetCell) return;
+
     const activeCell = this.#activeCell();
     if (!activeCell) return;
 
