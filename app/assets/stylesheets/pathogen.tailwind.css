@@ -153,6 +153,52 @@
 }
 
 @import "./pathogen/components/toolbar.css";
+
+/* CopyableValue icon crossfade */
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity var(--pvc-duration-fast) ease-out;
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 0;
+}
+
+[data-controller~="pathogen--copyable-value"]:is([data-state="success"], [data-state="error"])
+  [data-pathogen--copyable-value-target="icon"] {
+  opacity: 0;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="success"]
+  [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 1;
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  color: var(--pvc-color-danger);
+}
+
+@media (forced-colors: active) {
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+    transition: none;
+  }
+}
+
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
 @import "./pathogen_disclosure_layer.css";
