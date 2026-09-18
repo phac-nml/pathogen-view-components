@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { renderVirtualWindow } from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window";
+import {
+  ensureVirtualCellVisible,
+  renderVirtualWindow,
+} from "../../../app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window";
 
 function createRow(index, text = `Row ${index + 1}`) {
   const row = document.createElement("div");
@@ -189,5 +192,109 @@ describe("virtual row window incremental rendering", () => {
     expect(Array.from(viewport.children)).toEqual([spacer, rows[0], rows[1], rows[4]]);
     expect(observer.takeRecords().flatMap((change) => Array.from(change.removedNodes))).not.toContain(rows[4]);
     observer.disconnect();
+  });
+
+  it("returns false when there is no row source", () => {
+    expect(renderVirtualWindow({ rowSource: null })).toBe(false);
+  });
+
+  it("falls back to the window height when no scroll container is present", () => {
+    const { render } = createWindow({ scrollContainer: null });
+
+    expect(render()).toBe(true);
+  });
+
+  it("treats a null column range as unchanged after the first render", () => {
+    const { render } = createWindow({ computeColumnRange: () => null });
+
+    expect(render()).toBe(true);
+    expect(render()).toBe(false);
+  });
+
+  it("skips row indexes whose source returns no row", () => {
+    const { render } = createWindow({
+      rowSource: {
+        totalRows: 2,
+        rowAt: (index) => (index === 0 ? null : createRow(index)),
+        afterRender: vi.fn(),
+      },
+    });
+
+    expect(render()).toBe(true);
+  });
+
+  it("inserts rendered rows from the top when the viewport has no spacer", () => {
+    const viewport = document.createElement("div");
+    document.body.append(viewport);
+    const { render } = createWindow({ viewport });
+
+    expect(render()).toBe(true);
+    expect(viewport.querySelector('[role="row"]')).not.toBeNull();
+  });
+
+  it("does not restore focus when the focused cell cannot be mapped to a rendered cell", () => {
+    const ensureFocusableCell = vi.fn();
+    const { rows, render, invalidate } = createWindow({ resolveFocusCell: () => null, ensureFocusableCell });
+    render();
+    rows[0].querySelector("button").focus();
+
+    invalidate();
+    render();
+
+    expect(ensureFocusableCell).toHaveBeenCalled();
+  });
+});
+
+describe("ensureVirtualCellVisible", () => {
+  const baseArgs = (overrides = {}) => ({
+    rowIndex: 2,
+    columnIndex: null,
+    rowHeight: 40,
+    scrollContainer: { scrollTop: 0, scrollLeft: 0, clientHeight: 80, clientWidth: 120 },
+    visibleRange: { startIndex: 0, endIndex: 5 },
+    pinnedCount: 1,
+    columnWidths: [120],
+    columnOffsets: [0],
+    pinnedWidth: 120,
+    isColumnRendered: () => true,
+    prefetchRow: vi.fn(),
+    cancelScheduledRender: vi.fn(),
+    renderNow: vi.fn(),
+    reportError: vi.fn(),
+    ...overrides,
+  });
+
+  it("prefetches the requested row", () => {
+    const prefetchRow = vi.fn();
+
+    ensureVirtualCellVisible(baseArgs({ prefetchRow }));
+
+    expect(prefetchRow).toHaveBeenCalledWith(2);
+  });
+
+  it("does nothing further when there is no scroll container", () => {
+    const renderNow = vi.fn();
+
+    ensureVirtualCellVisible(baseArgs({ scrollContainer: null, renderNow }));
+
+    expect(renderNow).not.toHaveBeenCalled();
+  });
+
+  it("reports errors raised while rendering the target cell into view", () => {
+    const reportError = vi.fn();
+
+    ensureVirtualCellVisible(
+      baseArgs({
+        rowIndex: -1,
+        columnIndex: null,
+        isColumnRendered: () => false,
+        renderNow: () => {
+          throw new Error("render fail");
+        },
+        reportError,
+      }),
+    );
+
+    expect(reportError).toHaveBeenCalledWith(expect.any(Error));
   });
 });

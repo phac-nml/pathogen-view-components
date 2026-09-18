@@ -5,6 +5,9 @@ import {
   handleInteractiveKeydown,
   interactiveElements,
   resolveInteractiveTarget,
+  activateInteractiveElement,
+  handleTab,
+  handleWidgetArrow,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
 function renderCell(content) {
@@ -213,5 +216,213 @@ describe("data_grid_controller/widget_mode", () => {
     const succeeded = dispatchKey(cell, button, "Escape", {}, { exitWidgetMode: (target) => target.focus() });
     expect(succeeded.defaultPrevented).toBe(true);
     expect(document.activeElement).toBe(cell);
+  });
+});
+
+describe("data_grid_controller/widget_mode direct branch coverage", () => {
+  const makeEvent = (overrides = {}) => ({
+    key: "Tab",
+    shiftKey: false,
+    altKey: false,
+    ctrlKey: false,
+    metaKey: false,
+    target: null,
+    preventDefault: vi.fn(),
+    ...overrides,
+  });
+
+  it("resolves no interactive target for invalid arguments", () => {
+    const cell = renderCell("<button>Open</button>");
+
+    expect(resolveInteractiveTarget(null, cell)).toBeNull();
+    expect(resolveInteractiveTarget(cell.querySelector("button"), null)).toBeNull();
+  });
+
+  it("ignores activation requests for elements outside the checked widget set", () => {
+    const cell = renderCell('<button tabindex="0">One</button>');
+
+    activateInteractiveElement(cell, document.createElement("button"));
+
+    expect(cell.tabIndex).toBe(0);
+  });
+
+  it("ignores unknown keys in widget mode", () => {
+    const cell = renderCell('<button tabindex="0">Edit</button>');
+    const event = makeEvent({ key: "a", target: cell.querySelector("button") });
+
+    handleInteractiveKeydown(event, cell, {});
+
+    expect(event.preventDefault).not.toHaveBeenCalled();
+  });
+
+  describe("handleTab", () => {
+    it("ignores cells not marked as interactive", () => {
+      const cell = renderCell('<button tabindex="-1">Edit</button>');
+      cell.setAttribute("data-pathogen--data-grid-has-interactive", "false");
+      const event = makeEvent({ target: cell.querySelector("button") });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores events without an interactive target element", () => {
+      const cell = renderCell('<button tabindex="-1">Edit</button>');
+      const event = makeEvent({ target: null });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores focus that lives outside the active cell", () => {
+      const cell = renderCell('<button tabindex="-1">Edit</button>');
+      const outside = document.createElement("button");
+      document.body.append(outside);
+      const event = makeEvent({ target: outside });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores focus on an element that is no longer an available widget", () => {
+      const cell = renderCell('<button disabled tabindex="-1">One</button><button tabindex="-1">Two</button>');
+      const event = makeEvent({ target: cell.querySelector("button") });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("moves to the previous cell when Shift+Tab leaves the first widget", () => {
+      const cell = renderCell('<button tabindex="0">One</button><button tabindex="-1">Two</button>');
+      const first = cell.querySelector("button");
+      focusInteractiveElement(cell, first);
+      const moveToInteractiveCell = vi.fn(() => true);
+      const event = makeEvent({ target: first, shiftKey: true });
+
+      handleTab(event, cell, { moveToInteractiveCell });
+
+      expect(moveToInteractiveCell).toHaveBeenCalledWith(cell, -1);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it("does not consume Shift+Tab when the previous widget refuses focus", () => {
+      const cell = renderCell('<button tabindex="-1">One</button><button tabindex="0">Two</button>');
+      const [first, second] = cell.querySelectorAll("button");
+      focusInteractiveElement(cell, second);
+      vi.spyOn(first, "focus").mockImplementation(() => {});
+      const event = makeEvent({ target: second, shiftKey: true });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("does not consume Shift+Tab at the first widget when no previous cell accepts focus", () => {
+      const cell = renderCell('<button tabindex="0">One</button><button tabindex="-1">Two</button>');
+      const first = cell.querySelector("button");
+      focusInteractiveElement(cell, first);
+      const event = makeEvent({ target: first, shiftKey: true });
+
+      handleTab(event, cell, { moveToInteractiveCell: () => false });
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores Shift+Tab at the first widget when no cell handler is provided", () => {
+      const cell = renderCell('<button tabindex="0">One</button><button tabindex="-1">Two</button>');
+      const first = cell.querySelector("button");
+      focusInteractiveElement(cell, first);
+      const event = makeEvent({ target: first, shiftKey: true });
+
+      handleTab(event, cell, {});
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("handleWidgetArrow", () => {
+    it("ignores arrow keys pressed with a modifier", () => {
+      const cell = renderCell('<button tabindex="0">A</button><button tabindex="-1">B</button>');
+      const event = makeEvent({ key: "ArrowRight", altKey: true, target: cell.querySelector("button") });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores cells not marked as interactive", () => {
+      const cell = renderCell('<button tabindex="0">A</button><button tabindex="-1">B</button>');
+      cell.setAttribute("data-pathogen--data-grid-has-interactive", "false");
+      const event = makeEvent({ key: "ArrowRight", target: cell.querySelector("button") });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("does nothing when the cell holds a single widget", () => {
+      const cell = renderCell('<button tabindex="0">Only</button>');
+      const event = makeEvent({ key: "ArrowRight", target: cell.querySelector("button") });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores arrow events without an interactive target element", () => {
+      const cell = renderCell('<button tabindex="0">A</button><button tabindex="-1">B</button>');
+      const event = makeEvent({ key: "ArrowRight", target: null });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("ignores focus on an element that is no longer an available widget", () => {
+      const cell = renderCell(
+        '<button disabled>X</button><button tabindex="0">A</button><button tabindex="-1">B</button>',
+      );
+      const event = makeEvent({ key: "ArrowRight", target: cell.querySelector("button") });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["textarea", '<textarea tabindex="0"></textarea><button tabindex="-1">A</button>'],
+      ["select", '<select tabindex="0"><option>x</option></select><button tabindex="-1">A</button>'],
+    ])("leaves arrow handling to a %s widget", (selector, html) => {
+      const cell = renderCell(html);
+      const focused = cell.querySelector(selector);
+      const event = makeEvent({ key: "ArrowRight", target: focused });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("leaves arrow handling to a content-editable widget", () => {
+      const cell = renderCell('<button tabindex="0">A</button><button tabindex="-1">B</button>');
+      const focused = cell.querySelector("button");
+      Object.defineProperty(focused, "isContentEditable", { configurable: true, value: true });
+      const event = makeEvent({ key: "ArrowRight", target: focused });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it("treats a typeless input as a text field that consumes arrow keys", () => {
+      const cell = renderCell('<input tabindex="0"><button tabindex="-1">A</button>');
+      const event = makeEvent({ key: "ArrowRight", target: cell.querySelector("input") });
+
+      handleWidgetArrow(event, cell);
+
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
   });
 });

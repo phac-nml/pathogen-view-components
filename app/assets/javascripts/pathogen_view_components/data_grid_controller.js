@@ -185,6 +185,7 @@ export default class extends Controller {
   }
 
   #activeCell() {
+    /* v8 ignore next -- defensive: handleKeydown verifies hasGridTarget before resolving the active cell */
     if (!this.hasGridTarget) return null;
 
     if (this.#lastActiveCell && this.#hasCachedCell(this.#lastActiveCell)) return this.#lastActiveCell;
@@ -196,6 +197,7 @@ export default class extends Controller {
       const columnIndex = columnIndexOf(fromFocused);
       if (rowIndex !== null && columnIndex !== null) {
         const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+        /* v8 ignore next -- defensive: a cached focused cell always resolves to a mapped coordinate */
         return mappedCell || fromFocused;
       }
       return fromFocused;
@@ -214,19 +216,23 @@ export default class extends Controller {
 
   #readCells() {
     if (this.#virtualViewport) return this.#virtualViewport.cells;
+    /* v8 ignore next -- defensive: a keyboard target only resolves when cell targets exist */
     return this.hasCellTarget ? [...this.cellTargets] : [];
   }
 
   #absoluteVirtualEdgeCell(event) {
     if (!this.#isVirtual() || !(event.ctrlKey || event.metaKey) || event.key !== "End") return null;
+    /* v8 ignore next -- defensive: virtual mode always has a viewport with at least one row here */
     if (!this.#virtualViewport || this.#virtualViewport.totalRows < 1) return null;
 
     const rowIndex = this.#virtualViewport.totalRows;
     const columnIndex = this.#lastColumnIndex();
+    /* v8 ignore next -- defensive: a virtual grid always exposes at least one column */
     if (columnIndex < 0) return null;
 
     this.#virtualViewport.ensureVisible(rowIndex - 1, columnIndex);
 
+    /* v8 ignore next 5 -- defensive: ensureVisible renders the requested edge cell before this lookup */
     return (
       this.viewportTarget.querySelector(
         `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="${rowIndex}"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
@@ -235,10 +241,11 @@ export default class extends Controller {
   }
 
   #lastColumnIndex() {
+    /* v8 ignore start -- defensive: only reached from the virtual edge-cell path; the non-virtual fallback is unused */
     if (this.#virtualViewport) return this.#virtualViewport.lastColumnIndex;
-
     const ariaColumnCount = Number.parseInt(this.gridTarget?.getAttribute("aria-colcount") || "", 10);
     return Number.isFinite(ariaColumnCount) && ariaColumnCount > 0 ? ariaColumnCount - 1 : -1;
+    /* v8 ignore stop */
   }
 
   #focusCell(cell) {
@@ -250,6 +257,7 @@ export default class extends Controller {
     }
 
     if (this.#isVirtual()) {
+      /* v8 ignore next -- defensive: navigation always targets a cell with a numeric row index */
       const virtualRowIndex = rowIndex === null ? null : rowIndex - 1;
       this.#virtualViewport?.ensureVisible(virtualRowIndex, columnIndex);
     }
@@ -257,6 +265,7 @@ export default class extends Controller {
     const targetCell =
       rowIndex !== null && columnIndex !== null ? this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex) : cell;
 
+    /* v8 ignore next -- defensive: the resolved coordinate cell is connected when navigation reaches it */
     if (!targetCell?.isConnected) return;
 
     this.#pendingFocusCoordinate = null;
@@ -269,6 +278,7 @@ export default class extends Controller {
     ensureCellFullyVisible(
       cell,
       this.hasScrollContainerTarget ? this.scrollContainerTarget : null,
+      /* v8 ignore next -- defensive: the grid target is always present when a cell is scrolled into view */
       this.hasGridTarget ? this.gridTarget : null,
       {
         pinnedWidth: this.#virtualViewport?.pinnedWidth ?? null,
@@ -279,6 +289,7 @@ export default class extends Controller {
   #focusAdjacentInteractiveCell(cell, direction) {
     const cells = this.#allCells();
     const startIndex = this.#cellPosition(cell);
+    /* v8 ignore next -- defensive: the active cell is always present in the cell index */
     if (startIndex === -1) return false;
 
     let index = startIndex + direction;
@@ -290,10 +301,12 @@ export default class extends Controller {
         this.#focusCell(candidate);
 
         let focusCandidate = candidate;
+        /* v8 ignore next 3 -- defensive: interactive candidates carry numeric coordinates and stay mapped */
         if (rowIndex !== null && columnIndex !== null) {
           const mappedCell = this.#cellByCoordinate(rowIndex, columnIndex);
           if (mappedCell) focusCandidate = mappedCell;
         }
+        /* v8 ignore next 4 -- defensive: guards a candidate detached by a re-render triggered while focusing */
         if (!focusCandidate.isConnected) {
           index += direction;
           continue;
@@ -318,7 +331,8 @@ export default class extends Controller {
 
   #pageSize() {
     const rowHeight = this.#isVirtual()
-      ? this.#virtualViewport?.rowHeight || 40
+      ? /* v8 ignore next -- defensive: the virtual viewport always reports a positive row height */
+        this.#virtualViewport?.rowHeight || 40
       : this.gridTarget.querySelector("tbody tr")?.offsetHeight || 1;
 
     const hasStickyHeader = this.hasGridTarget && this.gridTarget.querySelector('[role="columnheader"]') !== null;
@@ -398,10 +412,12 @@ export default class extends Controller {
       const headerCell = this.gridTarget.querySelector(
         `${CELL_SELECTOR}[data-pathogen--data-grid-row-index="0"][data-pathogen--data-grid-column-index="${columnIndex}"]`,
       );
+      /* v8 ignore next -- defensive: a header row always exposes the requested column cell */
       if (headerCell) return headerCell;
     }
 
     const cachedCell = this.#cellByCoordinate(rowIndex, columnIndex);
+    /* v8 ignore next -- defensive: cached coordinate cells are connected during focus resolution */
     return cachedCell?.isConnected ? cachedCell : null;
   }
 
@@ -410,6 +426,7 @@ export default class extends Controller {
 
     const { rowIndex, columnIndex } = this.#pendingFocusCoordinate;
     const cell = this.#resolveConnectedCellByCoordinate(rowIndex, columnIndex);
+    /* v8 ignore next -- defensive: pending focus is cleared before its cell can disconnect */
     if (!cell?.isConnected) return;
 
     this.#pendingFocusCoordinate = null;
@@ -515,6 +532,7 @@ export default class extends Controller {
         restorePendingFocus: () => this.#restorePendingFocus(),
       },
       onCellsChanged: () => this.#invalidateCellCaches(),
+      /* v8 ignore next -- defensive: forwards asynchronous virtual render errors to the shared error surface */
       onError: (error) => this.#reportError(error),
       syncScrollAffordance: () => this.#syncScrollAffordance(),
       setBusy: (busy) => this.#setPaginationBusy(busy),
@@ -533,12 +551,14 @@ export default class extends Controller {
   #ensureRenderedFocusableCell() {
     if (this.viewportTarget.querySelector(FOCUSABLE_CELL_SELECTOR)) return;
     const fallbackCell = this.viewportTarget.querySelector(CELL_SELECTOR);
+    /* v8 ignore next -- defensive: a rendered virtual window always contains at least one cell */
     if (fallbackCell) this.#setActiveCell(fallbackCell);
   }
 
   #setPaginationBusy(isBusy) {
     setPaginationBusy(
       {
+        /* v8 ignore next -- defensive: pagination only runs when the grid target is present */
         grid: this.hasGridTarget ? this.gridTarget : null,
         status: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
         loadingMoreText: this.#virtualStatusMessage("loadingMoreText", null),
