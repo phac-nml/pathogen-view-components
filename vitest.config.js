@@ -54,6 +54,12 @@ export default defineConfig({
       "pathogen_view_components/toolbar_controller/roving_focus": resolve(jsRoot, "toolbar_controller/roving_focus.js"),
       "pathogen_view_components/toolbar_controller/text_entry": resolve(jsRoot, "toolbar_controller/text_entry.js"),
       "pathogen_view_components/toolbar_controller/visibility": resolve(jsRoot, "toolbar_controller/visibility.js"),
+      "pathogen_view_components/tabs_controller": resolve(jsRoot, "tabs_controller.js"),
+      "pathogen_view_components/tooltip_controller": resolve(jsRoot, "tooltip_controller.js"),
+      "pathogen_view_components/disclosure_controller": resolve(jsRoot, "disclosure_controller.js"),
+      "pathogen_view_components/data_grid_controller": resolve(jsRoot, "data_grid_controller.js"),
+      "pathogen_view_components/sidebar_controller": resolve(jsRoot, "sidebar_controller.js"),
+      "pathogen_view_components/toolbar_controller": resolve(jsRoot, "toolbar_controller.js"),
     },
   },
   test: {

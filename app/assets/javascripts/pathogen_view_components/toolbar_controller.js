@@ -81,6 +81,7 @@ export default class extends Controller {
     };
 
     const handler = handlers[event.key];
+    /* v8 ignore next 3 -- defensive guard: handlers cover every TOOLBAR_NAV_KEY */
     if (!handler) {
       return;
     }
@@ -146,6 +147,7 @@ export default class extends Controller {
 
   #focusVisibleIndex(items, index, moveDirection = null) {
     const item = items[index];
+    /* v8 ignore next 3 -- defensive guard: callers always pass an in-range index */
     if (!item) {
       return;
     }
