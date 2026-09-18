@@ -239,4 +239,20 @@ describe("CenterColumnWindow incremental rendering", () => {
     window.apply(row, range);
     expect(Array.from(lane.children)).toEqual(cells.slice(2, 4));
   });
+
+  it("skips column indexes that have no matching cell", () => {
+    const { row, lane, cells, window } = buildRow();
+
+    window.apply(row, { startIndex: 0, endIndex: 3 });
+
+    expect(Array.from(lane.children)).toEqual(cells.slice(0, 2));
+  });
+
+  it("appends a retained cell positioned after the visible range", () => {
+    const { row, lane, cells, window } = buildRow();
+
+    window.apply(row, { startIndex: 1, endIndex: 3 }, cells[5]);
+
+    expect(Array.from(lane.children)).toEqual([...cells.slice(0, 2), cells[5]]);
+  });
 });

@@ -9,10 +9,18 @@ const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.m
 // allowlist below, and then fail CI if they ever regress.
 const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
 const RATCHET_ALLOWLIST = {
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/cell_index.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/paginated_virtual_rows.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_viewport.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/tooltip_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
 };
 
 export default defineConfig({

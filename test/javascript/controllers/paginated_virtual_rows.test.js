@@ -344,4 +344,69 @@ describe("paginated virtual rows", () => {
     rows.flushRange(400, 420);
     expect(fetch).toHaveBeenCalledTimes(requestCount);
   });
+
+  it("ignores scroll events after disconnect", () => {
+    vi.useFakeTimers();
+    mockPageRequests();
+    const rows = buildPagination({ visibleRange: () => ({ startIndex: 20, endIndex: 40 }) });
+    rows.disconnect();
+
+    rows.handleScroll();
+    vi.advanceTimersByTime(200);
+
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("absorbs cache changes with a no-op callback when none is provided", async () => {
+    const requests = mockPageRequests();
+    pagination = new PaginatedVirtualRows({
+      rows: seedRows(),
+      contract: { rowsUrl: "/samples/rows.json", pageSize: 20, totalRows: 1000 },
+      cellSelector,
+      rowHeight: () => 40,
+      visibleRange: () => ({ startIndex: 0, endIndex: 20 }),
+      onRowsChanged: vi.fn(),
+      onVisibleRowsChanged: vi.fn(),
+      setBusy: vi.fn(),
+      handleError: vi.fn(),
+    });
+
+    pagination.flushRange(20, 40);
+    completePage(requests, 2);
+    await settle();
+
+    expect(pagination.getCachedRows().length).toBeGreaterThan(20);
+  });
+
+  it("builds a minimal fallback placeholder when no seed row is available", () => {
+    const rows = buildPagination({ rows: [] });
+
+    const placeholder = rows.rowAt(5);
+
+    expect(placeholder.getAttribute("role")).toBe("row");
+    expect(placeholder.getAttribute("aria-busy")).toBe("true");
+    expect(placeholder.getAttribute("aria-rowindex")).toBe("7");
+    expect(placeholder.dataset.pvcDataGridGlobalRowIndex).toBe("5");
+    expect(placeholder.style.height).toBe("40px");
+    expect(placeholder.style.minHeight).toBe("40px");
+  });
+
+  it("swallows an AbortError raised by a row-change callback during teardown", async () => {
+    const requests = mockPageRequests();
+    const handleError = vi.fn();
+    const abortError = new Error("aborted");
+    abortError.name = "AbortError";
+    const rows = buildPagination({
+      handleError,
+      onRowsChanged: () => {
+        throw abortError;
+      },
+    });
+
+    rows.flushRange(0, 20);
+    completePage(requests, 2);
+    await settle();
+
+    expect(handleError).not.toHaveBeenCalled();
+  });
 });

@@ -280,6 +280,80 @@ describe("page_cache", () => {
       rowOffset: 40,
     });
   });
+
+  it("returns no pages when the dataset or page size is not a positive number", () => {
+    expect(maxPageForCount(0, 50)).toBe(0);
+    expect(maxPageForCount(5000, 0)).toBe(0);
+    expect(pagesForRowRange(0, 5, 0)).toEqual([]);
+  });
+
+  it("returns the visible pages unchanged when prefetch is disabled", () => {
+    expect(pagesForRowRangeWithPrefetch(40, 61, 20, 0)).toEqual([3, 4]);
+  });
+
+  it("exposes the number of cached rows", () => {
+    const cache = new PageCache();
+    expect(cache.size).toBe(0);
+
+    cache.storeRows(new Map([[0, document.createElement("div")]]));
+
+    expect(cache.size).toBe(1);
+  });
+
+  it("ignores busy placeholders and rows without a finite global index when seeding", () => {
+    const cache = new PageCache();
+
+    const busyRow = document.createElement("div");
+    busyRow.dataset.pvcDataGridGlobalRowIndex = "0";
+    busyRow.setAttribute("aria-busy", "true");
+
+    const unindexedRow = document.createElement("div");
+
+    const loadedRow = document.createElement("div");
+    loadedRow.dataset.pvcDataGridGlobalRowIndex = "1";
+
+    cache.seedFromRows([busyRow, unindexedRow, loadedRow]);
+
+    expect(cache.getRow(0)).toBeNull();
+    expect(cache.getRow(1)).toBe(loadedRow);
+    expect(cache.size).toBe(1);
+  });
+
+  it("returns an empty row map when the payload is missing or malformed", () => {
+    expect(parseRows(null).size).toBe(0);
+    expect(parseRows({ rows: "not-an-array" }).size).toBe(0);
+  });
+
+  it("skips payload entries whose HTML does not contain a row element", () => {
+    const rows = parseRows({
+      rows: [
+        {
+          index: 5,
+          html: '<div role="row" data-pvc-data-grid-global-row-index="5"><div role="gridcell">Row</div></div>',
+        },
+        { index: 6, html: "<span>not a row</span>" },
+      ],
+    });
+
+    expect(rows.size).toBe(1);
+    expect(rows.get(5)?.getAttribute("role")).toBe("row");
+    expect(rows.has(6)).toBe(false);
+  });
+
+  it("never needs rows outside the dataset bounds", () => {
+    const source = new PaginatedRowSource({ url: "/rows.json", pageSize: 20, totalRows: 100 });
+
+    expect(source.needsRow(-1)).toBe(false);
+    expect(source.needsRow(Number.NaN)).toBe(false);
+    expect(source.needsRow(100)).toBe(false);
+  });
+
+  it("returns no missing pages for an invalid row range", () => {
+    const source = new PaginatedRowSource({ url: "/rows.json", pageSize: 20, totalRows: 100 });
+
+    expect(source.missingPagesForRange(-1, 5)).toEqual([]);
+    expect(source.missingPagesForRange(5, 5)).toEqual([]);
+  });
 });
 
 describe("cachedVirtualCells", () => {
