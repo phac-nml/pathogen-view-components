@@ -23,6 +23,8 @@ JavaScript coverage runs in CI and is surfaced in two places for pull requests:
 
 Running `pnpm test:coverage` locally prints a per-file table with uncovered line numbers, making it easy to see exactly what to test next.
 
+Coverage is ratcheted per file: once a file reaches 100%, it is added to the allowlist in `vitest.config.js` and CI fails if it regresses. Run `pnpm test:coverage:strict` locally to demand 100% across every file.
+
 ## Requirements
 
 For developing this repository:

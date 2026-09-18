@@ -5,6 +5,15 @@ import { fileURLToPath } from "url";
 const jsRoot = resolve(fileURLToPath(new URL("app/assets/javascripts/pathogen_view_components", import.meta.url)));
 const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.meta.url)));
 
+// Per-file coverage ratchet: files reach 100% one at a time, get added to the
+// allowlist below, and then fail CI if they ever regress.
+const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
+const RATCHET_ALLOWLIST = {
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+};
+
 export default defineConfig({
   resolve: {
     alias: {
@@ -62,18 +71,13 @@ export default defineConfig({
       // summary; "json-summary" feeds the CI PR comment and "lcov" feeds Codecov.
       reporter: ["text", "json-summary", "html", "lcov"],
       reportsDirectory: "coverage",
-      // Aspirational ratchet: opt-in via test:coverage:strict; fails until every
-      // included file reaches 100%. Not wired into CI yet.
-      thresholds:
-        process.env.VITEST_STRICT_COVERAGE === "1"
-          ? {
-              lines: 100,
-              functions: 100,
-              branches: 100,
-              statements: 100,
-              perFile: true,
-            }
-          : undefined,
+      // Allowlisted files are enforced at 100% on every run (including CI's
+      // `pnpm test:coverage`). Opt into `pnpm test:coverage:strict` locally to
+      // demand 100% across every included file, not just the allowlist.
+      thresholds: {
+        ...RATCHET_ALLOWLIST,
+        ...(process.env.VITEST_STRICT_COVERAGE === "1" ? { ...FULL_COVERAGE, perFile: true } : {}),
+      },
     },
   },
 });
