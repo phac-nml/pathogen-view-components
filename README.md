@@ -14,8 +14,6 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 ## Testing and Coverage
 
-[![JavaScript coverage](https://codecov.io/gh/phac-nml/pathogen-view-components/graph/badge.svg?flag=javascript)](https://codecov.io/gh/phac-nml/pathogen-view-components)
-
 JavaScript coverage runs in CI and is surfaced in two places for pull requests:
 
 - Sticky PR comment with lines, statements, functions, and branches coverage.
