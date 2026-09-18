@@ -1,0 +1,47 @@
+<%= render Pathogen::BaseComponent.new(**@system_arguments) do %>
+  <span class="<%= VALUE_CLASSES %>" data-pathogen--copyable-value-target="text"><%= value %></span>
+
+  <button
+    type="button"
+    class="<%= BUTTON_CLASSES %>"
+    aria-label="<%= aria_label %>"
+    data-action="click-><%= controller_name %>#copy"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      class="size-3 shrink-0"
+      aria-hidden="true"
+      data-pathogen--copyable-value-target="icon"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M10.986 3H12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h1.014A2.25 2.25 0 0 1 7.25 1h1.5a2.25 2.25 0 0 1 2.236 2ZM9.5 4v-.75a.75.75 0 0 0-.75-.75h-1.5a.75.75 0 0 0-.75.75V4h3ZM4.5 7a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Zm0 3a.75.75 0 0 0 0 1.5h4a.75.75 0 0 0 0-1.5h-4Z"
+        clip-rule="evenodd"
+      />
+    </svg>
+
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      class="size-3 shrink-0 hidden text-(--pvc-color-success)"
+      aria-hidden="true"
+      data-pathogen--copyable-value-target="successIcon"
+    >
+      <path
+        fill-rule="evenodd"
+        d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z"
+        clip-rule="evenodd"
+      />
+    </svg>
+  </button>
+
+  <span
+    class="sr-only"
+    aria-live="polite"
+    aria-atomic="true"
+    data-pathogen--copyable-value-target="announcement"
+  ></span>
+<% end %>
