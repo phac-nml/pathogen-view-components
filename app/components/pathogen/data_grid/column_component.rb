@@ -168,7 +168,7 @@ module Pathogen
           'pathogen--data-grid-has-interactive': interactive
         )
         out[:sticky_cell] = true if @sticky
-        out
+        out.transform_keys(&:to_sym)
       end
 
       def cell_role(header:) = header ? 'columnheader' : 'gridcell'
