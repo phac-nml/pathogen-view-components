@@ -12,6 +12,19 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
+## Testing and Coverage
+
+[![JavaScript coverage](https://codecov.io/gh/phac-nml/pathogen-view-components/graph/badge.svg?flag=javascript)](https://codecov.io/gh/phac-nml/pathogen-view-components)
+
+JavaScript coverage runs in CI and is surfaced in two places for pull requests:
+
+- Sticky PR comment with lines, statements, functions, and branches coverage.
+- Workflow summary plus uploaded `javascript-coverage` artifact containing HTML, LCOV, and JSON reports.
+
+Running `pnpm test:coverage` locally prints a per-file table with uncovered line numbers, making it easy to see exactly what to test next.
+
+Coverage is ratcheted per file: once a file reaches 100%, it is added to the allowlist in `vitest.config.js` and CI fails if it regresses. Run `pnpm test:coverage:strict` locally to demand 100% across every file.
+
 ## Requirements
 
 For developing this repository:

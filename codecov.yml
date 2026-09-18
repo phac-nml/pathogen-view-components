@@ -1,0 +1,23 @@
+codecov:
+  notify:
+    wait_for_ci: true
+
+comment: false
+
+coverage:
+  status:
+    project:
+      default:
+        informational: true
+        target: 100%
+        threshold: 0%
+    patch:
+      default:
+        informational: true
+        target: 100%
+        threshold: 0%
+
+flags:
+  javascript:
+    paths:
+      - app/assets/javascripts/

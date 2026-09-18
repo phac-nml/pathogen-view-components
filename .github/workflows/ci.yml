@@ -9,6 +9,10 @@ on:
 jobs:
   javascript:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      coverage-table: ${{ steps.coverage.outputs.table }}
 
     steps:
       - name: Checkout
@@ -23,8 +27,99 @@ jobs:
       - name: Lint JavaScript and ERB
         run: pnpm lint
 
-      - name: Run JavaScript tests
-        run: pnpm test
+      - name: Run JavaScript tests with coverage
+        run: pnpm test:coverage
+
+      - name: Capture JavaScript coverage table
+        id: coverage
+        run: |
+          node <<'NODE' >> "$GITHUB_OUTPUT"
+          const fs = require("fs");
+          const summary = JSON.parse(fs.readFileSync("coverage/coverage-summary.json", "utf8")).total;
+          const pct = (metric) => Number(summary[metric].pct).toFixed(2);
+          const table = [
+            "### JavaScript Coverage",
+            "",
+            "| Metric | Coverage |",
+            "| --- | ---: |",
+            `| Lines | ${pct("lines")}% |`,
+            `| Statements | ${pct("statements")}% |`,
+            `| Functions | ${pct("functions")}% |`,
+            `| Branches | ${pct("branches")}% |`,
+          ].join("\n");
+          console.log("table<<PVC_COVERAGE_EOF");
+          console.log(table);
+          console.log("PVC_COVERAGE_EOF");
+          NODE
+
+      - name: Publish JavaScript coverage summary
+        run: echo "${{ steps.coverage.outputs.table }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload JavaScript coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: javascript-coverage
+          path: coverage
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload coverage to Codecov
+        continue-on-error: true
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage/lcov.info
+          flags: javascript
+          fail_ci_if_error: false
+          verbose: true
+
+  # Isolated so the pull-requests:write token is never exposed to build/test steps.
+  coverage-comment:
+    needs: javascript
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Comment JavaScript coverage on PR
+        continue-on-error: true
+        uses: actions/github-script@v8
+        env:
+          COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
+        with:
+          script: |
+            const marker = "<!-- pvc-javascript-coverage -->";
+            const body = [marker, process.env.COVERAGE_TABLE].join("\n");
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+
+            const existing = comments.data.find((comment) =>
+              comment.user?.type === "Bot" && comment.body?.includes(marker),
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
 
   lint:
     runs-on: ubuntu-latest
