@@ -62,6 +62,13 @@ if (!window.matchMedia) {
   });
 }
 
+// jsdom does not implement Element.prototype.scrollIntoView; provide a no-op so
+// controllers that scroll focused cells into view do not throw. Tests that need
+// to assert the call override it on the specific element.
+if (typeof Element.prototype.scrollIntoView !== "function") {
+  Element.prototype.scrollIntoView = function scrollIntoView() {};
+}
+
 afterEach(() => {
   document.body.innerHTML = "";
 });
