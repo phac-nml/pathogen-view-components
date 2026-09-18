@@ -102,6 +102,44 @@ module Pathogen
       assert_selector 'span[data-controller="pathogen--copyable-value"]'
     end
 
+    test 'preserves string-keyed caller data and deduplicates controllers without modifying the input' do
+      data = { 'controller' => 'alpha pathogen--copyable-value', 'custom' => 'value' }.freeze
+
+      render_inline(Pathogen::CopyableValue.new(value: 'test', data: data))
+
+      assert_selector 'span[data-controller="alpha pathogen--copyable-value"][data-custom="value"]'
+      assert_equal({ 'controller' => 'alpha pathogen--copyable-value', 'custom' => 'value' }, data)
+    end
+
+    test 'normalizes conflicting data keys before applying component-owned attributes' do
+      data = {
+        controller: 'alpha',
+        'controller' => 'beta pathogen--copyable-value',
+        'state' => 'success',
+        'pathogen--copyable-value-copied-message-value' => 'Stale success message',
+        'pathogen--copyable-value-copy-failed-message-value' => 'Stale failure message',
+        'pathogen--copyable-value-reset-delay-value' => 1
+      }
+
+      render_inline(
+        Pathogen::CopyableValue.new(value: 'test', copied_message: 'ID copied!', reset_delay: 1500, data: data)
+      )
+
+      expected_data = {
+        'controller' => 'beta pathogen--copyable-value',
+        'state' => 'idle',
+        'pathogen--copyable-value-copied-message-value' => 'ID copied!',
+        'pathogen--copyable-value-copy-failed-message-value' => 'Unable to copy to clipboard',
+        'pathogen--copyable-value-reset-delay-value' => '1500'
+      }
+
+      expected_data.each do |name, value|
+        assert_equal 1, rendered_content.scan(/\bdata-#{Regexp.escape(name)}=/).length,
+                     "Expected exactly one serialized data-#{name} attribute"
+        assert_selector "span[data-#{name}=\"#{value}\"]"
+      end
+    end
+
     test 'renders with idle data-state on root element' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
@@ -120,11 +158,13 @@ module Pathogen
       assert_selector 'span[data-pathogen--copyable-value-reset-delay-value="1500"]'
     end
 
-    test 'renders clipboard icon and success icon targets' do
+    test 'renders clipboard, success, and failure icons hidden from assistive technology' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'svg[data-pathogen--copyable-value-target="icon"]', visible: :all
-      assert_selector 'svg[data-pathogen--copyable-value-target="successIcon"]', visible: :all
+      %w[icon successIcon errorIcon].each do |target|
+        assert_selector 'span[aria-hidden="true"] svg[aria-hidden="true"]' \
+                        "[data-pathogen--copyable-value-target=\"#{target}\"]", visible: :all
+      end
     end
 
     test 'copy button has click action wired to controller' do
