@@ -64,6 +64,54 @@ describe("tooltip_controller", () => {
     await waitForController();
   });
 
+  it("keeps focused tooltip content visible when the pointer leaves", async () => {
+    const { trigger, tooltip } = appendTooltip();
+    await waitForController();
+    trigger.focus();
+    vi.useFakeTimers();
+    try {
+      trigger.dispatchEvent(new MouseEvent("mouseenter"));
+      trigger.dispatchEvent(new MouseEvent("mouseleave"));
+      await vi.advanceTimersByTimeAsync(500);
+      expect(document.activeElement).toBe(trigger);
+      expect(tooltip.dataset.state).toBe("open");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps hovered tooltip content visible after focus moves away", async () => {
+    const { trigger, tooltip } = appendTooltip();
+    const other = document.createElement("button");
+    document.body.append(other);
+    await waitForController();
+    trigger.focus();
+    trigger.dispatchEvent(new MouseEvent("mouseenter"));
+    other.focus();
+    vi.useFakeTimers();
+    try {
+      await vi.advanceTimersByTimeAsync(500);
+      expect(tooltip.dataset.state).toBe("open");
+      trigger.dispatchEvent(new MouseEvent("mouseleave"));
+      await vi.advanceTimersByTimeAsync(500);
+      expect(tooltip.dataset.state).toBe("closed");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("dismisses a hovered tooltip without moving unrelated keyboard focus", async () => {
+    const { trigger, tooltip } = appendTooltip();
+    const other = document.createElement("button");
+    document.body.append(other);
+    await waitForController();
+    other.focus();
+    trigger.dispatchEvent(new MouseEvent("mouseenter"));
+    document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+    expect(tooltip.dataset.state).toBe("closed");
+    expect(document.activeElement).toBe(other);
+  });
+
   it("starts in closed state with aria-hidden true", async () => {
     const { tooltip } = appendTooltip();
     await waitForController();

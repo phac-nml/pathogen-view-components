@@ -152,6 +152,8 @@ export default class extends Controller {
   #touchPrimed = false;
   #touchStarted = false;
   #escapeDismissed = false;
+  #triggerHovered = false;
+  #tooltipHovered = false;
   #abortController = null;
   #boundBeforeCache = null;
   #bindingsActive = false;
@@ -182,6 +184,8 @@ export default class extends Controller {
   }
 
   disconnect() {
+    this.#triggerHovered = false;
+    this.#tooltipHovered = false;
     // Ensure portaled tooltip is fully hidden before teardown to avoid lingering visibility
     this.hide();
     this.#clearHideTimeout();
@@ -275,10 +279,6 @@ export default class extends Controller {
     this.#escapeDismissed = true;
     this.hide();
 
-    if (this.#triggerElement) {
-      this.#triggerElement.focus();
-    }
-
     setTimeout(() => {
       this.#escapeDismissed = false;
     }, 100);
@@ -326,6 +326,7 @@ export default class extends Controller {
     element.addEventListener(
       "mouseenter",
       () => {
+        this.#triggerHovered = true;
         this.#clearHideTimeout();
         this.show();
       },
@@ -335,13 +336,14 @@ export default class extends Controller {
     element.addEventListener(
       "mouseleave",
       () => {
+        this.#triggerHovered = false;
         this.#scheduleHide();
       },
       { signal },
     );
 
     element.addEventListener("focusin", () => this.show(), { signal });
-    element.addEventListener("focusout", () => this.hide(), { signal });
+    element.addEventListener("focusout", () => this.#scheduleHide(), { signal });
     element.addEventListener("touchstart", (e) => this.#handleTouchStart(e), {
       signal,
       passive: true,
@@ -355,6 +357,7 @@ export default class extends Controller {
     element.addEventListener(
       "mouseenter",
       () => {
+        this.#tooltipHovered = true;
         this.#clearHideTimeout();
       },
       { signal },
@@ -362,6 +365,7 @@ export default class extends Controller {
     element.addEventListener(
       "mouseleave",
       () => {
+        this.#tooltipHovered = false;
         this.#scheduleHide();
       },
       { signal },
@@ -549,6 +553,9 @@ export default class extends Controller {
   #scheduleHide() {
     this.#clearHideTimeout();
     this.#hideTimeout = setTimeout(() => {
+      if (this.#triggerHovered || this.#tooltipHovered || this.#triggerElement?.contains(document.activeElement))
+        return;
+
       this.hide();
     }, this.hideDelayValue);
   }
