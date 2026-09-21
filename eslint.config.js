@@ -47,7 +47,7 @@ export default defineConfig([
   },
   {
     name: "pathogen-javascript",
-    files: ["app/assets/javascripts/**/*.js", "test/javascript/**/*.js"],
+    files: ["app/assets/javascripts/**/*.js", "test/javascript/**/*.js", "test/browser/**/*.{js,mjs}"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",

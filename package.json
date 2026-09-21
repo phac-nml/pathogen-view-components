@@ -16,22 +16,25 @@
     "test:unit": "vitest run test/javascript",
     "test:coverage": "vitest run --coverage",
     "test:coverage:strict": "VITEST_STRICT_COVERAGE=1 vitest run --coverage",
-    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript && pnpm herb:lint && pnpm herb:format:check",
-    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
+    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript test/browser playwright.config.js && pnpm herb:lint && pnpm herb:format:check",
+    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript test/browser playwright.config.js --fix && pnpm herb:lint:fix && pnpm herb:format",
     "build:css": "node scripts/build-pathogen-tailwind.mjs",
     "build:css:check": "node scripts/build-pathogen-tailwind.mjs --check",
     "build:css:watch": "node scripts/watch-pathogen-css.mjs",
     "build:js": "node scripts/build-demo-javascript.mjs",
-    "build:js:watch": "node scripts/build-demo-javascript.mjs --watch"
+    "build:js:watch": "node scripts/build-demo-javascript.mjs --watch",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@herb-tools/formatter": "^0.11.2",
     "@herb-tools/linter": "^0.11.2",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/user-event": "^14.6.10",
+    "@vitest/coverage-v8": "^5.0.0",
     "axe-core": "^4.14.0",
     "chokidar": "^6.0.0",
     "esbuild": "^0.28.2",
@@ -43,8 +46,7 @@
     "prettier": "^3.9.10",
     "tailwindcss": "^4.3.5",
     "vite": "^7.3.6",
-    "vitest": "^5.0.1",
-    "@vitest/coverage-v8": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
