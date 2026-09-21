@@ -84,7 +84,7 @@ jobs:
     steps:
       - name: Comment JavaScript coverage on PR
         continue-on-error: true
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
         with:
