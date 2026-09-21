@@ -29,6 +29,37 @@ describe("tabs_controller", () => {
     document.body.innerHTML = "";
   });
 
+  it("preserves panel associations when panels appear in a different order", async () => {
+    document.body.innerHTML = `
+      <div data-controller="pathogen--tabs" data-pathogen--tabs-sync-url-value="true">
+        <nav role="tablist" aria-label="Mixed panels">
+          <button id="history" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab">History</button>
+          <button id="overview" role="tab" data-pathogen--tabs-target="tab" data-action="click->pathogen--tabs#selectTab">Overview</button>
+        </nav>
+        <div id="overview-panel" role="tabpanel" aria-labelledby="overview" data-pathogen--tabs-target="panel">Overview content</div>
+        <div id="history-panel" role="tabpanel" aria-labelledby="history" data-pathogen--tabs-target="panel">History content</div>
+      </div>`;
+    await waitForTabsUpdate();
+    const history = document.getElementById("history");
+    const overview = document.getElementById("overview");
+    const historyPanel = document.getElementById("history-panel");
+    const overviewPanel = document.getElementById("overview-panel");
+    expect(history.getAttribute("aria-controls")).toBe("history-panel");
+    expect(historyPanel.getAttribute("aria-labelledby")).toBe("history");
+    expect(historyPanel.hidden).toBe(false);
+    expect(overviewPanel.hidden).toBe(true);
+    overview.click();
+    await waitForTabsUpdate();
+    expect(historyPanel.hidden).toBe(true);
+    expect(overviewPanel.hidden).toBe(false);
+    window.history.replaceState(null, "", "#history-panel");
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    await waitForTabsUpdate();
+    expect(history.getAttribute("aria-selected")).toBe("true");
+    expect(historyPanel.hidden).toBe(false);
+    window.history.replaceState(null, "", window.location.pathname);
+  });
+
   it("applies semantic selected and hidden state when selection changes", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--tabs" data-pathogen--tabs-default-index-value="0">

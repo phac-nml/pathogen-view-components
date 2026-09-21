@@ -10,7 +10,8 @@ module Pathogen
 
       attr_reader :id, :label, :selected, :orientation
 
-      def initialize(id:, label:, selected: false, orientation: :horizontal, **system_arguments)
+      # rubocop:disable-next Metrics/ParameterLists
+      def initialize(id:, label:, selected: false, orientation: :horizontal, size: :medium, **system_arguments)
         raise ArgumentError, 'id is required' if id.blank?
         raise ArgumentError, 'label is required' if label.blank?
 
@@ -18,6 +19,7 @@ module Pathogen
         @label = label
         @selected = selected
         @orientation = orientation
+        @size = fetch_or_fallback(%i[small medium], size, :medium)
         @system_arguments = system_arguments
 
         setup_tab_attributes
@@ -60,7 +62,7 @@ module Pathogen
 
       def setup_css_classes
         @system_arguments[:class] = class_names(
-          tab_classes(orientation: @orientation),
+          tab_classes(orientation: @orientation, size: @size),
           @system_arguments[:class]
         )
       end

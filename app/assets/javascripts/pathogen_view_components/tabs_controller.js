@@ -300,13 +300,24 @@ export default class extends Controller {
   }
 
   /**
-   * Sets up ARIA attributes on tabs and panels
+   * Returns panels in tab order, preserving the associations rendered by Ruby.
    * @private
-   * @returns {void}
+   * @returns {HTMLElement[]}
    */
+  #associatedPanels() {
+    return this.tabTargets.map(
+      (tab, index) =>
+        this.panelTargets.find((panel) => panel.getAttribute("aria-labelledby")?.split(/\s+/).includes(tab.id)) ||
+        this.panelTargets.find((panel) => panel.id === tab.getAttribute("aria-controls")) ||
+        this.panelTargets[index],
+    );
+  }
+
+  /** Sets up ARIA attributes on tabs and their associated panels. */
   #setupARIA() {
+    const panels = this.#associatedPanels();
     this.tabTargets.forEach((tab, index) => {
-      const panel = this.panelTargets[index];
+      const panel = panels[index];
 
       // Ensure tab has required ARIA attributes
       if (!tab.hasAttribute("role")) {
@@ -319,7 +330,7 @@ export default class extends Controller {
       }
     });
 
-    this.panelTargets.forEach((panel, index) => {
+    panels.forEach((panel, index) => {
       const tab = this.tabTargets[index];
 
       // Ensure panel has required ARIA attributes
@@ -359,7 +370,7 @@ export default class extends Controller {
       return false;
     }
 
-    return this.panelTargets.every((panel, i) => {
+    return this.#associatedPanels().every((panel, i) => {
       if (!panel) return false;
 
       const isVisible = i === index;
@@ -450,7 +461,7 @@ export default class extends Controller {
    * @returns {void}
    */
   #updatePanels(index) {
-    this.panelTargets.forEach((panel, i) => {
+    this.#associatedPanels().forEach((panel, i) => {
       if (!panel) return;
 
       const isVisible = i === index;
@@ -692,7 +703,7 @@ export default class extends Controller {
     }
 
     const tab = this.tabTargets[index];
-    const panel = this.panelTargets[index];
+    const panel = this.#associatedPanels()[index];
 
     // Prefer tab ID, then panel ID, finally fall back to index
     if (tab?.id) {
@@ -763,7 +774,7 @@ export default class extends Controller {
       }
 
       // Try to find panel by ID
-      const panelIndex = this.panelTargets.findIndex((panel) => panel && panel.id === hash);
+      const panelIndex = this.#associatedPanels().findIndex((panel) => panel && panel.id === hash);
       if (panelIndex !== -1) {
         return panelIndex;
       }
