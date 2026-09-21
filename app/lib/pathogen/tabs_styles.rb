@@ -39,20 +39,20 @@ module Pathogen
     ].freeze
 
     TAB_HORIZONTAL = %w[
-      -mb-px rounded-t-[var(--pvc-radius-action)] px-3 py-2 min-h-9 border-b-2 border-transparent
+      -mb-px rounded-t-[var(--pvc-radius-action)] px-3 py-2 border-b-2 border-transparent
     ].freeze
 
     TAB_VERTICAL = %w[
-      mb-0 w-full truncate rounded-[var(--pvc-radius-action)] px-3 py-2 min-h-9 text-left
+      mb-0 w-full truncate rounded-[var(--pvc-radius-action)] px-3 py-2 text-left
       border-l-2 border-transparent
     ].freeze
 
     TABLIST_HORIZONTAL = %w[
-      flex flex-wrap items-stretch gap-1 border-b border-[var(--pvc-color-border)]
+      flex flex-wrap items-stretch gap-2 border-b border-[var(--pvc-color-border)]
     ].freeze
 
     TABLIST_VERTICAL = %w[
-      flex min-w-[11rem] flex-col items-stretch gap-1 border-r border-[var(--pvc-color-border)] pr-3
+      flex min-w-[11rem] flex-col items-stretch gap-2 border-r border-[var(--pvc-color-border)] pr-3
     ].freeze
 
     CONTAINER_HORIZONTAL = %w[block font-sans text-[var(--pvc-color-text)]].freeze
@@ -81,9 +81,10 @@ module Pathogen
 
     module_function
 
-    def tab_classes(orientation:)
+    def tab_classes(orientation:, size: :medium)
       [
         TAB_BASE,
+        size == :small ? 'min-h-6 min-w-6' : 'min-h-11 min-w-11',
         TAB_INACTIVE,
         TAB_ACTIVE_STATE_BASE,
         orientation == :vertical ? TAB_VERTICAL : TAB_HORIZONTAL,
