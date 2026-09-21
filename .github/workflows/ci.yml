@@ -168,6 +168,33 @@ jobs:
       - name: Test
         run: bin/test
 
+  compatibility:
+    name: Ruby 3.3 / Rails 8.1
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up minimum supported Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+
+      - name: Set up pnpm and install dependencies
+        uses: pnpm/setup@v2
+        with:
+          runtime: node@24.14.1
+          cache: true
+
+      - name: Verify shipped files
+        run: bin/verify
+
+      - name: Test minimum supported Ruby with locked Rails 8.1
+        run: bin/test
+
   demo:
     runs-on: ubuntu-latest
     env:
