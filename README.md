@@ -25,12 +25,20 @@ Coverage is ratcheted per file: once a file reaches 100%, it is added to the all
 
 ## Requirements
 
-For developing this repository:
+For host applications:
 
 - Ruby **3.3+**
 - Rails **8.1+**
 - `view_component` **>= 4.0, < 5.0**
-- Node.js **24** and pnpm **11.22**
+
+CI runs the Ruby suite on Ruby 3.3 and the development version in `.ruby-version`,
+using the locked Rails 8.1 dependency set. Broader dependency bounds do not mean every
+newer Rails/Ruby combination has been tested. Applications on older Rails versions
+must upgrade before adopting this library version.
+
+For contributing, use the exact Ruby version in `.ruby-version`, Node.js **24**, and
+pnpm **11.22**, with the committed lockfiles. Node and pnpm are build/test tools;
+the gem ships precompiled CSS for consumers.
 
 JavaScript dependencies (installed by the host application):
 
@@ -209,6 +217,19 @@ Compact inline toolbar (`variant: :chip`):
 <% end %>
 ```
 
+#### Control sizes
+
+`Button`, `Toolbar::Button`, `Disclosure`, `Tabs`, `Form::RadioButton`, and `Form::Switch`
+default to `size: :medium`, with at least a 44 × 44 CSS px activation area. Use `size: :small`
+explicitly for compact workflows, and keep 8px between adjacent compact controls.
+The radio glyph and switch track stay small; their clickable labels provide the larger target.
+
+When upgrading, toolbar buttons and tabs may take more room. Radio inputs now sit inside
+their associated label, including when the accessible name comes from outside the component.
+Check host layouts and custom input/label selectors. Pass `size: :small` where compact use
+is intentional. Rails builder calls forward the same option, for example
+`f.radio_button(:theme, "dark", label: "Dark", size: :small)`.
+
 #### Disclosure
 
 ```erb
@@ -370,16 +391,38 @@ bin/setup
 
 Use `bin/setup --skip-demo` if you only want the library dependencies and hooks without preparing the Lookbook demo app.
 
+Ruby LSP is a locked development dependency. Run it with `bundle exec ruby-lsp` or
+configure your editor to use the project bundle. Entering the development shell no
+longer installs or updates editor gems.
+
 Run checks:
 
 ```bash
 bin/verify         # Generated CSS + packaged-gem JavaScript checks
 bin/test           # Ruby component tests (excludes shipped-file gates)
 pnpm test          # JavaScript controller tests (requires pnpm install)
+pnpm test:browser  # Ruby-rendered component acceptance in Chromium
 pnpm run build:js  # Bundle the demo JavaScript with esbuild
 ```
 
 Git hooks are managed with `lefthook`. The pre-commit hook runs `bundle exec i18n-tasks health`, formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, auto-fixes staged JavaScript with ESLint, runs RuboCop autocorrections on staged Ruby files, and re-stages any changes.
+
+### Browser acceptance
+
+Install Chromium once with `pnpm exec playwright install chromium` (on Linux, use
+`--with-deps` when system libraries are missing). Run `pnpm test:browser` in the same
+Ruby environment as `bin/test`. To use an existing Chromium installation locally,
+set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to its executable.
+
+The suite renders real Ruby components, loads the public controller entrypoint and
+precompiled CSS, and checks tabs, tooltips, forms, target sizes, contrast, forced colours,
+reduced motion, narrow layouts, and automated A/AA accessibility rules. CI installs
+Chromium and retains browser evidence in its `browser-acceptance` artifact.
+
+Failures retain screenshots and traces under `test-results/`. Axe results are retained
+even when no violations are found: incomplete checks still need manual review. These
+fixtures do not yet cover every component, real lazy-panel requests, complete host
+workflows, or a browser-engine matrix. They do not replace screen-reader testing.
 
 ### Screen reader testing
 
