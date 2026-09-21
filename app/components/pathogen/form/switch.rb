@@ -43,7 +43,7 @@ module Pathogen
 
       # @return [ActiveSupport::SafeBuffer] the rendered HTML
       def render_component
-        if @label.present? || @help_text.present?
+        if @label.present? || @help_text.present? || @error_text.present?
           render_labeled_layout
         else
           switch_control_html
@@ -100,7 +100,7 @@ module Pathogen
         tag.div(class: switch_container_classes) do
           tag.div(class: switch_labeled_row_classes) do
             tag.div(class: switch_labeled_content_classes) do
-              name_label_html + inline_help_text_html
+              name_label_html + inline_help_text_html + error_text_html
             end +
               switch_control_html
           end

@@ -23,7 +23,7 @@ module Pathogen
 
       # @return [String] CSS classes for input/label container
       def radio_button_input_container_classes
-        'flex items-center gap-3'
+        'inline-flex items-center gap-3 cursor-pointer'
       end
 
       # @return [String] CSS classes for help text container

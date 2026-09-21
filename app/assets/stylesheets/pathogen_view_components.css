@@ -57,6 +57,7 @@
     --color-neutral-200: var(--color-slate-200);
     --color-neutral-300: var(--color-slate-300);
     --color-neutral-400: var(--color-slate-400);
+    --color-neutral-500: var(--color-slate-500);
     --color-neutral-600: var(--color-slate-600);
     --color-neutral-700: var(--color-slate-700);
     --color-neutral-800: var(--color-slate-800);
@@ -858,6 +859,9 @@
   .border-\[var\(--pvc-color-border-strong\)\] {
     border-color: var(--pvc-color-border-strong);
   }
+  .border-\[var\(--pvc-color-control-border\)\] {
+    border-color: var(--pvc-color-control-border);
+  }
   .border-\[var\(--pvc-color-danger-solid\)\] {
     border-color: var(--pvc-color-danger-solid);
   }
@@ -1371,9 +1375,9 @@
     content: var(--tw-content);
     border-radius: calc(infinity * 1px);
   }
-  .after\:bg-\[var\(--pvc-color-surface-raised\)\]::after {
+  .after\:bg-\[var\(--pvc-color-control-border\)\]::after {
     content: var(--tw-content);
-    background-color: var(--pvc-color-surface-raised);
+    background-color: var(--pvc-color-control-border);
   }
   .after\:content-\[\'\'\]::after {
     --tw-content: "";
@@ -1634,6 +1638,11 @@
     --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
+  .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:bg-\[var\(--pvc-color-on-solid\)\]:is(:where(.peer):checked ~ *)
+    .pathogen-switch-track::after {
+    content: var(--tw-content);
+    background-color: var(--pvc-color-on-solid);
+  }
   .peer-checked\:\[\&_\[data-switch-state\=off\]\]\:hidden:is(:where(.peer):checked ~ *) [data-switch-state="off"] {
     display: none;
   }
@@ -1652,6 +1661,8 @@
     --pvc-color-surface-raised: var(--color-white);
     --pvc-color-border: var(--color-neutral-200);
     --pvc-color-border-strong: var(--color-neutral-300);
+    --pvc-color-control-border: var(--color-neutral-500);
+    --pvc-color-on-solid: var(--color-white);
     --pvc-color-text: var(--color-neutral-900);
     --pvc-color-text-muted: var(--color-neutral-600);
     --pvc-color-accent: var(--color-primary-600);
@@ -1697,6 +1708,7 @@
     }
     --pvc-color-border: var(--color-neutral-700);
     --pvc-color-border-strong: var(--color-neutral-600);
+    --pvc-color-control-border: var(--color-neutral-400);
     --pvc-color-text: var(--color-neutral-100);
     --pvc-color-text-muted: var(--color-neutral-400);
     --pvc-color-accent: var(--color-primary-400);
@@ -2041,6 +2053,9 @@
   }
   .pathogen-switch-track::after {
     background: ButtonText;
+  }
+  input[role="switch"]:checked ~ label .pathogen-switch-track::after {
+    background: HighlightText;
   }
   input[role="switch"]:focus-visible ~ label .pathogen-switch-track,
   input[role="switch"]:focus-visible ~ label {

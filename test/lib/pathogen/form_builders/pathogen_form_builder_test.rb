@@ -5,6 +5,19 @@ require 'test_helper'
 module Pathogen
   module FormBuilders
     class PathogenFormBuilderTest < ActiveSupport::TestCase
+      test 'radio button uses model selection unless explicitly overridden' do
+        view = ActionView::Base.empty
+        builder = PathogenFormBuilder.new('user', Struct.new(:theme).new('dark'), view, {})
+
+        selected = Nokogiri::HTML.fragment(builder.radio_button(:theme, 'dark', label: 'Dark'))
+        unselected = Nokogiri::HTML.fragment(builder.radio_button(:theme, 'light', label: 'Light'))
+        overridden = Nokogiri::HTML.fragment(builder.radio_button(:theme, 'dark', checked: false))
+
+        assert selected.at_css('input[checked]')
+        assert_nil unselected.at_css('input[checked]')
+        assert_nil overridden.at_css('input[checked]')
+      end
+
       test 'label styling uses semibold design-contract weight' do
         view = ActionView::Base.empty
         builder = PathogenFormBuilder.new(:sample, nil, view, {})

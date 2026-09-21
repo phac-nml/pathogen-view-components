@@ -1,5 +1,21 @@
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
+    <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Default and compact targets" } %>
+
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
+      Default controls provide 44px activation areas. Choose small explicitly for dense workflows and keep 8px between
+      adjacent controls.
+    <% end %>
+
+    <div class="flex flex-col gap-4">
+      <% [:medium, :small].each do |size| %>
+        <%= render Pathogen::Form::RadioButton.new(attribute: :density_preview, value: size, label: "#{size.to_s.capitalize} radio", size: size) %>
+        <%= render Pathogen::Form::Switch.new(attribute: :density_preview, id: "density-switch-#{size}", label: "#{size.to_s.capitalize} switch", size: size) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
     <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Checkbox fieldset" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>

@@ -130,11 +130,17 @@ module Pathogen
       end
     end
 
-    test 'uses small Pathogen::Button sizing defaults in toolbar context' do
-      render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
+    test 'uses medium Pathogen::Button sizing by default in toolbar context' do
+      render_inline(Pathogen::Toolbar::Button.new) { 'Action' }
 
-      assert_selector "button[class*='text-xs'][class*='px-2'][class*='py-1']"
+      assert_selector 'button.min-h-11.min-w-11'
       assert_selector "button[class*='bg-[var(--pvc-color-surface)]'][class*='border-[var(--pvc-color-border-strong)]']"
+    end
+
+    test 'supports an explicit compact toolbar button' do
+      render_inline(Pathogen::Toolbar::Button.new(size: :small)) { 'Compact' }
+
+      assert_selector 'button.min-h-6.min-w-6'
     end
 
     test 'renders aria-pressed with visible pressed styling' do
