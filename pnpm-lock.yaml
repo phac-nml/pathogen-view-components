@@ -30,8 +30,8 @@ importers:
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.10.0(jiti@2.7.0))
       '@herb-tools/formatter':
-        specifier: ^0.10.3
-        version: 0.10.3(tailwindcss@4.3.3)
+        specifier: ^0.10.4
+        version: 0.10.4(tailwindcss@4.3.3)
       '@herb-tools/linter':
         specifier: ^0.10.4
         version: 0.10.4(tailwindcss@4.3.3)
@@ -82,10 +82,10 @@ importers:
         version: 4.3.3
       vite:
         specifier: ^7.3.6
-        version: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
+        version: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)
       vitest:
         specifier: ^5.0.1
-        version: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+        version: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
 
 packages:
 
@@ -388,20 +388,14 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@herb-tools/config@0.10.3':
-    resolution: {integrity: sha512-cSaOwuWnij1wiB4Xh9Zfx/s+lhis7cN/+PXssanT/mXQLSRU2QeYasivyCQ1tRnpIVdGGOC/rqHVJQeNmj4pqg==}
-
   '@herb-tools/config@0.10.4':
     resolution: {integrity: sha512-3VwB16SbGL88PqI7yfquLoZgRX5nL/HXxBPVPN9K8CCQYGI8jT1QGDM8pm5z6l+KbiRqP8gQX+u5huwkKviilQ==}
-
-  '@herb-tools/core@0.10.3':
-    resolution: {integrity: sha512-rtDoh6C/EMYLEtFwYpuY+IlnV7PLsF5hQszq7uMDE/bwEpLVBlPFd2Wlk9E0RB31PVQKV1MwgGqstte87XqF9g==}
 
   '@herb-tools/core@0.10.4':
     resolution: {integrity: sha512-JcLwVjqW8gfTaCsSRueFU31CtYSjWkKdFVvNA1fPM4D90j/RqY04aa0rlZghjHc0AzNIiJd81Vk8c8WWjfn4Ag==}
 
-  '@herb-tools/formatter@0.10.3':
-    resolution: {integrity: sha512-3YHtybrrRjXqbBE1+gv4/ksxmbnQbwJHA2IlMYUaLriCKUN02oN6t0Stwoxrude+gE7XICNR9EmBt1kH7QzlqA==}
+  '@herb-tools/formatter@0.10.4':
+    resolution: {integrity: sha512-F2a78xq1/t1iUFLZrmcSS+I3rSdcTE0/1SeW56tSrDw3H7UXig2PWiSoaIw8h6RVd3/5O4c9gADApMHWRtDyaA==}
     hasBin: true
 
   '@herb-tools/highlighter@0.10.4':
@@ -415,25 +409,12 @@ packages:
   '@herb-tools/node-wasm@0.10.4':
     resolution: {integrity: sha512-HTk4DI0AORYSZeXckASrnTy75JRGeDcOLCJn4oX3YVZIMjkrJtJkUhky5quF1iHHznL9sxb/PW+IJ3YVOR299A==}
 
-  '@herb-tools/printer@0.10.3':
-    resolution: {integrity: sha512-OuuIisERq3TLnms/Wm5N6w/ITYqlBPPLsc1FNHdN3qedPOA/ey1dF2rKewUzQAsAZheRCs5nem7tDYRhPb2D/Q==}
-    hasBin: true
-
   '@herb-tools/printer@0.10.4':
     resolution: {integrity: sha512-UHe8sk/hWTbDk7I1uicHtUo0w4+BNdPcceieAACWSc+SHZFminnbF72hsH4WYbGH5roA2Bx3tuQ+G2fTppK7pA==}
     hasBin: true
 
-  '@herb-tools/rewriter@0.10.3':
-    resolution: {integrity: sha512-UsqWOJVcmB7lptLtjUeFpVvOn44LFae+I44p5ixQ9nDLNnZiN/2+R52tJmVLOWijQORvtMInCWOHrSvXF6Bf/g==}
-
   '@herb-tools/rewriter@0.10.4':
     resolution: {integrity: sha512-RRkH24O2iWMZc3T79xxQeaAnnFv8oVBw2Pwv+qz5iqQfOB259GqZMG2TwCOA8EAhpMWyd9ImVI/pWuZ95AaoEw==}
-
-  '@herb-tools/tailwind-class-sorter@0.10.3':
-    resolution: {integrity: sha512-KAowwSS6NmcRTQrQ591DR6dGI675KB0o/yxZt113BNDWiBB+bl4xdnd3hT19JV6Jsh3sS/0e90hYGUj/6PBW0g==}
-    engines: {node: '>=14.21.3'}
-    peerDependencies:
-      tailwindcss: ^3.0 || ^4.0
 
   '@herb-tools/tailwind-class-sorter@0.10.4':
     resolution: {integrity: sha512-5tWFUwEaUor3SDDI/4GAYemReoA/3m5jQLcJ+g+oMdZhhbguExI+Dh5hUJU6WSdWZ9j/HJ1HhBXC/i8pdSEqQQ==}
@@ -1285,8 +1266,8 @@ packages:
     resolution: {integrity: sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==}
     engines: {node: '>=8'}
 
-  is-core-module@2.16.2:
-    resolution: {integrity: sha512-evOr8xfXKxE6qSR0hSXL2r3sd7ALj8+7jQEUvPYcm5sgZFdJ+AYzT6yNmJenvIYQBgIGwfwz08sL8zoL7yq2BA==}
+  is-core-module@2.17.0:
+    resolution: {integrity: sha512-J/vG0zBCbIKOQFfufSwyXdMrsohyJIUNkrnmo6WZGzoM7tr/lsbfW5b2BvisL6zsyMzK9UxV9L6c7AoFbyXHOA==}
     engines: {node: '>= 0.4'}
 
   is-extglob@2.1.1:
@@ -1482,11 +1463,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@3.3.18:
-    resolution: {integrity: sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nanoid@3.3.19:
     resolution: {integrity: sha512-Y2tUNy4ouw6tq5oDSKeQYGOyhkUBhNOcGV/02KC+6kd9eDGqdZd++mjMiIDilrBYvjEnCYvVtsuHCuP+okSfug==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
@@ -1553,16 +1529,6 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
-  pify@2.3.0:
-    resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
-    engines: {node: '>=0.10.0'}
-
-  postcss-import@16.1.1:
-    resolution: {integrity: sha512-2xVS1NCZAfjtVdvXiyegxzJ447GyqCeEI5V7ApgQVOWnros1p5lGNovJNapwPpMombyFBfqDwt7AD3n2l0KOfQ==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      postcss: ^8.0.0
-
   postcss-import@16.2.0:
     resolution: {integrity: sha512-0mQUGlSp87Zl70K58RNwQAN1WS9plFE6KWGui9nyK6ninduMyjW/Khaoy/BpBoFTBh7ndAvAKrSKVbwy6vd/BA==}
     engines: {node: '>=18.0.0'}
@@ -1574,10 +1540,6 @@ packages:
 
   postcss@8.5.16:
     resolution: {integrity: sha512-vuwillviilfKZsg0VGj5R/YwwcHx4SLsIOI/7K6mQkWx+l5cUHTjj5g0AasTBcyXsbfTgrwsUNmVUb5xVwyPwg==}
-    engines: {node: ^10 || ^12 || >=14}
-
-  postcss@8.5.26:
-    resolution: {integrity: sha512-u82N74LFzG8ca+dD8puPnplTXoGH4fTPpVGuIbt36G3qvNlkvfD0lEAZSxaly3KX8TS/L1A1gsCEmvKmBcVbkQ==}
     engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.28:
@@ -1607,9 +1569,6 @@ packages:
 
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
-
-  read-cache@1.0.0:
-    resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}
 
   read-cache@1.0.2:
     resolution: {integrity: sha512-/peqiBB/n07gQGLsWaHho3WfvUyRscw0gYTsEFMhrIe/nWLkYaf5SbKYjGYqtRV3aPwykJgF2VEMo1ac4bnsGA==}
@@ -1906,11 +1865,6 @@ packages:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
 
-  yaml@2.9.0:
-    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
-    engines: {node: '>= 14.6'}
-    hasBin: true
-
   yaml@2.9.1:
     resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
@@ -2135,13 +2089,6 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@herb-tools/config@0.10.3':
-    dependencies:
-      '@herb-tools/core': 0.10.3
-      picomatch: 4.0.7
-      tinyglobby: 0.2.17
-      yaml: 2.9.0
-
   '@herb-tools/config@0.10.4':
     dependencies:
       '@herb-tools/core': 0.10.4
@@ -2149,20 +2096,16 @@ snapshots:
       tinyglobby: 0.2.17
       yaml: 2.9.1
 
-  '@herb-tools/core@0.10.3':
-    dependencies:
-      '@ruby/prism': 1.9.0
-
   '@herb-tools/core@0.10.4':
     dependencies:
       '@ruby/prism': 1.9.0
 
-  '@herb-tools/formatter@0.10.3(tailwindcss@4.3.3)':
+  '@herb-tools/formatter@0.10.4(tailwindcss@4.3.3)':
     dependencies:
-      '@herb-tools/config': 0.10.3
-      '@herb-tools/core': 0.10.3
-      '@herb-tools/printer': 0.10.3
-      '@herb-tools/rewriter': 0.10.3(tailwindcss@4.3.3)
+      '@herb-tools/config': 0.10.4
+      '@herb-tools/core': 0.10.4
+      '@herb-tools/printer': 0.10.4
+      '@herb-tools/rewriter': 0.10.4(tailwindcss@4.3.3)
       '@ruby/prism': 1.9.0
       tinyglobby: 0.2.17
     transitivePeerDependencies:
@@ -2192,24 +2135,10 @@ snapshots:
       '@herb-tools/core': 0.10.4
       '@ruby/prism': 1.9.0
 
-  '@herb-tools/printer@0.10.3':
-    dependencies:
-      '@herb-tools/core': 0.10.3
-      tinyglobby: 0.2.17
-
   '@herb-tools/printer@0.10.4':
     dependencies:
       '@herb-tools/core': 0.10.4
       tinyglobby: 0.2.17
-
-  '@herb-tools/rewriter@0.10.3(tailwindcss@4.3.3)':
-    dependencies:
-      '@herb-tools/core': 0.10.3
-      '@herb-tools/tailwind-class-sorter': 0.10.3(tailwindcss@4.3.3)
-      '@ruby/prism': 1.9.0
-      tinyglobby: 0.2.17
-    transitivePeerDependencies:
-      - tailwindcss
 
   '@herb-tools/rewriter@0.10.4(tailwindcss@4.3.3)':
     dependencies:
@@ -2219,15 +2148,6 @@ snapshots:
       tinyglobby: 0.2.17
     transitivePeerDependencies:
       - tailwindcss
-
-  '@herb-tools/tailwind-class-sorter@0.10.3(tailwindcss@4.3.3)':
-    dependencies:
-      clear-module: 4.1.3
-      escalade: 3.2.0
-      jiti: 2.7.0
-      postcss: 8.5.26
-      postcss-import: 16.1.1(postcss@8.5.26)
-      tailwindcss: 4.3.3
 
   '@herb-tools/tailwind-class-sorter@0.10.4(tailwindcss@4.3.3)':
     dependencies:
@@ -2568,7 +2488,7 @@ snapshots:
       picocolors: 1.1.1
       redent: 3.0.0
     optionalDependencies:
-      vitest: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+      vitest: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
 
   '@testing-library/user-event@14.6.7(@testing-library/dom@10.4.2)':
     dependencies:
@@ -2609,7 +2529,7 @@ snapshots:
       obug: 2.2.1
       std-env: 4.2.0
       tinyrainbow: 3.1.1
-      vitest: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+      vitest: 5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.1': {}
 
@@ -2617,7 +2537,7 @@ snapshots:
     dependencies:
       '@vitest/istanbul-lib-coverage': 1.0.1
 
-  '@vitest/mocker@5.0.1(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))':
+  '@vitest/mocker@5.0.1(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.1
@@ -2625,7 +2545,7 @@ snapshots:
       magic-string: 1.4.1
     optionalDependencies:
       msw: 2.15.0(@types/node@26.1.1)
-      vite: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
+      vite: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)
 
   '@vitest/spy@5.0.1': {}
 
@@ -2968,7 +2888,7 @@ snapshots:
 
   indent-string@4.0.0: {}
 
-  is-core-module@2.16.2:
+  is-core-module@2.17.0:
     dependencies:
       hasown: 2.0.4
 
@@ -3148,8 +3068,6 @@ snapshots:
 
   nanoid@3.3.15: {}
 
-  nanoid@3.3.18: {}
-
   nanoid@3.3.19: {}
 
   natural-compare@1.4.0: {}
@@ -3201,15 +3119,6 @@ snapshots:
 
   picomatch@4.0.7: {}
 
-  pify@2.3.0: {}
-
-  postcss-import@16.1.1(postcss@8.5.26):
-    dependencies:
-      postcss: 8.5.26
-      postcss-value-parser: 4.2.0
-      read-cache: 1.0.0
-      resolve: 1.22.12
-
   postcss-import@16.2.0(postcss@8.5.28):
     dependencies:
       postcss: 8.5.28
@@ -3222,12 +3131,6 @@ snapshots:
   postcss@8.5.16:
     dependencies:
       nanoid: 3.3.15
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.5.26:
-    dependencies:
-      nanoid: 3.3.18
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -3255,10 +3158,6 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  read-cache@1.0.0:
-    dependencies:
-      pify: 2.3.0
-
   read-cache@1.0.2: {}
 
   readdirp@5.0.0: {}
@@ -3277,7 +3176,7 @@ snapshots:
   resolve@1.22.12:
     dependencies:
       es-errors: 1.3.0
-      is-core-module: 2.16.2
+      is-core-module: 2.17.0
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
@@ -3413,7 +3312,7 @@ snapshots:
 
   uuid@14.0.2: {}
 
-  vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0):
+  vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1):
     dependencies:
       esbuild: 0.28.1
       fdir: 6.5.0(picomatch@4.0.5)
@@ -3426,12 +3325,12 @@ snapshots:
       fsevents: 2.3.3
       jiti: 2.7.0
       lightningcss: 1.32.0
-      yaml: 2.9.0
+      yaml: 2.9.1
 
-  vitest@5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)):
+  vitest@5.0.1(@types/node@26.1.1)(@vitest/coverage-v8@5.0.1)(jsdom@30.0.1)(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.1(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0))
+      '@vitest/mocker': 5.0.1(msw@2.15.0(@types/node@26.1.1))(vite@7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -3442,7 +3341,7 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
-      vite: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.0)
+      vite: 7.3.6(@types/node@26.1.1)(jiti@2.7.0)(lightningcss@1.32.0)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 26.1.1
@@ -3497,8 +3396,6 @@ snapshots:
   xmlchars@2.2.0: {}
 
   y18n@5.0.8: {}
-
-  yaml@2.9.0: {}
 
   yaml@2.9.1: {}
 
