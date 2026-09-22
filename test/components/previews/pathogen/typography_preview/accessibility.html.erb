@@ -42,10 +42,10 @@
 
   <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
     <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
+    <p class="mt-2 leading-relaxed">
       Do not skip heading levels within a region. Pair labels with controls using
-      <code class="font-mono">for</code>/<code class="font-mono">id</code> or an enclosing
-      <code class="font-mono">label</code>. Reserve <code class="font-mono">variant: :inverse</code> for dark or inverted
+      <%= render(Pathogen::Typography::Code.new) { "for" } %>/<%= render(Pathogen::Typography::Code.new) { "id" } %> or an enclosing
+      <%= render(Pathogen::Typography::Code.new) { "label" } %>. Reserve <%= render(Pathogen::Typography::Code.new) { "variant: :inverse" } %> for dark or inverted
       surfaces only.
     </p>
   </div>
