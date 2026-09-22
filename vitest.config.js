@@ -12,6 +12,7 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/tooltip_controller.js": FULL_COVERAGE,
 };
 
 export default defineConfig({
