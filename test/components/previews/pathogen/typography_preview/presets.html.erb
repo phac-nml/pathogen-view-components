@@ -42,11 +42,11 @@
       <% end %>
 
       <div class="mt-4 space-y-3">
-        <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "preset-specimen-id", class: "block font-semibold") { "Specimen ID" } %>
-        <%= render Pathogen::Typography::Supporting.new(variant: :muted) { "Barcode from the accession label." } %>
+        <%= render(Pathogen::Typography::Supporting.new(tag: :label, for: "preset-specimen-id", class: "block font-semibold")) { "Specimen ID" } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) { "Barcode from the accession label." } %>
 
-        <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "preset-collection-site", class: "block font-semibold") { "Collection site" } %>
-        <%= render Pathogen::Typography::Supporting.new(variant: :muted) { "Facility code from the submitter manifest." } %>
+        <%= render(Pathogen::Typography::Supporting.new(tag: :label, for: "preset-collection-site", class: "block font-semibold")) { "Collection site" } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) { "Facility code from the submitter manifest." } %>
       </div>
     </div>
   </section>
