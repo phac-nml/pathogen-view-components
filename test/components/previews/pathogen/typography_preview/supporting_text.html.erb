@@ -9,7 +9,7 @@
     </p>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <%= render Pathogen::Typography::Heading.new(level: 2) { "Register specimen" } %>
+      <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Register specimen" } %>
 
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: "mt-1") do %>
         Required fields marked below · Draft saved 2026-06-10 09:14 UTC
@@ -17,13 +17,13 @@
 
       <div class="mt-6 space-y-4">
         <div>
-          <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "specimen-id", class: "mb-1 block font-semibold") { "Specimen ID" } %>
-          <%= render Pathogen::Typography::Supporting.new(variant: :muted) { "Use the barcode from the accession label." } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :label, for: "specimen-id", class: "mb-1 block font-semibold")) { "Specimen ID" } %>
+          <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) { "Use the barcode from the accession label." } %>
         </div>
 
         <div>
-          <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "collection-date", class: "mb-1 block font-semibold") { "Collection date" } %>
-          <%= render Pathogen::Typography::Supporting.new(variant: :muted) { "Local date at the collection site." } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :label, for: "collection-date", class: "mb-1 block font-semibold")) { "Collection date" } %>
+          <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) { "Local date at the collection site." } %>
         </div>
       </div>
     </div>
