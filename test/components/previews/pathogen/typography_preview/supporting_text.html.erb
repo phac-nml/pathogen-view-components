@@ -52,9 +52,9 @@
 
   <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
     <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
-      Default <code class="font-mono">render Pathogen::Typography::Supporting.new</code> uses control scale. Pass
-      <code class="font-mono">size: :meta</code> for timestamps and footnotes. HeadingGroup metadata defaults to meta
+    <p class="mt-2 leading-relaxed">
+      Default <%= render(Pathogen::Typography::Code.new) { "render Pathogen::Typography::Supporting.new" } %> uses control scale. Pass
+      <%= render(Pathogen::Typography::Code.new) { "size: :meta" } %> for timestamps and footnotes. HeadingGroup metadata defaults to meta
       scale.
     </p>
   </div>
