@@ -59,6 +59,6 @@
       Use sequential heading levels inside a page region. Do not override page-title sizing with custom classes;
       hierarchy comes from level, weight, and placement.
     </p>
-    <pre class="mt-2 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-3 text-xs text-[var(--pvc-color-text)]"><code>&lt;%= render Pathogen::Typography::Heading.new(level: 2) { "Section" } %&gt;</code></pre>
+    <pre class="mt-2 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-3 text-xs text-[var(--pvc-color-text)]"><code>&lt;%= render(Pathogen::Typography::Heading.new(level: 2)) { "Section" } %&gt;</code></pre>
   </div>
 </div>
