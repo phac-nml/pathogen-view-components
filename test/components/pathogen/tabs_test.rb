@@ -10,7 +10,7 @@ module Pathogen
         tabs.with_panel(id: 'one-panel', tab_id: 'one') { 'One' }
       end
 
-      assert_selector '[role="tab"].min-h-6.min-w-6'
+      assert_selector '[role="tab"][class*="min-h-[var(--pvc-control-size-small)]"]'
       assert_no_selector '[size]'
     end
 
@@ -51,7 +51,7 @@ module Pathogen
       end
 
       assert_selector 'div#docs-tabs-container.block.font-sans'
-      assert_selector '[role="tab"].min-h-11.min-w-11', count: 2
+      assert_selector '[role="tab"][class*="min-h-[var(--pvc-control-size-medium)]"]', count: 2
       assert_selector 'nav#docs-tabs.flex.flex-wrap[role="tablist"][aria-label="Documentation tabs"]'
       assert_selector(
         'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'

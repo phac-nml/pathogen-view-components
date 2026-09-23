@@ -133,14 +133,14 @@ module Pathogen
     test 'uses medium Pathogen::Button sizing by default in toolbar context' do
       render_inline(Pathogen::Toolbar::Button.new) { 'Action' }
 
-      assert_selector 'button.min-h-11.min-w-11'
-      assert_selector "button[class*='bg-[var(--pvc-color-surface)]'][class*='border-[var(--pvc-color-border-strong)]']"
+      assert_selector "button[class*='min-h-[var(--pvc-control-size-medium)]'][class*='min-w-[var(--pvc-control-size-medium)]']"
+      assert_selector "button[class*='bg-[var(--pvc-color-surface-muted)]'].border-transparent"
     end
 
     test 'supports an explicit compact toolbar button' do
       render_inline(Pathogen::Toolbar::Button.new(size: :small)) { 'Compact' }
 
-      assert_selector 'button.min-h-6.min-w-6'
+      assert_selector "button[class*='min-h-[var(--pvc-control-size-small)]'][class*='min-w-[var(--pvc-control-size-small)]']"
     end
 
     test 'renders aria-pressed with visible pressed styling' do
