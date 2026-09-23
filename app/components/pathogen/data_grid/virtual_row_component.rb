@@ -18,6 +18,10 @@ module Pathogen
       def local_row_index
         @global_row_index - @grid.virtual_row_offset
       end
+
+      def before_render
+        @grid.prepare_columns!
+      end
     end
   end
 end

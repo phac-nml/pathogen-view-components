@@ -4,6 +4,42 @@ require 'test_helper'
 
 module Pathogen
   class TabsTest < ViewComponent::TestCase
+    test 'passes the explicit compact size to tabs' do
+      render_inline(Pathogen::Tabs.new(id: 'compact', label: 'Compact tabs', size: :small)) do |tabs|
+        tabs.with_tab(id: 'one', label: 'One')
+        tabs.with_panel(id: 'one-panel', tab_id: 'one') { 'One' }
+      end
+
+      assert_selector '[role="tab"].min-h-6.min-w-6'
+      assert_no_selector '[size]'
+    end
+
+    test 'selects mixed lazy and regular panels by their tab association' do
+      render_inline(Pathogen::Tabs.new(id: 'mixed', label: 'Mixed panels')) do |tabs|
+        tabs.with_tab(id: 'history', label: 'History')
+        tabs.with_tab(id: 'overview', label: 'Overview')
+        tabs.with_panel(id: 'overview-panel', tab_id: 'overview') { 'Overview content' }
+        tabs.with_lazy_panel(id: 'history-panel', tab_id: 'history', frame_id: 'history-frame',
+                             src_path: '/history', selected: true) { 'History content' }
+      end
+
+      assert_selector '#history-panel[aria-labelledby="history"][aria-hidden="false"]'
+      assert_selector '#overview-panel[hidden]', visible: :all
+    end
+
+    test 'rejects two panels associated with the same tab' do
+      error = assert_raises(ArgumentError) do
+        render_inline(Pathogen::Tabs.new(id: 'duplicate', label: 'Duplicate panels')) do |tabs|
+          tabs.with_tab(id: 'first', label: 'First')
+          tabs.with_tab(id: 'second', label: 'Second')
+          tabs.with_panel(id: 'panel-one', tab_id: 'first') { 'One' }
+          tabs.with_panel(id: 'panel-two', tab_id: 'first') { 'Two' }
+        end
+      end
+
+      assert_equal 'Each tab must have exactly one panel', error.message
+    end
+
     # rubocop:disable-next Metrics/BlockLength
     test 'renders tabs layout and ARIA wiring' do
       render_inline(Pathogen::Tabs.new(id: 'docs-tabs', label: 'Documentation tabs')) do |tabs|
@@ -15,6 +51,7 @@ module Pathogen
       end
 
       assert_selector 'div#docs-tabs-container.block.font-sans'
+      assert_selector '[role="tab"].min-h-11.min-w-11', count: 2
       assert_selector 'nav#docs-tabs.flex.flex-wrap[role="tablist"][aria-label="Documentation tabs"]'
       assert_selector(
         'button#tab-overview[role="tab"][aria-selected="true"][data-state="active"][tabindex="0"]'

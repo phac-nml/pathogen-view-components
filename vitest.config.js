@@ -9,17 +9,22 @@ const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.m
 // allowlist below, and then fail CI if they ever regress.
 const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
 const RATCHET_ALLOWLIST = {
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/cell_index.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/paginated_virtual_rows.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_viewport.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/tooltip_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/disclosure_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/sidebar_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/navigation.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_source.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/scroll.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_columns.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
-  "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
 };
 
 export default defineConfig({
@@ -27,6 +32,11 @@ export default defineConfig({
     alias: {
       application: resolve(demoJsRoot, "application.js"),
       "lookbook_mocks/tabs_lazy_load": resolve(demoJsRoot, "lookbook_mocks/tabs_lazy_load.js"),
+      "pathogen_view_components/data_grid_controller/virtual_viewport": resolve(
+        jsRoot,
+        "data_grid_controller/virtual_viewport.js",
+      ),
+      "pathogen_view_components/data_grid_controller/cell_index": resolve(jsRoot, "data_grid_controller/cell_index.js"),
       "pathogen_view_components/data_grid_controller/navigation": resolve(jsRoot, "data_grid_controller/navigation.js"),
       "pathogen_view_components/data_grid_controller/scroll": resolve(jsRoot, "data_grid_controller/scroll.js"),
       "pathogen_view_components/data_grid_controller/widget_mode": resolve(
@@ -58,6 +68,16 @@ export default defineConfig({
         jsRoot,
         "data_grid_controller/virtual_columns.js",
       ),
+      "pathogen_view_components/toolbar_controller/constants": resolve(jsRoot, "toolbar_controller/constants.js"),
+      "pathogen_view_components/toolbar_controller/roving_focus": resolve(jsRoot, "toolbar_controller/roving_focus.js"),
+      "pathogen_view_components/toolbar_controller/text_entry": resolve(jsRoot, "toolbar_controller/text_entry.js"),
+      "pathogen_view_components/toolbar_controller/visibility": resolve(jsRoot, "toolbar_controller/visibility.js"),
+      "pathogen_view_components/tabs_controller": resolve(jsRoot, "tabs_controller.js"),
+      "pathogen_view_components/tooltip_controller": resolve(jsRoot, "tooltip_controller.js"),
+      "pathogen_view_components/disclosure_controller": resolve(jsRoot, "disclosure_controller.js"),
+      "pathogen_view_components/data_grid_controller": resolve(jsRoot, "data_grid_controller.js"),
+      "pathogen_view_components/sidebar_controller": resolve(jsRoot, "sidebar_controller.js"),
+      "pathogen_view_components/toolbar_controller": resolve(jsRoot, "toolbar_controller.js"),
     },
   },
   test: {

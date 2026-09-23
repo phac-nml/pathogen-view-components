@@ -56,7 +56,7 @@ jobs:
         run: echo "${{ steps.coverage.outputs.table }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload JavaScript coverage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: javascript-coverage
           path: coverage
@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         continue-on-error: true
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           files: ./coverage/lcov.info
           flags: javascript
@@ -84,7 +84,7 @@ jobs:
     steps:
       - name: Comment JavaScript coverage on PR
         continue-on-error: true
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         env:
           COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
         with:

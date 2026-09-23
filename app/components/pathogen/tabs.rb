@@ -118,6 +118,7 @@ module Pathogen
         label: label,
         selected: selected,
         orientation: @orientation,
+        size: @size,
         **system_arguments
       )
     }
@@ -170,10 +171,12 @@ module Pathogen
     # @param default_index [Integer] Index of the initially selected tab (default: 0)
     # @param orientation [Symbol] Tab orientation (:horizontal or :vertical, default: :horizontal)
     # @param sync_url [Boolean] Whether to sync tab selection with URL hash for bookmarking (default: false)
+    # @param size [Symbol] :medium (44px target) or explicit :small (compact)
     # @param system_arguments [Hash] Additional HTML attributes
     # @raise [ArgumentError] if id or label is missing
     # rubocop:disable Metrics/ParameterLists
-    def initialize(id:, label:, default_index: 0, orientation: ORIENTATION_DEFAULT, sync_url: false, **system_arguments)
+    def initialize(id:, label:, default_index: 0, orientation: ORIENTATION_DEFAULT, sync_url: false, size: :medium,
+                   **system_arguments)
       # rubocop:enable Metrics/ParameterLists
       raise ArgumentError, 'id is required' if id.blank?
       raise ArgumentError, 'label is required' if label.blank?
@@ -183,6 +186,7 @@ module Pathogen
       @default_index = default_index
       @resolved_default_index = default_index
       @orientation = fetch_or_fallback(ORIENTATION_OPTIONS, orientation, ORIENTATION_DEFAULT)
+      @size = fetch_or_fallback(%i[small medium], size, :medium)
       @sync_url = sync_url
       @system_arguments = system_arguments
 
@@ -248,6 +252,8 @@ module Pathogen
     def validate_panel_associations!
       tab_ids = tabs.map(&:id)
       all_panels = panels + lazy_panels
+      raise ArgumentError, 'Each tab must have exactly one panel' if all_panels.map(&:tab_id).uniq.length != tabs.length
+
       all_panels.each do |panel|
         unless tab_ids.include?(panel.tab_id)
           raise ArgumentError, "Panel #{panel.id} references non-existent tab #{panel.tab_id}"
@@ -257,8 +263,9 @@ module Pathogen
 
     def apply_initial_panel_visibility
       all_panels = panels + lazy_panels
-      all_panels.each_with_index do |panel, index|
-        panel.set_initial_visibility(hidden: index != @resolved_default_index)
+      selected_tab_id = tabs[@resolved_default_index].id
+      all_panels.each do |panel|
+        panel.set_initial_visibility(hidden: panel.tab_id != selected_tab_id)
       end
     end
 

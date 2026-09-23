@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, and DataGrid.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, data grids, and toolbars.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -119,6 +119,8 @@ Sticky columns:
 <% end %>
 ```
 
+For server-backed virtual scrolling, see the [Data Grid pagination guide](docs/lookbook/data_grid.md.erb).
+
 #### Tabs
 
 ```erb
@@ -135,6 +137,68 @@ Sticky columns:
   <% end %>
 <% end %>
 ```
+
+#### Toolbar
+
+Table action row (default `variant: :table`):
+
+```erb
+<%# Hidden forms + detached submit buttons (see IRIDA Next shared/selection_buttons). %>
+<form id="select-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get">
+  <input type="hidden" name="select" value="on">
+</form>
+<form id="deselect-all-form" class="hidden" data-turbo-frame="selected" action="..." method="get"></form>
+
+<%= render Pathogen::DataGridComponent.new(id: "samples-grid", rows: @rows, caption: "Samples") do |grid| %>
+  <%= grid.with_toolbar(label: "Sample grid actions") do %>
+    <%= render Pathogen::Toolbar::Group.new do %>
+      <%= render Pathogen::Toolbar::Button.new(form: "select-all-form", label: "Select all samples") { "Select all" } %>
+      <%= render Pathogen::Toolbar::Button.new(form: "deselect-all-form", label: "Deselect all samples") { "Deselect all" } %>
+    <% end %>
+
+    <%= render Pathogen::Toolbar::Spacer.new %>
+
+    <%= render Pathogen::Toolbar::Group.new do %>
+      <%= render Pathogen::Toolbar::Button.new { "Columns" } %>
+      <%= render Pathogen::Toolbar::Button.new(aria_disabled: true, label: "Export selected samples") { "Export" } %>
+    <% end %>
+  <% end %>
+
+  <%# Search is visually adjacent, but outside role="toolbar" and its roving focus. %>
+  <%= grid.with_toolbar_complement do %>
+    <label class="sr-only" for="sample-search">Search samples</label>
+    <input id="sample-search" type="search" placeholder="Search samples">
+  <% end %>
+
+  <% grid.with_column("ID", key: :id) %>
+  <% grid.with_column("Name", key: :name) %>
+<% end %>
+```
+
+Toolbar buttons associated with a detached form default to `type="submit"`. Pass an explicit `type:` to override that default.
+
+Compact inline toolbar (`variant: :chip`):
+
+```erb
+<%= render Pathogen::Toolbar.new(label: "Editor actions", variant: :chip) do %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:dense] == "1") { "Dense" } %>
+  <%= render Pathogen::Toolbar::Button.new(pressed: params[:wrap] == "1") { "Wrap" } %>
+  <%= render Pathogen::Toolbar::Separator.new %>
+  <button type="button" tabindex="-1" data-pathogen--toolbar-target="item">More</button>
+<% end %>
+```
+
+- Use `Toolbar::Group` so related toolbar controls reflow together. Use `reflow: :alone` only when an actual toolbar control should wrap independently.
+- Use `Toolbar::Spacer` between start and end groups on wide viewports; it collapses on narrow screens.
+- For table action rows, prefer `DataGridComponent#with_toolbar` and `#with_toolbar_complement`; this renders the canonical action band and keeps one framed surface around toolbar + grid.
+- `with_toolbar` defaults `aria-controls` to the grid root `id` when present; pass `controls:` explicitly to override.
+- Toolbar items participate in roving focus only when they expose `data-pathogen--toolbar-target="item"` (via `Toolbar::Button` or an explicit target on custom controls).
+- Use a toolbar only when grouping **three or more** controls ([APG toolbar guidance](https://www.w3.org/WAI/ARIA/apg/patterns/toolbar/)).
+- Use `disabled: true` for native, unfocusable buttons. Use `aria_disabled: true` only when an unavailable action must remain focusable for discoverability.
+- Keep text inputs and native selects outside `role="toolbar"` and its Stimulus item targets. They can remain visually adjacent in the same action band as ordinary Tab stops, preserving native text/selection keys without making toolbar actions unreachable.
+- If an arrow-key-owning control is genuinely unavoidable inside a toolbar, include only one, place it last in DOM order, and document the keyboard compromise.
+- The controller resyncs when items connect/disconnect and on `turbo:morph`, so the toolbar keeps its keyboard wiring across Turbo morphs. After wholesale `innerHTML` swaps that bypass Stimulus targets, dispatch `pathogen--toolbar:sync` on the toolbar element (bubbles).
+- Host-local dropdown/menu popups stay consumer-managed in v1: only the closed trigger joins toolbar navigation, and the popup owns its own open-state keyboard model (it must stop propagation so the toolbar does not steal its keys).
 
 #### Tooltip
 
@@ -294,6 +358,7 @@ If your application already starts Stimulus, reuse that instance and add only th
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
 - `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
+- `pathogen--toolbar`: Horizontal toolbar roving focus, disabled-action interception, and text-entry-safe key handling
 
 ## Development
 
