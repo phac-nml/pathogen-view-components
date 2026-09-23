@@ -84,7 +84,11 @@ module Pathogen
     def tab_classes(orientation:, size: :medium)
       [
         TAB_BASE,
-        size == :small ? 'min-h-6 min-w-6' : 'min-h-11 min-w-11',
+        if size == :small
+          'min-h-[var(--pvc-control-size-small)] min-w-[var(--pvc-control-size-small)]'
+        else
+          'min-h-[var(--pvc-control-size-medium)] min-w-[var(--pvc-control-size-medium)]'
+        end,
         TAB_INACTIVE,
         TAB_ACTIVE_STATE_BASE,
         orientation == :vertical ? TAB_VERTICAL : TAB_HORIZONTAL,

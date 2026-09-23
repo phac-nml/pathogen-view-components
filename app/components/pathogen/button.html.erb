@@ -11,7 +11,7 @@
 ) do %>
   <%= render @base_button_class.new(**@system_arguments) do -%>
     <% if leading_visual %>
-      <span class="inline-flex shrink-0 items-center" aria-hidden="true"><%= leading_visual %></span>
+      <span class="inline-flex shrink-0 items-center [&_svg]:size-4" aria-hidden="true"><%= leading_visual %></span>
     <% end %>
 
     <% if button_text.present? %>
@@ -19,7 +19,7 @@
     <% end %>
 
     <% if trailing_visual %>
-      <span class="inline-flex shrink-0 items-center" aria-hidden="true"><%= trailing_visual %></span>
+      <span class="inline-flex shrink-0 items-center [&_svg]:size-4" aria-hidden="true"><%= trailing_visual %></span>
     <% end %>
   <% end -%>
 
