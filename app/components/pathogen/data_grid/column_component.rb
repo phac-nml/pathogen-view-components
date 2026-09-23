@@ -44,7 +44,7 @@ module Pathogen
     ].freeze
 
     # Pathogen::DataGrid::ColumnComponent — Column component for Pathogen Data Grid
-    class ColumnComponent < Pathogen::Component
+    class ColumnComponent < Pathogen::Component # rubocop:disable Metrics/ClassLength
       include Pathogen::StimulusDataMerge
 
       attr_accessor :sticky, :sticky_left
@@ -64,6 +64,7 @@ module Pathogen
         @interactive = interactive
         @system_arguments = system_arguments.symbolize_keys
         @renderer = renderer || (block ? ->(row, index) { block.call(row, index) } : nil)
+        precompute_cell_arguments!
       end
 
       def interactive? = @interactive
@@ -117,10 +118,19 @@ module Pathogen
 
       private
 
+      # Precomputes the cell-invariant attribute fragments once so per-cell rendering avoids
+      # repeatedly filtering system arguments and transforming aria/data keys.
+      def precompute_cell_arguments!
+        @filtered_system_arguments = @system_arguments.except(*COLUMN_OWNED_ATTRIBUTES)
+        @header_aria_attributes = build_cell_aria_attributes(header: true)
+        @body_aria_attributes = build_cell_aria_attributes(header: false)
+        @base_cell_data_attributes = build_base_cell_data_attributes
+      end
+
       # rubocop:disable-next Metrics/ParameterLists
       def attributes_for(header:, row_index:, column_index:, aria_column_index:, active: false, interactive: false,
                          virtual_column_index: nil)
-        attributes = @system_arguments.except(*COLUMN_OWNED_ATTRIBUTES).merge(
+        attributes = @filtered_system_arguments.merge(
           class: class_names(*cell_classes(header:)),
           data: cell_data_attributes(row_index:, column_index:, interactive:),
           role: cell_role(header:),
@@ -133,10 +143,18 @@ module Pathogen
       end
 
       def cell_aria_attributes(header:, aria_column_index:)
+        base = header ? @header_aria_attributes : @body_aria_attributes
+        return base if aria_column_index.nil?
+
+        base.merge(colindex: aria_column_index)
+      end
+
+      # Builds the aria attributes shared by every cell of a given kind (header or body).
+      def build_cell_aria_attributes(header:)
         attributes = (@system_arguments[:aria] || {}).symbolize_keys.except(:colindex)
         attributes[:sort] ||= @system_arguments[:'aria-sort'] if @system_arguments.key?(:'aria-sort')
         attributes.delete(:sort) unless header
-        attributes.merge(aria_column_index.nil? ? {} : { colindex: aria_column_index })
+        attributes.freeze
       end
 
       # rubocop:disable-next Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -158,17 +176,21 @@ module Pathogen
       end
 
       def cell_data_attributes(row_index:, column_index:, interactive:)
-        data_attributes = (@system_arguments[:data] || {}).transform_keys { |key| key.to_s.dasherize.to_sym }
-                                                          .except(:'sticky-cell', :'pvc-data-grid-virtual-col-index')
-        merge_stimulus_data!(data_attributes, :'pathogen--data-grid-target', 'cell')
-
-        out = data_attributes.merge(
+        attributes = @base_cell_data_attributes.merge(
           'pathogen--data-grid-row-index': row_index,
           'pathogen--data-grid-column-index': column_index,
           'pathogen--data-grid-has-interactive': interactive
         )
-        out[:sticky_cell] = true if @sticky
-        out.transform_keys(&:to_sym)
+        attributes[:sticky_cell] = true if @sticky
+        attributes
+      end
+
+      # Builds the caller-supplied data attributes shared by every cell, normalizing keys to symbols once.
+      def build_base_cell_data_attributes
+        data_attributes = (@system_arguments[:data] || {}).transform_keys { |key| key.to_s.dasherize.to_sym }
+                                                          .except(:'sticky-cell', :'pvc-data-grid-virtual-col-index')
+        merge_stimulus_data!(data_attributes, :'pathogen--data-grid-target', 'cell')
+        data_attributes.transform_keys(&:to_sym).freeze
       end
 
       def cell_role(header:) = header ? 'columnheader' : 'gridcell'
