@@ -37,8 +37,9 @@ module Pathogen
       'left' => nil
     }.freeze
 
+    # `id` is dropped so a column attribute never emits duplicate ids across every cell.
     COLUMN_OWNED_ATTRIBUTES = %i[
-      aria-colindex aria-sort data-sticky-cell data-pvc-data-grid-virtual-col-index
+      id aria-colindex aria-sort data-sticky-cell data-pvc-data-grid-virtual-col-index
       data-pathogen--data-grid-target data-pathogen--data-grid-row-index
       data-pathogen--data-grid-column-index data-pathogen--data-grid-has-interactive
     ].freeze

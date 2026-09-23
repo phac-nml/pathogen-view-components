@@ -93,7 +93,8 @@ module Pathogen
 
       test 'flat caller attributes cannot override generated cell coordinates and targets' do
         column = ColumnComponent.new(
-          label: 'Name', 'role' => 'button', 'tabindex' => 3, 'aria-colindex' => 99, 'aria-sort' => 'ascending',
+          label: 'Name', id: 'name-col', 'role' => 'button', 'tabindex' => 3, 'aria-colindex' => 99,
+          'aria-sort' => 'ascending',
           'data-pathogen--data-grid-row-index' => 99, 'data-pathogen--data-grid-column-index' => 99,
           'data-pathogen--data-grid-target' => 'other', 'data-pathogen--data-grid-has-interactive' => true,
           'data-pvc-data-grid-virtual-col-index' => 99, 'data-sticky-cell' => true
@@ -104,6 +105,8 @@ module Pathogen
         assert_equal 'ascending', header[:aria][:sort]
         assert_equal 'columnheader', header[:role]
         assert_equal(-1, header[:tabindex])
+        assert_not header.key?(:id)
+        assert_not body.key?(:id)
         assert_empty body.keys.grep(/\A(?:data-|aria-)/)
         assert_equal 2, body[:data][:'pathogen--data-grid-row-index']
         assert_equal 1, body[:data][:'pathogen--data-grid-column-index']

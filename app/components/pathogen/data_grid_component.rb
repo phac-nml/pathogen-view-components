@@ -167,7 +167,8 @@ module Pathogen
     #   can enable sticky without width.
     # @param header_content [String, Proc, nil] Custom header content to replace the label.
     # @param system_arguments [Hash] Additional HTML attributes for header and body cells.
-    #   Grid roles, focus targets, and row/column indexes are managed internally.
+    #   Grid roles, focus targets, row/column indexes, and `id` are managed internally
+    #   (`id` is dropped so a column never emits duplicate ids across its cells).
     #   `aria: { sort: ... }` applies to header cells only.
     # @yieldparam row [Hash, Array, Object] Row data for the current cell.
     # @yieldparam index [Integer] Column index.
