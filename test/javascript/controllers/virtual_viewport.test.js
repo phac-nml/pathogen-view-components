@@ -156,6 +156,21 @@ describe("virtual viewport branch coverage", () => {
       <div id="viewport"><div class="pvc-data-grid__spacer"></div>${rowHTML(0)}${rowHTML(1)}</div>
     </div>`;
 
+  // A large total-count with a bounded set of seeded (loaded) rows. The overscan
+  // is wide enough that connect's initial render keeps every seeded row cached.
+  const bigCacheGrid = ({ totalCount, seededRows }) => `
+    <div role="grid" data-pvc-data-grid-total-count="${totalCount}" data-pvc-data-grid-page-size="20"
+      data-pvc-data-grid-rows-url="/samples/rows.json" data-pvc-data-grid-column-widths="120"
+      data-pvc-data-grid-row-overscan="2000">
+      <div role="row" class="pvc-data-grid__row--header">
+        <div role="columnheader" data-pathogen--data-grid-target="cell"
+          data-pathogen--data-grid-row-index="0" data-pathogen--data-grid-column-index="0">Sample</div>
+      </div>
+      <div id="viewport"><div class="pvc-data-grid__spacer"></div>${Array.from({ length: seededRows }, (_, index) =>
+        rowHTML(index),
+      ).join("")}</div>
+    </div>`;
+
   function mount({
     html = staticGrid(),
     scrollContainer = { scrollTop: 0, scrollLeft: 0, clientHeight: 80, clientWidth: 120 },
@@ -259,5 +274,42 @@ describe("virtual viewport branch coverage", () => {
     vv.disconnect();
 
     expect(viewport.querySelector('[aria-busy="true"]')).toBeNull();
+  });
+
+  it("restores only cached rows in a single batched insertion on disconnect", () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(() => new Promise(() => {}));
+    const seededRows = 250;
+    const { vv, viewport } = mount({ html: bigCacheGrid({ totalCount: 1_000_000, seededRows }) });
+
+    const createFragment = vi.spyOn(document, "createDocumentFragment");
+    const appendChild = vi.spyOn(viewport, "appendChild");
+
+    vv.disconnect();
+    virtualViewport = null;
+
+    // One DocumentFragment append => a single reflow, not one insertion per row.
+    expect(createFragment).toHaveBeenCalledTimes(1);
+    expect(appendChild).toHaveBeenCalledTimes(1);
+    expect(appendChild.mock.calls[0][0]).toBeInstanceOf(DocumentFragment);
+    // Reinserted rows track the loaded cache, not the millions in total-count.
+    expect(viewport.querySelectorAll('[role="row"]').length).toBe(seededRows);
+  });
+
+  it("reinserts a count proportional to the cache regardless of total-count", () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(() => new Promise(() => {}));
+    const seededRows = 120;
+
+    const small = mount({ html: bigCacheGrid({ totalCount: 1_000, seededRows }) });
+    small.vv.disconnect();
+    const smallRows = small.viewport.querySelectorAll('[role="row"]').length;
+    virtualViewport = null;
+
+    const huge = mount({ html: bigCacheGrid({ totalCount: 1_000_000, seededRows }) });
+    huge.vv.disconnect();
+    const hugeRows = huge.viewport.querySelectorAll('[role="row"]').length;
+    virtualViewport = null;
+
+    expect(smallRows).toBe(seededRows);
+    expect(hugeRows).toBe(seededRows);
   });
 });
