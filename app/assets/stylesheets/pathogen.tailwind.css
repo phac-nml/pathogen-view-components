@@ -1,6 +1,7 @@
 /* Pathogen ViewComponents — Tailwind v4 entry (build: pnpm run build:css → pathogen_view_components.css) */
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant unavailable (&:is(:disabled, [aria-disabled="true"]));
 @custom-variant interactive-hover {
   @media (hover: hover) {
     &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -92,6 +93,8 @@
     --type-page: 2rem;
 
     --pvc-radius-control-sm: 0.125rem;
+    --pvc-control-size-small: 2rem;
+    --pvc-control-size-medium: 2.75rem;
     --pvc-radius-control: 0.25rem;
     --pvc-radius-action: 0.375rem;
     --pvc-radius-panel: 0.5rem;

@@ -67,9 +67,15 @@ Pathogen components are under the `Pathogen` namespace and follow the ViewCompon
 
 Pass button text with `text:` in Lookbook preview templates and other ERB templates rendered outside a normal ViewComponent block context. Content blocks still work from Ruby preview methods and host app views.
 
+Buttons default to neutral `soft` emphasis. Use `solid` for the main action and `ghost` for quiet tools.
+`emphasis: :outline` remains a compatibility alias for `:soft`; migrate existing calls before a future breaking release removes the alias.
+Both sizes use 14px labels: `small` has a 32px minimum target and `medium` has a 44px minimum target.
+
 Use `disabled: true` for fully inactive buttons (removed from tab order). Use `aria_disabled: true` when the
 button should stay focusable but not act yet, for example, a form submit that announces validation errors after
 activation ([focusable disabled pattern](https://www.atomica11y.com/accessible-design/button/)).
+The host must prevent the unavailable action; `aria_disabled` only communicates its state.
+Provide an explanation with `aria-describedby`. Unavailable colours leave the control and focus outline fully opaque.
 
 ```erb
 <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: "Continue") %>

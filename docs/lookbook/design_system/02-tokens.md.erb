@@ -313,6 +313,10 @@ Spacing uses the 4px Tailwind rhythm.
 
 Do not tokenise spacing unless a repeated component pattern needs a named value.
 
+## Control Sizes
+
+Buttons and tabs share `--pvc-control-size-small` (2rem / 32px) and `--pvc-control-size-medium` (2.75rem / 44px) minimum targets. Both button sizes use `--type-control`. Icon-only buttons use square targets at the same sizes.
+
 ## Radius
 
 ```css
@@ -353,7 +357,7 @@ Use colour, border, background, and opacity transitions before movement. Honour 
 
 | Component | Semantic colour | Radius tokens | Type tokens |
 |-----------|-----------------|---------------|-------------|
-| `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
+| `Button` | Yes | `--pvc-radius-action` | `--type-control` |
 | `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
 | `Link` | Yes | `--pvc-radius-action` | via `text-sm` |
 | `Typography` | Yes | Mixed (`CodeBlock`: `--pvc-radius-panel`; `Code`: `--pvc-radius-control`) | `--type-*` |

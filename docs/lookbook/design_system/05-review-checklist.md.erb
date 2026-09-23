@@ -45,7 +45,7 @@ Full requirements and references: [Foundations → Accessibility](<%= page_path(
 ## Compact
 
 - Dense UI still leaves room for focus rings and validation text?
-- Small toolbar controls keep 24px targets and 8px between neighbours?
+- Small toolbar controls keep 32px targets and 8px between neighbours?
 - Aligned grids and real dividers support scanning?
 - Asymmetry reflects workflow priority, not layout fashion?
 - Data-heavy previews use realistic density?
@@ -64,10 +64,13 @@ Full requirements and references: [Foundations → Accessibility](<%= page_path(
 ## Buttons
 
 - One `primary` + `solid` per action group?
-- Cancel and secondary actions use `neutral` outline or ghost?
+- Cancel and secondary actions use `neutral` soft or ghost?
 - `danger` + `solid` reserved for confirmed destructive steps?
 - Solid hover darkens, or the mismatch is already a known token gap?
 - Solid success/warning uses `--pvc-color-success-solid` / `--pvc-color-warning-solid` (and their hover steps), not raw `emerald-*` / `amber-*`?
+
+- Unavailable buttons retain readable labels and a full-strength focus outline?
+- Focusable unavailable actions explain why and prevent the host action?
 
 ## Dark Mode
 

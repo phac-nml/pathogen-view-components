@@ -6,16 +6,16 @@ module Pathogen
     # Default size for buttons
     DEFAULT_SIZE = :medium
 
-    # Text button size utilities. Small uses 24×24px minimum target (WCAG 2.5.8 AA).
+    # Compact and regular controls share geometry with tabs.
     SIZE_MAPPINGS = {
-      small: 'text-xs px-2 py-1 min-h-6 min-w-6',
-      medium: 'text-sm px-3 py-2 min-h-11 min-w-11'
+      small: 'px-3 py-1 min-h-[var(--pvc-control-size-small)] min-w-[var(--pvc-control-size-small)]',
+      medium: 'px-4 py-2 min-h-[var(--pvc-control-size-medium)] min-w-[var(--pvc-control-size-medium)]'
     }.freeze
 
     # Icon-only button targets sized to match each text button tier.
     ICON_ONLY_SIZE_MAPPINGS = {
-      small: 'aspect-square h-6 w-6 max-h-6 max-w-6 p-0 gap-0',
-      medium: 'aspect-square h-11 w-11 max-h-11 max-w-11 p-0 gap-0'
+      small: 'aspect-square size-[var(--pvc-control-size-small)] shrink-0 p-0 gap-0',
+      medium: 'aspect-square size-[var(--pvc-control-size-medium)] shrink-0 p-0 gap-0'
     }.freeze
 
     SIZE_OPTIONS = SIZE_MAPPINGS.keys

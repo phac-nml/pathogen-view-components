@@ -133,8 +133,8 @@ module Pathogen
     test 'uses small Pathogen::Button sizing defaults in toolbar context' do
       render_inline(Pathogen::Toolbar::Button.new) { 'Compact' }
 
-      assert_selector "button[class*='text-xs'][class*='px-2'][class*='py-1']"
-      assert_selector "button[class*='bg-[var(--pvc-color-surface)]'][class*='border-[var(--pvc-color-border-strong)]']"
+      assert_selector "button[class*='text-[length:var(--type-control)]'][class*='px-3'][class*='py-1']"
+      assert_selector "button[class*='bg-[var(--pvc-color-surface-muted)]'].border-transparent"
     end
 
     test 'renders aria-pressed with visible pressed styling' do

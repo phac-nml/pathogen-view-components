@@ -45,9 +45,9 @@ Use semantic roles (`--pvc-color-*`) in shared components. Palette stops such as
 | Surface / muted / raised | Canvas, grouped regions, subtle layer changes |
 | Border / border-strong | Edges, dividers, table rules, framed controls |
 | Text / text-muted | Body copy, labels, hints, secondary information |
-| Accent / accent-strong | Links, selected state, brand action, outline emphasis |
+| Accent / accent-strong | Links, selected state, brand action, soft emphasis |
 | Accent solid / solid-hover | Filled primary action |
-| Danger / danger-strong | Error text, destructive outline and ghost actions |
+| Danger / danger-strong | Error text, destructive soft and ghost actions |
 | Danger solid / solid-hover | Confirmed destructive action |
 | Success-strong / warning-strong | Normal-sized status text |
 | Success / warning | Status icons, borders, large text, outline emphasis |
@@ -177,21 +177,23 @@ Buttons have two decisions: **tone** and **emphasis**.
 | Decision | Values |
 |----------|--------|
 | `tone` | `neutral`, `primary`, `danger` |
-| `emphasis` | `solid`, `outline`, `ghost` |
+| `emphasis` | `solid`, `soft`, `ghost` |
 
 ### Tone And Emphasis
 
-**Primary** moves work forward: `solid` for the main action, `outline` for a secondary brand action, `ghost` for a quiet brand-linked action.
+**Primary** moves work forward: `solid` for the main action, `soft` for a secondary brand action, `ghost` for a quiet brand-linked action.
 
-**Neutral** supports the workflow: `outline` for cancel/close, `ghost` for tools and utilities, `solid` only when a strong neutral action is clearer than accent.
+**Neutral** supports the workflow: `soft` for cancel/close, `ghost` for tools and utilities, `solid` only when a strong neutral action is clearer than accent.
 
-**Danger** marks destructive work: `solid` only after confirmation, `outline` when confirmation happens elsewhere, `ghost` for dense destructive utilities.
+**Danger** marks destructive work: `solid` only after confirmation, `soft` when confirmation happens elsewhere, `ghost` for dense destructive utilities.
 
 ### Placement
 
 - One `primary` + `solid` per action group.
-- Form footers place the main action last; cancel stays secondary.
-- Toolbars use `small`, `outline` (default for `Toolbar::Button`) or `ghost`, and named icon buttons.
+- Form footers place the main action last on a muted surface; cancel stays neutral ghost or soft. Keep destructive actions separate from the forward-action group.
+- Use soft fills for secondary actions and ghost for utilities. Compose action groups with existing toolbar primitives; do not add context options to Button.
+- A soft fill means emphasis, not selection. Toggle state needs `aria-pressed` and its distinct accent border.
+- Toolbars use `small`, `soft` (default for `Toolbar::Button`) or `ghost`, and named icon buttons.
 - Table toolbars default to full-width reflow (`variant: :table`). Group related controls with `Pathogen::Toolbar::Group` and push end groups with `Toolbar::Spacer`. Keep text inputs and native selects outside `role="toolbar"` and its roving focus, even when they share the same visual action band. If an arrow-key-owning control is genuinely unavoidable inside the toolbar, include only one and place it last in DOM order.
 - Toggle toolbar buttons set `aria-pressed` and rely on Button's visible pressed styles (accent-tinted fill + accent border).
 - Do not put two primary solid buttons beside each other unless they are genuinely equal choices.
@@ -205,11 +207,21 @@ Solid fills should darken on hover, like pressing further in. Danger uses `red-6
 | Size | Where | Minimum target |
 |------|-------|----------------|
 | `medium` | Forms, dialogs, page actions | 44px |
-| `small` | Toolbars, grids, dense tables | 24px, with 8px between neighbours |
+| `small` | Toolbars, grids, dense tables | 32px, with 8px between neighbours |
+
+Both sizes use the 14px control type role and 6px action radius. Icons use 16px with an 8px label gap.
 
 Use short verb labels. Icon-only buttons need `aria-label`, `aria-labelledby`, or visible text. Use `disabled` when unfocusable. Use `aria_disabled` when the control must remain focusable so validation feedback can be announced.
 
+Unavailable buttons use explicit muted text, surface, and border colours, not whole-control opacity. Keep the focus outline at full strength. Pair focusable unavailable actions with an explanation via `aria-describedby`. `aria_disabled` communicates state only: the host must prevent the action while unavailable.
+
 Use `Pathogen::Link` for inline navigation. Use button-styled links only inside button groups.
+
+### Migrating From Outline
+
+`emphasis: :soft` replaces `:outline`. Existing `:outline` calls remain accepted as a compatibility alias and render the soft treatment. New code and previews use `:soft`; there is no separate outline recipe. Migrate host call sites before removing the alias in a future breaking release.
+
+Compact buttons now use 32px minimum targets and 14px labels. Check dense host toolbars for wrapping when upgrading. Compact tabs share the same minimum-size token.
 
 ## Links
 
