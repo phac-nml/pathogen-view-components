@@ -2,6 +2,10 @@
 
 module Pathogen
   class ButtonPreview < ViewComponent::Preview
+    # @label Specimen workflow
+    # Compact grouped tools, soft secondary actions, and a regular form footer
+    def workflow; end
+
     # @!group Pathogen Button
 
     # @label Overview
