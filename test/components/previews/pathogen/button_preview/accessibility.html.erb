@@ -11,8 +11,8 @@
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Submit run') %>
-        <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Save draft') %>
-        <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :soft, text: 'Save draft') %>
+        <%= render Pathogen::Button.new(tone: :neutral, emphasis: :soft, text: 'Cancel') %>
 
         <%= render Pathogen::Button.new(icon_only: true, size: :small, tone: :neutral, emphasis: :ghost, text: 'Refresh list') do |button| %>
           <% button.with_leading_visual do %>
@@ -131,11 +131,11 @@
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <form>
-        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) { "Complete required fields before continuing." } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4", id: "continue-unavailable-reason")) { "Complete required fields before continuing." } %>
 
         <div class="flex items-center gap-2">
-          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Back') %>
-          <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue') %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :soft, text: 'Back') %>
+          <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, aria_disabled: true, text: 'Continue', aria: { describedby: 'continue-unavailable-reason' }) %>
         </div>
       </form>
     </div>

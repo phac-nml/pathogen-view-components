@@ -36,12 +36,12 @@
         <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
           <% [
             [:primary, :solid, 'Submit run', 'Main forward action per surface'],
-            [:primary, :outline, 'Save draft', 'Secondary brand action'],
+            [:primary, :soft, 'Save draft', 'Secondary brand action'],
             [:primary, :ghost, 'View protocol', 'Quiet brand-linked action'],
-            [:neutral, :outline, 'Cancel', 'Cancel, close, or secondary step'],
+            [:neutral, :soft, 'Cancel', 'Cancel, close, or secondary step'],
             [:neutral, :solid, 'Archive', 'Strong neutral action when clearer than accent'],
             [:neutral, :ghost, 'Skip', 'Tools, utilities, and low-emphasis actions'],
-            [:danger, :outline, 'Discard', 'Destructive action when confirmation happens elsewhere'],
+            [:danger, :soft, 'Discard', 'Destructive action when confirmation happens elsewhere'],
             [:danger, :solid, 'Delete permanently', 'Confirmed destructive step only'],
             [:danger, :ghost, 'Remove tag', 'Dense destructive utility in tight layouts']
           ].each do |tone, emphasis, label, guidance| %>
@@ -69,7 +69,7 @@
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
       One <%= render(Pathogen::Typography::Code.new) { "primary + solid" } %> forward action per surface. Keep cancel
-      and reset secondary. Place destructive outline actions away from the main forward step.
+      and reset secondary. Place destructive soft actions away from the main forward step.
     <% end %>
 
     <form class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
@@ -83,11 +83,11 @@
       </div>
 
       <div class="flex items-center justify-between gap-3 border-t border-[var(--pvc-color-border)] px-4 py-3">
-        <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'Delete specimen') %>
+        <%= render Pathogen::Button.new(tone: :danger, emphasis: :soft, text: 'Delete specimen') %>
 
         <div class="flex items-center gap-2">
           <%= render Pathogen::Button.new(tone: :neutral, emphasis: :ghost, text: 'Reset') %>
-          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Cancel') %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :soft, text: 'Cancel') %>
           <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes') %>
         </div>
       </div>
@@ -98,7 +98,7 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Grid toolbar" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Toolbar actions stay compact: <%= render(Pathogen::Typography::Code.new) { "size: :small" } %>, ghost or outline
+      Toolbar actions stay compact: <%= render(Pathogen::Typography::Code.new) { "size: :small" } %>, ghost or soft
       emphasis, and icon-only controls with distinct accessible names. Keep 8px between neighbours.
     <% end %>
 
@@ -120,7 +120,7 @@
           <% end %>
 
           <%= render Pathogen::Button.new(size: :small, tone: :danger, emphasis: :ghost, text: 'Clear filters') %>
-          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Columns') %>
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :soft, text: 'Columns') %>
           <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'New submission') %>
         </div>
       </div>
@@ -148,8 +148,8 @@
             bg-[var(--pvc-color-surface-muted)] p-3
           "
         >
-          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'List') %>
-          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Board') %>
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :soft, text: 'List') %>
+          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :soft, text: 'Board') %>
           <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'Timeline') %>
         </div>
       </div>
@@ -164,7 +164,7 @@
 
         <div class="flex items-center gap-2">
           <%= render Pathogen::Button.new(tone: :danger, emphasis: :solid, text: 'Delete run') %>
-          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Keep run') %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :soft, text: 'Keep run') %>
         </div>
       </div>
 
@@ -207,7 +207,7 @@
             <% end %>
           <% end %>
 
-          <%= render Pathogen::Button.new(tone: :danger, emphasis: :outline, text: 'View alerts') do |button| %>
+          <%= render Pathogen::Button.new(tone: :danger, emphasis: :soft, text: 'View alerts') do |button| %>
             <% button.with_leading_visual do %>
               <%= icon('bell', class: 'size-4') %>
             <% end %>
@@ -219,13 +219,13 @@
         <%= render(Pathogen::Typography::Heading.new(level: 5, class: "mb-2 font-semibold")) { "Trailing visual" } %>
 
         <div class="flex flex-wrap items-center gap-2">
-          <%= render Pathogen::Button.new(tone: :primary, emphasis: :outline, text: 'Continue to review') do |button| %>
+          <%= render Pathogen::Button.new(tone: :primary, emphasis: :soft, text: 'Continue to review') do |button| %>
             <% button.with_trailing_visual do %>
               <%= icon('arrow-right', class: 'size-4') %>
             <% end %>
           <% end %>
 
-          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :outline, text: 'Open run details') do |button| %>
+          <%= render Pathogen::Button.new(tone: :neutral, emphasis: :soft, text: 'Open run details') do |button| %>
             <% button.with_trailing_visual do %>
               <%= icon('arrow-square-out', class: 'size-4') %>
             <% end %>
@@ -247,9 +247,9 @@
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
-        <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :outline, text: 'Open draft') %>
-        <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :outline, text: 'Back to dashboard') %>
-        <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :outline, text: 'Delete sample') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :soft, text: 'Open draft') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/dashboard', tone: :neutral, emphasis: :soft, text: 'Back to dashboard') %>
+        <%= render Pathogen::Button.new(tag: :a, href: '/samples/42/delete', tone: :danger, emphasis: :soft, text: 'Delete sample') %>
       </div>
     </div>
   </section>
@@ -258,7 +258,7 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Sizes and full width" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Medium targets forms and dialogs (44px minimum). Small targets toolbars and dense tables (24px minimum).
+      Medium targets forms and dialogs (44px minimum). Small targets toolbars and dense tables (32px minimum).
     <% end %>
 
     <div class="flex flex-wrap items-center gap-2">
@@ -276,7 +276,7 @@
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
       Use <%= render(Pathogen::Typography::Code.new) { "disabled: true" } %> when the control should not be focusable.
-      Disabled buttons use reduced opacity and a not-allowed cursor. Use
+      Unavailable buttons use muted colours and a not-allowed cursor without fading the focus outline. Use
       <%= render(Pathogen::Typography::Code.new) { "aria_disabled: true" } %> when the control should stay focusable so
       validation feedback can be announced after activation.
     <% end %>
@@ -306,12 +306,12 @@
         <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
           <% [
             [:primary, :solid, 'Submit run'],
-            [:primary, :outline, 'Save draft'],
+            [:primary, :soft, 'Save draft'],
             [:primary, :ghost, 'View protocol'],
-            [:neutral, :outline, 'Cancel'],
+            [:neutral, :soft, 'Cancel'],
             [:neutral, :solid, 'Archive'],
             [:neutral, :ghost, 'Skip'],
-            [:danger, :outline, 'Discard'],
+            [:danger, :soft, 'Discard'],
             [:danger, :solid, 'Delete permanently'],
             [:danger, :ghost, 'Remove tag']
           ].each do |tone, emphasis, label| %>
