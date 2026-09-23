@@ -4,6 +4,18 @@ require 'test_helper'
 
 module Pathogen
   class ButtonTest < ViewComponent::TestCase
+    class WrappedButton < Pathogen::BaseButton
+      def call
+        tag.div(super, class: 'custom-wrapper')
+      end
+    end
+
+    test 'keeps custom base renderers working' do
+      render_inline(Pathogen::Button.new(base_button_class: WrappedButton, text: 'Save'))
+
+      assert_selector '.custom-wrapper > button[type="button"] > span', text: 'Save'
+    end
+
     test 'outline remains a compatibility alias for soft for every tone' do
       Pathogen::Button::TONE_OPTIONS.each do |tone|
         soft = Pathogen::Button.new(tone: tone, emphasis: :soft).html_attributes
