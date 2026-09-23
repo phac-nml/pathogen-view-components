@@ -29,7 +29,7 @@
           <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-semibold text-[var(--pvc-color-text)]">0</p>
         </div>
 
-        <%= render Pathogen::Button.new(id: "pv-tooltip-reset", tone: :neutral, emphasis: :outline, size: :small, text: "Reset") %>
+        <%= render Pathogen::Button.new(id: "pv-tooltip-reset", tone: :neutral, emphasis: :soft, size: :small, text: "Reset") %>
       </div>
 
       <div
@@ -46,7 +46,7 @@
           >
             <%= render Pathogen::Button.new(
                   tone: :neutral,
-                  emphasis: :outline,
+                  emphasis: :soft,
                   size: :small,
                   text: "Tooltip trigger",
                   aria: { describedby: "pv-tooltip-1" },
