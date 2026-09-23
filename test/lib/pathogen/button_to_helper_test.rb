@@ -41,6 +41,58 @@ module Pathogen
       assert_includes html, 'value="abc"'
     end
 
+    test 'preserves rich block content and trims its surrounding whitespace' do
+      html = @view.pathogen_button_to('/retry', method: :post) do
+        @view.safe_join(['  ', @view.tag.strong('Retry'), ' now  '])
+      end
+      fragment = Nokogiri::HTML.fragment(html)
+
+      assert_equal 1, fragment.css('form button').size
+      assert_equal '<strong>Retry</strong> now', fragment.at_css('button > span').inner_html
+      assert_nil fragment.at_css('button button')
+    end
+
+    test 'escapes plain text labels and block content' do
+      ['<script>alert(1)</script>', '<em>Retry</em>'].each do |text|
+        html = @view.pathogen_button_to(text, '/retry')
+        block_html = @view.pathogen_button_to('/retry') { text }
+
+        [html, block_html].each do |output|
+          fragment = Nokogiri::HTML.fragment(output)
+          assert_nil fragment.at_css('button script, button em')
+          assert_equal text, fragment.at_css('button').text.strip
+        end
+      end
+    end
+
+    test 'preserves form ownership and button attributes' do
+      html = @view.pathogen_button_to('Save', '/save', method: :patch, disabled: true,
+                                                       form: { id: 'save-form', data: { turbo: false } },
+                                                       data: { action: 'click->save#track' },
+                                                       aria: { describedby: 'save-help' },
+                                                       name: 'commit', value: 'save')
+      fragment = Nokogiri::HTML.fragment(html)
+
+      assert_equal 1, fragment.css('form#save-form[data-turbo="false"]').size
+      assert_equal 1, fragment.css('input[name="_method"][value="patch"]').size
+      button = fragment.at_css('button')
+      assert_equal 'submit', button['type']
+      assert button.key?('disabled')
+      assert_equal 'click->save#track', button['data-action']
+      assert_equal 'save-help', button['aria-describedby']
+      assert_equal 'commit', button['name']
+      assert_equal 'save', button['value']
+    end
+
+    test 'preserves the Rails authenticity token' do
+      @view.define_singleton_method(:protect_against_forgery?) { true }
+      @view.define_singleton_method(:request_forgery_protection_token) { :authenticity_token }
+      html = @view.pathogen_button_to('Save', '/save', authenticity_token: 'test-authenticity-token')
+
+      assert_equal 'test-authenticity-token',
+                   Nokogiri::HTML.fragment(html).at_css('input[name="authenticity_token"]')['value']
+    end
+
     test 'preserves caller class attributes on submit button output' do
       html = @view.pathogen_button_to('Save', '/save', class: 'custom-class')
 
