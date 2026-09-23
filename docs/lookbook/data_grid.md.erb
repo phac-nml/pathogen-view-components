@@ -55,3 +55,13 @@ plain strings remain escaped.
 The demo's `Demo::SamplesGrid`, `Demo::SamplesController`, and `demo/samples/_row`
 partial provide a complete example. Keep the host's Pagy calls appropriate to its
 installed version; Pathogen does not require Pagy in the shared component library.
+
+## Interactive cells and widget mode
+
+Cells with focusable controls enter widget mode on `Enter` or `F2`; `Escape` returns
+focus to the cell. The grid only treats an element as a focusable widget when it can
+actually receive focus: `a` requires an `href`, hidden inputs (`type="hidden"`) are
+ignored, and elements that are `disabled`, `[hidden]`, `[inert]`, visually hidden
+(`display: none`, `visibility: hidden`, `content-visibility: hidden`), or collapsed
+inside a closed `<details>` are skipped. Render controls the host wants keyboard-
+reachable as genuinely enabled and visible focusable elements.
