@@ -40,10 +40,15 @@ module Pathogen
       @system_arguments[:disabled] = true
     end
 
-    # Render the button using the BaseComponent
-    # @return [Pathogen::BaseComponent] The rendered button component
+    # Render the button or anchor with the shared component attributes.
+    # @return [ActiveSupport::SafeBuffer]
     def call
-      render(Pathogen::BaseComponent.new(**@system_arguments)) { content }
+      arguments = @system_arguments.dup
+      tag_name = arguments.delete(:tag)
+      arguments[:class] = class_names(arguments.delete(:classes), arguments[:class])
+      arguments[:'data-view-component'] = true
+
+      content_tag(tag_name, content, add_test_selector(arguments))
     end
   end
 end
