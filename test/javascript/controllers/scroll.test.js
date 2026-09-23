@@ -1,6 +1,58 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ensureCellFullyVisible, ensureCellInViewport } from "pathogen_view_components/data_grid_controller/scroll";
+import {
+  ensureCellFullyVisible,
+  ensureCellInViewport,
+  headerOverlayHeight,
+  stickyOverlayWidth,
+} from "pathogen_view_components/data_grid_controller/scroll";
+
+describe("stickyOverlayWidth", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  it("returns 0 without a grid target or matching cells", () => {
+    expect(stickyOverlayWidth({ left: 0 }, null)).toBe(0);
+    expect(stickyOverlayWidth({ left: 0 }, document.createElement("div"))).toBe(0);
+  });
+
+  it("measures the widest sticky cell relative to the container", () => {
+    const grid = document.createElement("div");
+    const sticky = document.createElement("div");
+    sticky.setAttribute("data-sticky-cell", "");
+    sticky.setAttribute("data-pathogen--data-grid-row-index", "1");
+    grid.appendChild(sticky);
+    document.body.appendChild(grid);
+    vi.spyOn(sticky, "getBoundingClientRect").mockReturnValue({ right: 120 });
+
+    expect(stickyOverlayWidth({ left: 20 }, grid)).toBe(100);
+  });
+});
+
+describe("headerOverlayHeight", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    document.body.innerHTML = "";
+  });
+
+  it("returns 0 without a grid target or matching cells", () => {
+    expect(headerOverlayHeight({ top: 0 }, null)).toBe(0);
+    expect(headerOverlayHeight({ top: 0 }, document.createElement("div"))).toBe(0);
+  });
+
+  it("measures the tallest header cell relative to the container", () => {
+    const grid = document.createElement("div");
+    const header = document.createElement("div");
+    header.setAttribute("role", "columnheader");
+    grid.appendChild(header);
+    document.body.appendChild(grid);
+    vi.spyOn(header, "getBoundingClientRect").mockReturnValue({ bottom: 60 });
+
+    expect(headerOverlayHeight({ top: 10 }, grid)).toBe(50);
+  });
+});
 
 describe("ensureCellInViewport", () => {
   let scrollBySpy;
@@ -147,5 +199,51 @@ describe("ensureCellFullyVisible", () => {
 
     expect(cell.scrollIntoView).toHaveBeenCalledWith({ block: "nearest", inline: "nearest" });
     expect(scrollBySpy).not.toHaveBeenCalled();
+  });
+
+  it("ignores non-element cells", () => {
+    expect(() => ensureCellFullyVisible(null, document.createElement("div"), null)).not.toThrow();
+    expect(scrollBySpy).not.toHaveBeenCalled();
+  });
+
+  it("keeps sticky cells flush to the left edge using an explicit pinned width", () => {
+    const scrollContainer = document.createElement("div");
+    Object.defineProperties(scrollContainer, {
+      scrollTop: { value: 0, writable: true },
+      scrollLeft: { value: 0, writable: true },
+    });
+    const cell = document.createElement("td");
+    cell.setAttribute("data-sticky-cell", "");
+    document.body.appendChild(scrollContainer);
+    scrollContainer.appendChild(cell);
+
+    vi.spyOn(scrollContainer, "getBoundingClientRect").mockReturnValue({ top: 0, bottom: 600, left: 0, right: 800 });
+    vi.spyOn(cell, "getBoundingClientRect").mockReturnValue({ top: 100, bottom: 140, left: 50, right: 200 });
+    vi.spyOn(window, "innerHeight", "get").mockReturnValue(800);
+
+    ensureCellFullyVisible(cell, scrollContainer, null, { pinnedWidth: 30 });
+
+    expect(scrollContainer.scrollLeft).toBe(0);
+  });
+
+  it("keeps class-based sticky header cells flush to the top and left edges", () => {
+    const scrollContainer = document.createElement("div");
+    Object.defineProperties(scrollContainer, {
+      scrollTop: { value: 0, writable: true },
+      scrollLeft: { value: 0, writable: true },
+    });
+    const cell = document.createElement("td");
+    cell.classList.add("pvc-data-grid__cell--sticky", "pvc-data-grid__cell--header");
+    document.body.appendChild(scrollContainer);
+    scrollContainer.appendChild(cell);
+
+    vi.spyOn(scrollContainer, "getBoundingClientRect").mockReturnValue({ top: 0, bottom: 600, left: 0, right: 800 });
+    vi.spyOn(cell, "getBoundingClientRect").mockReturnValue({ top: 100, bottom: 140, left: 50, right: 200 });
+    vi.spyOn(window, "innerHeight", "get").mockReturnValue(800);
+
+    ensureCellFullyVisible(cell, scrollContainer, null, { pinnedWidth: 30 });
+
+    expect(scrollContainer.scrollTop).toBe(0);
+    expect(scrollContainer.scrollLeft).toBe(0);
   });
 });

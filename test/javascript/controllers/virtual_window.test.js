@@ -297,4 +297,12 @@ describe("ensureVirtualCellVisible", () => {
 
     expect(reportError).toHaveBeenCalledWith(expect.any(Error));
   });
+  it("scrolls the container to reveal an off-screen row", () => {
+    const args = baseArgs({ rowIndex: 100 });
+
+    ensureVirtualCellVisible(args);
+
+    expect(args.scrollContainer.scrollTop).toBeGreaterThan(0);
+    expect(args.renderNow).toHaveBeenCalledTimes(1);
+  });
 });

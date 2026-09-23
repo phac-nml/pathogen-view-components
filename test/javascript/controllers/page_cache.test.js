@@ -251,6 +251,35 @@ describe("page_cache", () => {
     expect(cache.getCachedRows().map((row) => row.dataset.pvcDataGridGlobalRowIndex)).toEqual(["0", "20", "40"]);
   });
 
+  it("guards page math against invalid inputs", () => {
+    expect(maxPageForCount(Number.NaN, 50)).toBe(0);
+    expect(maxPageForCount(0, 50)).toBe(0);
+    expect(maxPageForCount(100, Number.NaN)).toBe(0);
+    expect(maxPageForCount(100, 0)).toBe(0);
+
+    expect(pagesForRowRange(0, 1, Number.NaN)).toEqual([]);
+    expect(pagesForRowRange(0, 1, 0)).toEqual([]);
+    expect(pagesForRowRange(5, 5, 20)).toEqual([]);
+
+    expect(pagesForRowRangeWithPrefetch(0, 20, 20, 0)).toEqual([1]);
+    expect(pagesForRowRangeWithPrefetch(5, 5, 20, 2)).toEqual([]);
+  });
+
+  it("reports size, seeds by dataset index, and ignores rows without one", () => {
+    const cache = new PageCache();
+    expect(cache.size).toBe(0);
+
+    const valid = document.createElement("div");
+    valid.dataset.pvcDataGridGlobalRowIndex = "7";
+    const missing = document.createElement("div");
+
+    cache.seedFromRows([valid, missing]);
+
+    expect(cache.size).toBe(1);
+    expect(cache.getRow(7)).toBe(valid);
+    expect(cache.getRow(999)).toBeNull();
+  });
+
   it("reports changed row elements while preserving an unchanged retained row", () => {
     const cache = new PageCache();
     const originalRow = document.createElement("div");
