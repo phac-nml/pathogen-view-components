@@ -2011,6 +2011,16 @@
   outline-offset: 0;
   border-radius: var(--pvc-radius-action);
 }
+@media (forced-colors: active) {
+  [data-pathogen--data-grid-target~="cell"]:focus,
+  [data-pathogen--data-grid-target="grid"]:focus-within
+    [data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-active="true"]:not(
+      [data-pathogen--data-grid-has-interactive="true"]
+    ) {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .pvc-data-grid.pvc-data-grid--virtual:not([data-virtual-ready]) .pvc-data-grid__virtual-status::before {
     animation: none;

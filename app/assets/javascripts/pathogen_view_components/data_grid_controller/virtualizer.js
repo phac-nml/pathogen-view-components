@@ -63,11 +63,21 @@ export function scrollTopForRow({ rowIndex, scrollTop, viewportHeight, rowHeight
  * @param {number} options.scrollLeft - Current horizontal center-lane scroll offset
  * @param {number} options.viewportWidth - Total visible viewport width
  * @param {number[]} options.columnWidths - Width of every column in order
+ * @param {number[]} [options.columnOffsets] - Precomputed absolute left offsets for all columns
  * @param {number} options.pinnedCount - Number of pinned columns at the start of the grid
+ * @param {number} [options.pinnedWidth] - Precomputed total width of pinned columns
  * @param {number} [options.overscan=2] - Extra center columns to include on both sides
  * @returns {{ startIndex: number, endIndex: number, pinnedCount: number }}
  */
-export function computeVisibleColumnRange({ scrollLeft, viewportWidth, columnWidths, pinnedCount, overscan = 2 }) {
+export function computeVisibleColumnRange({
+  scrollLeft,
+  viewportWidth,
+  columnWidths,
+  columnOffsets,
+  pinnedCount,
+  pinnedWidth,
+  overscan = 2,
+}) {
   const totalColumns = columnWidths.length;
   const pinned = Math.max(0, Math.min(totalColumns, pinnedCount));
 
@@ -75,45 +85,46 @@ export function computeVisibleColumnRange({ scrollLeft, viewportWidth, columnWid
     return { startIndex: pinned, endIndex: pinned, pinnedCount: pinned };
   }
 
-  const pinnedWidth = columnWidths.slice(0, pinned).reduce((sum, width) => sum + width, 0);
-  const centerViewportWidth = Math.max(0, viewportWidth - pinnedWidth);
-  const centerWidths = columnWidths.slice(pinned);
-  const centerCount = centerWidths.length;
+  const offsets = columnOffsets ?? offsetsForColumns(columnWidths);
+  const resolvedPinnedWidth = pinnedWidth ?? offsets[pinned];
+  const viewStart = resolvedPinnedWidth + Math.max(0, scrollLeft);
+  const viewEnd = viewStart + Math.max(0, viewportWidth - resolvedPinnedWidth);
 
-  const starts = new Array(centerCount);
-  let runningOffset = 0;
-  for (let index = 0; index < centerCount; index += 1) {
-    starts[index] = runningOffset;
-    runningOffset += centerWidths[index];
+  // Find the first column whose right edge crosses into the viewport.
+  let low = pinned;
+  let high = totalColumns;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (offsets[middle] + columnWidths[middle] <= viewStart) low = middle + 1;
+    else high = middle;
   }
+  const firstVisible = Math.min(low, totalColumns - 1);
 
-  const viewStart = Math.max(0, scrollLeft);
-  const viewEnd = viewStart + centerViewportWidth;
-
-  let firstVisible = centerCount - 1;
-  for (let index = 0; index < centerCount; index += 1) {
-    const columnEnd = starts[index] + centerWidths[index];
-    if (columnEnd > viewStart) {
-      firstVisible = index;
-      break;
-    }
+  // The first column starting beyond the viewport is the exclusive end.
+  low = firstVisible;
+  high = totalColumns;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (offsets[middle] < viewEnd) low = middle + 1;
+    else high = middle;
   }
-
-  let lastVisible = firstVisible;
-  for (let index = firstVisible; index < centerCount; index += 1) {
-    const columnStart = starts[index];
-    if (columnStart >= viewEnd) break;
-    lastVisible = index;
-  }
-
-  const startInCenter = Math.max(0, firstVisible - overscan);
-  const endInCenter = Math.min(centerCount, lastVisible + overscan + 1);
+  const endVisible = Math.max(firstVisible + 1, low);
 
   return {
-    startIndex: pinned + startInCenter,
-    endIndex: pinned + endInCenter,
+    startIndex: Math.max(pinned, firstVisible - overscan),
+    endIndex: Math.min(totalColumns, endVisible + overscan),
     pinnedCount: pinned,
   };
+}
+
+function offsetsForColumns(columnWidths) {
+  const offsets = new Array(columnWidths.length);
+  let offset = 0;
+  for (let index = 0; index < columnWidths.length; index += 1) {
+    offsets[index] = offset;
+    offset += columnWidths[index];
+  }
+  return offsets;
 }
 
 /**

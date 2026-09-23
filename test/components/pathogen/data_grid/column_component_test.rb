@@ -63,6 +63,79 @@ module Pathogen
         assert_includes attrs[:style], '--pvc-data-grid-col-width: 150px;'
       end
 
+      test 'preserves caller HTML and ARIA attributes while protecting grid semantics' do
+        column = ColumnComponent.new(
+          label: 'Name', title: 'Full sample name', role: 'button', tabindex: 3,
+          aria: { label: 'Sample name', colindex: 99, sort: 'ascending' }
+        )
+        header = column.header_cell_attributes(column_index: 1)
+        body = column.body_cell_attributes(row_index: 1, column_index: 1)
+
+        assert_equal 'Full sample name', header[:title]
+        assert_equal 'Sample name', header[:aria][:label]
+        assert_equal 'ascending', header[:aria][:sort]
+        assert_equal 2, header[:aria][:colindex]
+        assert_equal 'columnheader', header[:role]
+        assert_equal(-1, header[:tabindex])
+        assert_equal 'Full sample name', body[:title]
+        assert_equal 'Sample name', body[:aria][:label]
+        assert_not body[:aria].key?(:sort)
+        assert_equal 'gridcell', body[:role]
+      end
+
+      test 'regular table cells preserve ARIA labels without adding column indexes' do
+        column = ColumnComponent.new(label: 'Name', aria: { 'label' => 'Sample name', 'colindex' => 99 })
+
+        attributes = column.header_cell_attributes(column_index: 0, aria_column_index: nil)
+
+        assert_equal({ label: 'Sample name' }, attributes[:aria])
+      end
+
+      test 'flat caller attributes cannot override generated cell coordinates and targets' do
+        column = ColumnComponent.new(
+          label: 'Name', id: 'name-col', 'role' => 'button', 'tabindex' => 3, 'aria-colindex' => 99,
+          'aria-sort' => 'ascending',
+          'data-pathogen--data-grid-row-index' => 99, 'data-pathogen--data-grid-column-index' => 99,
+          'data-pathogen--data-grid-target' => 'other', 'data-pathogen--data-grid-has-interactive' => true,
+          'data-pvc-data-grid-virtual-col-index' => 99, 'data-sticky-cell' => true
+        )
+        header = column.header_cell_attributes(column_index: 1)
+        body = column.body_cell_attributes(row_index: 2, column_index: 1)
+
+        assert_equal 'ascending', header[:aria][:sort]
+        assert_equal 'columnheader', header[:role]
+        assert_equal(-1, header[:tabindex])
+        assert_not header.key?(:id)
+        assert_not body.key?(:id)
+        assert_empty body.keys.grep(/\A(?:data-|aria-)/)
+        assert_equal 2, body[:data][:'pathogen--data-grid-row-index']
+        assert_equal 1, body[:data][:'pathogen--data-grid-column-index']
+        assert_equal 'cell', body[:data][:'pathogen--data-grid-target']
+        assert_not body[:aria].key?(:sort)
+      end
+
+      test 'caller styles are retained before generated column styles' do
+        column = ColumnComponent.new(label: 'Name', width: '160px', style: 'font-style: italic')
+
+        attributes = column.header_cell_attributes(column_index: 0)
+
+        assert_equal 'font-style: italic; --pvc-data-grid-col-width: 160px;', attributes[:style]
+      end
+
+      test 'nested data preserves extra targets while protecting generated grid hooks' do
+        column = ColumnComponent.new(label: 'Name', data: {
+                                       pathogen__data_grid_target: 'extra', pathogen__data_grid_row_index: 99,
+                                       pvc_data_grid_virtual_col_index: 99, sticky_cell: true
+                                     })
+
+        attributes = column.body_cell_attributes(row_index: 2, column_index: 1)
+
+        assert_equal 'extra cell', attributes[:data][:'pathogen--data-grid-target']
+        assert_equal 2, attributes[:data][:'pathogen--data-grid-row-index']
+        assert_not attributes[:data].key?(:'pvc-data-grid-virtual-col-index')
+        assert_not attributes[:data].key?(:'sticky-cell')
+      end
+
       test 'body_cell_attributes marks active body cell as focus target' do
         column = ColumnComponent.new(label: 'Name', key: :name)
         attrs = column.body_cell_attributes(row_index: 1, column_index: 0, state: { active: true })

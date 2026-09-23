@@ -121,6 +121,8 @@ Sticky columns:
 <% end %>
 ```
 
+For server-backed virtual scrolling, see the [Data Grid pagination guide](docs/lookbook/data_grid.md.erb).
+
 #### Tabs
 
 ```erb
