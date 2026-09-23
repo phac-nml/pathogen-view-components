@@ -6,6 +6,7 @@ require 'test_helper'
 class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
   JAVASCRIPT_ROOT = PROJECT_ROOT.join('app/assets/javascripts')
   MAIN_JAVASCRIPT_FILE = JAVASCRIPT_ROOT.join('pathogen_view_components.js')
+  IMPORTMAP_FILE = PROJECT_ROOT.join('config/importmap.rb')
 
   test 'shipped controllers are imported, exported, and registered by the main entrypoint' do
     source = MAIN_JAVASCRIPT_FILE.read
@@ -76,5 +77,14 @@ class ShippedFilesJavaScriptTest < ActiveSupport::TestCase
     documented_host_packages = documented.scan(/"([^"]+)"/).flatten.sort
 
     assert_equal shipped_host_packages, documented_host_packages
+  end
+
+  test 'importmap integration pins the entrypoint and component module tree' do
+    source = IMPORTMAP_FILE.read
+
+    assert_includes source, "pin 'pathogen_view_components', to: 'pathogen_view_components.js'"
+    assert_includes source,
+                    "pin_all_from Pathname.new(__dir__).join('../app/assets/javascripts/pathogen_view_components'),"
+    assert_includes source, "under: 'pathogen_view_components'"
   end
 end

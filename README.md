@@ -264,9 +264,30 @@ Translations live under `config/locales` in the engine. Rails automatically load
 
 ## JavaScript Integration
 
-Pathogen ships JavaScript source in the gem. Your application bundles it with esbuild and owns the Turbo and Stimulus instances. No separate Pathogen npm package or prebuilt JavaScript bundle is needed.
+Pathogen ships JavaScript source in the gem. Host applications can either:
 
-**Breaking change:** importmap support has been removed. Upgrade the host's JavaScript build before adopting this version. Pathogen's CSS integration is unchanged.
+- use importmap (`importmap-rails`) and let the engine register Pathogen pins automatically, or
+- bundle JavaScript with esbuild and register Pathogen controllers from the host bundle.
+
+No separate Pathogen npm package or prebuilt JavaScript bundle is needed.
+
+### Importmap Setup (Rails Hosts)
+
+If your app uses `importmap-rails`, Pathogen automatically registers:
+
+- `pathogen_view_components` (entrypoint), and
+- all `pathogen_view_components/*` controller modules.
+
+You only need to register controllers on your existing Stimulus application:
+
+```javascript
+import { application } from "controllers/application";
+import { registerPathogenControllers } from "pathogen_view_components";
+
+registerPathogenControllers(application);
+```
+
+Pathogen also exposes its JavaScript source directory to Propshaft for importmap hosts.
 
 ### esbuild Setup
 
@@ -333,7 +354,7 @@ Rails.application.config.assets.paths << Rails.root.join('app/assets/builds')
 Rails.application.config.assets.excluded_paths << Rails.root.join('app/javascript')
 ```
 
-Pathogen's engine excludes its own JavaScript source from Propshaft. Load the host bundle in your layout:
+For bundled hosts, Pathogen's engine excludes its own JavaScript source from Propshaft. Load the host bundle in your layout:
 
 ```erb
 <%= javascript_include_tag "application", type: "module", "data-turbo-track": "reload" %>

@@ -12,6 +12,7 @@ class ShippedFilesGemTest < ActiveSupport::TestCase
   REQUIRED_FILES = %w[
     app/assets/stylesheets/pathogen_view_components.css
     app/assets/javascripts/pathogen_view_components.js
+    config/importmap.rb
   ].freeze
   # Folders that must ship at least one file. We do not list every file here;
   # we only fail if a whole public area disappears from the built gem.
