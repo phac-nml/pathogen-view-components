@@ -3,12 +3,28 @@ import { Controller } from "@hotwired/stimulus";
 const ANNOUNCE_DEBOUNCE_MS = 75;
 // Matches --pvc-toast-gap (0.875rem) at the default 16px root font size.
 const TOAST_GAP_PX = 14;
+const DURATION_STORAGE_KEY = "pathogen.toast.durationMs";
+const LOG_LIMIT = 50;
+const DISMISS_ALL_THRESHOLD = 3;
 
 export default class extends Controller {
-  static targets = ["polite", "assertive", "toast"];
+  static targets = [
+    "polite",
+    "assertive",
+    "toast",
+    "log",
+    "logList",
+    "logEmpty",
+    "logToggle",
+    "logToggleLabel",
+    "logCount",
+    "more",
+    "dismissAll",
+  ];
   static values = {
     maxVisible: { type: Number, default: 3 },
     position: { type: String, default: "top_center" },
+    durationPreference: { type: Number, default: -1 },
   };
 
   #expanded = false;
@@ -20,6 +36,7 @@ export default class extends Controller {
   #onMotionChange = null;
   #applyingStack = false;
   #stackFrame = null;
+  #logEntries = [];
 
   connect() {
     this.#motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -27,9 +44,13 @@ export default class extends Controller {
     this.#motionQuery.addEventListener("change", this.#onMotionChange);
 
     this.#resizeObserver = new ResizeObserver(() => this.#scheduleApplyStack());
-    this.toastTargets.forEach((toast) => this.#resizeObserver.observe(toast));
+    this.toastTargets.forEach((toast) => {
+      this.#applyDurationPreference(toast);
+      this.#resizeObserver.observe(toast);
+    });
 
     this.#applyStack();
+    this.#syncLogUi();
   }
 
   disconnect() {
@@ -53,6 +74,7 @@ export default class extends Controller {
   }
 
   toastTargetConnected(toast) {
+    this.#applyDurationPreference(toast);
     this.#resizeObserver?.observe(toast);
     this.#scheduleApplyStack();
   }
@@ -65,6 +87,13 @@ export default class extends Controller {
   expand() {
     this.#expanded = true;
     this.#applyStack();
+  }
+
+  expandFromControl() {
+    this.#expanded = true;
+    this.#applyStack();
+    const front = this.#visibleToasts().at(-1);
+    front?.focus?.({ preventScroll: true });
   }
 
   collapseIfIdle() {
@@ -86,6 +115,99 @@ export default class extends Controller {
     const politeness = detail.politeness === "assertive" ? "assertive" : "polite";
     this.#queue[politeness].push(message);
     this.#scheduleFlush();
+  }
+
+  appendLog(event) {
+    const detail = event?.detail ?? {};
+    const message = typeof detail.message === "string" ? detail.message.trim() : "";
+    if (message.length === 0) return;
+
+    this.#logEntries.push({
+      message,
+      type: typeof detail.type === "string" ? detail.type : "info",
+      at: Date.now(),
+    });
+    if (this.#logEntries.length > LOG_LIMIT) {
+      this.#logEntries.splice(0, this.#logEntries.length - LOG_LIMIT);
+    }
+    this.#syncLogUi();
+  }
+
+  toggleLog() {
+    if (!this.hasLogTarget) return;
+    const open = this.logTarget.hasAttribute("hidden");
+    this.logTarget.toggleAttribute("hidden", !open);
+    if (this.hasLogToggleTarget) {
+      this.logToggleTarget.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    if (open && this.hasLogListTarget) {
+      this.logListTarget.querySelector("li")?.focus?.({ preventScroll: true });
+    }
+  }
+
+  dismissAll() {
+    const dialogs = this.toastTargets.filter((toast) => this.#isDialogMode(toast) && toast.isConnected);
+    dialogs.forEach((toast) => {
+      const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
+      if (controller && typeof controller.dismiss === "function") {
+        controller.dismiss();
+        return;
+      }
+      toast.remove();
+    });
+  }
+
+  handleToastDismissed() {
+    this.#scheduleApplyStack();
+  }
+
+  #applyDurationPreference(toast) {
+    if (this.#isPersistent(toast) || this.#isDialogMode(toast)) return;
+
+    const preference = this.#resolvedDurationPreference();
+    if (preference === null) return;
+
+    if (preference === 0) {
+      const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
+      if (controller && typeof controller.promoteToDialog === "function") {
+        controller.promoteToDialog();
+      } else {
+        toast.setAttribute("data-pathogen--toast-timeout-value", "0");
+        toast.setAttribute("data-pathogen--toast-mode-value", "dialog");
+        toast.setAttribute("data-pathogen--toast-dismissible-value", "true");
+        toast.setAttribute("data-pathogen--toast-persistent-value", "true");
+        toast.setAttribute("role", "dialog");
+        toast.setAttribute("aria-modal", "false");
+        toast.tabIndex = -1;
+        toast.querySelector("[data-pathogen--toast-target='dismiss']")?.removeAttribute("hidden");
+      }
+      return;
+    }
+
+    if (preference > 0) {
+      toast.setAttribute("data-pathogen--toast-timeout-value", String(preference));
+      const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
+      if (controller) {
+        controller.timeoutValue = preference;
+      }
+    }
+  }
+
+  #resolvedDurationPreference() {
+    if (this.hasDurationPreferenceValue && this.durationPreferenceValue >= 0) {
+      return this.durationPreferenceValue;
+    }
+
+    try {
+      const raw = window.localStorage?.getItem(DURATION_STORAGE_KEY);
+      if (raw === null || raw === undefined || raw === "") return null;
+      if (raw === "forever") return 0;
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed) || parsed < 0) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
   }
 
   #scheduleFlush() {
@@ -121,8 +243,6 @@ export default class extends Controller {
 
   #writeLiveRegion(target, text) {
     if (target.textContent === text) {
-      // Clear first, then write on the next frame so the region reports a change
-      // and re-announces even when the same message repeats.
       target.textContent = "";
       requestAnimationFrame(() => {
         if (!target.isConnected) return;
@@ -143,7 +263,7 @@ export default class extends Controller {
   }
 
   #listElement() {
-    return this.element.querySelector("ol");
+    return this.element.querySelector("ol.pvc-toaster__list") || this.element.querySelector("ol");
   }
 
   #prefersReducedMotion() {
@@ -170,6 +290,7 @@ export default class extends Controller {
 
     try {
       this.#applyStackNow();
+      this.#syncChrome();
     } finally {
       this.#applyingStack = false;
     }
@@ -183,7 +304,8 @@ export default class extends Controller {
     }
 
     const reducedMotion = this.#prefersReducedMotion();
-    const usePeek = !reducedMotion;
+    const hasDialog = toasts.some((toast) => this.#isDialogMode(toast));
+    const usePeek = !reducedMotion && !hasDialog;
     const maxVisible = this.maxVisibleValue > 0 ? this.maxVisibleValue : 1;
     const hiddenNonPersistentCount = this.#expanded
       ? 0
@@ -195,10 +317,14 @@ export default class extends Controller {
       const isHiddenOverflow = !isPersistent && nonPersistentIndex < hiddenNonPersistentCount;
       if (!isPersistent) nonPersistentIndex += 1;
       toast.hidden = isHiddenOverflow;
+      this.#setToastInert(toast, isHiddenOverflow);
       if (!usePeek) {
         toast.setAttribute("aria-hidden", isHiddenOverflow ? "true" : "false");
         toast.removeAttribute("data-behind");
-        if (!isHiddenOverflow) toast.tabIndex = 0;
+        if (!isHiddenOverflow && !this.#isDialogMode(toast)) {
+          // Status toasts stay out of the tab order.
+          toast.removeAttribute("tabindex");
+        }
       }
     });
 
@@ -223,9 +349,6 @@ export default class extends Controller {
     const frontWidth = Math.ceil(sizes[0]?.width ?? 0);
     const peekCount = Math.max(0, frontFirst.length - 1);
     const list = this.#listElement();
-    // Keep the spaced flex fallback until we have a real front height. Simultaneous
-    // preview mounts often measure 0 first, which used to flash a flush stack then
-    // jump to the peek deck a moment later.
     const metricsReady = this.#expanded || peekCount === 0 || frontHeight > 0;
 
     this.element.dataset.hasPeek = peekCount > 0 ? "true" : "false";
@@ -241,9 +364,16 @@ export default class extends Controller {
       toast.style.setProperty("--toast-height", `${heights[index]}px`);
       toast.dataset.behind = behind ? "true" : "false";
       toast.setAttribute("aria-hidden", behind ? "true" : "false");
-      toast.tabIndex = behind ? -1 : 0;
+      this.#setToastInert(toast, behind);
 
-      // Clear legacy layout overrides — CSS owns position/transform/height.
+      if (this.#isDialogMode(toast) && !behind) {
+        toast.tabIndex = -1;
+      } else if (!behind) {
+        toast.removeAttribute("tabindex");
+      } else {
+        toast.tabIndex = -1;
+      }
+
       toast.style.removeProperty("max-height");
       toast.style.removeProperty("height");
       toast.style.removeProperty("overflow");
@@ -266,6 +396,7 @@ export default class extends Controller {
       .forEach((toast) => {
         toast.setAttribute("aria-hidden", "true");
         toast.removeAttribute("data-behind");
+        this.#setToastInert(toast, true);
         this.#clearToastPeekVars(toast);
       });
 
@@ -281,7 +412,6 @@ export default class extends Controller {
       const stackHeight =
         heights.reduce((sum, height) => sum + height, 0) + Math.max(0, heights.length - 1) * TOAST_GAP_PX;
       list.style.setProperty("--stack-height", `${stackHeight}px`);
-      // Keep front metrics so collapse can reverse the same transform path.
       list.style.setProperty("--front-height", `${frontHeight}px`);
       list.style.setProperty("--peek-count", String(peekCount));
     } else if (metricsReady) {
@@ -293,6 +423,68 @@ export default class extends Controller {
       list.style.removeProperty("--peek-count");
       list.style.removeProperty("--stack-height");
     }
+  }
+
+  #setToastInert(toast, inert) {
+    if (inert) {
+      toast.setAttribute("inert", "");
+    } else {
+      toast.removeAttribute("inert");
+    }
+  }
+
+  #syncChrome() {
+    const toasts = this.toastTargets.filter((toast) => toast.isConnected);
+    const hiddenCount = toasts.filter((toast) => toast.hidden).length;
+    const peekBehind = toasts.filter((toast) => toast.dataset.behind === "true").length;
+    const moreCount = hiddenCount + (this.#expanded ? 0 : peekBehind);
+    const dialogCount = toasts.filter((toast) => this.#isDialogMode(toast)).length;
+
+    if (this.hasMoreTarget) {
+      if (moreCount > 0 && !this.#expanded) {
+        this.moreTarget.hidden = false;
+        this.moreTarget.textContent = this.#moreLabel(moreCount);
+      } else {
+        this.moreTarget.hidden = true;
+      }
+    }
+
+    if (this.hasDismissAllTarget) {
+      this.dismissAllTarget.hidden = dialogCount < DISMISS_ALL_THRESHOLD;
+    }
+  }
+
+  #moreLabel(count) {
+    const template = this.moreTarget?.dataset?.template;
+    if (template) return template.replace("%{count}", String(count));
+    return `+${count} more`;
+  }
+
+  #syncLogUi() {
+    if (this.hasLogCountTarget) {
+      const count = this.#logEntries.length;
+      this.logCountTarget.textContent = String(count);
+      this.logCountTarget.hidden = count === 0;
+    }
+
+    if (this.hasLogEmptyTarget) {
+      this.logEmptyTarget.hidden = this.#logEntries.length > 0;
+    }
+
+    if (!this.hasLogListTarget) return;
+
+    this.logListTarget.replaceChildren();
+    this.#logEntries.forEach((entry) => {
+      const item = document.createElement("li");
+      item.className = "rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] px-2 py-1";
+      item.tabIndex = -1;
+      item.textContent = entry.message;
+      this.logListTarget.appendChild(item);
+    });
+  }
+
+  #visibleToasts() {
+    return this.toastTargets.filter((toast) => toast.isConnected && !toast.hidden);
   }
 
   #naturalSize(toast) {
@@ -309,9 +501,6 @@ export default class extends Controller {
       transform: toast.style.transform,
     };
 
-    // Measure in the toaster's real column width. Using max-content underestimates
-    // height for long host-app copy (IRIDA upload flashes) that wraps at max-w-md,
-    // which collapses peek offsets under the front card and overlaps on expand.
     const columnWidth = Math.ceil(this.#listElement()?.clientWidth ?? 0);
 
     toast.style.position = "static";
@@ -370,10 +559,13 @@ export default class extends Controller {
     list.style.removeProperty("--stack-height");
   }
 
-  // Persistent toasts are flagged in markup via data-pathogen--toast-persistent-value.
-  // timeout <= 0 is a fallback for DOM built without the Ruby component.
+  #isDialogMode(toast) {
+    return toast.getAttribute("data-pathogen--toast-mode-value") === "dialog";
+  }
+
   #isPersistent(toast) {
     if (toast.getAttribute("data-pathogen--toast-persistent-value") === "true") return true;
+    if (this.#isDialogMode(toast)) return true;
 
     const timeoutValue = toast.getAttribute("data-pathogen--toast-timeout-value");
     if (timeoutValue === null) return false;
@@ -383,4 +575,4 @@ export default class extends Controller {
   }
 }
 
-export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX };
+export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, DURATION_STORAGE_KEY, LOG_LIMIT, DISMISS_ALL_THRESHOLD };

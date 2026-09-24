@@ -1,4 +1,72 @@
 <%= tag.section(**@system_arguments) do %>
+  <div class="pvc-toaster__chrome pointer-events-auto flex w-full flex-col gap-2">
+    <div class="flex items-center justify-between gap-2">
+      <button
+        type="button"
+        class="
+          inline-flex min-h-6 items-center rounded-[var(--pvc-radius-control)] border
+          border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] px-2 py-1
+          text-[length:var(--type-meta)] font-medium text-[var(--pvc-color-text)]
+          shadow-[var(--pvc-shadow-overlay)] focus-visible:outline-2
+          focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+        "
+        data-pathogen--toaster-target="logToggle"
+        data-action="click->pathogen--toaster#toggleLog"
+        aria-expanded="false"
+        aria-controls="<%= list_id %>-notification-log"
+      >
+        <span data-pathogen--toaster-target="logToggleLabel"><%= log_toggle_label %></span>
+        <span
+          class="
+            ml-1 inline-flex min-w-4 items-center justify-center rounded-[var(--pvc-radius-control-sm)]
+            bg-[var(--pvc-color-surface-muted)] px-1 text-[length:var(--type-meta)]
+            text-[var(--pvc-color-text-muted)]
+          "
+          data-pathogen--toaster-target="logCount"
+          hidden
+        >0</span>
+      </button>
+
+      <button
+        type="button"
+        class="
+          inline-flex min-h-6 items-center rounded-[var(--pvc-radius-control)] border
+          border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] px-2 py-1
+          text-[length:var(--type-meta)] font-medium text-[var(--pvc-color-text)]
+          focus-visible:outline-2 focus-visible:outline-offset-2
+          focus-visible:outline-[var(--pvc-color-focus)]
+        "
+        data-pathogen--toaster-target="dismissAll"
+        data-action="click->pathogen--toaster#dismissAll"
+        hidden
+      >
+        <%= dismiss_all_label %>
+      </button>
+    </div>
+
+    <div
+      id="<%= list_id %>-notification-log"
+      class="
+        max-h-48 overflow-y-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface-raised)] p-2 text-[length:var(--type-control)]
+        text-[var(--pvc-color-text)] shadow-[var(--pvc-shadow-overlay)]
+      "
+      data-pathogen--toaster-target="log"
+      role="log"
+      aria-label="<%= log_label %>"
+      aria-live="off"
+      hidden
+    >
+      <p
+        class="text-[length:var(--type-meta)] text-[var(--pvc-color-text-muted)]"
+        data-pathogen--toaster-target="logEmpty"
+      >
+        <%= empty_log_label %>
+      </p>
+      <ol class="flex list-none flex-col gap-2 p-0" data-pathogen--toaster-target="logList"></ol>
+    </div>
+  </div>
+
   <ol
     id="<%= list_id %>"
     class="pvc-toaster__list w-full"
@@ -6,6 +74,23 @@
   >
     <%= content %>
   </ol>
+
+  <button
+    type="button"
+    class="
+      pvc-toaster__more pointer-events-auto mt-1 inline-flex min-h-6 items-center self-center
+      rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-meta)] font-medium
+      text-[var(--pvc-color-text)] shadow-[var(--pvc-shadow-overlay)] focus-visible:outline-2
+      focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+    "
+    data-pathogen--toaster-target="more"
+    data-action="click->pathogen--toaster#expandFromControl"
+    data-template="<%= more_label %>"
+    hidden
+  >
+    <%= more_label.sub('%{count}', '0') %>
+  </button>
 
   <div
     class="sr-only"
@@ -19,7 +104,7 @@
     class="sr-only"
     data-pathogen--toaster-target="assertive"
     role="alert"
-    aria-label="<%= @assertive_region_label %>"
+    aria-label="<%= assertive_region_label %>"
     aria-live="assertive"
     aria-atomic="true"
   ></div>
