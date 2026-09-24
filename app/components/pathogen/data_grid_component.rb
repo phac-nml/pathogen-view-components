@@ -259,7 +259,7 @@ module Pathogen
       attributes.merge!(virtual_metadata_attributes) if @virtual
 
       label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = virtual_rowcount
+      label_attributes[:rowcount] = virtual_metadata.rowcount
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
@@ -507,40 +507,21 @@ module Pathogen
     end
 
     def virtual_metadata_attributes
-      attributes = {
-        'data-pvc-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
-        'data-pvc-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
-        'data-pvc-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
-        'data-pvc-data-grid-pinned-count': virtual_pinned_count,
-        'data-pvc-data-grid-column-widths': virtual_column_widths
-      }
-      return attributes unless virtual_pagination?
-
-      attributes.merge(virtual_pagination_metadata_attributes)
+      virtual_metadata.attributes
     end
 
-    def virtual_pagination_metadata_attributes
-      {
-        'data-pvc-data-grid-pagination-mode': @virtual_pagination.mode,
-        'data-pvc-data-grid-total-count': virtual_total_count,
-        'data-pvc-data-grid-rows-url': virtual_rows_url,
-        'data-pvc-data-grid-page-size': virtual_page_size,
-        'data-pvc-data-grid-row-offset': virtual_row_offset,
-        'data-pvc-data-grid-search-params': virtual_search_params,
-        'data-pvc-data-grid-next-cursor': virtual_next_cursor,
-        'data-pvc-data-grid-loaded-count': @rows.size
-      }.compact
-    end
-
-    def virtual_rowcount
-      if virtual_cursor_pagination?
-        return @rows.size + 1 if virtual_next_cursor.nil?
-
-        return virtual_total_count.nil? ? -1 : virtual_total_count + 1
-      end
-      return virtual_total_count + 1 if virtual_pagination? # +1 for header row
-
-      @rows.size + 1
+    def virtual_metadata
+      @virtual_metadata ||= DataGrid::VirtualMetadata.new(
+        layout: {
+          'data-pvc-data-grid-row-height' => DEFAULT_VIRTUAL_ROW_HEIGHT,
+          'data-pvc-data-grid-row-overscan' => DEFAULT_VIRTUAL_ROW_OVERSCAN,
+          'data-pvc-data-grid-column-overscan' => DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
+          'data-pvc-data-grid-pinned-count' => virtual_pinned_count,
+          'data-pvc-data-grid-column-widths' => virtual_column_widths
+        },
+        pagination: @virtual_pagination,
+        rows_count: @rows.size
+      )
     end
 
     def virtual_pinned_count
