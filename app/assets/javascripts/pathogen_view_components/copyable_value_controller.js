@@ -1,103 +1,116 @@
 import { Controller } from "@hotwired/stimulus";
 
+const COPY_STATES = {
+  idle: "idle",
+  success: "success",
+};
+
+/**
+ * Copies text via the Clipboard API with a selection-based fallback.
+ *
+ * @param {string} text - Text to copy
+ * @param {HTMLElement} fallbackElement - Element used for execCommand fallback selection
+ * @returns {Promise<void>}
+ */
+async function writeTextToClipboard(text, fallbackElement) {
+  if (navigator.clipboard?.writeText) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  const selection = window.getSelection();
+  const range = document.createRange();
+
+  range.selectNodeContents(fallbackElement);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+
+  const copied = typeof document.execCommand === "function" && document.execCommand("copy");
+
+  selection?.removeAllRanges();
+
+  if (!copied) {
+    throw new Error("Clipboard API unavailable and fallback copy failed");
+  }
+}
+
 /**
  * Pathogen::CopyableValue Stimulus controller.
  *
- * Copies the displayed value to the clipboard using the modern Clipboard API
- * and provides visual + screen-reader feedback via icon swap and aria-live region.
+ * Copies the displayed value to the clipboard and provides visual + screen-reader
+ * feedback via semantic `data-state`, icon swap CSS, and an aria-live region.
  */
 export default class extends Controller {
-  static targets = ["text", "icon", "successIcon", "announcement"];
+  static targets = ["text", "announcement"];
+
   static values = {
     copiedMessage: { type: String, default: "Copied to clipboard" },
     copyFailedMessage: { type: String, default: "Unable to copy to clipboard" },
+    resetDelay: { type: Number, default: 2000 },
   };
 
+  #resetTimeout = null;
+
   connect() {
-    this._resetTimeout = null;
+    this.#setState(COPY_STATES.idle);
+    this.element.dataset.controllerConnected = "true";
+  }
+
+  disconnect() {
+    this.#clearResetTimeout();
+    delete this.element.dataset.controllerConnected;
   }
 
   async copy() {
     const text = this.textTarget.textContent ?? "";
 
     try {
-      await this._copyText(text);
-      this._showSuccess();
+      await writeTextToClipboard(text, this.textTarget);
+      this.#showSuccess();
     } catch {
-      this._showFailure();
+      this.#showFailure();
     }
   }
 
-  disconnect() {
-    this._clearTimeout();
+  #showSuccess() {
+    this.#clearResetTimeout();
+    this.#setState(COPY_STATES.success);
+    this.#announce(this.copiedMessageValue);
+    this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
 
-  // -- Private --
-
-  async _copyText(text) {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return;
-    }
-
-    const selection = window.getSelection();
-    const range = document.createRange();
-
-    range.selectNodeContents(this.textTarget);
-    selection?.removeAllRanges();
-    selection?.addRange(range);
-
-    const copied = typeof document.execCommand === "function" && document.execCommand("copy");
-
-    selection?.removeAllRanges();
-
-    if (!copied) {
-      throw new Error("Clipboard API unavailable and fallback copy failed");
-    }
+  #showFailure() {
+    this.#clearResetTimeout();
+    this.#setState(COPY_STATES.idle);
+    this.#announce(this.copyFailedMessageValue);
+    this.#resetTimeout = window.setTimeout(() => {
+      this.#clearAnnouncement();
+      this.#resetTimeout = null;
+    }, this.resetDelayValue);
   }
 
-  _showSuccess() {
-    this._clearTimeout();
-
-    // Swap icons
-    this.iconTarget.classList.add("hidden");
-    this.successIconTarget.classList.remove("hidden");
-
-    // Announce to screen readers
-    this.announcementTarget.textContent = this.copiedMessageValue;
-
-    // Revert after 2 seconds
-    this._resetTimeout = window.setTimeout(() => {
-      this._reset();
-    }, 2000);
+  #reset() {
+    this.#setState(COPY_STATES.idle);
+    this.#clearAnnouncement();
+    this.#resetTimeout = null;
   }
 
-  _showFailure() {
-    this._clearTimeout();
-    this._showDefaultIcon();
-    this.announcementTarget.textContent = this.copyFailedMessageValue;
-
-    this._resetTimeout = window.setTimeout(() => {
-      this.announcementTarget.textContent = "";
-      this._resetTimeout = null;
-    }, 2000);
+  #setState(state) {
+    this.element.dataset.state = state;
   }
 
-  _reset() {
-    this._showDefaultIcon();
+  #announce(message) {
+    this.announcementTarget.textContent = message;
+  }
+
+  #clearAnnouncement() {
     this.announcementTarget.textContent = "";
-    this._resetTimeout = null;
   }
 
-  _showDefaultIcon() {
-    this.iconTarget.classList.remove("hidden");
-    this.successIconTarget.classList.add("hidden");
-  }
-
-  _clearTimeout() {
-    if (this._resetTimeout) {
-      clearTimeout(this._resetTimeout);
-      this._resetTimeout = null;
+  #clearResetTimeout() {
+    if (this.#resetTimeout) {
+      clearTimeout(this.#resetTimeout);
+      this.#resetTimeout = null;
     }
   }
 }

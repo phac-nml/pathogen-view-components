@@ -73,7 +73,33 @@ module Pathogen
       assert_selector 'span[data-controller="alpha beta pathogen--copyable-value"]'
     end
 
-    test 'renders clipboard icon and hidden success icon' do
+    test 'deduplicates copyable-value controller when already present' do
+      render_inline(
+        Pathogen::CopyableValue.new(value: 'test', data: { controller: 'pathogen--copyable-value' })
+      )
+
+      assert_selector 'span[data-controller="pathogen--copyable-value"]'
+    end
+
+    test 'renders with idle data-state on root element' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[data-controller="pathogen--copyable-value"][data-state="idle"]'
+    end
+
+    test 'includes reset delay stimulus value' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[data-pathogen--copyable-value-reset-delay-value="2000"]'
+    end
+
+    test 'accepts custom reset_delay' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test', reset_delay: 1500))
+
+      assert_selector 'span[data-pathogen--copyable-value-reset-delay-value="1500"]'
+    end
+
+    test 'renders clipboard icon and success icon targets' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector 'svg[data-pathogen--copyable-value-target="icon"]', visible: :all
