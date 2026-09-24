@@ -1,46 +1,109 @@
-<div class="relative min-h-[34rem] bg-[var(--pvc-color-surface-muted)] p-6">
-  <div
-    class="
-      mx-auto max-w-3xl space-y-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface)] p-4
-    "
-  >
-    <h2 class="text-base font-semibold text-[var(--pvc-color-text)]">Sample processing queue</h2>
+<%# herb:formatter ignore %>
 
-    <p class="text-sm text-[var(--pvc-color-text-muted)]">
-      Toasts confirm actions without interrupting your current task.
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sample processing queue</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Toasts confirm background work without blocking the current task. Status is carried by the icon and message —
+      not decorative colour blocks.
+    </p>
+
+    <div
+      class="
+        relative min-h-[24rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
+        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <dl class="grid gap-3 text-sm sm:grid-cols-2">
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Queue</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">Ontario weekly export</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Samples</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">24 assigned · 1 skipped</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Run</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]">B-2026-06</dd>
+        </div>
+        <div>
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Sync</dt>
+          <dd class="text-[var(--pvc-color-text-muted)]">Metadata update in progress</dd>
+        </div>
+      </dl>
+
+      <%= render Pathogen::Toaster.new(
+        position: :bottom_right,
+        strategy: :absolute,
+        turbo_permanent: false,
+        max_visible: 4,
+        list_id: 'flashes-overview'
+      ) do %>
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Batch assignment completed.',
+          description: '24 samples moved to run B-2026-06.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Sync running in background.',
+          description: 'You can keep working while metadata updates.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :warning,
+          message: 'One sample skipped.',
+          description: 'Coverage threshold was below 95%.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :error,
+          message: 'Upload failed.',
+          description: 'The attachment exceeds the configured file-size limit.'
+        ) %>
+      <% end %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Status types</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Semantic roles for success, warning, and error. Info stays quiet with a muted icon; reserve accent for actions
+      inside the toast.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <dl class="space-y-3 text-sm">
+        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Success</dt>
+          <dd class="font-mono text-[var(--pvc-color-success)]">--pvc-color-success</dd>
+        </div>
+        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Warning</dt>
+          <dd class="font-mono text-[var(--pvc-color-warning)]">--pvc-color-warning</dd>
+        </div>
+        <div class="flex items-baseline justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-2">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Error</dt>
+          <dd class="font-mono text-[var(--pvc-color-danger)]">--pvc-color-danger</dd>
+        </div>
+        <div class="flex items-baseline justify-between gap-4">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Info</dt>
+          <dd class="font-mono text-[var(--pvc-color-text-muted)]">--pvc-color-text-muted</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      Mount a persistent <code class="font-mono">Pathogen::Toaster</code> in the host layout (for example
+      <code class="font-mono">#flashes</code>) and stream <code class="font-mono">Pathogen::Toast</code> instances into
+      it after Turbo responses. Errors and actionable toasts do not auto-dismiss.
     </p>
   </div>
-
-  <%= render Pathogen::Toaster.new(
-    position: :bottom_right,
-    strategy: :absolute,
-    turbo_permanent: false,
-    max_visible: 4,
-    list_id: 'flashes'
-  ) do %>
-    <%= render Pathogen::Toast.new(
-      type: :success,
-      message: 'Batch assignment completed.',
-      description: '24 samples moved to run B-2026-06.'
-    ) %>
-
-    <%= render Pathogen::Toast.new(
-      type: :info,
-      message: 'Sync running in background.',
-      description: 'You can keep working while metadata updates.'
-    ) %>
-
-    <%= render Pathogen::Toast.new(
-      type: :warning,
-      message: 'One sample skipped.',
-      description: 'Coverage threshold was below 95%.'
-    ) %>
-
-    <%= render Pathogen::Toast.new(
-      type: :error,
-      message: 'Upload failed.',
-      description: 'The attachment exceeds the configured file-size limit.'
-    ) %>
-  <% end %>
 </div>
