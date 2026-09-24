@@ -40,6 +40,7 @@ module Pathogen
 
       assert_selector 'span[class*="bg-[var(--pvc-color-surface-muted)]"]'
       assert_selector 'span[class*="border-[var(--pvc-color-border)]"]'
+      assert_selector 'span[class*="rounded-[var(--pvc-radius-action)]"]'
     end
 
     test 'includes sr-only aria-live region for announcements' do
