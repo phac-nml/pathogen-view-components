@@ -34,7 +34,8 @@
       <%= pathogen_code { 'aria-live="polite"' } %>
 
       <%= pathogen_supporting(variant: :muted, tag: :span) do %>
-        region. The icon swaps to a checkmark on success and uses danger colour on failure.
+        region. The icon swaps to a checkmark on success and a distinct error icon on failure, so feedback does not rely
+        on colour alone.
       <% end %>
     </div>
 
