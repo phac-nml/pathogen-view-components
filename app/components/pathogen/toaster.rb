@@ -5,6 +5,7 @@ module Pathogen
   class Toaster < Pathogen::Component
     DEFAULT_POSITION = :top_center
     DEFAULT_STRATEGY = :fixed
+    DEFAULT_DURATION_STORAGE_KEY = 'pathogen.toast.durationMs'
     # nil = read pathogen.toast.durationMs from localStorage in the Stimulus controller.
     # Integer ms overrides status-toast timeouts. 0 means forever (promote to dialog).
     DEFAULT_DURATION_PREFERENCE = nil
@@ -31,11 +32,13 @@ module Pathogen
       'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed'
     ].freeze
 
-    attr_reader :list_id, :max_visible, :region_label, :duration_preference, :more_label, :dismiss_all_label
+    attr_reader :list_id, :max_visible, :region_label, :duration_preference, :duration_storage_key,
+                :more_label, :dismiss_all_label
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(position: DEFAULT_POSITION, strategy: DEFAULT_STRATEGY, list_id: 'flashes', max_visible: 3,
                    aria_label: nil, turbo_permanent: true, duration_preference: DEFAULT_DURATION_PREFERENCE,
+                   duration_storage_key: DEFAULT_DURATION_STORAGE_KEY,
                    **system_arguments)
       @position = fetch_or_fallback(POSITION_MAPPINGS.keys, position, DEFAULT_POSITION)
       @strategy = fetch_or_fallback(STRATEGY_MAPPINGS.keys, strategy, DEFAULT_STRATEGY)
@@ -44,6 +47,7 @@ module Pathogen
       @region_label = aria_label
       @turbo_permanent = turbo_permanent
       @duration_preference = normalize_duration_preference(duration_preference)
+      @duration_storage_key = duration_storage_key.to_s.presence || DEFAULT_DURATION_STORAGE_KEY
 
       @system_arguments = system_arguments
       apply_system_arguments
@@ -62,8 +66,13 @@ module Pathogen
       return nil if value.nil? || value == ''
       return 0 if [:forever, 'forever'].include?(value)
 
-      integer = value.to_i
-      integer.negative? ? nil : integer
+      integer = Integer(value, exception: false)
+      if integer.nil? || integer.negative?
+        raise ArgumentError,
+              'duration_preference must be a non-negative Integer, :forever, "forever", nil, or ""'
+      end
+
+      integer
     end
 
     def anchor_edge
@@ -92,6 +101,7 @@ module Pathogen
     def apply_stack_data_attributes
       @system_arguments[:'data-pathogen--toaster-max-visible-value'] = @max_visible
       @system_arguments[:'data-pathogen--toaster-position-value'] = @position
+      @system_arguments[:'data-pathogen--toaster-duration-storage-key-value'] = @duration_storage_key
       unless @duration_preference.nil?
         @system_arguments[:'data-pathogen--toaster-duration-preference-value'] = @duration_preference
       end

@@ -72,6 +72,26 @@ module Pathogen
       assert_selector 'section[data-pathogen--toaster-duration-preference-value="0"]'
     end
 
+    test 'exposes duration storage key for preference resolution' do
+      render_inline(Pathogen::Toaster.new)
+
+      assert_selector 'section[data-pathogen--toaster-duration-storage-key-value="pathogen.toast.durationMs"]'
+    end
+
+    test 'supports a custom duration storage key' do
+      render_inline(Pathogen::Toaster.new(duration_storage_key: 'app.toastDuration'))
+
+      assert_selector 'section[data-pathogen--toaster-duration-storage-key-value="app.toastDuration"]'
+    end
+
+    test 'raises for invalid duration preference values' do
+      error = assert_raises(ArgumentError) do
+        Pathogen::Toaster.new(duration_preference: :later)
+      end
+
+      assert_match(/duration_preference must be a non-negative Integer/, error.message)
+    end
+
     test 'corner positions use mobile-safe bounds and recover shrink-wrap on larger screens' do
       render_inline(Pathogen::Toaster.new(position: :bottom_right)) do
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
