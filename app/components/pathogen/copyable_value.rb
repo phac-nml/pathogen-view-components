@@ -23,9 +23,13 @@ module Pathogen
     CONTAINER_CLASSES = [
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
+        group
         inline-flex items-center align-middle
         py-1 pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
+        border border-transparent
+        interactive-hover:border-[var(--pvc-color-border-strong)]
+        transition-[border-color] duration-[var(--pvc-duration-fast)] ease-out
       ]
     ].flatten.join(' ').freeze
 
@@ -33,11 +37,11 @@ module Pathogen
       inline-flex shrink-0 items-center justify-center self-stretch
       -my-1 min-h-6 min-w-6 p-0
       rounded-r-[calc(var(--pvc-radius-action)-1px)]
-      cursor-pointer border border-transparent
+      cursor-pointer border-l border-l-[var(--pvc-color-border)]
       text-[var(--pvc-color-text-muted)]
-      interactive-hover:bg-[var(--pvc-color-surface-raised)]
-      interactive-hover:text-[var(--pvc-color-text)]
-      interactive-hover:border-[var(--pvc-color-border-strong)]
+      group-interactive-hover:bg-[var(--pvc-color-surface-raised)]
+      group-interactive-hover:text-[var(--pvc-color-text)]
+      group-interactive-hover:border-l-[var(--pvc-color-border-strong)]
       focus-visible:outline focus-visible:outline-2
       focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
       focus-visible:z-10
