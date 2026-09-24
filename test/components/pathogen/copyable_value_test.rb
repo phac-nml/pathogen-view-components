@@ -42,6 +42,7 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector 'span[class*="overflow-hidden"][class*="rounded-[var(--pvc-radius-action)]"]'
+      assert_selector 'span[class*="min-h-6"]'
     end
 
     test 'uses shared inline code surface tokens' do
