@@ -57,7 +57,8 @@ module Pathogen
       @interrupt = interrupt
       @requested_timeout = [timeout.to_i, 0].max
       @timeout = persistent_type? ? 0 : @requested_timeout
-      @message_dom_id = "pvc-toast-msg-#{object_id}"
+      @dom_id_base = "pvc-toast-#{SecureRandom.hex(4)}"
+      @message_dom_id = "#{@dom_id_base}-msg"
 
       @system_arguments = system_arguments
       apply_system_arguments
@@ -82,6 +83,30 @@ module Pathogen
 
     def icon_label
       I18n.t("pathogen.toast.type.#{type}")
+    end
+
+    def type_label_dom_id
+      "#{@dom_id_base}-type"
+    end
+
+    def description_dom_id
+      "#{@dom_id_base}-desc"
+    end
+
+    # Attributes for the inner dialog shell. The accessible name pairs the
+    # visually-hidden severity label ("Error:") with the message so screen
+    # reader users hear the toast's type on focus, and the description (when
+    # present) is associated via aria-describedby.
+    def dialog_attributes
+      attributes = {
+        role: 'dialog',
+        'aria-modal': 'false',
+        'aria-labelledby': "#{type_label_dom_id} #{message_dom_id}",
+        tabindex: -1,
+        'data-pathogen--toast-target': 'dialog'
+      }
+      attributes[:'aria-describedby'] = description_dom_id if description.present?
+      attributes
     end
 
     def icon_color
