@@ -154,11 +154,13 @@ module Pathogen
     end
 
     test 'rejects Stimulus actions in nested data arguments' do
-      error = assert_raises(ArgumentError) do
-        render_inline(Pathogen::Badge.new(text: 'Ready', data: { action: 'click->badge#activate' }))
-      end
+      %i[action Action ACTION].each do |action_key|
+        error = assert_raises(ArgumentError) do
+          render_inline(Pathogen::Badge.new(text: 'Ready', data: { action_key => 'click->badge#activate' }))
+        end
 
-      assert_match(/Stimulus action/i, error.message)
+        assert_match(/Stimulus action/i, error.message)
+      end
     end
 
     test 'rejects direct Stimulus action attributes' do
