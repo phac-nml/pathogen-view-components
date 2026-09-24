@@ -24,7 +24,7 @@ module Pathogen
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
         inline-flex items-center overflow-hidden align-middle
-        py-1 pl-2
+        min-h-6 pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
       ]
     ].flatten.join(' ').freeze
@@ -45,11 +45,11 @@ module Pathogen
 
     VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
 
-    ICON_SLOT_CLASSES = 'relative inline-flex size-4 shrink-0'
+    ICON_SLOT_CLASSES = 'relative inline-flex size-3.5 shrink-0'
 
-    ICON_CLASSES = 'absolute inset-0 size-4 shrink-0'
+    ICON_CLASSES = 'absolute inset-0 size-3.5 shrink-0'
 
-    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-4 shrink-0 text-[var(--pvc-color-success)]'
+    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-3.5 shrink-0 text-[var(--pvc-color-success)]'
 
     attr_reader :value
 
