@@ -21,6 +21,7 @@ module Pathogen
       assert_selector '[data-pathogen--toast-target="dismiss"][hidden]', visible: :all
       assert_selector 'li[data-pathogen--toast-timeout-value="6000"]'
       assert_selector 'li[data-pathogen--toast-type-label-value="Success"]'
+      assert_selector '[data-pathogen--toast-target="dialog"]:not([role]):not([tabindex])'
     end
 
     test 'normalizes rails flash aliases' do
@@ -80,6 +81,44 @@ module Pathogen
       assert_selector '[role="dialog"]'
       assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
       assert_selector 'button[aria-label="Dismiss notification"]'
+    end
+
+    test 'non-positive status timeouts produce dismissible persistent dialogs' do
+      [0, -100].each do |timeout|
+        render_inline(Pathogen::Toast.new(message: 'Review complete', timeout: timeout))
+
+        assert_selector 'li[data-pathogen--toast-mode-value="dialog"]' \
+                        '[data-pathogen--toast-timeout-value="0"]' \
+                        '[data-pathogen--toast-persistent-value="true"]' \
+                        '[data-pathogen--toast-dismissible-value="true"]'
+        assert_selector 'button[aria-label="Dismiss notification"]'
+      end
+    end
+
+    test 'merges nested and flat host data attributes with required wiring' do
+      render_inline(
+        Pathogen::Toast.new(
+          message: 'Saved',
+          data: {
+            controller: 'host-controller',
+            action: 'click->host#record',
+            'pathogen--toaster-target': 'host-target',
+            qa_hook: 'notification'
+          },
+          'data-controller': 'analytics',
+          'data-action': 'focusin->analytics#record',
+          'data-pathogen--toaster-target': 'other-target'
+        )
+      )
+
+      assert_selector 'li[data-controller="host-controller analytics pathogen--toast"]' \
+                      '[data-action="click->host#record focusin->analytics#record"]' \
+                      '[data-pathogen--toaster-target="host-target other-target toast"]' \
+                      '[data-qa-hook="notification"]'
+      root_markup = rendered_content[/<li\b[^>]*>/]
+      assert_equal 1, root_markup.scan('data-controller=').length
+      assert_equal 1, root_markup.scan('data-action=').length
+      assert_equal 1, root_markup.scan('data-pathogen--toaster-target=').length
     end
 
     test 'interrupt opt-in is exposed for errors' do
@@ -148,6 +187,25 @@ module Pathogen
       describedby = dialog['aria-describedby']
       assert describedby.present?, 'expected aria-describedby for a described dialog'
       assert_selector "##{describedby}", text: 'The file is too large.', visible: :all
+      assert_equal dialog['aria-labelledby'], dialog['data-dialog-labelledby']
+      assert_equal describedby, dialog['data-dialog-describedby']
+      assert_includes dialog[:class], 'focus-visible:outline-[var(--pvc-color-focus)]'
+    end
+
+    test 'status shell keeps labels ready for client promotion without dialog semantics' do
+      render_inline(Pathogen::Toast.new(message: 'Saved', description: 'The records are up to date.'))
+
+      shell = page.find('[data-pathogen--toast-target="dialog"]')
+      assert_nil shell[:role]
+      assert_nil shell[:tabindex]
+      assert_nil shell['aria-labelledby']
+      assert_nil shell['aria-describedby']
+      assert_nil shell['aria-modal']
+      shell['data-dialog-labelledby'].split.each do |id|
+        assert_selector "##{id}", visible: :all
+      end
+      assert_selector "##{shell['data-dialog-describedby']}", text: 'The records are up to date.'
+      assert_includes shell[:class], 'focus-visible:outline-[var(--pvc-color-focus)]'
     end
 
     test 'dialog without a description omits aria-describedby' do

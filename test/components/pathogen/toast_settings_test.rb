@@ -53,6 +53,23 @@ module Pathogen
       assert_no_selector 'option[value="20000"]'
     end
 
+    test 'merges nested and flat host data attributes with required wiring' do
+      render_inline(
+        Pathogen::ToastSettings.new(
+          data: { controller: 'host-controller', action: 'click->host#record', qa_hook: 'timing' },
+          'data-controller': 'analytics',
+          'data-action': 'focusin->analytics#record'
+        )
+      )
+
+      assert_selector 'div[data-controller="host-controller analytics pathogen--toast-settings"]' \
+                      '[data-action="click->host#record focusin->analytics#record"]' \
+                      '[data-qa-hook="timing"]'
+      root_markup = rendered_content[/<div\b[^>]*>/]
+      assert_equal 1, root_markup.scan('data-controller=').length
+      assert_equal 1, root_markup.scan('data-action=').length
+    end
+
     test 'localizes labels in french' do
       I18n.with_locale(:fr) do
         render_inline(Pathogen::ToastSettings.new)
