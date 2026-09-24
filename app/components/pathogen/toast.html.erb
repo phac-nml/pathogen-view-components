@@ -1,26 +1,40 @@
 <%= tag.li(**@system_arguments) do %>
-  <div class="p-4">
-    <div class="flex items-start gap-2">
-      <span class="mt-0.5 flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
-        <svg
-          class="size-4 shrink-0"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          aria-hidden="true"
+  <%= content_tag(:div, **(dialog_mode? ? {
+        role: 'dialog',
+        'aria-modal': 'false',
+        'aria-labelledby': message_dom_id,
+        tabindex: -1,
+        'data-pathogen--toast-target': 'dialog'
+      } : {})) do %>
+    <div class="p-4">
+      <div class="flex items-start gap-2">
+        <span class="mt-0.5 flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
+          <svg
+            class="size-4 shrink-0"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <%= icon_svg %>
+          </svg>
+        </span>
+
+        <div class="min-w-0 flex-1">
+          <p class="text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]">
+            <span class="sr-only"><%= icon_label %>:</span>
+            <span
+              id="<%= message_dom_id %>"
+              class="break-words [overflow-wrap:anywhere]"
+              data-pathogen--toast-target="message"
+            ><%= message %></span>
+          </p>
+        </div>
+
+        <div
+          class="-mr-1 shrink-0"
+          data-pathogen--toast-target="dismiss"
+          <%= 'hidden' unless dismissible %>
         >
-          <%= icon_svg %>
-        </svg>
-      </span>
-
-      <div class="min-w-0 flex-1">
-        <p class="text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]">
-          <span class="sr-only"><%= icon_label %>:</span>
-          <span class="break-words [overflow-wrap:anywhere]" data-pathogen--toast-target="message"><%= message %></span>
-        </p>
-      </div>
-
-      <% if dismissible %>
-        <div class="-mr-1 shrink-0">
           <%= render Pathogen::Button.new(
             size: :small,
             tone: :neutral,
@@ -43,29 +57,29 @@
             <% end %>
           <% end %>
         </div>
+      </div>
+
+      <% if description.present? || action? %>
+        <div class="pl-6">
+          <% if description.present? %>
+            <p
+              class="
+                mt-1 break-words text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
+                [overflow-wrap:anywhere]
+              "
+              data-pathogen--toast-target="description"
+            >
+              <%= description %>
+            </p>
+          <% end %>
+
+          <% if action? %>
+            <div class="mt-2" data-pathogen--toast-target="action">
+              <%= action %>
+            </div>
+          <% end %>
+        </div>
       <% end %>
     </div>
-
-    <% if description.present? || action? %>
-      <div class="pl-6">
-        <% if description.present? %>
-          <p
-            class="
-              mt-1 break-words text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
-              [overflow-wrap:anywhere]
-            "
-            data-pathogen--toast-target="description"
-          >
-            <%= description %>
-          </p>
-        <% end %>
-
-        <% if action? %>
-          <div class="mt-2">
-            <%= action %>
-          </div>
-        <% end %>
-      </div>
-    <% end %>
-  </div>
+  <% end %>
 <% end %>
