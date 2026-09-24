@@ -7,9 +7,9 @@ module Pathogen
     DEFAULT_STRATEGY = :fixed
 
     POSITION_MAPPINGS = {
-      top_right: 'top-4 right-4 items-end',
+      top_right: 'top-4 right-4 left-4 sm:left-auto items-end',
       top_center: 'top-4 left-1/2 -translate-x-1/2 items-center',
-      bottom_right: 'bottom-4 right-4 items-end',
+      bottom_right: 'bottom-4 right-4 left-4 sm:left-auto items-end',
       bottom_center: 'bottom-4 left-1/2 -translate-x-1/2 items-center'
     }.freeze
     CENTER_POSITIONS = %i[top_center bottom_center].freeze
@@ -74,7 +74,7 @@ module Pathogen
       if CENTER_POSITIONS.include?(@position)
         'w-full px-4 sm:px-0'
       else
-        'w-max'
+        'sm:w-max'
       end
     end
   end
