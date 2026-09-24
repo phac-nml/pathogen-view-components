@@ -13,7 +13,8 @@ module Pathogen
         )
       )
 
-      assert_selector 'li[data-controller~="pathogen--toast"][role="listitem"][data-pathogen--toast-mode-value="status"]'
+      assert_selector 'li[data-controller~="pathogen--toast"][role="listitem"]' \
+                      '[data-pathogen--toast-mode-value="status"]'
       assert_no_selector 'li[tabindex]'
       assert_selector 'p', text: 'Batch created'
       assert_selector 'p', text: '12 samples were assigned.'
@@ -131,6 +132,28 @@ module Pathogen
 
       render_inline(Pathogen::Toast.new(type: :error, message: 'Failed'))
       assert_selector 'span.text-\\[var\\(--pvc-color-danger\\)\\]'
+    end
+
+    test 'dialog accessible name pairs severity label with message and describes via description' do
+      render_inline(
+        Pathogen::Toast.new(type: :error, message: 'Upload failed', description: 'The file is too large.')
+      )
+
+      dialog = page.find('[role="dialog"]', visible: :all)
+      labelledby = dialog['aria-labelledby'].to_s.split
+      assert_equal 2, labelledby.size
+      assert_selector "##{labelledby.first}", text: 'Error:', visible: :all
+      assert_selector "##{labelledby.last}", text: 'Upload failed', visible: :all
+
+      describedby = dialog['aria-describedby']
+      assert describedby.present?, 'expected aria-describedby for a described dialog'
+      assert_selector "##{describedby}", text: 'The file is too large.', visible: :all
+    end
+
+    test 'dialog without a description omits aria-describedby' do
+      render_inline(Pathogen::Toast.new(type: :error, message: 'Upload failed'))
+
+      assert_selector '[role="dialog"]:not([aria-describedby])'
     end
 
     test 'passes axe structural checks for status and dialog modes' do
