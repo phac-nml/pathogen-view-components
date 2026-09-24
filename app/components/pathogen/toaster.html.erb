@@ -4,12 +4,17 @@
     class="flex w-full flex-col gap-2"
     data-pathogen--toaster-target="list"
     aria-label="<%= region_label %>"
-    aria-live="polite"
-    aria-relevant="additions text"
-    aria-atomic="false"
   >
     <%= content %>
   </ol>
+
+  <div
+    class="sr-only"
+    data-pathogen--toaster-target="polite"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+  ></div>
 
   <div
     class="sr-only"

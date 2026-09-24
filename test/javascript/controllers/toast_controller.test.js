@@ -14,6 +14,7 @@ const buildToast = ({
   type = "info",
   dismissible = true,
   message = "Saved",
+  description = "",
   withButton = true,
 } = {}) => {
   const list = document.createElement("ol");
@@ -28,8 +29,18 @@ const buildToast = ({
   toast.setAttribute("data-pathogen--toast-dismiss-duration-value", "160");
 
   const messageNode = document.createElement("p");
-  messageNode.textContent = message;
+  const messageText = document.createElement("span");
+  messageText.setAttribute("data-pathogen--toast-target", "message");
+  messageText.textContent = message;
+  messageNode.appendChild(messageText);
   toast.appendChild(messageNode);
+
+  if (description) {
+    const descriptionNode = document.createElement("p");
+    descriptionNode.setAttribute("data-pathogen--toast-target", "description");
+    descriptionNode.textContent = description;
+    toast.appendChild(descriptionNode);
+  }
 
   if (withButton) {
     const closeButton = document.createElement("button");
@@ -108,13 +119,48 @@ describe("toast_controller", () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it("emits assertive event for error toasts", async () => {
-    const { toast } = buildToast({ timeout: 0, type: "error", message: "Upload failed" });
+  it("emits an assertive announcement with message and description for error toasts", async () => {
+    buildToast({ timeout: 0, type: "error", message: "Upload failed", description: "The file is too large." });
     const listener = vi.fn();
-    document.body.addEventListener("pathogen:toast:error", listener);
+    document.body.addEventListener("pathogen:toast:announce", listener);
 
     await waitForController();
     expect(listener).toHaveBeenCalledTimes(1);
-    expect(listener.mock.calls[0][0].detail.message).toBe("Upload failed");
+    const { detail } = listener.mock.calls[0][0];
+    expect(detail.politeness).toBe("assertive");
+    expect(detail.message).toBe("Upload failed. The file is too large.");
+  });
+
+  it("emits a polite announcement for non-error toasts", async () => {
+    buildToast({ timeout: 0, type: "success", message: "Saved" });
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:announce", listener);
+
+    await waitForController();
+    expect(listener).toHaveBeenCalledTimes(1);
+    const { detail } = listener.mock.calls[0][0];
+    expect(detail.politeness).toBe("polite");
+    expect(detail.message).toBe("Saved");
+  });
+
+  it("restores focus to the prior element when dismissed via the close button", async () => {
+    vi.useFakeTimers();
+    const previous = document.createElement("button");
+    previous.textContent = "previous";
+    document.body.appendChild(previous);
+
+    const { toast } = buildToast({ timeout: 0, type: "info" });
+    await waitForController();
+
+    previous.focus();
+    toast.focus();
+    toast.dispatchEvent(new FocusEvent("focusin", { bubbles: true, relatedTarget: previous }));
+
+    toast.querySelector("button").dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    vi.advanceTimersByTime(160);
+    await waitForController();
+    expect(document.body.contains(toast)).toBe(false);
+    expect(document.activeElement).toBe(previous);
   });
 });

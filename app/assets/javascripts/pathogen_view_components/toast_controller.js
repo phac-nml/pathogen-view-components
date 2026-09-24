@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
+  static targets = ["message", "description"];
   static values = {
     timeout: Number,
     type: String,
@@ -19,7 +20,7 @@ export default class extends Controller {
     this.#remainingMs = this.timeoutValue > 0 ? this.timeoutValue : 0;
     this.#bindEvents();
     this.#startTimer();
-    this.#announceError();
+    this.#announce();
   }
 
   disconnect() {
@@ -31,7 +32,7 @@ export default class extends Controller {
   dismiss(event) {
     event?.preventDefault();
     event?.stopPropagation();
-    this.#dismiss({ reason: "manual", restoreFocus: false });
+    this.#dismiss({ reason: "manual", restoreFocus: true });
   }
 
   #bindEvents() {
@@ -155,25 +156,36 @@ export default class extends Controller {
     return null;
   }
 
-  #announceError() {
-    if (this.typeValue !== "error") return;
-
+  #announce() {
     const message = this.#announcementMessage();
     if (!message) return;
 
     this.element.dispatchEvent(
-      new CustomEvent("pathogen:toast:error", {
+      new CustomEvent("pathogen:toast:announce", {
         bubbles: true,
-        detail: { message },
+        detail: {
+          message,
+          politeness: this.typeValue === "error" ? "assertive" : "polite",
+        },
       }),
     );
   }
 
   #announcementMessage() {
-    const description = this.element.querySelector("p");
-    if (!description) return null;
+    const parts = [];
 
-    const text = description.textContent?.trim();
-    return text && text.length > 0 ? text : null;
+    if (this.hasMessageTarget) {
+      const text = this.messageTarget.textContent?.trim();
+      if (text) parts.push(text);
+    }
+
+    if (this.hasDescriptionTarget) {
+      const text = this.descriptionTarget.textContent?.trim();
+      if (text) parts.push(text);
+    }
+
+    if (parts.length === 0) return null;
+
+    return parts.map((part, index) => (index < parts.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part)).join(" ");
   }
 }
