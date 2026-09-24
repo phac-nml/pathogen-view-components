@@ -6,7 +6,7 @@ import {
 } from "pathogen_view_components/toast_duration_preference";
 
 export default class extends Controller {
-  static targets = ["message", "description", "dismiss", "action", "dialog", "typeLabel"];
+  static targets = ["message", "description", "dismiss", "action", "dialog"];
   static values = {
     timeout: Number,
     type: String,
@@ -19,55 +19,70 @@ export default class extends Controller {
   };
 
   #timerId = null;
+  #dismissTimerId = null;
   #startedAt = null;
   #remainingMs = 0;
   #state = "open";
   #restoreFocusElement = null;
   #abortController = null;
+  #connected = false;
+  #initialDialogIntent = false;
+  #presented = false;
+
+  initialize() {
+    this.#initialDialogIntent = this.dialogMode;
+    this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
+  }
 
   connect() {
-    const serverRenderedDialog = this.dialogMode;
-    this.#applyQueuedDurationPreference();
-    this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
+    if (this.#state === "closing") {
+      this.element.remove();
+      return;
+    }
+
+    this.#connected = true;
     this.#bindEvents();
-    this.#startTimer();
+    this.#applyQueuedDurationPreference();
+    this.#resumeTimer();
 
-    if (!this.dialogMode) {
-      // Plain status toast: polite live-region announcement, no focus move.
-      this.#announce();
-      return;
+    if (!this.#presented) {
+      this.dispatch("ready", { prefix: "pathogen:toast", detail: { toast: this } });
     }
-
-    if (this.interruptValue) {
-      // Emergency error: broadcast assertively instead of hijacking focus, so a
-      // system- or stream-triggered alert reaches screen readers without
-      // pulling the user out of what they are doing.
-      this.#announce();
-      return;
-    }
-
-    if (serverRenderedDialog && this.#mayMoveFocus()) {
-      // Intentional notification dialog (error / warning / dismissible / action):
-      // move focus in so the user can read and act on it.
-      this.#captureRestoreFocus();
-      this.#focusDialog();
-      return;
-    }
-
-    // A status toast auto-promoted to a dialog (duration preference), or a
-    // dialog we should not focus right now (active text entry, or another toast
-    // already holds focus): announce politely instead of stealing focus.
-    this.#announce();
   }
 
   disconnect() {
-    this.#clearTimer();
+    this.#connected = false;
+    this.#pauseTimer();
+    clearTimeout(this.#dismissTimerId);
+    this.#dismissTimerId = null;
     this.#abortController?.abort();
     this.#abortController = null;
   }
 
+  get initialDialogIntent() {
+    return this.#initialDialogIntent;
+  }
+
   get dialogMode() {
     return this.modeValue === "dialog";
+  }
+
+  get awaitingPresentation() {
+    return !this.#presented && this.#connected && this.#state === "open";
+  }
+
+  // The toaster coordinates first presentation across all arriving notifications.
+  present({ focus = false } = {}) {
+    if (!this.awaitingPresentation) return;
+
+    this.#presented = true;
+    if (focus && this.dialogMode) {
+      this.#captureRestoreFocus();
+      this.#focusDialog();
+      if (document.activeElement === this.dialogTarget) return;
+    }
+
+    this.#announce();
   }
 
   dismiss(event) {
@@ -86,7 +101,7 @@ export default class extends Controller {
       return;
     }
 
-    if (this.dialogMode) return;
+    if (this.dialogMode || parsedPreference === this.timeoutValue) return;
 
     this.timeoutValue = parsedPreference;
     this.#remainingMs = parsedPreference;
@@ -100,7 +115,7 @@ export default class extends Controller {
 
   /** Host / toaster may promote a status toast to a persistent dialog (e.g. duration forever). */
   promoteToDialog({ focus = true } = {}) {
-    if (this.dialogMode) return;
+    if (this.dialogMode || this.#state !== "open") return;
 
     this.modeValue = "dialog";
     this.timeoutValue = 0;
@@ -109,27 +124,13 @@ export default class extends Controller {
     this.#remainingMs = 0;
     this.#clearTimer(true);
 
-    this.element.setAttribute("role", "listitem");
-    this.element.removeAttribute("aria-modal");
-    this.element.removeAttribute("aria-labelledby");
-    this.element.removeAttribute("tabindex");
-
-    if (!this.hasDialogTarget) {
-      const shell = document.createElement("div");
-      shell.setAttribute("role", "dialog");
-      shell.setAttribute("aria-modal", "false");
-      shell.tabIndex = -1;
-      shell.setAttribute("data-pathogen--toast-target", "dialog");
-      this.#applyDialogLabels(shell);
-      while (this.element.firstChild) {
-        shell.appendChild(this.element.firstChild);
-      }
-      this.element.appendChild(shell);
-    } else {
-      this.dialogTarget.setAttribute("role", "dialog");
-      this.dialogTarget.setAttribute("aria-modal", "false");
-      this.dialogTarget.tabIndex = -1;
-      this.#applyDialogLabels(this.dialogTarget);
+    const shell = this.dialogTarget;
+    shell.setAttribute("role", "dialog");
+    shell.setAttribute("aria-modal", "false");
+    shell.tabIndex = -1;
+    shell.setAttribute("aria-labelledby", shell.dataset.dialogLabelledby);
+    if (shell.dataset.dialogDescribedby) {
+      shell.setAttribute("aria-describedby", shell.dataset.dialogDescribedby);
     }
 
     if (this.hasDismissTarget) {
@@ -143,23 +144,9 @@ export default class extends Controller {
   }
 
   #applyQueuedDurationPreference() {
-    const preference = this.#consumeQueuedDurationPreference();
-    if (preference === null) return;
-
-    if (preference === 0) {
-      this.promoteToDialog({ focus: false });
-      return;
-    }
-
-    if (!this.dialogMode) {
-      this.timeoutValue = preference;
-    }
-  }
-
-  #consumeQueuedDurationPreference() {
     const raw = this.element.getAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE);
     this.element.removeAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE);
-    return parseDurationPreference(raw);
+    this.applyDurationPreference(raw);
   }
 
   #bindEvents() {
@@ -212,74 +199,15 @@ export default class extends Controller {
   }
 
   #focusDialog() {
-    requestAnimationFrame(() => {
-      if (!this.element.isConnected || this.#state !== "open") return;
-
-      // Focus the dialog shell so AT announces aria-labelledby (the message).
-      // Focusing dismiss first only said "Dismiss notification" with no context.
-      const dialog = this.hasDialogTarget ? this.dialogTarget : this.element;
-      if (dialog instanceof HTMLElement) {
-        dialog.focus({ preventScroll: true });
-      }
-    });
-  }
-
-  // Decides whether it is safe to move focus into a freshly mounted dialog.
-  // Focus is only moved for intentional, non-disruptive cases.
-  #mayMoveFocus() {
-    const active = document.activeElement;
-
-    // Never interrupt active text entry.
-    if (this.#isEditableElement(active)) return false;
-
-    // Never yank focus from a toast that already holds it: the first dialog to
-    // mount wins, which prevents focus thrashing when several arrive together.
-    const host = this.element.closest("[data-controller~='pathogen--toaster']");
-    if (host && active instanceof HTMLElement && host.contains(active) && !this.element.contains(active)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  #isEditableElement(element) {
-    if (!(element instanceof HTMLElement)) return false;
-    if (element.isContentEditable) return true;
-
-    const tag = element.tagName;
-    if (tag === "TEXTAREA" || tag === "SELECT") return true;
-    if (tag === "INPUT") {
-      const nonTextTypes = ["button", "submit", "reset", "checkbox", "radio", "range", "color", "file", "image"];
-      return !nonTextTypes.includes((element.type || "text").toLowerCase());
-    }
-
-    return false;
-  }
-
-  // Pairs the severity label ("Error:") with the message for the dialog's
-  // accessible name, and associates the description via aria-describedby so a
-  // client-promoted dialog matches the server-rendered markup.
-  #applyDialogLabels(element) {
-    const labelIds = [];
-    if (this.hasTypeLabelTarget && this.typeLabelTarget.id) labelIds.push(this.typeLabelTarget.id);
-    if (this.hasMessageTarget && this.messageTarget.id) labelIds.push(this.messageTarget.id);
-    if (labelIds.length > 0) {
-      element.setAttribute("aria-labelledby", labelIds.join(" "));
-    }
-
-    if (this.hasDescriptionTarget && this.descriptionTarget.id) {
-      element.setAttribute("aria-describedby", this.descriptionTarget.id);
-    } else {
-      element.removeAttribute("aria-describedby");
-    }
+    if (!this.#connected || this.#state !== "open") return;
+    this.dialogTarget.focus({ preventScroll: true });
   }
 
   #startTimer() {
-    if (this.dialogMode) return;
-    if (this.#remainingMs <= 0) return;
+    if (!this.#connected || this.#timerId !== null) return;
+    if (this.dialogMode || this.timeoutValue <= 0) return;
     if (this.#state !== "open") return;
 
-    this.#clearTimer();
     this.#startedAt = Date.now();
     this.#timerId = window.setTimeout(() => {
       this.#dismiss({ reason: "timeout", restoreFocus: false });
@@ -287,16 +215,15 @@ export default class extends Controller {
   }
 
   #pauseTimer() {
-    if (!this.#timerId || this.#remainingMs <= 0) return;
+    if (this.#timerId === null) return;
 
-    this.#clearTimer(false);
-    const elapsed = Date.now() - (this.#startedAt || Date.now());
+    const elapsed = Date.now() - this.#startedAt;
     this.#remainingMs = Math.max(0, this.#remainingMs - elapsed);
+    this.#clearTimer();
   }
 
   #resumeTimer() {
     if (this.dialogMode) return;
-    if (this.#remainingMs <= 0) return;
     if (this.#state !== "open") return;
     if (this.element.contains(document.activeElement)) return;
     if (this.element.matches(":hover")) return;
@@ -305,7 +232,7 @@ export default class extends Controller {
   }
 
   #clearTimer(resetRemaining = false) {
-    if (this.#timerId) {
+    if (this.#timerId !== null) {
       clearTimeout(this.#timerId);
       this.#timerId = null;
     }
@@ -323,7 +250,9 @@ export default class extends Controller {
     const restoreTarget = restoreFocus ? this.#resolveRestoreFocusTarget() : null;
     const duration = this.#dismissDuration();
 
-    window.setTimeout(() => {
+    this.#dismissTimerId = window.setTimeout(() => {
+      this.#dismissTimerId = null;
+      if (!this.#connected) return;
       const parent = this.element.parentElement;
       if (parent) {
         this.dispatch("dismissed", {
