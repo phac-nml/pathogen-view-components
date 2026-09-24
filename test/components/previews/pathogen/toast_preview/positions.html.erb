@@ -1,92 +1,46 @@
 <%# herb:formatter ignore %>
 
-<div class="flex max-w-4xl flex-col gap-8 p-4">
-  <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Anchor positions" } %>
+<div class="flex max-w-4xl flex-col gap-4 p-4">
+  <%= pathogen_heading(level: 3, class: "mb-2") { "Anchor positions" } %>
 
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Choose a corner or centre anchor when toasts must avoid critical layout regions such as toolbars, pagination, or
-      primary actions.
-    <% end %>
+  <%= pathogen_supporting(variant: :muted) do %>
+    Default is <%= pathogen_code { "top_center" } %>. Previews use <%= pathogen_code { "strategy: :absolute" } %>;
+    production hosts use <%= pathogen_code { "strategy: :fixed" } %>.
+  <% end %>
 
-    <div class="grid gap-4 lg:grid-cols-2">
-      <% {
-        top_center: 'Top center (default)',
-        top_right: 'Top right',
-        bottom_center: 'Bottom center',
-        bottom_right: 'Bottom right'
-      }.each do |position, label| %>
-        <div
-          class="
-            relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
-            border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
-          "
-        >
-          <%= pathogen_heading(level: 4, class: "mb-1") { label } %>
+  <div class="grid gap-4 lg:grid-cols-2">
+    <% {
+      top_center: 'Top center',
+      top_right: 'Top right',
+      bottom_center: 'Bottom center',
+      bottom_right: 'Bottom right'
+    }.each do |position, label| %>
+      <div
+        class="
+          relative min-h-56 overflow-hidden rounded-(--pvc-radius-panel) border
+          border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+        "
+      >
+        <%= pathogen_heading(level: 4, class: "mb-1") { label } %>
+        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+          <%= pathogen_code { "position: :#{position}" } %>
+        <% end %>
 
-          <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
-            <%= pathogen_code { "position: :#{position}" } %>
-          <% end %>
-
-          <%= render Pathogen::Toaster.new(
-            position:,
-            strategy: :absolute,
-            turbo_permanent: false,
-            max_visible: 2,
-            list_id: "flashes-#{position}"
-          ) do %>
-            <%= render Pathogen::Toast.new(
-              type: :success,
-              message: "Position: #{label}",
-              description: 'Persistent in this preview panel.',
-              timeout: 0
-            ) %>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-  </section>
-
-  <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Position comparison" } %>
-
-    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
-      <table class="w-full text-sm">
-        <thead class="border-b border-(--pvc-color-border) bg-(--pvc-color-surface-muted)">
-          <tr>
-            <th class="px-4 py-2 text-left font-semibold text-(--pvc-color-text)">Position</th>
-            <th class="px-4 py-2 text-left font-semibold text-(--pvc-color-text)">Typical use</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-(--pvc-color-border)">
-          <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top center</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">
-              Default — high-visibility confirmations during dense form and grid work
-            </td>
-          </tr>
-          <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top right</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Avoid centered banners or keep clear of mid-layout focus</td>
-          </tr>
-          <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom center</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Centred footers or full-width data grids</td>
-          </tr>
-          <tr>
-            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom right</td>
-            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Clear of left navigation; avoids sticky headers</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
-    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
-    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
-      Production layouts use <%= pathogen_code { "strategy: :fixed" } %> on the toaster host. Previews use
-      <%= pathogen_code { "strategy: :absolute" } %> inside a <%= pathogen_code { "relative" } %> frame.
+        <%= render Pathogen::Toaster.new(
+          position:,
+          strategy: :absolute,
+          turbo_permanent: false,
+          max_visible: 1,
+          list_id: "flashes-#{position}"
+        ) do %>
+          <%= render Pathogen::Toast.new(
+            type: :success,
+            message: "#{label} anchor",
+            description: 'Dismissible so the specimen stays inspectable.',
+            dismissible: true
+          ) %>
+        <% end %>
+      </div>
     <% end %>
   </div>
 </div>
