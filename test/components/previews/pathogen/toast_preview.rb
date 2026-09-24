@@ -3,8 +3,6 @@
 module Pathogen
   # ViewComponent preview for Pathogen::Toast and Pathogen::Toaster.
   class ToastPreview < ViewComponent::Preview
-    include Pathogen::ViewHelper
-
     # @!group Pathogen Toast
 
     # @label Playground
