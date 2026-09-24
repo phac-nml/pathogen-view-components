@@ -260,12 +260,12 @@ describe("toast_controller", () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it("promotes status toasts to dialogs when duration preference is forever", async () => {
-    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
+  it("promotes status toasts to dialogs when a queued duration preference is forever", async () => {
     const listener = vi.fn();
     document.body.addEventListener("pathogen:toast:announce", listener);
 
     const { toast } = buildToast({ timeout: 1000, mode: "status", dismissible: false, withButton: true });
+    toast.setAttribute("data-pathogen--toast-duration-preference-value", "forever");
     await waitForController();
     await waitForAnimationFrames();
 

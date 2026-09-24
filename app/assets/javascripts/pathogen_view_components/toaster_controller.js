@@ -1,9 +1,17 @@
 import { Controller } from "@hotwired/stimulus";
 
-const ANNOUNCE_DEBOUNCE_MS = 75;
+import {
+  DURATION_STORAGE_KEY,
+  QUEUED_DURATION_PREFERENCE_ATTRIBUTE,
+  resolveDurationPreference,
+} from "pathogen_view_components/toast_duration_preference";
+import {
+  ANNOUNCE_DEBOUNCE_MS,
+  LiveRegionAnnouncer,
+} from "pathogen_view_components/toaster_controller/live_region_announcer";
+
 // Matches --pvc-toast-gap (0.875rem) at the default 16px root font size.
 const TOAST_GAP_PX = 14;
-const DURATION_STORAGE_KEY = "pathogen.toast.durationMs";
 const DISMISS_ALL_THRESHOLD = 3;
 
 export default class extends Controller {
@@ -12,12 +20,11 @@ export default class extends Controller {
     maxVisible: { type: Number, default: 3 },
     position: { type: String, default: "top_center" },
     durationPreference: { type: Number, default: -1 },
+    durationStorageKey: { type: String, default: DURATION_STORAGE_KEY },
   };
 
   #expanded = false;
-  #queue = { polite: [], assertive: [] };
-  #flushTimeout = null;
-  #flushHandle = null;
+  #announcer = null;
   #resizeObserver = null;
   #motionQuery = null;
   #onMotionChange = null;
@@ -29,6 +36,12 @@ export default class extends Controller {
     this.#onMotionChange = () => this.#scheduleApplyStack();
     this.#motionQuery.addEventListener("change", this.#onMotionChange);
 
+    this.#announcer = new LiveRegionAnnouncer({
+      hostElement: this.element,
+      politeTarget: () => (this.hasPoliteTarget ? this.politeTarget : null),
+      assertiveTarget: () => (this.hasAssertiveTarget ? this.assertiveTarget : null),
+    });
+
     this.#resizeObserver = new ResizeObserver(() => this.#scheduleApplyStack());
     this.toastTargets.forEach((toast) => {
       this.#applyDurationPreference(toast);
@@ -39,14 +52,8 @@ export default class extends Controller {
   }
 
   disconnect() {
-    if (this.#flushTimeout) {
-      clearTimeout(this.#flushTimeout);
-      this.#flushTimeout = null;
-    }
-    if (this.#flushHandle) {
-      cancelAnimationFrame(this.#flushHandle);
-      this.#flushHandle = null;
-    }
+    this.#announcer?.disconnect();
+    this.#announcer = null;
     if (this.#stackFrame) {
       cancelAnimationFrame(this.#stackFrame);
       this.#stackFrame = null;
@@ -98,8 +105,7 @@ export default class extends Controller {
     if (message.length === 0) return;
 
     const politeness = detail.politeness === "assertive" ? "assertive" : "polite";
-    this.#queue[politeness].push(message);
-    this.#scheduleFlush();
+    this.#announcer?.announce({ message, politeness });
   }
 
   dismissAll() {
@@ -122,104 +128,32 @@ export default class extends Controller {
     if (this.#isPersistent(toast) || this.#isDialogMode(toast)) return;
 
     const preference = this.#resolvedDurationPreference();
-    if (preference === null) return;
-
-    if (preference === 0) {
-      const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
-      if (controller && typeof controller.promoteToDialog === "function") {
-        // Promotion driven by a stored duration preference is not a user action,
-        // so it must not steal focus (a status toast may be promoted en masse on
-        // page load). Manual/interactive promotion still moves focus.
-        controller.promoteToDialog({ focus: false });
-      } else {
-        toast.setAttribute("data-pathogen--toast-timeout-value", "0");
-        toast.setAttribute("data-pathogen--toast-mode-value", "dialog");
-        toast.setAttribute("data-pathogen--toast-dismissible-value", "true");
-        toast.setAttribute("data-pathogen--toast-persistent-value", "true");
-        toast.setAttribute("role", "dialog");
-        toast.setAttribute("aria-modal", "false");
-        toast.tabIndex = -1;
-        toast.querySelector("[data-pathogen--toast-target='dismiss']")?.removeAttribute("hidden");
-      }
+    if (preference === null) {
+      toast.removeAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE);
       return;
     }
 
+    const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
+    if (controller && typeof controller.applyDurationPreference === "function") {
+      // Stored duration preferences are ambient settings, not direct user actions,
+      // so applying them must not steal focus.
+      controller.applyDurationPreference(preference, { focus: false });
+      return;
+    }
+
+    // Queue preference application for toasts that connect after the toaster.
+    toast.setAttribute(QUEUED_DURATION_PREFERENCE_ATTRIBUTE, String(preference));
+
     if (preference > 0) {
       toast.setAttribute("data-pathogen--toast-timeout-value", String(preference));
-      const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
-      if (controller) {
-        controller.timeoutValue = preference;
-      }
     }
   }
 
   #resolvedDurationPreference() {
-    if (this.hasDurationPreferenceValue && this.durationPreferenceValue >= 0) {
-      return this.durationPreferenceValue;
-    }
-
-    try {
-      const raw = window.localStorage?.getItem(DURATION_STORAGE_KEY);
-      if (raw === null || raw === undefined || raw === "") return null;
-      if (raw === "forever") return 0;
-      const parsed = Number(raw);
-      if (!Number.isFinite(parsed) || parsed < 0) return null;
-      return parsed;
-    } catch {
-      return null;
-    }
-  }
-
-  #scheduleFlush() {
-    if (this.#flushTimeout) clearTimeout(this.#flushTimeout);
-
-    this.#flushTimeout = window.setTimeout(() => {
-      this.#flushTimeout = null;
-      if (!this.element.isConnected) return;
-
-      this.#flushHandle = requestAnimationFrame(() => {
-        this.#flushHandle = null;
-        if (!this.element.isConnected) return;
-
-        this.#flushRegion("polite");
-        this.#flushRegion("assertive");
-      });
-    }, ANNOUNCE_DEBOUNCE_MS);
-  }
-
-  #flushRegion(politeness) {
-    const messages = this.#queue[politeness];
-    this.#queue[politeness] = [];
-
-    const target = politeness === "assertive" ? this.#assertiveRegion() : this.#politeRegion();
-    if (!target || messages.length === 0) return;
-
-    const text = messages
-      .map((part, index) => (index < messages.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part))
-      .join(" ");
-
-    this.#writeLiveRegion(target, text);
-  }
-
-  #writeLiveRegion(target, text) {
-    if (target.textContent === text) {
-      target.textContent = "";
-      requestAnimationFrame(() => {
-        if (!target.isConnected) return;
-        target.textContent = text;
-      });
-      return;
-    }
-
-    target.textContent = text;
-  }
-
-  #politeRegion() {
-    return this.hasPoliteTarget ? this.politeTarget : null;
-  }
-
-  #assertiveRegion() {
-    return this.hasAssertiveTarget ? this.assertiveTarget : null;
+    return resolveDurationPreference({
+      explicitPreference: this.hasDurationPreferenceValue ? this.durationPreferenceValue : null,
+      storageKey: this.durationStorageKeyValue || DURATION_STORAGE_KEY,
+    });
   }
 
   #listElement() {
