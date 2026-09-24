@@ -102,16 +102,27 @@ module Pathogen
     def validate_system_arguments!(system_arguments)
       raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
 
+      reject_static_only_violations!(system_arguments)
+      reject_interactive_wiring!(system_arguments)
+    end
+
+    def reject_static_only_violations!(system_arguments)
+      if system_argument_key(system_arguments, 'href')
+        raise ArgumentError, '`href` is an invalid argument because badges are not links.'
+      end
+
       if system_argument_key(system_arguments, 'tabindex')
         raise ArgumentError, '`tabindex` is an invalid argument because badges are not focusable.'
       end
 
       role_key = system_argument_key(system_arguments, 'role')
       role = system_arguments[role_key]
-      if INTERACTIVE_ROLES.include?(role.to_s)
-        raise ArgumentError, "`#{role}` is an interactive role. Badges are not controls."
-      end
+      return unless INTERACTIVE_ROLES.include?(role.to_s.downcase)
 
+      raise ArgumentError, "`#{role}` is an interactive role. Badges are not controls."
+    end
+
+    def reject_interactive_wiring!(system_arguments)
       event_handler = system_arguments.keys.find { |key| key.to_s.match?(/\Aon[a-z]+\z/i) }
       raise ArgumentError, "`#{event_handler}` is an event handler. Badges are not interactive." if event_handler
 
