@@ -650,11 +650,12 @@ export default class extends Controller {
 
   #handlePaginationError(error) {
     console.error("[pathogen--data-grid] Pagination fetch error", error);
-    this.#paginationError = error.refreshRequired ? "mismatchText" : "fetchErrorText";
+    const recoverWithRefresh = error.refreshRequired && this.hasPaginationRefreshTarget;
+    this.#paginationError = recoverWithRefresh ? "mismatchText" : "fetchErrorText";
     if (this.hasPaginationStatusTarget) {
       this.paginationStatusTarget.textContent = this.#paginationMessage(this.#paginationError);
-      if (this.hasPaginationRetryTarget) this.paginationRetryTarget.hidden = !!error.refreshRequired;
-      if (this.hasPaginationRefreshTarget) this.paginationRefreshTarget.hidden = !error.refreshRequired;
+      if (this.hasPaginationRetryTarget) this.paginationRetryTarget.hidden = recoverWithRefresh;
+      if (this.hasPaginationRefreshTarget) this.paginationRefreshTarget.hidden = !recoverWithRefresh;
     } else {
       const message = this.#virtualStatusMessage("fetchErrorText", null);
       if (message) this.#showErrorState(message);
