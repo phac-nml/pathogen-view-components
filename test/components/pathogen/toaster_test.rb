@@ -10,7 +10,10 @@ module Pathogen
       end
 
       assert_selector 'section#flashes-toaster[data-controller~="pathogen--toaster"][data-turbo-permanent="true"]'
+      assert_selector 'section.pointer-events-none'
       assert_selector 'ol#flashes[aria-label="Notifications"]'
+      assert_no_selector 'ol#flashes[data-pathogen--toaster-target]'
+      assert_no_selector 'section[data-action*="handleToastDismissed"]'
       assert_no_selector 'ol#flashes[aria-live]'
       assert_selector 'div[data-pathogen--toaster-target="polite"][role="status"][aria-live="polite"]',
                       visible: :all
