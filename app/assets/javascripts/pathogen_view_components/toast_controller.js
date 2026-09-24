@@ -60,7 +60,7 @@ export default class extends Controller {
       "focusout",
       (event) => {
         if (event.relatedTarget instanceof HTMLElement && this.element.contains(event.relatedTarget)) return;
-        this.#resumeTimer({ force: true });
+        this.#resumeTimer();
       },
       { signal },
     );
