@@ -10,6 +10,8 @@ const appendCopyableValue = () => {
   container.setAttribute("data-controller", "pathogen--copyable-value");
   container.setAttribute("data-pathogen--copyable-value-copied-message-value", "Copied to clipboard");
   container.setAttribute("data-pathogen--copyable-value-copy-failed-message-value", "Unable to copy to clipboard");
+  container.setAttribute("data-pathogen--copyable-value-reset-delay-value", "2000");
+  container.dataset.state = "idle";
 
   const text = document.createElement("span");
   text.setAttribute("data-pathogen--copyable-value-target", "text");
@@ -24,7 +26,6 @@ const appendCopyableValue = () => {
 
   const successIcon = document.createElement("span");
   successIcon.setAttribute("data-pathogen--copyable-value-target", "successIcon");
-  successIcon.classList.add("hidden");
 
   const announcement = document.createElement("span");
   announcement.setAttribute("data-pathogen--copyable-value-target", "announcement");
@@ -71,8 +72,17 @@ describe("copyable_value_controller", () => {
     await waitForController();
   });
 
+  it("sets idle state on connect", async () => {
+    const { container } = appendCopyableValue();
+
+    await waitForController();
+
+    expect(container.dataset.state).toBe("idle");
+    expect(container.dataset.controllerConnected).toBe("true");
+  });
+
   it("copies exact text and shows success feedback", async () => {
-    const { container, text, icon, successIcon, announcement } = appendCopyableValue();
+    const { container, text, announcement } = appendCopyableValue();
     const writeText = vi.fn().mockResolvedValue(undefined);
 
     Object.defineProperty(navigator, "clipboard", {
@@ -89,19 +99,17 @@ describe("copyable_value_controller", () => {
     await controller.copy();
 
     expect(writeText).toHaveBeenCalledWith("  INXT_PRJ_A2G6VVJNCN  ");
-    expect(icon.classList.contains("hidden")).toBe(true);
-    expect(successIcon.classList.contains("hidden")).toBe(false);
+    expect(container.dataset.state).toBe("success");
     expect(announcement.textContent).toBe("Copied to clipboard");
 
     vi.advanceTimersByTime(2000);
 
-    expect(icon.classList.contains("hidden")).toBe(false);
-    expect(successIcon.classList.contains("hidden")).toBe(true);
+    expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
   });
 
   it("announces failure when clipboard API and fallback copy are unavailable", async () => {
-    const { container, icon, successIcon, announcement } = appendCopyableValue();
+    const { container, announcement } = appendCopyableValue();
 
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -120,8 +128,7 @@ describe("copyable_value_controller", () => {
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
     await controller.copy();
 
-    expect(icon.classList.contains("hidden")).toBe(false);
-    expect(successIcon.classList.contains("hidden")).toBe(true);
+    expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("Unable to copy to clipboard");
 
     vi.advanceTimersByTime(2000);
@@ -151,5 +158,31 @@ describe("copyable_value_controller", () => {
     vi.advanceTimersByTime(2000);
 
     expect(announcement.textContent).toBe("Copied to clipboard");
+  });
+
+  it("respects resetDelay value for success feedback", async () => {
+    const { container, announcement } = appendCopyableValue();
+    container.setAttribute("data-pathogen--copyable-value-reset-delay-value", "500");
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    await waitForController();
+    vi.useFakeTimers();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+
+    expect(container.dataset.state).toBe("success");
+
+    vi.advanceTimersByTime(499);
+    expect(container.dataset.state).toBe("success");
+
+    vi.advanceTimersByTime(1);
+    expect(container.dataset.state).toBe("idle");
+    expect(announcement.textContent).toBe("");
   });
 });
