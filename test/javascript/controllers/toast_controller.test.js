@@ -2,6 +2,7 @@ import { Application } from "@hotwired/stimulus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import ToastController from "../../../app/assets/javascripts/pathogen_view_components/toast_controller";
+import ToasterController from "../../../app/assets/javascripts/pathogen_view_components/toaster_controller";
 
 const waitForController = async () => {
   await Promise.resolve();
@@ -19,11 +20,15 @@ const buildToast = ({
   description = "",
   withButton = false,
 } = {}) => {
+  const host = document.createElement("div");
+  host.setAttribute("data-controller", "pathogen--toaster");
+  host.setAttribute("data-action", "pathogen:toast:ready->pathogen--toaster#presentToast");
   const list = document.createElement("ol");
 
   const toast = document.createElement("li");
   toast.dataset.state = "open";
   toast.setAttribute("data-controller", "pathogen--toast");
+  toast.setAttribute("data-pathogen--toaster-target", "toast");
   toast.setAttribute("data-pathogen--toast-timeout-value", String(timeout));
   toast.setAttribute("data-pathogen--toast-type-value", type);
   toast.setAttribute("data-pathogen--toast-type-label-value", typeLabel);
@@ -35,14 +40,22 @@ const buildToast = ({
   toast.setAttribute("role", "listitem");
 
   const shell = document.createElement("div");
+  shell.setAttribute("data-pathogen--toast-target", "dialog");
+  shell.dataset.dialogLabelledby = "type-1 msg-1";
+  if (description) shell.dataset.dialogDescribedby = "desc-1";
   if (mode === "dialog") {
     shell.setAttribute("role", "dialog");
     shell.setAttribute("aria-modal", "false");
     shell.tabIndex = -1;
-    shell.setAttribute("data-pathogen--toast-target", "dialog");
+    shell.setAttribute("aria-labelledby", shell.dataset.dialogLabelledby);
+    if (description) shell.setAttribute("aria-describedby", shell.dataset.dialogDescribedby);
   }
 
   const messageNode = document.createElement("p");
+  const severity = document.createElement("span");
+  severity.id = "type-1";
+  severity.textContent = `${typeLabel}:`;
+  messageNode.appendChild(severity);
   const messageText = document.createElement("span");
   messageText.id = "msg-1";
   messageText.setAttribute("data-pathogen--toast-target", "message");
@@ -52,6 +65,7 @@ const buildToast = ({
 
   if (description) {
     const descriptionNode = document.createElement("p");
+    descriptionNode.id = "desc-1";
     descriptionNode.setAttribute("data-pathogen--toast-target", "description");
     descriptionNode.textContent = description;
     shell.appendChild(descriptionNode);
@@ -71,22 +85,34 @@ const buildToast = ({
   toast.appendChild(shell);
 
   list.appendChild(toast);
-  document.body.appendChild(list);
-  return { list, toast };
+  host.appendChild(list);
+  document.body.appendChild(host);
+  return { host, list, toast, shell };
 };
 
 describe("toast_controller", () => {
   let application;
 
   beforeEach(() => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
     application = Application.start();
+    application.register("pathogen--toaster", ToasterController);
     application.register("pathogen--toast", ToastController);
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-    application?.stop();
+  afterEach(async () => {
     document.body.innerHTML = "";
+    await waitForController();
+    application?.stop();
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     window.localStorage?.removeItem("pathogen.toast.durationMs");
   });
 
@@ -124,6 +150,45 @@ describe("toast_controller", () => {
     expect(document.body.contains(toast)).toBe(false);
   });
 
+  it("resumes only the remaining timeout after a partial hover pause", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(0);
+    const { toast } = buildToast({ timeout: 1000 });
+    await waitForController();
+
+    vi.advanceTimersByTime(600);
+    toast.dispatchEvent(new MouseEvent("mouseenter"));
+    vi.advanceTimersByTime(2000);
+    expect(toast.dataset.state).toBe("open");
+
+    toast.dispatchEvent(new MouseEvent("mouseleave"));
+    vi.advanceTimersByTime(399);
+    expect(toast.dataset.state).toBe("open");
+    vi.advanceTimersByTime(1);
+    expect(toast.dataset.state).toBe("closing");
+    vi.advanceTimersByTime(160);
+    expect(toast.isConnected).toBe(false);
+  });
+
+  it("keeps the remaining timeout across disconnect and reconnect", async () => {
+    vi.useFakeTimers();
+    window.localStorage.setItem("pathogen.toast.durationMs", "1000");
+    const { toast, list } = buildToast({ timeout: 6000 });
+    await waitForController();
+
+    vi.advanceTimersByTime(600);
+    toast.remove();
+    await waitForController();
+    vi.advanceTimersByTime(2000);
+    list.appendChild(toast);
+    await waitForController();
+
+    vi.advanceTimersByTime(399);
+    expect(toast.dataset.state).toBe("open");
+    vi.advanceTimersByTime(1);
+    expect(toast.dataset.state).toBe("closing");
+  });
+
   it("dialog mode focuses the dialog shell and does not announce", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
@@ -156,6 +221,7 @@ describe("toast_controller", () => {
     document.body.addEventListener("pathogen:toast:announce", listener);
 
     await waitForController();
+    await waitForAnimationFrames();
     expect(listener).toHaveBeenCalledTimes(1);
     const { detail } = listener.mock.calls[0][0];
     expect(detail.politeness).toBe("polite");
@@ -175,6 +241,7 @@ describe("toast_controller", () => {
     document.body.addEventListener("pathogen:toast:announce", listener);
 
     await waitForController();
+    await waitForAnimationFrames();
     expect(listener.mock.calls[0][0].detail.politeness).toBe("assertive");
     expect(listener.mock.calls[0][0].detail.message).toBe("Error: Upload failed. The file is too large.");
   });
@@ -260,17 +327,31 @@ describe("toast_controller", () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it("promotes status toasts to dialogs when a queued duration preference is forever", async () => {
+  it("promotes the existing shell with its server-provided labels when the duration preference is forever", async () => {
+    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
     const listener = vi.fn();
     document.body.addEventListener("pathogen:toast:announce", listener);
 
-    const { toast } = buildToast({ timeout: 1000, mode: "status", dismissible: false, withButton: true });
-    toast.setAttribute("data-pathogen--toast-duration-preference-value", "forever");
+    const { toast, shell } = buildToast({
+      timeout: 1000,
+      mode: "status",
+      dismissible: false,
+      withButton: true,
+      description: "Your changes are available.",
+    });
+    const content = shell.firstElementChild;
     await waitForController();
     await waitForAnimationFrames();
 
     expect(toast.getAttribute("data-pathogen--toast-mode-value")).toBe("dialog");
-    expect(toast.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(toast.querySelector('[role="dialog"]')).toBe(shell);
+    expect(toast.firstElementChild).toBe(shell);
+    expect(shell.firstElementChild).toBe(content);
+    expect(shell.getAttribute("aria-labelledby")).toBe("type-1 msg-1");
+    expect(shell.getAttribute("aria-describedby")).toBe("desc-1");
+    expect(shell.getAttribute("aria-modal")).toBe("false");
+    expect(shell.tabIndex).toBe(-1);
+    expect(toast.querySelector('[data-pathogen--toast-target="dismiss"]').hidden).toBe(false);
 
     // A status toast promoted purely by a stored preference is not a user
     // action, so it announces politely rather than stealing focus.
@@ -302,6 +383,50 @@ describe("toast_controller", () => {
     await waitForController();
     expect(document.body.contains(toast)).toBe(false);
     expect(document.activeElement).toBe(previous);
+  });
+
+  it("does not present a promoted status again after reconnecting", async () => {
+    window.localStorage.setItem("pathogen.toast.durationMs", "forever");
+    const previous = document.createElement("button");
+    document.body.appendChild(previous);
+    previous.focus();
+    const listener = vi.fn();
+    document.body.addEventListener("pathogen:toast:announce", listener);
+    const { toast, list, shell } = buildToast({ withButton: true });
+    await waitForController();
+    await waitForAnimationFrames();
+    expect(shell.getAttribute("role")).toBe("dialog");
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    toast.remove();
+    await waitForController();
+    list.appendChild(toast);
+    await waitForController();
+    await waitForAnimationFrames();
+
+    expect(document.activeElement).toBe(previous);
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(toast.querySelector('[role="dialog"]')).toBe(shell);
+  });
+
+  it("cancels pending dismissal work when disconnected", async () => {
+    const previous = document.createElement("button");
+    document.body.appendChild(previous);
+    previous.focus();
+    const { toast } = buildToast({ timeout: 0, mode: "dialog", dismissible: true });
+    await waitForController();
+    await waitForAnimationFrames();
+
+    vi.useFakeTimers();
+    toast.querySelector("button").click();
+    toast.remove();
+    await waitForController();
+    const next = document.createElement("button");
+    document.body.appendChild(next);
+    next.focus();
+    vi.advanceTimersByTime(160);
+
+    expect(document.activeElement).toBe(next);
   });
 });
 
