@@ -1,0 +1,60 @@
+<%= tag.li(**@system_arguments) do %>
+  <div class="absolute inset-y-0 left-0 w-1 <%= accent_bar_class %>" aria-hidden="true"></div>
+
+  <div class="flex items-start gap-3 px-4 py-3">
+    <span class="mt-0.5 inline-flex shrink-0 <%= icon_color %>" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 32 32"
+        fill="currentColor"
+      >
+        <%= icon_svg %>
+      </svg>
+    </span>
+
+    <div class="min-w-0 flex-1">
+      <p class="text-sm font-semibold text-[var(--pvc-color-text)]">
+        <span class="sr-only"><%= icon_label %>:</span>
+        <%= message %>
+      </p>
+
+      <% if description.present? %>
+        <p class="mt-1 text-sm text-[var(--pvc-color-text-muted)]"><%= description %></p>
+      <% end %>
+
+      <% if action? %>
+        <div class="mt-2">
+          <%= action %>
+        </div>
+      <% end %>
+    </div>
+
+    <% if dismissible %>
+      <button
+        type="button"
+        class="
+          inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--pvc-radius-control)]
+          border border-transparent text-[var(--pvc-color-text-muted)] transition-colors
+          interactive-hover:bg-[var(--pvc-color-surface-muted)] interactive-hover:text-[var(--pvc-color-text)]
+          focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+          focus-visible:outline-[var(--pvc-color-focus)]
+        "
+        data-action="click->pathogen--toast#dismiss"
+        aria-label="<%= t('pathogen.toast.dismiss') %>"
+      >
+        <svg
+          aria-hidden="true"
+          width="12"
+          height="12"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M12 4 4 12M4 4l8 8" />
+        </svg>
+      </button>
+    <% end %>
+  </div>
+<% end %>

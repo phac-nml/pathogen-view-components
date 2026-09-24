@@ -1,0 +1,58 @@
+<div class="relative min-h-[38rem] bg-[var(--pvc-color-surface-muted)] p-6">
+  <div
+    class="
+      mx-auto max-w-3xl space-y-4 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface)] p-4
+    "
+  >
+    <h2 class="text-base font-semibold text-[var(--pvc-color-text)]">Accessibility behavior</h2>
+
+    <ul class="space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
+      <li>Overflow toasts are hidden until the stack is hovered or focused.</li>
+      <li>Errors announce through the assertive channel and do not auto-dismiss.</li>
+      <li>Actionable toasts remain visible until dismissed.</li>
+    </ul>
+  </div>
+
+  <%= render Pathogen::Toaster.new(
+    position: :bottom_right,
+    strategy: :absolute,
+    turbo_permanent: false,
+    max_visible: 3,
+    list_id: 'flashes'
+  ) do %>
+    <%= render Pathogen::Toast.new(
+      type: :success,
+      message: 'Annotation import complete.',
+      description: '4,391 records were indexed.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :info,
+      message: 'Filter preset saved.',
+      description: 'Preset "Ontario weekly report" is available to your team.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :warning,
+      message: 'Connection is unstable.',
+      description: 'Retries are running every 10 seconds.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :error,
+      message: 'Reference data stale.',
+      description: 'Re-index before finalizing this outbreak report.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :info,
+      message: 'Undo publication?',
+      description: 'This release can be rolled back for 10 minutes.'
+    ) do |toast| %>
+      <% toast.with_action do %>
+        <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo') %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>
