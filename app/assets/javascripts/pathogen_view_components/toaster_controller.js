@@ -275,8 +275,7 @@ export default class extends Controller {
 
     if (this.#expanded && metricsReady) {
       const stackHeight =
-        heights.reduce((sum, height) => sum + height, 0) +
-        Math.max(0, heights.length - 1) * TOAST_GAP_PX;
+        heights.reduce((sum, height) => sum + height, 0) + Math.max(0, heights.length - 1) * TOAST_GAP_PX;
       list.style.setProperty("--stack-height", `${stackHeight}px`);
       list.style.removeProperty("--front-height");
       list.style.removeProperty("--peek-count");
