@@ -44,6 +44,11 @@ module Pathogen
     # Push a toast into the toaster host via Turbo Stream append.
     def turbo_stream; end
 
+    # @label Duration settings
+    # User control for WCAG 2.2.1 (Timing Adjustable): persists a status-toast
+    # duration preference that the toaster reads.
+    def settings; end
+
     # @!endgroup
   end
 end
