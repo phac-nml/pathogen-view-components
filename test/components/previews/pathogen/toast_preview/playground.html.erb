@@ -1,9 +1,9 @@
 <%# herb:formatter ignore %>
 
 <div class="flex max-w-3xl flex-col gap-4 p-4">
-  <%= pathogen_supporting(variant: :muted) do %>
+  <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) do %>
     Status toasts (success/info) auto-dismiss and stay non-interactive. Warnings, errors, and
-    <%= pathogen_code { "dismissible: true" } %> become notification dialogs.
+    <%= render(Pathogen::Typography::Code.new) { "dismissible: true" } %> become notification dialogs.
   <% end %>
 
   <div

@@ -5,11 +5,11 @@
   data-list-id="flashes-stream-sim"
   class="flex max-w-4xl flex-col gap-4 p-4"
 >
-  <%= pathogen_heading(level: 3, class: "mb-2") { "Turbo stream" } %>
+  <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Turbo stream" } %>
 
-  <%= pathogen_supporting(variant: :muted) do %>
-    Push appends a real <%= pathogen_code { "Pathogen::Toast" } %> via
-    <%= pathogen_code { "Turbo.renderStreamMessage" } %>.
+  <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) do %>
+    Push appends a real <%= render(Pathogen::Typography::Code.new) { "Pathogen::Toast" } %> via
+    <%= render(Pathogen::Typography::Code.new) { "Turbo.renderStreamMessage" } %>.
   <% end %>
 
   <div>
@@ -28,7 +28,7 @@
       border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
     "
   >
-    <%= pathogen_supporting(variant: :muted) do %>
+    <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) do %>
       Outbreak event channel — workspace stays interactive while notifications arrive.
     <% end %>
 
