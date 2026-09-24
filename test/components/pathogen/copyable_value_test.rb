@@ -27,10 +27,19 @@ module Pathogen
       assert_selector 'button[type="button"][aria-label="Copy ABC123 to clipboard"]'
     end
 
-    test 'applies rounded radius via design token' do
+    test 'copy button meets small icon-only touch target and hover styles' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="rounded-[var(--pvc-radius-action"]'
+      assert_selector 'button[class*="min-h-6"][class*="min-w-6"]'
+      assert_selector 'button[class*="interactive-hover:bg-[var(--pvc-color-surface-raised)]"]'
+      assert_selector 'button[class*="focus-visible:outline-offset-2"]'
+    end
+
+    test 'uses shared inline code surface tokens' do
+      render_inline(Pathogen::CopyableValue.new(value: 'test'))
+
+      assert_selector 'span[class*="bg-[var(--pvc-color-surface-muted)]"]'
+      assert_selector 'span[class*="border-[var(--pvc-color-border)]"]'
     end
 
     test 'includes sr-only aria-live region for announcements' do
