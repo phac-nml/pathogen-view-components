@@ -100,11 +100,11 @@
     aria-atomic="true"
   ></div>
 
+  <%# Primed assertive region: no role="alert" / aria-label — those make AT announce
+      the container name ("Critical notifications alert") instead of injected text. %>
   <div
     class="sr-only"
     data-pathogen--toaster-target="assertive"
-    role="alert"
-    aria-label="<%= assertive_region_label %>"
     aria-live="assertive"
     aria-atomic="true"
   ></div>

@@ -124,7 +124,7 @@ describe("toast_controller", () => {
     expect(document.body.contains(toast)).toBe(false);
   });
 
-  it("dialog mode focuses the dismiss control and does not announce", async () => {
+  it("dialog mode focuses the dialog shell and does not announce", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";
     document.body.appendChild(previous);
@@ -144,9 +144,10 @@ describe("toast_controller", () => {
     await waitForController();
     await waitForAnimationFrames();
 
+    const dialog = toast.querySelector('[role="dialog"]');
     expect(listener).not.toHaveBeenCalled();
-    expect(toast.contains(document.activeElement)).toBe(true);
-    expect(toast.querySelector('[role="dialog"]')).not.toBeNull();
+    expect(dialog).not.toBeNull();
+    expect(document.activeElement).toBe(dialog);
   });
 
   it("emits a polite announcement for status toasts", async () => {

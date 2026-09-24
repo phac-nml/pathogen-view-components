@@ -190,14 +190,11 @@ export default class extends Controller {
     requestAnimationFrame(() => {
       if (!this.element.isConnected || this.#state !== "open") return;
 
-      const preferred =
-        this.element.querySelector("[data-pathogen--toast-target='action'] button, [data-pathogen--toast-target='action'] a") ||
-        this.element.querySelector("[data-pathogen--toast-target='dismiss']:not([hidden]) button") ||
-        (this.hasDialogTarget ? this.dialogTarget : null) ||
-        this.element;
-
-      if (preferred instanceof HTMLElement) {
-        preferred.focus({ preventScroll: true });
+      // Focus the dialog shell so AT announces aria-labelledby (the message).
+      // Focusing dismiss first only said "Dismiss notification" with no context.
+      const dialog = this.hasDialogTarget ? this.dialogTarget : this.element;
+      if (dialog instanceof HTMLElement) {
+        dialog.focus({ preventScroll: true });
       }
     });
   }
