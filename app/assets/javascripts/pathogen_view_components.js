@@ -27,7 +27,7 @@ function registerPathogenControllers(application) {
 
   if (import.meta.env?.DEV) {
     // eslint-disable-next-line no-console
-    console.debug("[pathogen] Registered 8 Stimulus controllers");
+    console.debug("[pathogen] Registered 9 Stimulus controllers");
   }
 }
 
