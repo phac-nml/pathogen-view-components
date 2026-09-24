@@ -1,58 +1,149 @@
-<div class="relative min-h-[38rem] bg-[var(--pvc-color-surface-muted)] p-6">
-  <div
-    class="
-      mx-auto max-w-3xl space-y-4 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface)] p-4
-    "
-  >
-    <h2 class="text-base font-semibold text-[var(--pvc-color-text)]">Accessibility behavior</h2>
+<%# herb:formatter ignore %>
 
-    <ul class="space-y-1 text-sm text-[var(--pvc-color-text-muted)]">
-      <li>Overflow toasts are hidden until the stack is hovered or focused.</li>
-      <li>Errors announce through the assertive channel and do not auto-dismiss.</li>
-      <li>Actionable toasts remain visible until dismissed.</li>
-    </ul>
-  </div>
+<div class="flex max-w-4xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Stack behaviour</h2>
 
-  <%= render Pathogen::Toaster.new(
-    position: :bottom_right,
-    strategy: :absolute,
-    turbo_permanent: false,
-    max_visible: 3,
-    list_id: 'flashes'
-  ) do %>
-    <%= render Pathogen::Toast.new(
-      type: :success,
-      message: 'Annotation import complete.',
-      description: '4,391 records were indexed.'
-    ) %>
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Overflow toasts collapse until the stack is hovered or focused. Errors announce assertively and stay visible.
+      Actionable toasts pause auto-dismiss until dismissed.
+    </p>
 
-    <%= render Pathogen::Toast.new(
-      type: :info,
-      message: 'Filter preset saved.',
-      description: 'Preset "Ontario weekly report" is available to your team.'
-    ) %>
+    <div
+      class="
+        relative min-h-[28rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
+        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+      "
+    >
+      <p class="text-sm text-[var(--pvc-color-text-muted)]">
+        Outbreak report workspace — reference data and publication controls stay editable while notifications stack in
+        the corner.
+      </p>
 
-    <%= render Pathogen::Toast.new(
-      type: :warning,
-      message: 'Connection is unstable.',
-      description: 'Retries are running every 10 seconds.'
-    ) %>
+      <%= render Pathogen::Toaster.new(
+        position: :bottom_right,
+        strategy: :absolute,
+        turbo_permanent: false,
+        max_visible: 3,
+        list_id: 'flashes-stacking'
+      ) do %>
+        <%= render Pathogen::Toast.new(
+          type: :success,
+          message: 'Annotation import complete.',
+          description: '4,391 records were indexed.'
+        ) %>
 
-    <%= render Pathogen::Toast.new(
-      type: :error,
-      message: 'Reference data stale.',
-      description: 'Re-index before finalizing this outbreak report.'
-    ) %>
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Filter preset saved.',
+          description: 'Preset "Ontario weekly report" is available to your team.'
+        ) %>
 
-    <%= render Pathogen::Toast.new(
-      type: :info,
-      message: 'Undo publication?',
-      description: 'This release can be rolled back for 10 minutes.'
-    ) do |toast| %>
-      <% toast.with_action do %>
-        <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo') %>
+        <%= render Pathogen::Toast.new(
+          type: :warning,
+          message: 'Connection is unstable.',
+          description: 'Retries are running every 10 seconds.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :error,
+          message: 'Reference data stale.',
+          description: 'Re-index before finalizing this outbreak report.'
+        ) %>
+
+        <%= render Pathogen::Toast.new(
+          type: :info,
+          message: 'Undo publication?',
+          description: 'This release can be rolled back for 10 minutes.'
+        ) do |toast| %>
+          <% toast.with_action do %>
+            <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo') %>
+          <% end %>
+        <% end %>
       <% end %>
-    <% end %>
-  <% end %>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Live regions</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Visible toasts use <code class="font-mono">aria-live="off"</code>. Screen-reader announcements route through
+      dedicated polite and assertive regions in the toaster host.
+    </p>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Polite channel</h3>
+
+        <dl class="space-y-2 text-sm">
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>status</code></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>polite</code></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">used for</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]">Success, info, and warning toasts</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Assertive channel</h3>
+
+        <dl class="space-y-2 text-sm">
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>alert</code></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>assertive</code></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">used for</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]">Error toasts that must interrupt</dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 lg:col-span-2">
+        <h3 class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Toast list item</h3>
+
+        <dl class="grid gap-2 text-sm sm:grid-cols-2">
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">role</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>listitem</code> inside labelled <code>ol</code></dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">aria-live</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]"><code>off</code> on the visible toast</dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">dismiss</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]">
+              <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">Escape</kbd>
+              when focused
+            </dd>
+          </div>
+          <div class="flex gap-2">
+            <dt class="shrink-0 font-mono text-[var(--pvc-color-accent-strong)]">timeout</dt>
+            <dd class="text-[var(--pvc-color-text-muted)]">Paused on hover or focus; errors use <code>0</code></dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+    <p class="mt-2">
+      Hover or focus the toast stack to reveal overflow items. Pair status icons with visible text — type labels are
+      exposed to screen readers via <code class="font-mono">sr-only</code> prefixes.
+    </p>
+  </div>
 </div>
