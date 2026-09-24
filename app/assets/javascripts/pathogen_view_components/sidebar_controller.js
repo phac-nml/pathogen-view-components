@@ -1,9 +1,11 @@
 import { Controller } from "@hotwired/stimulus";
 
+import { SidebarFlyout } from "pathogen_view_components/sidebar_controller/flyout";
+
 const MODAL_OPEN_EVENT = "pathogen:sidebar:modal-open";
 
 export default class SidebarController extends Controller {
-  static targets = ["close", "dialog", "panel", "sidebar", "trigger"];
+  static targets = ["close", "dialog", "flyout", "panel", "sidebar", "submenuTrigger", "trigger"];
 
   static values = {
     open: { type: Boolean, default: true },
@@ -21,6 +23,7 @@ export default class SidebarController extends Controller {
     this.matchMediaList = null;
     this.scrollLocked = false;
     this.originalBodyOverflow = "";
+    this.flyout = new SidebarFlyout(this);
     this.onBreakpointChange = this.onBreakpointChange.bind(this);
     this.onDialogClose = this.onDialogClose.bind(this);
     this.onModalOpen = this.onModalOpen.bind(this);
@@ -42,6 +45,7 @@ export default class SidebarController extends Controller {
     this.dialogTarget.addEventListener("close", this.onDialogClose);
     document.addEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.addEventListener("turbo:before-cache", this.onBeforeCache);
+    this.flyout.connect();
   }
 
   disconnect() {
@@ -56,9 +60,18 @@ export default class SidebarController extends Controller {
     this.dialogTarget.removeEventListener("close", this.onDialogClose);
     document.removeEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
     document.removeEventListener("turbo:before-cache", this.onBeforeCache);
+    this.flyout.disconnect();
     this.closeDialog();
     this.unlockBodyScroll();
     this.movePanelOutsideDialog();
+  }
+
+  toggleFlyout(event) {
+    this.flyout.toggle(event);
+  }
+
+  handleFlyoutTriggerKeydown(event) {
+    this.flyout.handleTriggerKeydown(event);
   }
 
   toggle(event) {
@@ -124,6 +137,8 @@ export default class SidebarController extends Controller {
       this.closeOffcanvas(null, { restoreFocus: false });
     }
 
+    this.flyout.close({ restoreFocus: false });
+
     this.movePanelOutsideDialog();
   }
 
@@ -179,15 +194,17 @@ export default class SidebarController extends Controller {
     const visibleOpen = desktop ? this.openValue : this.offcanvasOpen;
     const mode = desktop ? (visibleOpen ? "expanded" : "rail") : "offcanvas";
 
+    if (mode !== "rail") {
+      this.flyout.close({ restoreFocus: false });
+    }
+
     this.element.dataset.pathogenSidebarMode = mode;
     this.element.dataset.pathogenSidebarOpen = String(visibleOpen);
 
     this.syncDialogState({ desktop, visibleOpen });
 
     this.syncTriggerAttributes({ desktop, visibleOpen });
-
-    this.element.removeAttribute("data-pathogen-sidebar-boot-open");
-    this.element.removeAttribute("data-pathogen-sidebar-boot-viewport");
+    this.syncSidebarTooltips({ mode });
 
     if (shouldPersist && desktop) {
       this.persistDesktopPreference();
@@ -284,6 +301,14 @@ export default class SidebarController extends Controller {
       trigger.setAttribute("aria-label", this.closeLabelValue);
       trigger.setAttribute("title", this.closeLabelValue);
     });
+
+    this.submenuTriggerTargets.forEach((trigger) => {
+      const flyout = this.flyout.findFlyoutForTrigger(trigger);
+      trigger.setAttribute("aria-expanded", String(this.flyout.isActiveFor(flyout)));
+      if (flyout?.id) {
+        trigger.setAttribute("aria-controls", flyout.id);
+      }
+    });
   }
 
   currentTriggerLabel({ desktop, visibleOpen }) {
@@ -340,5 +365,18 @@ export default class SidebarController extends Controller {
     }
 
     this.sidebarTarget?.focus();
+  }
+
+  syncSidebarTooltips({ mode }) {
+    const disableTooltips = mode !== "rail";
+    const roots = this.element.querySelectorAll(".pathogen-sidebar-item__tooltip-root");
+
+    roots.forEach((root) => {
+      root.setAttribute("data-pathogen--tooltip-disabled-value", String(disableTooltips));
+    });
+  }
+
+  isRailMode() {
+    return this.isDesktop() && this.element.dataset.pathogenSidebarMode === "rail";
   }
 }
