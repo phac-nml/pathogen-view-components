@@ -74,7 +74,7 @@ export default class extends Controller {
 
   #showSuccess() {
     this.#clearResetTimeout();
-    this.#setState(COPY_STATES.success);
+    this.#setState(COPY_STATES.success, { replay: true });
     this.#announce(this.copiedMessageValue);
     this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
@@ -95,7 +95,12 @@ export default class extends Controller {
     this.#resetTimeout = null;
   }
 
-  #setState(state) {
+  #setState(state, { replay = false } = {}) {
+    if (replay && state === COPY_STATES.success && this.element.dataset.state === COPY_STATES.success) {
+      this.element.dataset.state = COPY_STATES.idle;
+      void this.element.offsetWidth;
+    }
+
     this.element.dataset.state = state;
   }
 
