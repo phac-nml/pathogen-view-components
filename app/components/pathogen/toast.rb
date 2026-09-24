@@ -5,7 +5,7 @@ module Pathogen
   #
   # Status toasts (default): non-interactive, auto-dismiss, announced via the toaster live region.
   # Notification dialogs: dismissible and/or actionable / warning / error — focus moves in, no live announce.
-  # rubocop:disable Metrics/ClassLength
+  # rubocop:disable-next Metrics/ClassLength
   class Toast < Pathogen::Component
     TYPE_DEFAULT = :info
     TYPE_MAPPINGS = {
@@ -47,7 +47,7 @@ module Pathogen
 
     renders_one :action
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(message:, type: TYPE_DEFAULT, description: nil, timeout: DEFAULT_TIMEOUT, dismissible: false,
                    interrupt: false, **system_arguments)
       @type = fetch_or_fallback(TYPE_MAPPINGS.values.uniq, normalized_type(type), TYPE_DEFAULT)
@@ -63,7 +63,6 @@ module Pathogen
       @system_arguments = system_arguments
       apply_system_arguments
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def before_render
       raise ArgumentError, 'message is required' if @message.blank?
@@ -216,5 +215,4 @@ module Pathogen
       }
     end
   end
-  # rubocop:enable Metrics/ClassLength
 end
