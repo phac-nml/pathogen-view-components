@@ -2,34 +2,34 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Interactive preview</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Interactive preview" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Adjust type, timeout, dismiss control, and anchor position. Errors and action toasts ignore the timeout control.
-    </p>
+    <% end %>
 
     <div
       class="
-        relative min-h-[20rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
-        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+        relative min-h-80 overflow-hidden rounded-(--pvc-radius-panel) border
+        border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
       "
     >
       <dl class="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Type</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= type %></dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Type" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { type } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Timeout</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= timeout %> ms</dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Timeout" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "#{timeout} ms" } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Dismissible</dt>
-          <dd class="text-[var(--pvc-color-text-muted)]"><%= dismissible ? 'Yes' : 'No' %></dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Dismissible" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) { dismissible ? 'Yes' : 'No' } %>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Position</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]"><%= toaster_args[:position] %></dd>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Position" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { toaster_args[:position] } %>
         </div>
       </dl>
 
@@ -45,11 +45,11 @@
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
-      Use Lookbook params to exercise Rails flash aliases (<code class="font-mono">notice</code>,
-      <code class="font-mono">alert</code>) and host-specific anchor positions before wiring the toaster in the layout.
-    </p>
+  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
+    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
+      Use Lookbook params to exercise Rails flash aliases (<%= pathogen_code { "notice" } %>,
+      <%= pathogen_code { "alert" } %>) and host-specific anchor positions before wiring the toaster in the layout.
+    <% end %>
   </div>
 </div>
