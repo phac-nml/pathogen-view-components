@@ -19,6 +19,8 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_viewport.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtual_window.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/virtualizer.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/cursor_boundary_navigator.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/data_grid_controller/pagination_status_presenter.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/tooltip_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/disclosure_controller.js": FULL_COVERAGE,
@@ -52,9 +54,17 @@ export default defineConfig({
         jsRoot,
         "data_grid_controller/cursor_source.js",
       ),
+      "pathogen_view_components/data_grid_controller/cursor_boundary_navigator": resolve(
+        jsRoot,
+        "data_grid_controller/cursor_boundary_navigator.js",
+      ),
       "pathogen_view_components/data_grid_controller/page_source": resolve(
         jsRoot,
         "data_grid_controller/page_source.js",
+      ),
+      "pathogen_view_components/data_grid_controller/pagination_status_presenter": resolve(
+        jsRoot,
+        "data_grid_controller/pagination_status_presenter.js",
       ),
       "pathogen_view_components/data_grid_controller/paginated_virtual_rows": resolve(
         jsRoot,
