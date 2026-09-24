@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   namespace :demo do
     resources :samples, only: [] do
       collection do
+        post :flash_toast
         get :rows, defaults: { format: :json }
       end
     end

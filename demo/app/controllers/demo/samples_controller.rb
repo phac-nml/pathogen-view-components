@@ -6,6 +6,15 @@ module Demo
     MAX_LIMIT = 100
     DEFAULT_LIMIT = Demo::SamplesGrid::DEFAULT_PAGE_SIZE
 
+    def flash_toast
+      flash.now[:notice] = I18n.t('demo.samples.flash.saved')
+      flash.now[:alert] = I18n.t('demo.samples.flash.upload_failed')
+
+      respond_to do |format|
+        format.turbo_stream
+      end
+    end
+
     def rows
       limit = clamp_limit(params.fetch(:limit, DEFAULT_LIMIT).to_i)
       page = [params.fetch(:page, 1).to_i, 1].max
