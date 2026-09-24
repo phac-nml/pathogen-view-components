@@ -32,6 +32,9 @@ describe("data_grid_controller/pagination_mode", () => {
       grid.dataset.pvcDataGridRowOffset = "10";
 
       expect(paginationContract(grid, 100)).toEqual({
+        mode: "offset",
+        nextCursor: null,
+        knownTotal: 42,
         totalRows: 42,
         rowsUrl: "/rows",
         searchParams: "state=active",
@@ -49,6 +52,9 @@ describe("data_grid_controller/pagination_mode", () => {
       grid.dataset.pvcDataGridRowOffset = "-1";
 
       expect(paginationContract(grid, 75)).toEqual({
+        mode: "offset",
+        nextCursor: null,
+        knownTotal: null,
         totalRows: 0,
         rowsUrl: null,
         searchParams: null,
@@ -61,12 +67,25 @@ describe("data_grid_controller/pagination_mode", () => {
       const grid = document.createElement("div");
 
       expect(paginationContract(grid, 50)).toEqual({
+        mode: "offset",
+        nextCursor: null,
+        knownTotal: null,
         totalRows: 0,
         rowsUrl: null,
         searchParams: null,
         rowOffset: 0,
         pageSize: 50,
       });
+    });
+
+    it("distinguishes a known empty cursor total from an unknown or invalid total", () => {
+      const grid = document.createElement("div");
+      grid.dataset.pvcDataGridPaginationMode = "cursor";
+      expect(paginationContract(grid, 20).knownTotal).toBeNull();
+      grid.dataset.pvcDataGridTotalCount = "0";
+      expect(paginationContract(grid, 20).knownTotal).toBe(0);
+      grid.dataset.pvcDataGridTotalCount = "-1";
+      expect(paginationContract(grid, 20).knownTotal).toBeNull();
     });
   });
 

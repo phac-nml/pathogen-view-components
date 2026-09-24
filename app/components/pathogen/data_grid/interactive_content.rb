@@ -11,7 +11,7 @@ module Pathogen
       private
 
       def html_safe_with_interactive?(value)
-        value.respond_to?(:html_safe?) &&
+        value.is_a?(String) &&
           value.html_safe? &&
           INTERACTIVE_TAG_NAMES.any? { |tag| value.include?("<#{tag}") }
       end

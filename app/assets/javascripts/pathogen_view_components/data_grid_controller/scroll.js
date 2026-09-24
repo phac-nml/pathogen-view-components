@@ -6,6 +6,14 @@ const STICKY_OVERLAY_SELECTOR =
   '.pvc-data-grid__cell--sticky[data-pathogen--data-grid-row-index="1"], .pvc-data-grid__cell--header.pvc-data-grid__cell--sticky';
 const HEADER_OVERLAY_SELECTOR = '[role="columnheader"], .pvc-data-grid__cell--header';
 
+// CSS owns the container breakpoint; geometry follows the same computed state.
+export function horizontalStickyEnabled(scrollContainer) {
+  return (
+    !(scrollContainer instanceof Element) ||
+    getComputedStyle(scrollContainer).getPropertyValue("--pvc-data-grid-horizontal-sticky").trim() !== "0"
+  );
+}
+
 /**
  * Returns the pixel width occupied by sticky columns at the left edge of the container.
  * @param {DOMRect} containerRect
@@ -67,10 +75,17 @@ export function ensureCellFullyVisible(cell, scrollContainer, gridTarget, option
   const containerRect = scrollContainer.getBoundingClientRect();
   const cellRect = cell.getBoundingClientRect();
 
+  const horizontalSticky = horizontalStickyEnabled(scrollContainer);
   const resolvedPinnedWidth = Number.isFinite(options.pinnedWidth) ? options.pinnedWidth : null;
-  const overlap = resolvedPinnedWidth === null ? stickyOverlayWidth(containerRect, gridTarget) : resolvedPinnedWidth;
+  const overlap = !horizontalSticky
+    ? 0
+    : resolvedPinnedWidth === null
+      ? stickyOverlayWidth(containerRect, gridTarget)
+      : resolvedPinnedWidth;
   const headerOverlap = headerOverlayHeight(containerRect, gridTarget);
-  const isStickyCell = cell.hasAttribute("data-sticky-cell") || cell.classList.contains("pvc-data-grid__cell--sticky");
+  const isStickyCell =
+    horizontalSticky &&
+    (cell.hasAttribute("data-sticky-cell") || cell.classList.contains("pvc-data-grid__cell--sticky"));
   const isHeaderCell = cell.classList.contains("pvc-data-grid__cell--header");
   const minVisibleTop = containerRect.top + (isHeaderCell ? 0 : headerOverlap);
   const minVisibleLeft = containerRect.left + (isStickyCell ? 0 : overlap);

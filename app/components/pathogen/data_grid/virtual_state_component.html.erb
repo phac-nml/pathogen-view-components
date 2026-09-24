@@ -1,20 +1,20 @@
+<%= tag.div(
+  @grid.virtual_loading_text,
+  class: virtual_status_classes,
+  data: {
+    'pathogen--data-grid-target': 'virtualStatus',
+    loading_text: @grid.virtual_loading_text,
+    loaded_text: @grid.virtual_loaded_text,
+    loading_more_text: @grid.virtual_pagination_loading_more_text,
+    fetch_error_text: @grid.virtual_pagination_fetch_error_text
+  },
+  role: 'status',
+  aria: { live: 'polite' }
+) %>
+
 <%= tag.div(**@grid.table_attributes) do %>
   <% pinned_columns = @grid.virtual_pinned_column_entries %>
   <% center_columns = @grid.virtual_center_column_entries %>
-
-  <%= tag.div(
-    @grid.virtual_loading_text,
-    class: virtual_status_classes,
-    data: {
-      'pathogen--data-grid-target': 'virtualStatus',
-      loading_text: @grid.virtual_loading_text,
-      loaded_text: @grid.virtual_loaded_text,
-      loading_more_text: @grid.virtual_pagination_loading_more_text,
-      fetch_error_text: @grid.virtual_pagination_fetch_error_text
-    },
-    role: 'status',
-    aria: { live: 'polite' }
-  ) %>
 
   <%= tag.div(
     class: header_row_classes,
