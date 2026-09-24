@@ -1,13 +1,16 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["message", "description"];
+  static targets = ["message", "description", "dismiss", "action", "dialog"];
   static values = {
     timeout: Number,
     type: String,
     typeLabel: { type: String, default: "" },
     dismissDuration: { type: Number, default: 160 },
-    dismissible: { type: Boolean, default: true },
+    dismissible: { type: Boolean, default: false },
+    mode: { type: String, default: "status" },
+    interrupt: { type: Boolean, default: false },
+    persistent: { type: Boolean, default: false },
   };
 
   #timerId = null;
@@ -16,11 +19,21 @@ export default class extends Controller {
   #state = "open";
   #restoreFocusElement = null;
   #abortController = null;
+  #logged = false;
 
   connect() {
-    this.#remainingMs = this.timeoutValue > 0 ? this.timeoutValue : 0;
+    this.#applyHostDurationPreference();
+    this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
     this.#bindEvents();
     this.#startTimer();
+    this.#publishToLog();
+
+    if (this.dialogMode) {
+      this.#captureRestoreFocus();
+      this.#focusDialog();
+      return;
+    }
+
     this.#announce();
   }
 
@@ -30,10 +43,98 @@ export default class extends Controller {
     this.#abortController = null;
   }
 
+  get dialogMode() {
+    return this.modeValue === "dialog";
+  }
+
   dismiss(event) {
     event?.preventDefault();
     event?.stopPropagation();
     this.#dismiss({ reason: "manual", restoreFocus: true });
+  }
+
+  /** Host / toaster may promote a status toast to a persistent dialog (e.g. duration forever). */
+  promoteToDialog({ focus = true } = {}) {
+    if (this.dialogMode) return;
+
+    this.modeValue = "dialog";
+    this.timeoutValue = 0;
+    this.dismissibleValue = true;
+    this.persistentValue = true;
+    this.#remainingMs = 0;
+    this.#clearTimer(true);
+
+    this.element.setAttribute("role", "listitem");
+    this.element.removeAttribute("aria-modal");
+    this.element.removeAttribute("aria-labelledby");
+    this.element.removeAttribute("tabindex");
+
+    if (!this.hasDialogTarget) {
+      const shell = document.createElement("div");
+      shell.setAttribute("role", "dialog");
+      shell.setAttribute("aria-modal", "false");
+      shell.tabIndex = -1;
+      shell.setAttribute("data-pathogen--toast-target", "dialog");
+      if (this.hasMessageTarget) {
+        shell.setAttribute("aria-labelledby", this.messageTarget.id);
+      }
+      while (this.element.firstChild) {
+        shell.appendChild(this.element.firstChild);
+      }
+      this.element.appendChild(shell);
+    } else {
+      this.dialogTarget.setAttribute("role", "dialog");
+      this.dialogTarget.setAttribute("aria-modal", "false");
+      this.dialogTarget.tabIndex = -1;
+      if (this.hasMessageTarget) {
+        this.dialogTarget.setAttribute("aria-labelledby", this.messageTarget.id);
+      }
+    }
+
+    if (this.hasDismissTarget) {
+      this.dismissTarget.hidden = false;
+    }
+
+    if (focus) {
+      this.#captureRestoreFocus();
+      this.#focusDialog();
+    }
+  }
+
+  #applyHostDurationPreference() {
+    if (this.dialogMode) return;
+
+    const preference = this.#hostDurationPreference();
+    if (preference === null) return;
+
+    if (preference === 0) {
+      this.promoteToDialog({ focus: false });
+      return;
+    }
+
+    if (preference > 0) {
+      this.timeoutValue = preference;
+    }
+  }
+
+  #hostDurationPreference() {
+    const host = this.element.closest("[data-controller~='pathogen--toaster']");
+    const attr = host?.getAttribute("data-pathogen--toaster-duration-preference-value");
+    if (attr !== null && attr !== undefined && attr !== "") {
+      const fromHost = Number(attr);
+      if (Number.isFinite(fromHost) && fromHost >= 0) return fromHost;
+    }
+
+    try {
+      const raw = window.localStorage?.getItem("pathogen.toast.durationMs");
+      if (raw === null || raw === undefined || raw === "") return null;
+      if (raw === "forever") return 0;
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed) || parsed < 0) return null;
+      return parsed;
+    } catch {
+      return null;
+    }
   }
 
   #bindEvents() {
@@ -78,7 +179,31 @@ export default class extends Controller {
     this.#dismiss({ reason: "escape", restoreFocus: true });
   }
 
+  #captureRestoreFocus() {
+    const active = document.activeElement;
+    if (active instanceof HTMLElement && !this.element.contains(active) && active !== document.body) {
+      this.#restoreFocusElement = active;
+    }
+  }
+
+  #focusDialog() {
+    requestAnimationFrame(() => {
+      if (!this.element.isConnected || this.#state !== "open") return;
+
+      const preferred =
+        this.element.querySelector("[data-pathogen--toast-target='action'] button, [data-pathogen--toast-target='action'] a") ||
+        this.element.querySelector("[data-pathogen--toast-target='dismiss']:not([hidden]) button") ||
+        (this.hasDialogTarget ? this.dialogTarget : null) ||
+        this.element;
+
+      if (preferred instanceof HTMLElement) {
+        preferred.focus({ preventScroll: true });
+      }
+    });
+  }
+
   #startTimer() {
+    if (this.dialogMode) return;
     if (this.#remainingMs <= 0) return;
     if (this.#state !== "open") return;
 
@@ -98,6 +223,7 @@ export default class extends Controller {
   }
 
   #resumeTimer() {
+    if (this.dialogMode) return;
     if (this.#remainingMs <= 0) return;
     if (this.#state !== "open") return;
     if (this.element.contains(document.activeElement)) return;
@@ -153,7 +279,24 @@ export default class extends Controller {
     return null;
   }
 
+  #publishToLog() {
+    if (this.#logged) return;
+    const message = this.#announcementMessage();
+    if (!message) return;
+
+    this.#logged = true;
+    this.dispatch("log", {
+      prefix: "pathogen:toast",
+      detail: {
+        message,
+        type: this.typeValue || "info",
+      },
+    });
+  }
+
   #announce() {
+    if (this.dialogMode) return;
+
     const message = this.#announcementMessage();
     if (!message) return;
 
@@ -161,7 +304,7 @@ export default class extends Controller {
       prefix: "pathogen:toast",
       detail: {
         message,
-        politeness: this.typeValue === "error" ? "assertive" : "polite",
+        politeness: this.interruptValue ? "assertive" : "polite",
       },
     });
   }

@@ -4,7 +4,7 @@ require 'test_helper'
 
 module Pathogen
   class ToastTest < ViewComponent::TestCase
-    test 'renders message, description, and close button' do
+    test 'renders status toast without dismiss control or tabindex' do
       render_inline(
         Pathogen::Toast.new(
           type: :success,
@@ -13,20 +13,21 @@ module Pathogen
         )
       )
 
-      assert_selector 'li[data-controller~="pathogen--toast"][role="listitem"][tabindex="0"]'
+      assert_selector 'li[data-controller~="pathogen--toast"][role="listitem"][data-pathogen--toast-mode-value="status"]'
+      assert_no_selector 'li[tabindex]'
       assert_selector 'p', text: 'Batch created'
       assert_selector 'p', text: '12 samples were assigned.'
-      assert_selector 'button[aria-label="Dismiss notification"]'
+      assert_selector '[data-pathogen--toast-target="dismiss"][hidden]', visible: :all
       assert_selector 'li[data-pathogen--toast-timeout-value="6000"]'
       assert_selector 'li[data-pathogen--toast-type-label-value="Success"]'
     end
 
     test 'normalizes rails flash aliases' do
       render_inline(Pathogen::Toast.new(type: :notice, message: 'Saved'))
-      assert_selector 'li[data-pathogen--toast-type-value="info"]'
+      assert_selector 'li[data-pathogen--toast-type-value="info"][data-pathogen--toast-mode-value="status"]'
 
       render_inline(Pathogen::Toast.new(type: :alert, message: 'Failed'))
-      assert_selector 'li[data-pathogen--toast-type-value="error"]'
+      assert_selector 'li[data-pathogen--toast-type-value="error"][data-pathogen--toast-mode-value="dialog"]'
     end
 
     test 'raises for unsupported type values in development and test environments' do
@@ -37,31 +38,53 @@ module Pathogen
       assert_match(/Expected one of/, error.message)
     end
 
-    test 'errors are persistent and route as error type' do
+    test 'errors are persistent notification dialogs' do
       render_inline(Pathogen::Toast.new(type: :error, message: 'Upload failed'))
 
-      assert_selector 'li[data-pathogen--toast-type-value="error"]'
+      assert_selector 'li[role="listitem"][data-pathogen--toast-mode-value="dialog"]'
+      assert_selector '[data-pathogen--toast-target="dialog"][role="dialog"][aria-modal="false"][tabindex="-1"]'
       assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
       assert_selector 'li[data-pathogen--toast-persistent-value="true"]'
-      assert_selector "li[class*='border-[var(--pvc-color-border)]']"
+      assert_selector 'li[data-pathogen--toast-interrupt-value="false"]'
+      assert_selector 'button[aria-label="Dismiss notification"]'
     end
 
-    test 'action slot disables auto-dismiss timing' do
+    test 'warnings are persistent notification dialogs' do
+      render_inline(Pathogen::Toast.new(type: :warning, message: 'Connection unstable', timeout: 9000))
+
+      assert_selector 'li[data-pathogen--toast-mode-value="dialog"]'
+      assert_selector '[role="dialog"][aria-modal="false"]'
+      assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
+      assert_selector 'button[aria-label="Dismiss notification"]'
+    end
+
+    test 'action slot forces notification dialog mode' do
       render_inline(Pathogen::Toast.new(type: :info, message: 'Undo delete?', timeout: 9000)) do |toast|
         toast.with_action do
           ActionController::Base.helpers.button_tag('Undo', type: 'button')
         end
       end
 
+      assert_selector 'li[data-pathogen--toast-mode-value="dialog"]'
+      assert_selector '[role="dialog"]'
       assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
       assert_selector 'li[data-pathogen--toast-persistent-value="true"]'
       assert_selector 'button', text: 'Undo'
     end
 
-    test 'supports dismissible false without close button' do
-      render_inline(Pathogen::Toast.new(type: :info, message: 'Background sync started', dismissible: false))
+    test 'explicit dismissible promotes status toast to dialog' do
+      render_inline(Pathogen::Toast.new(type: :info, message: 'Review complete', dismissible: true))
 
-      assert_no_selector 'button[aria-label="Dismiss notification"]'
+      assert_selector 'li[data-pathogen--toast-mode-value="dialog"]'
+      assert_selector '[role="dialog"]'
+      assert_selector 'li[data-pathogen--toast-timeout-value="0"]'
+      assert_selector 'button[aria-label="Dismiss notification"]'
+    end
+
+    test 'interrupt opt-in is exposed for errors' do
+      render_inline(Pathogen::Toast.new(type: :error, message: 'Critical failure', interrupt: true))
+
+      assert_selector 'li[data-pathogen--toast-interrupt-value="true"]'
     end
 
     test 'raises when message is blank' do
@@ -74,19 +97,20 @@ module Pathogen
 
     test 'localizes dismiss label in french' do
       I18n.with_locale(:fr) do
-        render_inline(Pathogen::Toast.new(type: :info, message: 'Mise à jour enregistrée'))
+        render_inline(Pathogen::Toast.new(type: :error, message: 'Mise à jour échouée'))
       end
 
       assert_selector 'button[aria-label="Fermer la notification"]'
-      assert_selector 'li[data-pathogen--toast-type-label-value="Information"]'
+      assert_selector 'li[data-pathogen--toast-type-label-value="Erreur"]'
     end
 
-    test 'uses contract typography, status icon, and dismiss button styles' do
+    test 'uses contract typography, status icon, and dismiss button styles for dialogs' do
       render_inline(
         Pathogen::Toast.new(
           type: :info,
           message: 'Sync running',
-          description: 'Metadata updates in the background.'
+          description: 'Metadata updates in the background.',
+          dismissible: true
         )
       )
 
@@ -109,9 +133,11 @@ module Pathogen
       assert_selector 'span.text-\\[var\\(--pvc-color-danger\\)\\]'
     end
 
-    test 'passes axe structural checks' do
-      render_inline(Pathogen::Toast.new(type: :warning, message: 'Threshold exceeded'))
+    test 'passes axe structural checks for status and dialog modes' do
+      render_inline(Pathogen::Toast.new(type: :success, message: 'Saved'))
+      assert_axe_structural_accessible rendered_content
 
+      render_inline(Pathogen::Toast.new(type: :error, message: 'Failed'))
       assert_axe_structural_accessible rendered_content
     end
   end
