@@ -1,47 +1,60 @@
-<div class="p-8 bg-white dark:bg-neutral-900 min-h-screen">
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-      CopyableValue — Dense List Context
-    </h1>
+<div class="flex max-w-3xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Dense list context" } %>
 
-    <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
-      Multiple CopyableValue components in a table-like layout, demonstrating compact rendering in data-dense views.
-    </p>
-  </div>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Multiple copyable identifiers in a table-like layout. The copy action keeps a 24px minimum target for dense grids.
+    <% end %>
 
-  <table class="w-full text-sm">
-    <thead>
-      <tr class="border-b border-neutral-200 dark:border-neutral-700">
-        <th class="text-left py-2 px-3 font-semibold text-neutral-700 dark:text-neutral-300">Name</th>
-        <th class="text-left py-2 px-3 font-semibold text-neutral-700 dark:text-neutral-300">Identifier</th>
-        <th class="text-left py-2 px-3 font-semibold text-neutral-700 dark:text-neutral-300">Role</th>
-      </tr>
-    </thead>
+    <div
+      class="
+        overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        bg-[var(--pvc-color-surface)]
+      "
+    >
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-[var(--pvc-color-border)]">
+            <th class="px-3 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Name" } %>
+            </th>
 
-    <tbody>
-      <tr class="border-b border-neutral-100 dark:border-neutral-800">
-        <td class="py-2 px-3 text-neutral-900 dark:text-neutral-100">Test Project Alpha</td>
-        <td class="py-2 px-3"><%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %></td>
-        <td class="py-2 px-3 text-neutral-600 dark:text-neutral-400">Owner</td>
-      </tr>
+            <th class="px-3 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Identifier" } %>
+            </th>
 
-      <tr class="border-b border-neutral-100 dark:border-neutral-800">
-        <td class="py-2 px-3 text-neutral-900 dark:text-neutral-100">Sequencing Run 042</td>
-        <td class="py-2 px-3"><%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %></td>
-        <td class="py-2 px-3 text-neutral-600 dark:text-neutral-400">Analyst</td>
-      </tr>
+            <th class="px-3 py-2 text-left">
+              <%= pathogen_supporting(tag: :span, class: "font-semibold") { "Role" } %>
+            </th>
+          </tr>
+        </thead>
 
-      <tr class="border-b border-neutral-100 dark:border-neutral-800">
-        <td class="py-2 px-3 text-neutral-900 dark:text-neutral-100">Workflow Result</td>
-        <td class="py-2 px-3"><%= render Pathogen::CopyableValue.new(value: "INXT_WFE_C9M2XXRNFS") %></td>
-        <td class="py-2 px-3 text-neutral-600 dark:text-neutral-400">Viewer</td>
-      </tr>
+        <tbody>
+          <tr class="border-b border-[var(--pvc-color-border)]">
+            <td class="px-3 py-2"><%= pathogen_text(tag: :span) { "Test Project Alpha" } %></td>
+            <td class="px-3 py-2"><%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %></td>
+            <td class="px-3 py-2"><%= pathogen_supporting(tag: :span, variant: :muted) { "Owner" } %></td>
+          </tr>
 
-      <tr>
-        <td class="py-2 px-3 text-neutral-900 dark:text-neutral-100">Group Namespace</td>
-        <td class="py-2 px-3"><%= render Pathogen::CopyableValue.new(value: "INXT_GRP_D1N3YYSPGT") %></td>
-        <td class="py-2 px-3 text-neutral-600 dark:text-neutral-400">Maintainer</td>
-      </tr>
-    </tbody>
-  </table>
+          <tr class="border-b border-[var(--pvc-color-border)]">
+            <td class="px-3 py-2"><%= pathogen_text(tag: :span) { "Sequencing Run 042" } %></td>
+            <td class="px-3 py-2"><%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %></td>
+            <td class="px-3 py-2"><%= pathogen_supporting(tag: :span, variant: :muted) { "Analyst" } %></td>
+          </tr>
+
+          <tr class="border-b border-[var(--pvc-color-border)]">
+            <td class="px-3 py-2"><%= pathogen_text(tag: :span) { "Workflow Result" } %></td>
+            <td class="px-3 py-2"><%= render Pathogen::CopyableValue.new(value: "INXT_WFE_C9M2XXRNFS") %></td>
+            <td class="px-3 py-2"><%= pathogen_supporting(tag: :span, variant: :muted) { "Viewer" } %></td>
+          </tr>
+
+          <tr>
+            <td class="px-3 py-2"><%= pathogen_text(tag: :span) { "Group Namespace" } %></td>
+            <td class="px-3 py-2"><%= render Pathogen::CopyableValue.new(value: "INXT_GRP_D1N3YYSPGT") %></td>
+            <td class="px-3 py-2"><%= pathogen_supporting(tag: :span, variant: :muted) { "Maintainer" } %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </div>
