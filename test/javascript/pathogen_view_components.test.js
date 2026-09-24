@@ -7,6 +7,9 @@ import {
   registerPathogenControllers,
   SidebarController,
   TabsController,
+  ToastController,
+  ToasterController,
+  ToastSettingsController,
   ToolbarController,
   TooltipController,
 } from "../../app/assets/javascripts/pathogen_view_components";
@@ -27,6 +30,9 @@ describe("pathogen_view_components entrypoint", () => {
     expect(SidebarController).toBeTypeOf("function");
     expect(ToolbarController).toBeTypeOf("function");
     expect(AvatarController).toBeTypeOf("function");
+    expect(ToastController).toBeTypeOf("function");
+    expect(ToasterController).toBeTypeOf("function");
+    expect(ToastSettingsController).toBeTypeOf("function");
   });
 
   it("registers all controllers under their Pathogen identifiers", () => {
@@ -42,6 +48,9 @@ describe("pathogen_view_components entrypoint", () => {
       ["pathogen--sidebar", SidebarController],
       ["pathogen--toolbar", ToolbarController],
       ["pathogen--avatar", AvatarController],
+      ["pathogen--toast", ToastController],
+      ["pathogen--toaster", ToasterController],
+      ["pathogen--toast-settings", ToastSettingsController],
     ]);
   });
 
@@ -51,7 +60,7 @@ describe("pathogen_view_components entrypoint", () => {
 
     registerPathogenControllers(createApplication());
 
-    expect(debug).toHaveBeenCalledWith("[pathogen] Registered 7 Stimulus controllers");
+    expect(debug).toHaveBeenCalledWith("[pathogen] Registered 9 Stimulus controllers");
   });
 
   it("stays silent outside of development", () => {
