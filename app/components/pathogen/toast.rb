@@ -7,6 +7,8 @@ module Pathogen
   # Notification dialogs: dismissible and/or actionable / warning / error — focus moves in, no live announce.
   # rubocop:disable-next Metrics/ClassLength
   class Toast < Pathogen::Component
+    include Pathogen::DataAttributesHelper
+
     TYPE_DEFAULT = :info
     TYPE_MAPPINGS = {
       success: :success,
@@ -43,7 +45,7 @@ module Pathogen
         '0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z" />'
     }.freeze
 
-    attr_reader :type, :message, :description, :dismissible, :interrupt, :message_dom_id
+    attr_reader :type, :message, :description, :dismissible, :interrupt, :message_dom_id, :mode
 
     renders_one :action
 
@@ -53,10 +55,9 @@ module Pathogen
       @type = fetch_or_fallback(TYPE_MAPPINGS.values.uniq, normalized_type(type), TYPE_DEFAULT)
       @message = message
       @description = description
-      @dismissible = dismissible
+      @requested_dismissible = dismissible
       @interrupt = interrupt
       @requested_timeout = [timeout.to_i, 0].max
-      @timeout = persistent_type? ? 0 : @requested_timeout
       @dom_id_base = "pvc-toast-#{SecureRandom.hex(4)}"
       @message_dom_id = "#{@dom_id_base}-msg"
 
@@ -67,17 +68,14 @@ module Pathogen
     def before_render
       raise ArgumentError, 'message is required' if @message.blank?
 
-      apply_action_persistence!
-      apply_dialog_defaults!
-      validate_mode!
-
-      @system_arguments[:'data-pathogen--toast-timeout-value'] = @timeout
-      @system_arguments[:'data-pathogen--toast-type-label-value'] = icon_label
-      @system_arguments[:'data-pathogen--toast-persistent-value'] = persistent?
-      @system_arguments[:'data-pathogen--toast-mode-value'] = mode
-      @system_arguments[:'data-pathogen--toast-interrupt-value'] = interrupt?
-      @system_arguments[:'data-pathogen--toast-dismissible-value'] = dismissible
-      apply_mode_attributes!
+      @mode = if @requested_dismissible || action? || persistent_type? || @requested_timeout.zero?
+                'dialog'
+              else
+                'status'
+              end
+      @dismissible = dialog_mode?
+      @timeout = dialog_mode? ? 0 : @requested_timeout
+      @system_arguments[:data].merge!(toast_data_attributes)
     end
 
     def icon_label
@@ -98,13 +96,17 @@ module Pathogen
     # present) is associated via aria-describedby.
     def dialog_attributes
       attributes = {
-        role: 'dialog',
-        'aria-modal': 'false',
-        'aria-labelledby': "#{type_label_dom_id} #{message_dom_id}",
-        tabindex: -1,
-        'data-pathogen--toast-target': 'dialog'
+        class: 'focus-visible:outline-2 focus-visible:outline-offset-2 ' \
+               'focus-visible:outline-[var(--pvc-color-focus)]',
+        'data-pathogen--toast-target': 'dialog',
+        'data-dialog-labelledby': "#{type_label_dom_id} #{message_dom_id}"
       }
-      attributes[:'aria-describedby'] = description_dom_id if description.present?
+      attributes[:'data-dialog-describedby'] = description_dom_id if description.present?
+      if dialog_mode?
+        attributes.merge!(role: 'dialog', 'aria-modal': 'false', tabindex: -1,
+                          'aria-labelledby': attributes[:'data-dialog-labelledby'])
+        attributes[:'aria-describedby'] = description_dom_id if description.present?
+      end
       attributes
     end
 
@@ -125,12 +127,8 @@ module Pathogen
       mode == 'dialog'
     end
 
-    def mode
-      dialog_mode_requested? ? 'dialog' : 'status'
-    end
-
     def persistent?
-      @timeout <= 0 || action? || persistent_type?
+      dialog_mode?
     end
 
     def interrupt?
@@ -143,31 +141,6 @@ module Pathogen
       PERSISTENT_TYPES.include?(@type)
     end
 
-    def dialog_mode_requested?
-      @dismissible || action? || persistent_type? || @timeout <= 0
-    end
-
-    def apply_action_persistence!
-      return unless action?
-
-      # Actionable notifications are always notification dialogs — never timed status toasts.
-      @timeout = 0
-      @dismissible = true
-    end
-
-    def apply_dialog_defaults!
-      return unless dialog_mode_requested?
-
-      @timeout = 0
-      @dismissible = true
-    end
-
-    def validate_mode!
-      return unless @timeout <= 0 && !@dismissible && !action?
-
-      raise ArgumentError, 'persistent notifications require dismissible: true or an action slot'
-    end
-
     def normalized_type(type)
       candidate = type.respond_to?(:to_sym) ? type.to_sym : type
       TYPE_MAPPINGS.fetch(candidate, candidate)
@@ -175,18 +148,14 @@ module Pathogen
 
     def apply_system_arguments
       @system_arguments[:class] = class_names(base_classes, @system_arguments[:class])
-      @system_arguments[:'data-controller'] = class_names(@system_arguments[:'data-controller'], 'pathogen--toast')
-      @system_arguments[:'data-pathogen--toaster-target'] = class_names(
-        @system_arguments[:'data-pathogen--toaster-target'],
-        'toast'
-      )
-      @system_arguments.merge!(toast_data_attributes)
-    end
-
-    def apply_mode_attributes!
+      data = extract_data_attributes(@system_arguments)
+      data['controller'] = class_names(data['controller'], 'pathogen--toast')
+      data['pathogen--toaster-target'] = class_names(data['pathogen--toaster-target'], 'toast')
+      @system_arguments[:data] = data
       # Keep the list item as a listitem. Dialog semantics live on the inner shell in the template
       # so axe / ARIA allowed-role checks stay valid.
       @system_arguments[:role] = 'listitem'
+      @system_arguments[:'aria-live'] = 'off'
       @system_arguments.delete(:tabindex)
       @system_arguments.delete(:'aria-modal')
       @system_arguments.delete(:'aria-labelledby')
@@ -197,21 +166,21 @@ module Pathogen
         'group relative pointer-events-auto rounded-[var(--pvc-radius-panel)] border',
         'border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] text-[var(--pvc-color-text)]',
         'shadow-[var(--pvc-shadow-overlay)] transition-opacity duration-[var(--pvc-duration-default)]',
-        'ease-out data-[state=closing]:opacity-0',
-        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]'
+        'ease-out data-[state=closing]:opacity-0'
       )
     end
 
     def toast_data_attributes
       {
-        'data-pathogen--toast-timeout-value': @timeout,
-        'data-pathogen--toast-type-value': @type,
-        'data-pathogen--toast-dismiss-duration-value': DISMISS_DURATION_MS,
-        'data-pathogen--toast-dismissible-value': @dismissible,
-        'data-pathogen--toast-mode-value': 'status',
-        'data-pathogen--toast-interrupt-value': false,
-        'data-state': 'open',
-        'aria-live': 'off'
+        'pathogen--toast-timeout-value' => @timeout,
+        'pathogen--toast-type-value' => @type,
+        'pathogen--toast-type-label-value' => icon_label,
+        'pathogen--toast-dismiss-duration-value' => DISMISS_DURATION_MS,
+        'pathogen--toast-dismissible-value' => dismissible,
+        'pathogen--toast-persistent-value' => persistent?,
+        'pathogen--toast-mode-value' => mode,
+        'pathogen--toast-interrupt-value' => interrupt?,
+        'state' => 'open'
       }
     end
   end
