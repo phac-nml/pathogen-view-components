@@ -19,18 +19,23 @@ module Pathogen
       include FormStyles
       include FormAriaHelper
       include FormOptionExtractor
+      include Pathogen::FetchOrFallbackHelper
+
+      SIZE_OPTIONS = %i[small medium].freeze
 
       # Initializes the base form component with common attributes.
       #
       # @param attribute [Symbol] the model attribute name
       # @param value [String] the input value
       # @param form [ActionView::Helpers::FormBuilder, nil] optional form builder
+      # @param size [Symbol] :medium (44px target) or explicit :small (24px target)
       # @param options [Hash] component options
-      def initialize(attribute:, value:, form: nil, **options)
+      def initialize(attribute:, value:, form: nil, size: :medium, **options)
         super()
         @form = form
         @attribute = attribute
         @value = value
+        @size = fetch_or_fallback(SIZE_OPTIONS, size, :medium)
         extract_and_validate_options!(options)
       end
 
@@ -43,6 +48,10 @@ module Pathogen
       end
 
       protected
+
+      def target_size_classes
+        @size == :small ? 'min-h-6 min-w-6' : 'min-h-11 min-w-11'
+      end
 
       # Template method for subclasses to implement their rendering logic.
       #
@@ -90,6 +99,17 @@ module Pathogen
       # @return [String] the help text ID
       def help_text_id
         @help_text_id ||= "#{input_id}_help"
+      end
+
+      def error_text_id
+        "#{input_id}_error"
+      end
+
+      def error_text_html
+        return ''.html_safe if @error_text.blank?
+
+        tag.span(@error_text, id: error_text_id,
+                              class: 'block text-sm text-[var(--pvc-color-danger-strong)] mt-1')
       end
 
       # Builds complete form attributes for the input element.
