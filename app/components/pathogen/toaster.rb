@@ -3,7 +3,7 @@
 module Pathogen
   # Pathogen::Toaster renders an always-present toast host with polite and assertive live regions.
   class Toaster < Pathogen::Component
-    DEFAULT_POSITION = :bottom_right
+    DEFAULT_POSITION = :top_center
     DEFAULT_STRATEGY = :fixed
 
     POSITION_MAPPINGS = {
@@ -13,6 +13,8 @@ module Pathogen
       bottom_center: 'bottom-4 left-1/2 -translate-x-1/2 items-center'
     }.freeze
     CENTER_POSITIONS = %i[top_center bottom_center].freeze
+    TOP_POSITIONS = %i[top_right top_center].freeze
+    CORNER_POSITIONS = %i[top_right bottom_right].freeze
     STRATEGY_MAPPINGS = {
       fixed: 'fixed',
       absolute: 'absolute'
@@ -50,8 +52,17 @@ module Pathogen
 
     private
 
+    def anchor_edge
+      TOP_POSITIONS.include?(@position) ? 'top' : 'bottom'
+    end
+
+    def layout_kind
+      CORNER_POSITIONS.include?(@position) ? 'corner' : 'center'
+    end
+
     def apply_system_arguments
       @system_arguments[:class] = class_names(
+        'pvc-toaster',
         STRATEGY_MAPPINGS[@strategy],
         'pointer-events-none z-50 flex flex-col max-w-md',
         layout_width_classes,
@@ -59,8 +70,21 @@ module Pathogen
         @system_arguments[:class]
       )
       @system_arguments[:'data-controller'] = class_names(@system_arguments[:'data-controller'], 'pathogen--toaster')
-      @system_arguments[:'data-pathogen--toaster-max-visible-value'] = @max_visible
       @system_arguments[:'data-action'] = class_names(@system_arguments[:'data-action'], *TOASTER_ACTIONS)
+      apply_stack_data_attributes
+      apply_turbo_permanent_attributes
+    end
+
+    def apply_stack_data_attributes
+      @system_arguments[:'data-pathogen--toaster-max-visible-value'] = @max_visible
+      @system_arguments[:'data-pathogen--toaster-position-value'] = @position
+      @system_arguments[:'data-stack'] = 'peek'
+      @system_arguments[:'data-expanded'] = 'false'
+      @system_arguments[:'data-anchor'] = anchor_edge
+      @system_arguments[:'data-layout'] = layout_kind
+    end
+
+    def apply_turbo_permanent_attributes
       return unless @turbo_permanent && @system_arguments[:'data-turbo-permanent'].nil?
 
       @system_arguments[:'data-turbo-permanent'] = true
