@@ -473,9 +473,6 @@
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
   }
-  .ml-1 {
-    margin-left: var(--spacing);
-  }
   .ml-8 {
     margin-left: calc(var(--spacing) * 8);
   }
@@ -566,9 +563,6 @@
   .max-h-11 {
     max-height: calc(var(--spacing) * 11);
   }
-  .max-h-48 {
-    max-height: calc(var(--spacing) * 48);
-  }
   .min-h-0 {
     min-height: 0px;
   }
@@ -640,9 +634,6 @@
   }
   .min-w-0 {
     min-width: 0px;
-  }
-  .min-w-4 {
-    min-width: calc(var(--spacing) * 4);
   }
   .min-w-6 {
     min-width: calc(var(--spacing) * 6);
@@ -716,9 +707,6 @@
   .list-disc {
     list-style-type: disc;
   }
-  .list-none {
-    list-style-type: none;
-  }
   .appearance-none {
     appearance: none;
   }
@@ -790,6 +778,9 @@
   .self-center {
     align-self: center;
   }
+  .self-end {
+    align-self: flex-end;
+  }
   .self-stretch {
     align-self: stretch;
   }
@@ -824,9 +815,6 @@
   }
   .rounded-\[var\(--pvc-radius-control\)\] {
     border-radius: var(--pvc-radius-control);
-  }
-  .rounded-\[var\(--pvc-radius-control-sm\)\] {
-    border-radius: var(--pvc-radius-control-sm);
   }
   .rounded-\[var\(--pvc-radius-panel\)\] {
     border-radius: var(--pvc-radius-panel);
