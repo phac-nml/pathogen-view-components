@@ -2,12 +2,12 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Anchor positions</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Anchor positions" } %>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
       Choose a corner or centre anchor when toasts must avoid critical layout regions such as toolbars, pagination, or
       primary actions.
-    </p>
+    <% end %>
 
     <div class="grid gap-4 lg:grid-cols-2">
       <% {
@@ -18,15 +18,15 @@
       }.each do |position, label| %>
         <div
           class="
-            relative min-h-[16rem] overflow-hidden rounded-[var(--pvc-radius-panel)] border
-            border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
+            relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
+            border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
           "
         >
-          <h3 class="mb-1 text-sm font-semibold text-[var(--pvc-color-text)]"><%= label %></h3>
+          <%= pathogen_heading(level: 4, class: "mb-1") { label } %>
 
-          <p class="mb-3 text-sm text-[var(--pvc-color-text-muted)]">
-            <code class="font-mono">position: :<%= position %></code>
-          </p>
+          <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
+            <%= pathogen_code { "position: :#{position}" } %>
+          <% end %>
 
           <%= render Pathogen::Toaster.new(
             position:,
@@ -48,43 +48,43 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Position comparison</h2>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Position comparison" } %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
       <table class="w-full text-sm">
-        <thead class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+        <thead class="border-b border-(--pvc-color-border) bg-(--pvc-color-surface-muted)">
           <tr>
-            <th class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Position</th>
-            <th class="px-4 py-2 text-left font-semibold text-[var(--pvc-color-text)]">Typical use</th>
+            <th class="px-4 py-2 text-left font-semibold text-(--pvc-color-text)">Position</th>
+            <th class="px-4 py-2 text-left font-semibold text-(--pvc-color-text)">Typical use</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-[var(--pvc-color-border)]">
+        <tbody class="divide-y divide-(--pvc-color-border)">
           <tr>
-            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Bottom right</td>
-            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Default — clear of left navigation and page titles</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom right</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Default — clear of left navigation and page titles</td>
           </tr>
           <tr>
-            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Bottom center</td>
-            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Centred footers or full-width data grids</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Bottom center</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Centred footers or full-width data grids</td>
           </tr>
           <tr>
-            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Top right</td>
-            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Avoid bottom pagination or sticky action bars</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top right</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Avoid bottom pagination or sticky action bars</td>
           </tr>
           <tr>
-            <td class="px-4 py-2 font-medium text-[var(--pvc-color-text)]">Top center</td>
-            <td class="px-4 py-2 text-[var(--pvc-color-text-muted)]">Banner-free layouts with bottom toolbars</td>
+            <td class="px-4 py-2 font-medium text-(--pvc-color-text)">Top center</td>
+            <td class="px-4 py-2 text-(--pvc-color-text-muted)">Banner-free layouts with bottom toolbars</td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
-    <p class="mt-2">
-      Production layouts use <code class="font-mono">strategy: :fixed</code> on the toaster host. Previews use
-      <code class="font-mono">strategy: :absolute</code> inside a <code class="font-mono">relative</code> frame.
-    </p>
+  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
+    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
+      Production layouts use <%= pathogen_code { "strategy: :fixed" } %> on the toaster host. Previews use
+      <%= pathogen_code { "strategy: :absolute" } %> inside a <%= pathogen_code { "relative" } %> frame.
+    <% end %>
   </div>
 </div>
