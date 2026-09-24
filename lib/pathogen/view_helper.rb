@@ -11,6 +11,7 @@ module Pathogen
       sidebar: 'Pathogen::Sidebar',
       toaster: 'Pathogen::Toaster',
       toast: 'Pathogen::Toast',
+      toast_settings: 'Pathogen::ToastSettings',
       radio_button: 'Pathogen::Form::RadioButton',
       switch: 'Pathogen::Form::Switch',
       heading: 'Pathogen::Typography::Heading',
