@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../lib/pathogen/soft_tone_styles'
+
 module Pathogen
   # Pathogen::Badge — compact static label for status and metadata.
   #
@@ -18,44 +20,16 @@ module Pathogen
   #     <% badge.with_leading_visual { helpers.icon(:asterisk, class: "size-3") } %>
   #   <% end %>
   class Badge < Pathogen::Component
-    DEFAULT_TONE = :neutral
-    TONE_OPTIONS = %i[neutral accent success warning danger].freeze
+    include Pathogen::SoftToneStyles
 
     INTERACTIVE_ROLES = %w[
       button checkbox combobox grid gridcell link listbox menu menuitem menuitemcheckbox menuitemradio option radio
       scrollbar searchbox slider spinbutton switch tab textbox tree treegrid treeitem
     ].freeze
 
-    # Soft-fill + hairline recipe. Accent/danger use *-strong text on tinted fills.
-    # Success/warning are base-only tokens today (#96); soft fills use --pvc-color-text
-    # for AA contrast at meta type size (same approach as Avatar warning).
-    TONE_CLASSES = {
-      neutral: %w[
-        bg-[var(--pvc-color-surface-muted)]
-        text-[var(--pvc-color-text)]
-        border-[var(--pvc-color-border-strong)]
-      ].join(' '),
-      accent: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-accent)_16%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-accent-strong)]
-        border-[color-mix(in_oklab,var(--pvc-color-accent)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      success: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-success)_20%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-text)]
-        border-[color-mix(in_oklab,var(--pvc-color-success)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      warning: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-warning)_18%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-text)]
-        border-[color-mix(in_oklab,var(--pvc-color-warning)_45%,var(--pvc-color-border))]
-      ].join(' '),
-      danger: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-danger)_14%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-danger-strong)]
-        border-[color-mix(in_oklab,var(--pvc-color-danger)_45%,var(--pvc-color-border))]
-      ].join(' ')
-    }.freeze
+    # Badge meaning lives in +text+, so anything that renames the badge for
+    # assistive technology is rejected rather than silently overriding it.
+    ARIA_NAME_ARGUMENTS = %w[aria-label aria-labelledby].freeze
 
     BASE_CLASSES = %w[
       inline-flex shrink-0 items-center gap-1 border
@@ -67,7 +41,8 @@ module Pathogen
     ].join(' ').freeze
 
     # Optional host-owned leading icon or visual. Decorative relative to +text+;
-    # wrapped with +aria-hidden="true"+ so the label is announced once.
+    # wrapped with +aria-hidden="true"+ and +inert+ so the label is announced
+    # once and slotted content can never take focus inside a hidden subtree.
     renders_one :leading_visual
 
     attr_reader :text, :tone
@@ -92,7 +67,7 @@ module Pathogen
       @system_arguments[:tag] = :span
       @system_arguments[:classes] = class_names(
         BASE_CLASSES,
-        TONE_CLASSES.fetch(@tone),
+        soft_tone_classes(@tone),
         custom_classes
       )
     end
@@ -106,6 +81,7 @@ module Pathogen
 
       reject_static_only_violations!(system_arguments)
       reject_interactive_wiring!(system_arguments)
+      reject_accessible_name_overrides!(system_arguments)
     end
 
     def reject_static_only_violations!(system_arguments)
@@ -133,17 +109,32 @@ module Pathogen
       raise ArgumentError, '`data-action` is a Stimulus action. Badges are not interactive.'
     end
 
+    def reject_accessible_name_overrides!(system_arguments)
+      override = ARIA_NAME_ARGUMENTS.find do |name|
+        system_argument_key(system_arguments, name) ||
+          nested_argument?(system_arguments, 'aria', name.delete_prefix('aria-'))
+      end
+      return unless override
+
+      raise ArgumentError, "`#{override}` overrides the visible label. Badge meaning belongs in `text`."
+    end
+
     def stimulus_action?(system_arguments)
       return true if system_argument_key(system_arguments, 'data-action')
 
-      data_key = system_argument_key(system_arguments, 'data')
-      data_arguments = system_arguments[data_key]
-
-      data_arguments.respond_to?(:keys) && data_arguments.keys.any? { |key| key.to_s.casecmp?('action') }
+      nested_argument?(system_arguments, 'data', 'action')
     end
 
     def system_argument_key(system_arguments, name)
       system_arguments.keys.find { |key| key.to_s.casecmp?(name) }
+    end
+
+    # Rails expands nested hashes such as `data: { action: ... }` into
+    # `data-action`, so both spellings need the same guard.
+    def nested_argument?(system_arguments, container, name)
+      nested_arguments = system_arguments[system_argument_key(system_arguments, container)]
+
+      nested_arguments.respond_to?(:keys) && nested_arguments.keys.any? { |key| key.to_s.casecmp?(name) }
     end
   end
 end
