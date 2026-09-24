@@ -461,6 +461,9 @@
   .mt-auto {
     margin-top: auto;
   }
+  .-mr-1 {
+    margin-right: calc(var(--spacing) * -1);
+  }
   .-mb-px {
     margin-bottom: -1px;
   }
@@ -472,9 +475,6 @@
   }
   .ml-8 {
     margin-left: calc(var(--spacing) * 8);
-  }
-  .ml-auto {
-    margin-left: auto;
   }
   .box-border {
     box-sizing: border-box;
@@ -1008,9 +1008,6 @@
   }
   .p-2 {
     padding: calc(var(--spacing) * 2);
-  }
-  .p-3 {
-    padding: calc(var(--spacing) * 3);
   }
   .p-4 {
     padding: calc(var(--spacing) * 4);
