@@ -58,6 +58,7 @@ module Pathogen
     end
 
     test 'falls back to neutral for invalid tone when fallback_raises is disabled' do
+      original_fallback_raises = Pathogen::FetchOrFallbackHelper.fallback_raises
       Pathogen::FetchOrFallbackHelper.fallback_raises = false
       begin
         render_inline(Pathogen::Badge.new(text: 'Legacy', tone: :fuchsia))
@@ -65,7 +66,7 @@ module Pathogen
         assert_includes root_class_list, 'bg-[var(--pvc-color-surface-muted)]'
         assert_text 'Legacy'
       ensure
-        Pathogen::FetchOrFallbackHelper.fallback_raises = true
+        Pathogen::FetchOrFallbackHelper.fallback_raises = original_fallback_raises
       end
     end
 
@@ -94,11 +95,13 @@ module Pathogen
     end
 
     test 'raises when class argument is provided' do
-      error = assert_raises(ArgumentError) do
-        render_inline(Pathogen::Badge.new(text: 'Custom', class: 'nope'))
-      end
+      %i[class Class CLASS].each do |class_key|
+        error = assert_raises(ArgumentError) do
+          render_inline(Pathogen::Badge.new(text: 'Custom', class_key => 'nope'))
+        end
 
-      assert_match(/`class` is an invalid argument/i, error.message)
+        assert_match(/`class` is an invalid argument/i, error.message)
+      end
     end
 
     test 'passes test_selector through in non-production' do
