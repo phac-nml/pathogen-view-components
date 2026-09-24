@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Pathogen
-  # Pathogen::Toaster renders an always-present toast host with live regions, peek stack, and notification log.
+  # Pathogen::Toaster renders an always-present toast host with live regions and peek stack.
   class Toaster < Pathogen::Component
     DEFAULT_POSITION = :top_center
     DEFAULT_STRATEGY = :fixed
@@ -28,12 +28,10 @@ module Pathogen
       'focusin->pathogen--toaster#expand',
       'focusout->pathogen--toaster#collapseIfIdle',
       'pathogen:toast:announce->pathogen--toaster#announce',
-      'pathogen:toast:log->pathogen--toaster#appendLog',
       'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed'
     ].freeze
 
-    attr_reader :list_id, :max_visible, :region_label, :duration_preference,
-                :log_label, :log_toggle_label, :more_label, :dismiss_all_label, :empty_log_label
+    attr_reader :list_id, :max_visible, :region_label, :duration_preference, :more_label, :dismiss_all_label
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(position: DEFAULT_POSITION, strategy: DEFAULT_STRATEGY, list_id: 'flashes', max_visible: 3,
@@ -54,11 +52,8 @@ module Pathogen
 
     def before_render
       @region_label ||= t('pathogen.toast.region_label')
-      @log_label = t('pathogen.toast.log_label')
-      @log_toggle_label = t('pathogen.toast.log_toggle')
       @more_label = t('pathogen.toast.more_notifications')
       @dismiss_all_label = t('pathogen.toast.dismiss_all')
-      @empty_log_label = t('pathogen.toast.log_empty')
     end
 
     private

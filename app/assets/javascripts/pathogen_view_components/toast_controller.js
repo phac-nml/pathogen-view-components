@@ -19,14 +19,12 @@ export default class extends Controller {
   #state = "open";
   #restoreFocusElement = null;
   #abortController = null;
-  #logged = false;
 
   connect() {
     this.#applyHostDurationPreference();
     this.#remainingMs = this.timeoutValue > 0 && !this.dialogMode ? this.timeoutValue : 0;
     this.#bindEvents();
     this.#startTimer();
-    this.#publishToLog();
 
     if (this.dialogMode) {
       this.#captureRestoreFocus();
@@ -274,21 +272,6 @@ export default class extends Controller {
   #resolveRestoreFocusTarget() {
     if (this.#restoreFocusElement?.isConnected) return this.#restoreFocusElement;
     return null;
-  }
-
-  #publishToLog() {
-    if (this.#logged) return;
-    const message = this.#announcementMessage();
-    if (!message) return;
-
-    this.#logged = true;
-    this.dispatch("log", {
-      prefix: "pathogen:toast",
-      detail: {
-        message,
-        type: this.typeValue || "info",
-      },
-    });
   }
 
   #announce() {
