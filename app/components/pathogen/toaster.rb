@@ -12,6 +12,7 @@ module Pathogen
       bottom_right: 'bottom-4 right-4 items-end',
       bottom_center: 'bottom-4 left-1/2 -translate-x-1/2 items-center'
     }.freeze
+    CENTER_POSITIONS = %i[top_center bottom_center].freeze
     STRATEGY_MAPPINGS = {
       fixed: 'fixed',
       absolute: 'absolute'
@@ -53,7 +54,8 @@ module Pathogen
     def apply_system_arguments
       @system_arguments[:class] = class_names(
         STRATEGY_MAPPINGS[@strategy],
-        'z-50 flex w-full max-w-md flex-col px-4 sm:px-0',
+        'z-50 flex flex-col max-w-md',
+        layout_width_classes,
         POSITION_MAPPINGS[@position],
         @system_arguments[:class]
       )
@@ -66,6 +68,14 @@ module Pathogen
       # Turbo only preserves permanent elements that carry a stable id on both the
       # outgoing and incoming page, so derive one from the list id when none is given.
       @system_arguments[:id] ||= "#{@list_id}-toaster"
+    end
+
+    def layout_width_classes
+      if CENTER_POSITIONS.include?(@position)
+        'w-full px-4 sm:px-0'
+      else
+        'w-max'
+      end
     end
   end
 end
