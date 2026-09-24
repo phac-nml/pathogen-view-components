@@ -39,6 +39,12 @@ module Pathogen
 
     VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
 
+    ICON_SLOT_CLASSES = 'relative inline-flex size-3 shrink-0'
+
+    ICON_CLASSES = 'absolute inset-0 size-3 shrink-0'
+
+    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-3 shrink-0 text-[var(--pvc-color-success)]'
+
     attr_reader :value
 
     # @param value [String] The text to display and copy to clipboard (required)
