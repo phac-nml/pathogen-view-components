@@ -535,6 +535,20 @@ describe("sidebar_controller", () => {
     expect(flyout.style.top).toMatch(/px$/);
   });
 
+  it("opens rail flyouts from keyboard navigation and focuses the first flyout item", async () => {
+    setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await waitForController();
+
+    expect(flyout.hidden).toBe(false);
+    expect(flyout.dataset.state).toBe("open");
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(flyout.querySelector("a[href='#profile']"));
+  });
+
   it("closes an open rail flyout on Escape and restores focus to the trigger", async () => {
     setupMatchMedia({ matches: true });
     const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
@@ -728,6 +742,27 @@ describe("sidebar_controller", () => {
     expect(() => controller.syncDialogState({ desktop: true, visibleOpen: true })).not.toThrow();
 
     Object.defineProperty(controller, "hasDialogTarget", { value: true, configurable: true });
+  });
+
+  it("leaves submenu aria-controls unset when no matching flyout exists", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider, nav } = appendSidebar({ open: false });
+    nav.innerHTML = `
+      <button
+        type="button"
+        data-pathogen--sidebar-target="submenuTrigger"
+        data-pathogen-sidebar-flyout-id="missing-flyout"
+        aria-expanded="false"
+      >
+        Missing flyout
+      </button>
+    `;
+    await waitForController();
+
+    const submenuTrigger = nav.querySelector("[data-pathogen--sidebar-target='submenuTrigger']");
+    expect(submenuTrigger).not.toBeNull();
+    expect(submenuTrigger.getAttribute("aria-expanded")).toBe("false");
+    expect(submenuTrigger.hasAttribute("aria-controls")).toBe(false);
   });
 
   it("does not reopen a dialog that is already open", async () => {
