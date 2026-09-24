@@ -2,11 +2,11 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Sample processing queue" } %>
+    <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Sample processing queue" } %>
 
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+    <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) do %>
       Status toasts (success/info) can peek-stack. This frame mixes in warning and error dialogs, so the toaster
-      stays <%= pathogen_code { "flat" } %> — same rule as production.
+      stays <%= render(Pathogen::Typography::Code.new) { "flat" } %> — same rule as production.
     <% end %>
 
     <div
@@ -17,20 +17,20 @@
     >
       <dl class="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Queue" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Ontario weekly export" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dt, class: "font-semibold")) { "Queue" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dd, variant: :muted)) { "Ontario weekly export" } %>
         </div>
         <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Samples" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) { "24 assigned · 1 skipped" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dt, class: "font-semibold")) { "Samples" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dd, variant: :muted)) { "24 assigned · 1 skipped" } %>
         </div>
         <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Run" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "B-2026-06" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dt, class: "font-semibold")) { "Run" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dd, variant: :muted, class: "font-mono")) { "B-2026-06" } %>
         </div>
         <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Sync" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) { "Metadata update complete" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dt, class: "font-semibold")) { "Sync" } %>
+          <%= render(Pathogen::Typography::Supporting.new(tag: :dd, variant: :muted)) { "Metadata update complete" } %>
         </div>
       </dl>
 
@@ -71,7 +71,7 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Modes" } %>
+    <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Modes" } %>
 
     <div class="grid gap-4 lg:grid-cols-2">
       <div
@@ -80,9 +80,9 @@
           border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
         "
       >
-        <%= pathogen_heading(level: 4, class: "mb-1") { "Status toast" } %>
-        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
-          <%= pathogen_code { "type: :success" } %> · no controls · auto-dismiss
+        <%= render(Pathogen::Typography::Heading.new(level: 4, class: "mb-1")) { "Status toast" } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-3")) do %>
+          <%= render(Pathogen::Typography::Code.new) { "type: :success" } %> · no controls · auto-dismiss
         <% end %>
 
         <%= render Pathogen::Toaster.new(
@@ -107,9 +107,9 @@
           border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
         "
       >
-        <%= pathogen_heading(level: 4, class: "mb-1") { "Notification dialog" } %>
-        <%= pathogen_supporting(variant: :muted, class: "mb-3") do %>
-          <%= pathogen_code { "type: :error" } %> · focus in · dismiss required
+        <%= render(Pathogen::Typography::Heading.new(level: 4, class: "mb-1")) { "Notification dialog" } %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-3")) do %>
+          <%= render(Pathogen::Typography::Code.new) { "type: :error" } %> · focus in · dismiss required
         <% end %>
 
         <%= render Pathogen::Toaster.new(

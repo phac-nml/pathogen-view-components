@@ -2,11 +2,11 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Peek stack" } %>
+    <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Peek stack" } %>
 
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+    <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) do %>
       Status toasts only — peek collapse requires every toast to be status mode. Hover, focus, or “+N more” expands.
-      Peek-behind cards are <%= pathogen_code { "inert" } %>.
+      Peek-behind cards are <%= render(Pathogen::Typography::Code.new) { "inert" } %>.
     <% end %>
 
     <div
@@ -15,7 +15,7 @@
         border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
       "
     >
-      <%= pathogen_supporting(variant: :muted) do %>
+      <%= render(Pathogen::Typography::Supporting.new(variant: :muted)) do %>
         Outbreak report workspace — successive status confirmations stack at top center.
       <% end %>
 
@@ -65,11 +65,11 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Flat when a dialog is present" } %>
+    <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Flat when a dialog is present" } %>
 
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Any warning, error, or <%= pathogen_code { "dismissible: true" } %> toast forces
-      <%= pathogen_code { 'data-stack="flat"' } %> so dialogs stay fully visible and focusable.
+    <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) do %>
+      Any warning, error, or <%= render(Pathogen::Typography::Code.new) { "dismissible: true" } %> toast forces
+      <%= render(Pathogen::Typography::Code.new) { 'data-stack="flat"' } %> so dialogs stay fully visible and focusable.
     <% end %>
 
     <div
