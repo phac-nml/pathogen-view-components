@@ -1,37 +1,38 @@
-<div class="p-8 bg-white dark:bg-neutral-900 min-h-screen">
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-      CopyableValue — Basic Usage
-    </h1>
+<div class="flex max-w-3xl flex-col gap-8 p-4">
+  <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Basic usage" } %>
 
-    <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
-      A compact, accessible inline display of a copyable text value. Click the button to copy to clipboard.
-    </p>
-  </div>
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      A compact inline identifier with an integrated copy action. Values share the inline code surface with
+    <% end %>
 
-  <div class="space-y-6">
-    <div>
-      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-        Project PUID
-      </h2>
+    <%= pathogen_code { "Pathogen::Typography::Code" } %>
 
-      <%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %>
+    <div
+      class="
+        mt-4 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]
+        p-4
+      "
+    >
+      <dl class="grid gap-4">
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "mb-2 font-semibold") { "Project PUID" } %>
+
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %></dd>
+        </div>
+
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "mb-2 font-semibold") { "Sample PUID" } %>
+
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %></dd>
+        </div>
+
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "mb-2 font-semibold") { "Short hash" } %>
+
+          <dd><%= render Pathogen::CopyableValue.new(value: "a3f29c1") %></dd>
+        </div>
+      </dl>
     </div>
-
-    <div>
-      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-        Sample PUID
-      </h2>
-
-      <%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %>
-    </div>
-
-    <div>
-      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-        Short hash
-      </h2>
-
-      <%= render Pathogen::CopyableValue.new(value: "a3f29c1") %>
-    </div>
-  </div>
+  </section>
 </div>
