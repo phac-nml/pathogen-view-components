@@ -48,6 +48,10 @@ export default defineConfig({
         "data_grid_controller/virtualizer.js",
       ),
       "pathogen_view_components/data_grid_controller/page_cache": resolve(jsRoot, "data_grid_controller/page_cache.js"),
+      "pathogen_view_components/data_grid_controller/cursor_source": resolve(
+        jsRoot,
+        "data_grid_controller/cursor_source.js",
+      ),
       "pathogen_view_components/data_grid_controller/page_source": resolve(
         jsRoot,
         "data_grid_controller/page_source.js",

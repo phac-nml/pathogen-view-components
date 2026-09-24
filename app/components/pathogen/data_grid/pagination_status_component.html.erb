@@ -1,0 +1,29 @@
+<%= tag.div(class: status_classes) do %>
+  <%= tag.span(initial_position, data: { 'pathogen--data-grid-target': 'paginationPosition' }) %>
+  <%= tag.span('', role: 'status', aria: { live: 'polite', atomic: true }, data: status_data) %>
+
+  <%= render Pathogen::Button.new(
+    text: message(:retry),
+    tone: :neutral,
+    emphasis: :outline,
+    size: :small,
+    hidden: true,
+    data: {
+      'pathogen--data-grid-target': 'paginationRetry',
+      action: 'click->pathogen--data-grid#retryRows'
+    }
+  ) %>
+
+  <% if @grid.virtual_refresh_url.present? %>
+    <%= render Pathogen::Link.new(
+      href: @grid.virtual_refresh_url,
+      hidden: true,
+      data: {
+        'pathogen--data-grid-target': 'paginationRefresh',
+        action: 'click->pathogen--data-grid#refreshRows'
+      }
+    ) do %>
+      <%= message(:refresh) %>
+    <% end %>
+  <% end %>
+<% end %>

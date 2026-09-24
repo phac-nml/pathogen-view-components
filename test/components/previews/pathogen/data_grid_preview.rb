@@ -154,6 +154,14 @@ module Pathogen
       render_with_template(locals: { component: })
     end
 
+    # @label Virtual Cursor Scroll (progressive loading)
+    # The demo seeks through its immutable array by sample ID; hosts own database pagination.
+    def virtual_cursor_scroll
+      component = build_virtual_cursor_scroll_component if demo_samples_available?
+
+      render_with_template(locals: { component: })
+    end
+
     ROWS = [
       {
         sample_id: 'SAM-0001',
@@ -302,6 +310,18 @@ module Pathogen
         rows: seed_rows,
         fill_container: true,
         caption: 'Virtual grid with 5,000 server-backed rows and 100 columns',
+        style: 'width: 100%; height: 100%; min-height: 0;'
+      )
+    end
+
+    def build_virtual_cursor_scroll_component
+      page = Demo::SampleCursorPage.new(limit: Demo::SamplesGrid::DEFAULT_PAGE_SIZE)
+      Demo::SamplesGrid.build_cursor(
+        rows: page.rows,
+        next_cursor: page.next_cursor,
+        refresh_url: '/rails/view_components/pathogen/data_grid/virtual_cursor_scroll',
+        fill_container: true,
+        caption: 'Samples loaded as you scroll',
         style: 'width: 100%; height: 100%; min-height: 0;'
       )
     end

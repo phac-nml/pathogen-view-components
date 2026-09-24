@@ -14,8 +14,10 @@ module Pathogen
   #   so the grid can fill and scroll within a constrained parent container.
   # @param virtual [Boolean] When true, renders the virtualized grid layout.
   # @param virtual_pagination [Hash, nil] Optional server-side pagination contract.
-  #   Supports `total_count`, `rows_url`, `page_size`, `row_offset`, and a hash-like
-  #   `search_params` value forwarded with each page request.
+  #   Offset mode supports `total_count`, `rows_url`, `page_size`, `row_offset`, and
+  #   `search_params`. Cursor mode adds `mode: :cursor`, `next_cursor`, and an optional
+  #   `refresh_url`; it starts at row zero and accepts an optional `total_count` for
+  #   accessible counts and the footer without extending the loaded row window.
   # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
   #
   # @example Basic usage
@@ -198,8 +200,9 @@ module Pathogen
     DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
     DEFAULT_VIRTUAL_PAGE_SIZE = 20
     DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
-    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Scroll to try again.'
-    VirtualPagination = Data.define(:total_count, :rows_url, :page_size, :row_offset, :search_params)
+    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Try again.'
+    VirtualPagination = Data.define(:mode, :total_count, :rows_url, :page_size, :row_offset, :search_params,
+                                    :next_cursor, :refresh_url)
 
     attr_reader :rows, :keyboard_help_id, :virtual_pagination
 
@@ -226,6 +229,8 @@ module Pathogen
 
     def virtual_pagination? = @virtual && @virtual_pagination.present?
 
+    def virtual_cursor_pagination? = virtual_pagination? && @virtual_pagination.mode == :cursor
+
     def virtual_total_count = @virtual_pagination&.total_count
 
     def virtual_rows_url = @virtual_pagination&.rows_url
@@ -235,6 +240,10 @@ module Pathogen
     def virtual_row_offset = @virtual_pagination&.row_offset || 0
 
     def virtual_search_params = @virtual_pagination&.search_params
+
+    def virtual_next_cursor = @virtual_pagination&.next_cursor
+
+    def virtual_refresh_url = @virtual_pagination&.refresh_url
 
     def virtual_global_data_row_index(local_row_index) = virtual_row_offset + local_row_index
 
@@ -388,6 +397,14 @@ module Pathogen
       # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
       return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
 
+      interactive_cell_payload(rendered_value, active:)
+    end
+
+    def header_cell_payload(column:)
+      interactive_cell_payload(column.render_header, active: false)
+    end
+
+    def interactive_cell_payload(rendered_value, active:)
       # Only invoke Nokogiri when the value is already html_safe (i.e. produced by a
       # view helper or content_tag) AND plausibly contains an interactive tag.
       # Plain strings are never html_safe, so they take the fast path here, which also
@@ -436,13 +453,36 @@ module Pathogen
       return nil if config.nil?
 
       values = virtual_pagination_values(config)
-      total_count = virtual_pagination_total_count!(values)
+      mode = virtual_pagination_mode!(values)
+      total_count = virtual_pagination_total_count!(values, optional: mode == :cursor)
       rows_url = virtual_pagination_rows_url!(values)
       page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
       row_offset = virtual_pagination_row_offset!(values)
       search_params = virtual_pagination_search_params!(values)
+      next_cursor = virtual_pagination_cursor!(values, mode:, row_offset:)
+      refresh_url = virtual_pagination_value(values, :refresh_url).presence
 
-      VirtualPagination.new(total_count:, rows_url:, page_size:, row_offset:, search_params:)
+      VirtualPagination.new(mode:, total_count:, rows_url:, page_size:, row_offset:, search_params:,
+                            next_cursor:, refresh_url:)
+    end
+
+    def virtual_pagination_mode!(values)
+      mode = virtual_pagination_value(values, :mode, :offset).to_s
+      return mode.to_sym if %w[offset cursor].include?(mode)
+
+      raise ArgumentError, 'virtual_pagination mode must be offset or cursor'
+    end
+
+    def virtual_pagination_cursor!(values, mode:, row_offset:)
+      return unless mode == :cursor
+
+      raise ArgumentError, 'cursor pagination requires row_offset to be zero' unless row_offset.zero?
+
+      cursor = virtual_pagination_value(values, :next_cursor)
+      return if cursor.nil?
+      return cursor if cursor.is_a?(String) && cursor.present?
+
+      raise ArgumentError, 'cursor pagination next_cursor must be a non-empty string or nil'
     end
 
     def virtual_pagination_values(config)
@@ -459,8 +499,11 @@ module Pathogen
       raise ArgumentError, "virtual_pagination requires a positive #{key}"
     end
 
-    def virtual_pagination_total_count!(values)
-      total_count = Integer(virtual_pagination_value(values, :total_count).to_s, 10, exception: false)
+    def virtual_pagination_total_count!(values, optional: false)
+      value = virtual_pagination_value(values, :total_count)
+      return if optional && value.nil?
+
+      total_count = Integer(value.to_s, 10, exception: false)
       return total_count if total_count && !total_count.negative?
 
       raise ArgumentError, 'virtual_pagination requires a non-negative total_count'
@@ -562,16 +605,28 @@ module Pathogen
       }
       return attributes unless virtual_pagination?
 
-      attributes.merge(
+      attributes.merge(virtual_pagination_metadata_attributes)
+    end
+
+    def virtual_pagination_metadata_attributes
+      {
+        'data-pvc-data-grid-pagination-mode': @virtual_pagination.mode,
         'data-pvc-data-grid-total-count': virtual_total_count,
         'data-pvc-data-grid-rows-url': virtual_rows_url,
         'data-pvc-data-grid-page-size': virtual_page_size,
         'data-pvc-data-grid-row-offset': virtual_row_offset,
-        'data-pvc-data-grid-search-params': virtual_search_params
-      ).compact
+        'data-pvc-data-grid-search-params': virtual_search_params,
+        'data-pvc-data-grid-next-cursor': virtual_next_cursor,
+        'data-pvc-data-grid-loaded-count': @rows.size
+      }.compact
     end
 
     def virtual_rowcount
+      if virtual_cursor_pagination?
+        return @rows.size + 1 if virtual_next_cursor.nil?
+
+        return virtual_total_count.nil? ? -1 : virtual_total_count + 1
+      end
       return virtual_total_count + 1 if virtual_pagination? # +1 for header row
 
       @rows.size + 1

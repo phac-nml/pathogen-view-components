@@ -6,7 +6,7 @@ module Pathogen
     class StateComponent < Pathogen::Component
       HEADER_LABEL_CLASSES = %w[
         inline-block text-[var(--pvc-data-grid-text-muted-color)]
-        font-semibold uppercase tracking-[0.05em] whitespace-nowrap
+        font-semibold whitespace-nowrap
       ].freeze
 
       def initialize(grid:)
@@ -18,15 +18,17 @@ module Pathogen
       # rubocop:disable Metrics/ParameterLists
       def header_cell_tag(tag_name:, column:, column_index:, aria_column_index: column_index + 1,
                           virtual_column_index: nil, scope: nil)
+        payload = @grid.header_cell_payload(column:)
         attributes = column.header_cell_attributes(
           column_index: column_index,
           aria_column_index: aria_column_index,
-          virtual_column_index: virtual_column_index
+          virtual_column_index: virtual_column_index,
+          interactive: payload[:interactive]
         )
         attributes[:class] = class_names(attributes[:class], 'pvc-data-grid__cell--virtual-header') if @grid.virtual?
         attributes = { scope: scope }.merge(attributes) if scope
 
-        tag.public_send(tag_name, **attributes) { render_header_content(column) }
+        tag.public_send(tag_name, **attributes) { render_header_content(column, payload[:content]) }
       end
 
       def body_cell_tag(tag_name:, column:, row:, row_index:, column_index:, aria_column_index: column_index + 1,
@@ -62,11 +64,11 @@ module Pathogen
         )
       end
 
-      def render_header_content(column)
-        return column.render_header unless column.default_header_label?
+      def render_header_content(column, content)
+        return content unless column.default_header_label?
 
         tag.span(
-          column.render_header,
+          content,
           class: class_names('pvc-data-grid__header-label', *HEADER_LABEL_CLASSES)
         )
       end

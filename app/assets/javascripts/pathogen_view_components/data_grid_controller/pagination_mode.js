@@ -6,6 +6,9 @@ export function paginationContract(grid, defaultPageSize) {
   const rowOffset = Number.parseInt(grid.dataset.pvcDataGridRowOffset || "", 10);
 
   return {
+    mode: grid.dataset.pvcDataGridPaginationMode === "cursor" ? "cursor" : "offset",
+    nextCursor: grid.dataset.pvcDataGridNextCursor || null,
+    knownTotal: Number.isFinite(totalCount) && totalCount >= 0 ? totalCount : null,
     totalRows: Number.isFinite(totalCount) && totalCount > 0 ? totalCount : 0,
     rowsUrl,
     searchParams,
