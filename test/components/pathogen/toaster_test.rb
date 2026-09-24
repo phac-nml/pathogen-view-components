@@ -19,8 +19,10 @@ module Pathogen
       assert_no_selector 'ol#flashes[aria-live]'
       assert_selector 'div[data-pathogen--toaster-target="polite"][role="status"][aria-live="polite"]',
                       visible: :all
-      assert_selector 'div[data-pathogen--toaster-target="assertive"][role="alert"][aria-live="assertive"]',
+      assert_selector 'div[data-pathogen--toaster-target="assertive"][aria-live="assertive"]',
                       visible: :all
+      assert_no_selector 'div[data-pathogen--toaster-target="assertive"][aria-label]', visible: :all
+      assert_no_selector 'div[data-pathogen--toaster-target="assertive"][role="alert"]', visible: :all
       assert_selector '[data-pathogen--toaster-target="log"][role="log"]', visible: :all
       assert_selector 'button[data-pathogen--toaster-target="logToggle"]', text: 'Notifications'
       assert_selector 'button[data-pathogen--toaster-target="more"][hidden]', visible: :all
