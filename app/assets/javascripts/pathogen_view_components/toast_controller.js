@@ -5,6 +5,7 @@ export default class extends Controller {
   static values = {
     timeout: Number,
     type: String,
+    typeLabel: { type: String, default: "" },
     dismissDuration: { type: Number, default: 160 },
     dismissible: { type: Boolean, default: true },
   };
@@ -47,12 +48,7 @@ export default class extends Controller {
       "focusin",
       (event) => {
         const previous = event.relatedTarget;
-        if (
-          previous instanceof HTMLElement &&
-          !this.element.contains(previous) &&
-          !this.#restoreFocusElement &&
-          previous !== document.body
-        ) {
+        if (previous instanceof HTMLElement && !this.element.contains(previous) && previous !== document.body) {
           this.#restoreFocusElement = previous;
         }
         this.#pauseTimer();
@@ -172,20 +168,30 @@ export default class extends Controller {
   }
 
   #announcementMessage() {
-    const parts = [];
+    const bodyParts = [];
 
     if (this.hasMessageTarget) {
       const text = this.messageTarget.textContent?.trim();
-      if (text) parts.push(text);
+      if (text) bodyParts.push(text);
     }
 
     if (this.hasDescriptionTarget) {
       const text = this.descriptionTarget.textContent?.trim();
-      if (text) parts.push(text);
+      if (text) bodyParts.push(text);
     }
 
-    if (parts.length === 0) return null;
+    const content = bodyParts
+      .map((part, index) => (index < bodyParts.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part))
+      .join(" ");
 
-    return parts.map((part, index) => (index < parts.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part)).join(" ");
+    const typeLabel = this.typeLabelValue?.trim();
+    if (!typeLabel) return content || null;
+    if (!content) return typeLabel;
+
+    const escapedTypeLabel = typeLabel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const prefixedPattern = new RegExp(`^${escapedTypeLabel}(?:\\b|\\s*[:.!?])`, "i");
+    if (prefixedPattern.test(content)) return content;
+
+    return `${typeLabel}: ${content}`;
   }
 }

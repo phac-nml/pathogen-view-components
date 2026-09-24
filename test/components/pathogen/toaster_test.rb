@@ -48,13 +48,12 @@ module Pathogen
       assert_selector 'section[data-pathogen--toaster-max-visible-value="4"]'
     end
 
-    test 'corner positions shrink-wrap for equal corner inset' do
+    test 'corner positions use mobile-safe bounds and recover shrink-wrap on larger screens' do
       render_inline(Pathogen::Toaster.new(position: :bottom_right)) do
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
 
-      assert_selector 'section.bottom-4.right-4.w-max.max-w-md'
-      assert_no_selector 'section.px-4'
+      assert_selector 'section.bottom-4.right-4.left-4.sm\\:left-auto.sm\\:w-max.max-w-md'
       assert_no_selector 'section.w-full'
     end
 
