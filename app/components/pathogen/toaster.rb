@@ -32,7 +32,7 @@ module Pathogen
       'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed'
     ].freeze
 
-    attr_reader :list_id, :max_visible, :region_label, :duration_preference, :assertive_region_label,
+    attr_reader :list_id, :max_visible, :region_label, :duration_preference,
                 :log_label, :log_toggle_label, :more_label, :dismiss_all_label, :empty_log_label
 
     # rubocop:disable Metrics/ParameterLists
@@ -44,7 +44,6 @@ module Pathogen
       @list_id = list_id
       @max_visible = [max_visible.to_i, 1].max
       @region_label = aria_label
-      @assertive_region_label = nil
       @turbo_permanent = turbo_permanent
       @duration_preference = normalize_duration_preference(duration_preference)
 
@@ -55,7 +54,6 @@ module Pathogen
 
     def before_render
       @region_label ||= t('pathogen.toast.region_label')
-      @assertive_region_label = t('pathogen.toast.assertive_region_label')
       @log_label = t('pathogen.toast.log_label')
       @log_toggle_label = t('pathogen.toast.log_toggle')
       @more_label = t('pathogen.toast.more_notifications')
