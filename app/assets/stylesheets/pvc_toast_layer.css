@@ -12,109 +12,147 @@
 }
 
 /*
- * Corner anchors use shrink-to-fit (sm:w-max). Peek toasts are position:absolute, so they do
- * not contribute intrinsic width — size the toaster from the measured front toast instead.
+ * Corner anchors use shrink-to-fit (sm:w-max). Peek strips are absolute, so size the
+ * toaster from the measured front toast width instead.
  */
 @media (min-width: 640px) {
-  .pvc-toaster[data-stack="peek"][data-layout="corner"] {
+  .pvc-toaster[data-stack="peek"][data-layout="corner"][data-stack-ready] {
     width: var(--front-width, max-content);
     max-width: 28rem;
   }
 }
 
-/* Flat stack (reduced motion, or single layout without transforms). */
-.pvc-toaster[data-stack="flat"] .pvc-toaster__list {
+/* Shared spaced column used before metrics are ready and for flat/reduced-motion. */
+.pvc-toaster[data-stack="flat"] .pvc-toaster__list,
+.pvc-toaster[data-stack="peek"]:not([data-stack-ready]) .pvc-toaster__list,
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"]
+  .pvc-toaster__list {
   display: flex;
   flex-direction: column;
   gap: var(--pvc-toast-gap);
   height: auto;
+  overflow: visible;
+  padding: 0;
 }
 
 .pvc-toaster[data-stack="flat"][data-layout="corner"] {
   width: auto;
 }
 
-.pvc-toaster[data-stack="flat"] [data-pathogen--toaster-target~="toast"] {
-  position: static;
+.pvc-toaster[data-stack="flat"] [data-pathogen--toaster-target~="toast"],
+.pvc-toaster[data-stack="peek"]:not([data-stack-ready])
+  [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  position: relative;
   inset: auto;
-  width: auto;
+  width: 100%;
   height: auto;
+  max-height: none;
   overflow: visible;
   transform: none;
   pointer-events: auto;
 }
 
-/* Peek stack — shared absolute layout. */
-.pvc-toaster[data-stack="peek"] .pvc-toaster__list {
+/*
+ * Peek deck (only after stack-ready): front toast in normal flow; behind toasts are
+ * absolute peek-tall chrome strips. Never mask the front card with overflow:hidden.
+ */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  .pvc-toaster__list {
   display: block;
+  height: auto;
+  overflow: visible;
   pointer-events: auto;
 }
 
-.pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="top"]
+  .pvc-toaster__list {
+  padding-bottom: calc(var(--peek-count, 0) * var(--pvc-toast-peek));
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="bottom"]
+  .pvc-toaster__list {
+  padding-top: calc(var(--peek-count, 0) * var(--pvc-toast-peek));
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="false"] {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  transform: none;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
   position: absolute;
   left: 0;
   right: 0;
   margin-inline: auto;
   width: calc(100% - (var(--toast-index, 0) * 2 * var(--pvc-toast-inset)));
+  height: var(--pvc-toast-peek);
+  max-height: var(--pvc-toast-peek);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: calc(100 - var(--toast-index, 0));
+  transform: none;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] > * {
+  visibility: hidden;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="top"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  top: calc(var(--front-height, 0px) + ((var(--toast-index, 1) - 1) * var(--pvc-toast-peek)));
+  bottom: auto;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="bottom"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
+  top: auto;
+  bottom: calc(var(--front-height, 0px) + ((var(--toast-index, 1) - 1) * var(--pvc-toast-peek)));
+}
+
+/* Expanded: absolute full cards with measured offsets. */
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"] .pvc-toaster__list {
+  display: block;
+  height: var(--stack-height, auto);
+  overflow: visible;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
+  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: 100%;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  transform: none;
   z-index: calc(100 - var(--toast-index, 0));
   transition:
-    transform var(--pvc-duration-overlay) ease-out,
-    width var(--pvc-duration-overlay) ease-out,
     top var(--pvc-duration-overlay) ease-out,
     bottom var(--pvc-duration-overlay) ease-out,
     opacity var(--pvc-duration-default) ease-out;
 }
 
-.pvc-toaster[data-stack="peek"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
-  pointer-events: none;
-}
-
-/* Collapsed peek: clip to front height; older toasts show as a quiet deck. */
-.pvc-toaster[data-stack="peek"][data-expanded="false"] .pvc-toaster__list {
-  height: calc(var(--front-height, 0px) + (var(--peek-count, 0) * var(--pvc-toast-peek)));
-}
-
-.pvc-toaster[data-stack="peek"][data-expanded="false"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  height: var(--front-height, auto);
-  overflow: hidden;
-}
-
-.pvc-toaster[data-stack="peek"][data-expanded="false"][data-anchor="top"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  top: 0;
-  bottom: auto;
-  transform: translateY(calc(var(--toast-index, 0) * var(--pvc-toast-peek)));
-}
-
-.pvc-toaster[data-stack="peek"][data-expanded="false"][data-anchor="bottom"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  top: auto;
-  bottom: 0;
-  transform: translateY(calc(var(--toast-index, 0) * var(--pvc-toast-peek) * -1));
-}
-
-/* Expanded: full heights, offsets from the anchored edge. */
-.pvc-toaster[data-stack="peek"][data-expanded="true"] .pvc-toaster__list {
-  height: var(--stack-height, auto);
-}
-
-.pvc-toaster[data-stack="peek"][data-expanded="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  height: auto;
-  overflow: visible;
-  width: 100%;
-  transform: none;
-}
-
-.pvc-toaster[data-stack="peek"][data-expanded="true"][data-anchor="top"]
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="top"]
   [data-pathogen--toaster-target~="toast"]:not([hidden]) {
   top: var(--toast-offset, 0px);
   bottom: auto;
 }
 
-.pvc-toaster[data-stack="peek"][data-expanded="true"][data-anchor="bottom"]
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="bottom"]
   [data-pathogen--toaster-target~="toast"]:not([hidden]) {
   top: auto;
   bottom: var(--toast-offset, 0px);
