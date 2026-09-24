@@ -25,8 +25,7 @@
 /* Shared spaced column used before metrics are ready and for flat/reduced-motion. */
 .pvc-toaster[data-stack="flat"] .pvc-toaster__list,
 .pvc-toaster[data-stack="peek"]:not([data-stack-ready]) .pvc-toaster__list,
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"]
-  .pvc-toaster__list {
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"] .pvc-toaster__list {
   display: flex;
   flex-direction: column;
   gap: var(--pvc-toast-gap);
@@ -40,8 +39,7 @@
 }
 
 .pvc-toaster[data-stack="flat"] [data-pathogen--toaster-target~="toast"],
-.pvc-toaster[data-stack="peek"]:not([data-stack-ready])
-  [data-pathogen--toaster-target~="toast"]:not([hidden]),
+.pvc-toaster[data-stack="peek"]:not([data-stack-ready]) [data-pathogen--toaster-target~="toast"]:not([hidden]),
 .pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="false"]
   [data-pathogen--toaster-target~="toast"]:not([hidden]) {
   position: relative;
@@ -58,8 +56,7 @@
  * Peek deck (only after stack-ready): front toast in normal flow; behind toasts are
  * absolute peek-tall chrome strips. Never mask the front card with overflow:hidden.
  */
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
-  .pvc-toaster__list {
+.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"] .pvc-toaster__list {
   display: block;
   height: auto;
   overflow: visible;
@@ -103,7 +100,8 @@
 }
 
 .pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] > * {
+  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"]
+  > * {
   visibility: hidden;
 }
 
