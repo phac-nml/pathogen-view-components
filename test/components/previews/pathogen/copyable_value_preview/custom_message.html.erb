@@ -1,0 +1,33 @@
+<div class="p-8 bg-white dark:bg-neutral-900 min-h-screen">
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
+      CopyableValue — Custom Feedback Message
+    </h1>
+
+    <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
+      Override the default "Copied to clipboard" message with a context-specific one.
+    </p>
+  </div>
+
+  <div class="space-y-6">
+    <div>
+      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+        Default message
+      </h2>
+
+      <%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %>
+
+      <p class="text-xs text-neutral-500 mt-1">Screen reader will announce: "Copied to clipboard"</p>
+    </div>
+
+    <div>
+      <h2 class="text-sm font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
+        Custom message
+      </h2>
+
+      <%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN", copied_message: "Project ID copied!") %>
+
+      <p class="text-xs text-neutral-500 mt-1">Screen reader will announce: "Project ID copied!"</p>
+    </div>
+  </div>
+</div>
