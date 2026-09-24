@@ -97,11 +97,11 @@ export default class extends Controller {
     this.#remainingMs = Math.max(0, this.#remainingMs - elapsed);
   }
 
-  #resumeTimer({ force = false } = {}) {
+  #resumeTimer() {
     if (this.#remainingMs <= 0) return;
     if (this.#state !== "open") return;
-    if (!force && this.element.contains(document.activeElement)) return;
-    if (!force && this.element.matches(":hover")) return;
+    if (this.element.contains(document.activeElement)) return;
+    if (this.element.matches(":hover")) return;
 
     this.#startTimer();
   }
@@ -127,13 +127,14 @@ export default class extends Controller {
 
     window.setTimeout(() => {
       const parent = this.element.parentElement;
-      this.element.remove();
-      parent?.dispatchEvent(
-        new CustomEvent("pathogen:toast:dismissed", {
-          bubbles: true,
+      if (parent) {
+        this.dispatch("dismissed", {
+          prefix: "pathogen:toast",
+          target: parent,
           detail: { reason },
-        }),
-      );
+        });
+      }
+      this.element.remove();
 
       if (restoreTarget?.isConnected) {
         restoreTarget.focus({ preventScroll: true });
@@ -156,15 +157,13 @@ export default class extends Controller {
     const message = this.#announcementMessage();
     if (!message) return;
 
-    this.element.dispatchEvent(
-      new CustomEvent("pathogen:toast:announce", {
-        bubbles: true,
-        detail: {
-          message,
-          politeness: this.typeValue === "error" ? "assertive" : "polite",
-        },
-      }),
-    );
+    this.dispatch("announce", {
+      prefix: "pathogen:toast",
+      detail: {
+        message,
+        politeness: this.typeValue === "error" ? "assertive" : "polite",
+      },
+    });
   }
 
   #announcementMessage() {

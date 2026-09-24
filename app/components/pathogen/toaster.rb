@@ -22,7 +22,6 @@ module Pathogen
       'mouseleave->pathogen--toaster#collapseIfIdle',
       'focusin->pathogen--toaster#expand',
       'focusout->pathogen--toaster#collapseIfIdle',
-      'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed',
       'pathogen:toast:announce->pathogen--toaster#announce'
     ].freeze
 
@@ -54,7 +53,7 @@ module Pathogen
     def apply_system_arguments
       @system_arguments[:class] = class_names(
         STRATEGY_MAPPINGS[@strategy],
-        'z-50 flex flex-col max-w-md',
+        'pointer-events-none z-50 flex flex-col max-w-md',
         layout_width_classes,
         POSITION_MAPPINGS[@position],
         @system_arguments[:class]
