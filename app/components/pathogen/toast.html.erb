@@ -1,22 +1,52 @@
 <%= tag.li(**@system_arguments) do %>
-  <div class="flex items-start gap-2 p-3">
-    <span class="flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
-      <svg
-        class="size-4 shrink-0"
-        viewBox="0 0 16 16"
-        fill="currentColor"
-        aria-hidden="true"
-      >
-        <%= icon_svg %>
-      </svg>
-    </span>
+  <div class="relative p-3">
+    <div class="flex items-center gap-2">
+      <span class="flex size-4 shrink-0 items-center justify-center <%= icon_color %>" aria-hidden="true">
+        <svg
+          class="size-4 shrink-0"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <%= icon_svg %>
+        </svg>
+      </span>
 
-    <div class="min-w-0 flex-1">
-      <p class="text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]">
-        <span class="sr-only"><%= icon_label %>:</span>
-        <span class="break-words [overflow-wrap:anywhere]" data-pathogen--toast-target="message"><%= message %></span>
-      </p>
+      <div class="min-w-0 flex-1">
+        <p class="text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]">
+          <span class="sr-only"><%= icon_label %>:</span>
+          <span class="break-words [overflow-wrap:anywhere]" data-pathogen--toast-target="message"><%= message %></span>
+        </p>
+      </div>
 
+      <% if dismissible %>
+        <div class="ml-auto">
+          <%= render Pathogen::Button.new(
+            size: :small,
+            tone: :neutral,
+            emphasis: :ghost,
+            icon_only: true,
+            text: t('pathogen.toast.dismiss'),
+            'data-action': 'click->pathogen--toast#dismiss'
+          ) do |button| %>
+            <% button.with_leading_visual do %>
+              <svg
+                aria-hidden="true"
+                class="size-4"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path
+                  d="M2.75 2.75a.625.625 0 0 1 .884 0L8 7.116l4.366-4.366a.625.625 0 0 1 .884.884L8.884 8l4.366 4.366a.625.625 0 0 1-.884.884L8 8.884l-4.366 4.366a.625.625 0 0 1-.884-.884L7.116 8 2.75 3.634a.625.625 0 0 1 0-.884Z"
+                />
+              </svg>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="pl-6">
       <% if description.present? %>
         <p
           class="
@@ -35,30 +65,5 @@
         </div>
       <% end %>
     </div>
-
-    <% if dismissible %>
-      <%= render Pathogen::Button.new(
-        size: :small,
-        tone: :neutral,
-        emphasis: :ghost,
-        icon_only: true,
-        text: t('pathogen.toast.dismiss'),
-        'data-action': 'click->pathogen--toast#dismiss'
-      ) do |button| %>
-        <% button.with_leading_visual do %>
-          <svg
-            aria-hidden="true"
-            width="12"
-            height="12"
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 4 4 12M4 4l8 8" />
-          </svg>
-        <% end %>
-      <% end %>
-    <% end %>
   </div>
 <% end %>
