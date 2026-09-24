@@ -3,6 +3,8 @@
 module Pathogen
   # Pathogen::Toaster renders an always-present toast host with live regions and peek stack.
   class Toaster < Pathogen::Component
+    include Pathogen::DataAttributesHelper
+
     DEFAULT_POSITION = :top_center
     DEFAULT_STRATEGY = :fixed
     DEFAULT_DURATION_STORAGE_KEY = 'pathogen.toast.durationMs'
@@ -28,6 +30,7 @@ module Pathogen
       'mouseleave->pathogen--toaster#collapseIfIdle',
       'focusin->pathogen--toaster#expand',
       'focusout->pathogen--toaster#collapseIfIdle',
+      'pathogen:toast:ready->pathogen--toaster#presentToast',
       'pathogen:toast:announce->pathogen--toaster#announce',
       'pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed'
     ].freeze
@@ -91,30 +94,31 @@ module Pathogen
         POSITION_MAPPINGS[@position],
         @system_arguments[:class]
       )
-      @system_arguments[:'data-controller'] = class_names(@system_arguments[:'data-controller'], 'pathogen--toaster')
-      @system_arguments[:'data-action'] = class_names(@system_arguments[:'data-action'], *TOASTER_ACTIONS)
+      data = extract_data_attributes(@system_arguments)
+      data['controller'] = class_names(data['controller'], 'pathogen--toaster')
+      data['action'] = class_names(data['action'], *TOASTER_ACTIONS)
+      @system_arguments[:data] = data
       apply_stack_data_attributes
       apply_turbo_permanent_attributes
     end
 
     def apply_stack_data_attributes
-      @system_arguments[:'data-pathogen--toaster-max-visible-value'] = @max_visible
-      @system_arguments[:'data-pathogen--toaster-position-value'] = @position
-      @system_arguments[:'data-pathogen--toaster-duration-storage-key-value'] = @duration_storage_key
-      unless @duration_preference.nil?
-        @system_arguments[:'data-pathogen--toaster-duration-preference-value'] = @duration_preference
-      end
-      @system_arguments[:'data-stack'] = 'peek'
-      @system_arguments[:'data-expanded'] = 'false'
-      @system_arguments[:'data-anchor'] = anchor_edge
-      @system_arguments[:'data-layout'] = layout_kind
-      @system_arguments[:'data-has-peek'] = 'false'
+      data = @system_arguments[:data]
+      data['pathogen--toaster-max-visible-value'] = @max_visible
+      data['pathogen--toaster-position-value'] = @position
+      data['pathogen--toaster-duration-storage-key-value'] = @duration_storage_key
+      data['pathogen--toaster-duration-preference-value'] = @duration_preference unless @duration_preference.nil?
+      data['stack'] = 'peek'
+      data['expanded'] = 'false'
+      data['anchor'] = anchor_edge
+      data['layout'] = layout_kind
+      data['has-peek'] = 'false'
     end
 
     def apply_turbo_permanent_attributes
-      return unless @turbo_permanent && @system_arguments[:'data-turbo-permanent'].nil?
+      return unless @turbo_permanent && @system_arguments[:data]['turbo-permanent'].nil?
 
-      @system_arguments[:'data-turbo-permanent'] = true
+      @system_arguments[:data]['turbo-permanent'] = true
       # Turbo only preserves permanent elements that carry a stable id on both the
       # outgoing and incoming page, so derive one from the list id when none is given.
       @system_arguments[:id] ||= "#{@list_id}-toaster"
