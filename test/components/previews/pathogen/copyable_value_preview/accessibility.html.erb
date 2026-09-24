@@ -1,0 +1,45 @@
+<div class="flex max-w-3xl flex-col gap-8 p-4">
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Icon-only copy button</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      The copy action is an icon-only button with a distinct accessible name that includes the value being copied.
+    </p>
+
+    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <dl class="grid gap-3 text-sm">
+        <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] pb-3">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Project ID</dt>
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_PRJ_A2G6VVJNCN") %></dd>
+        </div>
+
+        <div class="flex items-center justify-between gap-4">
+          <dt class="font-semibold text-[var(--pvc-color-text)]">Sample ID</dt>
+          <dd><%= render Pathogen::CopyableValue.new(value: "INXT_SAM_B7K4WWQLDR") %></dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Keyboard and screen-reader feedback</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      Tab to the copy button and activate it with Enter or Space. Success and failure states are announced through an
+      <code class="font-mono">aria-live="polite"</code> region. The icon swaps to a checkmark on success.
+    </p>
+
+    <%= render Pathogen::CopyableValue.new(value: "a3f29c1", copied_message: "Hash copied to clipboard") %>
+  </section>
+
+  <section>
+    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Manual selection fallback</h2>
+
+    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+      The value uses <code class="font-mono">select-all</code> so users can still copy manually when clipboard APIs are
+      unavailable.
+    </p>
+
+    <%= render Pathogen::CopyableValue.new(value: "INXT_WFE_C9M2XXRNFS") %>
+  </section>
+</div>
