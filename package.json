@@ -16,18 +16,20 @@
     "test:unit": "vitest run test/javascript",
     "test:coverage": "vitest run --coverage",
     "test:coverage:strict": "VITEST_STRICT_COVERAGE=1 vitest run --coverage",
-    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript && pnpm herb:lint && pnpm herb:format:check",
-    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript --fix && pnpm herb:lint:fix && pnpm herb:format",
+    "lint": "prettier --check . && eslint app/assets/javascripts test/javascript test/browser playwright.config.js && pnpm herb:lint && pnpm herb:format:check",
+    "lint:fix": "prettier --write . && eslint app/assets/javascripts test/javascript test/browser playwright.config.js --fix && pnpm herb:lint:fix && pnpm herb:format",
     "build:css": "node scripts/build-pathogen-tailwind.mjs",
     "build:css:check": "node scripts/build-pathogen-tailwind.mjs --check",
     "build:css:watch": "node scripts/watch-pathogen-css.mjs",
     "build:js": "node scripts/build-demo-javascript.mjs",
-    "build:js:watch": "node scripts/build-demo-javascript.mjs --watch"
+    "build:js:watch": "node scripts/build-demo-javascript.mjs --watch",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@herb-tools/formatter": "^0.10.4",
     "@herb-tools/linter": "^0.10.4",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/cli": "^4.3.3",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",

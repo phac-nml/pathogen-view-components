@@ -22,3 +22,7 @@ demo/app/assets/builds/
 /demo/public/assets/
 demo/app/assets/svg/icons/
 demo/config/master.key
+
+# Browser acceptance artifacts
+test-results/
+playwright-report/

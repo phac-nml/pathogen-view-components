@@ -3,6 +3,8 @@
 .planning/
 node_modules/
 coverage/
+test-results/
+playwright-report/
 vendor/
 tmp/
 log/
