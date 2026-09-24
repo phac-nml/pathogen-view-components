@@ -132,13 +132,9 @@
     <template data-pv-stream-toast-template>
       <%= render Pathogen::Toast.new(
         type: :info,
-        message: 'Undo release?',
-        description: 'This publication can be rolled back for 10 minutes.'
-      ) do |toast| %>
-        <% toast.with_action do %>
-          <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :outline, text: 'Undo') %>
-        <% end %>
-      <% end %>
+        message: 'Release rolled back.',
+        description: 'Use the in-page Undo control if you need to reverse again.'
+      ) %>
     </template>
   </div>
 </div>

@@ -1,55 +1,44 @@
 <%# herb:formatter ignore %>
 
-<div class="flex max-w-4xl flex-col gap-8 p-4">
+<div class="flex max-w-3xl flex-col gap-6 p-4">
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Interactive preview" } %>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "Playground" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Adjust type, timeout, dismiss control, and anchor position. Errors and action toasts ignore the timeout control.
+      Adjust type, timeout, and dismiss. Warnings/errors ignore timeout and become notification dialogs. Status toasts
+      stay non-interactive unless dismissible is enabled.
     <% end %>
+
+    <dl class="mb-4 grid gap-2 text-sm sm:grid-cols-2">
+      <div class="flex gap-2">
+        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Type" } %>
+        <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { type } %>
+      </div>
+      <div class="flex gap-2">
+        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Timeout" } %>
+        <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "#{timeout} ms" } %>
+      </div>
+      <div class="flex gap-2">
+        <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Dismissible" } %>
+        <%= pathogen_supporting(tag: :dd, variant: :muted) { dismissible ? 'Yes (dialog mode)' : 'No (status mode)' } %>
+      </div>
+    </dl>
 
     <div
       class="
-        relative min-h-80 overflow-hidden rounded-(--pvc-radius-panel) border
+        relative min-h-64 overflow-hidden rounded-(--pvc-radius-panel) border
         border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
       "
     >
-      <dl class="grid gap-3 text-sm sm:grid-cols-2">
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Type" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { type } %>
-        </div>
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Timeout" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "#{timeout} ms" } %>
-        </div>
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Dismissible" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted) { dismissible ? 'Yes' : 'No' } %>
-        </div>
-        <div>
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Position" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { toaster_args[:position] } %>
-        </div>
-      </dl>
-
-      <%= render Pathogen::Toaster.new(**toaster_args, list_id: 'flash-preview') do %>
+      <%= render Pathogen::Toaster.new(**toaster_args.merge(list_id: 'flashes-playground')) do %>
         <%= render Pathogen::Toast.new(
           type: type,
-          message: 'Genome metadata saved.',
-          description: 'Sample QC annotations are now visible to all collaborators.',
+          message: 'Playground notification.',
+          description: 'Use Lookbook params to compare status vs dialog behaviour.',
           timeout: timeout,
           dismissible: dismissible
         ) %>
       <% end %>
     </div>
   </section>
-
-  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
-    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
-    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
-      Use Lookbook params to exercise Rails flash aliases (<%= pathogen_code { "notice" } %>,
-      <%= pathogen_code { "alert" } %>) and host-specific anchor positions before wiring the toaster in the layout.
-    <% end %>
-  </div>
 </div>
