@@ -202,6 +202,19 @@ describe("cursor grid interactions", () => {
     expect(event.defaultPrevented).toBe(true);
   });
 
+  it("falls back to retry when cursor mismatch occurs without a refresh control", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: false, status: 409 });
+    await start();
+    target("paginationRefresh").remove();
+    cell(1).focus();
+    key(cell(1), "End", { ctrlKey: true });
+    key(cell(4), "ArrowDown");
+    await settle();
+    expect(target("paginationRetry").hidden).toBe(false);
+    expect(target("paginationStatus").textContent).toBe("Try again");
+    expect(cell(4).textContent).toBe("Row 4");
+  });
+
   it("ignores outstanding responses after scoped replacement", async () => {
     let resolve;
     vi.spyOn(globalThis, "fetch").mockImplementation(
@@ -238,7 +251,7 @@ describe("cursor grid interactions", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it("handles optional recovery controls and absent or partial message templates", async () => {
+  it("handles optional recovery controls and partial message templates", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: false, status: 409 });
     await start();
     target("paginationRetry").remove();
@@ -250,7 +263,7 @@ describe("cursor grid interactions", () => {
     key(cell(4), "ArrowDown");
     expect(target("paginationStatus").textContent).toBe("Loading ");
     await settle();
-    expect(target("paginationStatus").textContent).toBe("");
+    expect(target("paginationStatus").textContent).toBe("Try again");
     expect(cell(4).textContent).toBe("Row 4");
   });
 
