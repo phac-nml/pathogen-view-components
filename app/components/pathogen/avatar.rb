@@ -36,7 +36,7 @@ module Pathogen
     BASE_CLASSES = %w[
       relative inline-flex shrink-0 items-center justify-center overflow-hidden border
       border-[var(--pvc-color-border-strong)] font-sans font-semibold tracking-[0.01em]
-      select-none text-[var(--pvc-color-text)]
+      select-none
       focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--pvc-color-focus)]
       focus-visible:outline-offset-2
     ].join(' ').freeze
