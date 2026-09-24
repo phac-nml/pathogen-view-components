@@ -3,6 +3,7 @@ import { Controller } from "@hotwired/stimulus";
 const COPY_STATES = {
   idle: "idle",
   success: "success",
+  error: "error",
 };
 
 /**
@@ -81,12 +82,9 @@ export default class extends Controller {
 
   #showFailure() {
     this.#clearResetTimeout();
-    this.#setState(COPY_STATES.idle);
+    this.#setState(COPY_STATES.error);
     this.#announce(this.copyFailedMessageValue);
-    this.#resetTimeout = window.setTimeout(() => {
-      this.#clearAnnouncement();
-      this.#resetTimeout = null;
-    }, this.resetDelayValue);
+    this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
 
   #reset() {
