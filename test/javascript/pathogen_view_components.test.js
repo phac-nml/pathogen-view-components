@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   AvatarController,
+  CopyableValueController,
   DataGridController,
   DisclosureController,
   registerPathogenControllers,
@@ -27,6 +28,7 @@ describe("pathogen_view_components entrypoint", () => {
     expect(SidebarController).toBeTypeOf("function");
     expect(ToolbarController).toBeTypeOf("function");
     expect(AvatarController).toBeTypeOf("function");
+    expect(CopyableValueController).toBeTypeOf("function");
   });
 
   it("registers all controllers under their Pathogen identifiers", () => {
@@ -42,6 +44,7 @@ describe("pathogen_view_components entrypoint", () => {
       ["pathogen--sidebar", SidebarController],
       ["pathogen--toolbar", ToolbarController],
       ["pathogen--avatar", AvatarController],
+      ["pathogen--copyable-value", CopyableValueController],
     ]);
   });
 
@@ -51,7 +54,7 @@ describe("pathogen_view_components entrypoint", () => {
 
     registerPathogenControllers(createApplication());
 
-    expect(debug).toHaveBeenCalledWith("[pathogen] Registered 7 Stimulus controllers");
+    expect(debug).toHaveBeenCalledWith("[pathogen] Registered 8 Stimulus controllers");
   });
 
   it("stays silent outside of development", () => {

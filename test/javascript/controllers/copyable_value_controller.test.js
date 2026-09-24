@@ -289,4 +289,28 @@ describe("copyable_value_controller", () => {
     expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
   });
+
+  it("copies an empty string when the text target has no textContent", async () => {
+    const { container, text, announcement } = appendCopyableValue();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    Object.defineProperty(text, "textContent", {
+      configurable: true,
+      get: () => null,
+    });
+
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+
+    expect(writeText).toHaveBeenCalledWith("");
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
+  });
 });
