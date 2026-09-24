@@ -30,6 +30,8 @@
     data-pathogen--toaster-target="more"
     data-action="click->pathogen--toaster#expandFromControl"
     data-template="<%= more_label %>"
+    aria-controls="<%= list_id %>"
+    aria-expanded="false"
     hidden
   >
     <%= more_label.sub('%{count}', '0') %>
