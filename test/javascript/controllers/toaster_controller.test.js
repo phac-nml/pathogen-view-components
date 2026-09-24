@@ -26,28 +26,56 @@ const TOASTER_ACTIONS = [
   "focusin->pathogen--toaster#expand",
   "focusout->pathogen--toaster#collapseIfIdle",
   "pathogen:toast:announce->pathogen--toaster#announce",
+  "pathogen:toast:log->pathogen--toaster#appendLog",
+  "pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed",
 ].join(" ");
 
-const buildToast = ({ text, persistent = false, type = "info", timeout = 6000 }) => {
+const buildToast = ({
+  text,
+  persistent = false,
+  type = "info",
+  timeout = 6000,
+  mode = "status",
+  withDismiss = false,
+} = {}) => {
   const toast = document.createElement("li");
   toast.textContent = text;
   toast.setAttribute("data-pathogen--toaster-target", "toast");
   toast.setAttribute("data-pathogen--toast-persistent-value", String(persistent));
   toast.setAttribute("data-pathogen--toast-type-value", type);
   toast.setAttribute("data-pathogen--toast-timeout-value", String(timeout));
+  toast.setAttribute("data-pathogen--toast-mode-value", mode);
+  if (withDismiss) {
+    const dismiss = document.createElement("div");
+    dismiss.setAttribute("data-pathogen--toast-target", "dismiss");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Close";
+    dismiss.appendChild(button);
+    toast.appendChild(dismiss);
+  }
   return toast;
 };
 
-const buildConnectedToast = ({ message = "Saved", type = "success", typeLabel = "Success", timeout = 0 } = {}) => {
+const buildConnectedToast = ({
+  message = "Saved",
+  type = "success",
+  typeLabel = "Success",
+  timeout = 6000,
+  mode = "status",
+  interrupt = false,
+} = {}) => {
   const toast = document.createElement("li");
-  toast.tabIndex = 0;
   toast.dataset.state = "open";
   toast.setAttribute("data-controller", "pathogen--toast");
   toast.setAttribute("data-pathogen--toaster-target", "toast");
   toast.setAttribute("data-pathogen--toast-timeout-value", String(timeout));
   toast.setAttribute("data-pathogen--toast-type-value", type);
   toast.setAttribute("data-pathogen--toast-type-label-value", typeLabel);
+  toast.setAttribute("data-pathogen--toast-mode-value", mode);
+  toast.setAttribute("data-pathogen--toast-interrupt-value", String(interrupt));
   toast.setAttribute("data-pathogen--toast-dismiss-duration-value", "0");
+  toast.setAttribute("role", mode === "dialog" ? "dialog" : "listitem");
 
   const messageText = document.createElement("span");
   messageText.setAttribute("data-pathogen--toast-target", "message");
@@ -63,6 +91,32 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   section.setAttribute("data-pathogen--toaster-max-visible-value", String(maxVisible));
   section.setAttribute("data-pathogen--toaster-position-value", position);
   section.setAttribute("data-action", TOASTER_ACTIONS);
+
+  const more = document.createElement("button");
+  more.type = "button";
+  more.setAttribute("data-pathogen--toaster-target", "more");
+  more.dataset.template = "+%{count} more";
+  more.hidden = true;
+  section.appendChild(more);
+
+  const dismissAll = document.createElement("button");
+  dismissAll.type = "button";
+  dismissAll.setAttribute("data-pathogen--toaster-target", "dismissAll");
+  dismissAll.hidden = true;
+  section.appendChild(dismissAll);
+
+  const log = document.createElement("div");
+  log.setAttribute("data-pathogen--toaster-target", "log");
+  log.hidden = true;
+  const logList = document.createElement("ol");
+  logList.setAttribute("data-pathogen--toaster-target", "logList");
+  log.appendChild(logList);
+  section.appendChild(log);
+
+  const logCount = document.createElement("span");
+  logCount.setAttribute("data-pathogen--toaster-target", "logCount");
+  logCount.hidden = true;
+  section.appendChild(logCount);
 
   const list = document.createElement("ol");
   list.id = "flashes";
@@ -81,11 +135,12 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
     const toast = document.createElement("li");
     toast.textContent = `toast-${index + 1}`;
     toast.setAttribute("data-pathogen--toaster-target", "toast");
+    toast.setAttribute("data-pathogen--toast-mode-value", "status");
     list.appendChild(toast);
   }
 
   document.body.appendChild(section);
-  return { section, list, polite, assertive };
+  return { section, list, polite, assertive, more, dismissAll, log, logList, logCount };
 };
 
 const mockReducedMotion = (matches) => {
@@ -171,11 +226,14 @@ describe("toaster_controller", () => {
     expect(section.dataset.hasPeek).toBe("true");
     expect(section.dataset.stackReady).toBe("true");
     expect(toasts[2].dataset.behind).toBe("false");
-    expect(toasts[2].tabIndex).toBe(0);
+    expect(toasts[2].hasAttribute("tabindex")).toBe(false);
+    expect(toasts[2].hasAttribute("inert")).toBe(false);
     expect(toasts[1].dataset.behind).toBe("true");
     expect(toasts[1].tabIndex).toBe(-1);
+    expect(toasts[1].hasAttribute("inert")).toBe(true);
     expect(toasts[1].getAttribute("aria-hidden")).toBe("true");
     expect(toasts[0].dataset.behind).toBe("true");
+    expect(toasts[0].hasAttribute("inert")).toBe(true);
     expect(list.style.getPropertyValue("--peek-count")).toBe("2");
     expect(list.style.getPropertyValue("--front-height")).toBe("72px");
     // Deck metrics via CSS vars — position/transform owned by CSS, not inline height clips.
@@ -293,10 +351,54 @@ describe("toaster_controller", () => {
       expect(toast.hidden).toBe(false);
       expect(toast.getAttribute("aria-hidden")).toBe("false");
       expect(toast.dataset.behind).toBe("false");
-      expect(toast.tabIndex).toBe(0);
+      expect(toast.hasAttribute("inert")).toBe(false);
+      expect(toast.hasAttribute("tabindex")).toBe(false);
     });
     expect(section.dataset.expanded).toBe("true");
     expect(list.style.getPropertyValue("--stack-height")).not.toBe("");
+  });
+
+  it("marks peek-behind dismiss buttons as inert so they leave the tab order", async () => {
+    const { list, section } = buildToaster({ maxVisible: 3, count: 0 });
+    const measureBox = () => ({
+      width: 280,
+      height: 72,
+      top: 0,
+      left: 0,
+      bottom: 72,
+      right: 280,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    ["older", "middle", "front"].forEach((text) => {
+      const toast = buildToast({ text, withDismiss: true, mode: "status", timeout: 6000 });
+      Object.defineProperty(toast, "getBoundingClientRect", {
+        configurable: true,
+        value: measureBox,
+      });
+      list.appendChild(toast);
+    });
+    await waitForController();
+    await waitForAnimationFrame();
+
+    const toasts = Array.from(list.querySelectorAll("li"));
+    expect(section.dataset.stack).toBe("peek");
+    expect(toasts[1].hasAttribute("inert")).toBe(true);
+    expect(toasts[1].querySelector("button")).not.toBeNull();
+    expect(toasts[2].hasAttribute("inert")).toBe(false);
+  });
+
+  it("appends notification log entries from toast log events", async () => {
+    const { section, logList, logCount } = buildToaster({ maxVisible: 3, count: 0 });
+    await waitForController();
+    const controller = application.getControllerForElementAndIdentifier(section, "pathogen--toaster");
+
+    controller.appendLog({ detail: { message: "Success: Saved", type: "success" } });
+    expect(logCount.hidden).toBe(false);
+    expect(logCount.textContent).toBe("1");
+    expect(logList.children).toHaveLength(1);
+    expect(logList.textContent).toContain("Success: Saved");
   });
 
   it("applies expanded offsets from measured heights via CSS vars", async () => {
@@ -441,17 +543,45 @@ describe("toaster_controller", () => {
     expect(polite.textContent).toBe("Saved");
   });
 
-  it("routes child toast announcements into the polite live region", async () => {
+  it("routes child status toast announcements into the polite live region", async () => {
     const { list, polite } = buildToaster({ maxVisible: 3, count: 0 });
-    list.appendChild(buildConnectedToast({ message: "Saved", type: "success", typeLabel: "Success" }));
+    list.appendChild(
+      buildConnectedToast({ message: "Saved", type: "success", typeLabel: "Success", mode: "status", timeout: 6000 }),
+    );
     await waitForController();
     await flushAnnouncements();
     expect(polite.textContent).toBe("Success: Saved");
   });
 
-  it("routes child error toast announcements into the assertive live region", async () => {
+  it("does not live-announce dialog-mode error toasts", async () => {
+    const { list, assertive, polite } = buildToaster({ maxVisible: 3, count: 0 });
+    list.appendChild(
+      buildConnectedToast({
+        message: "Upload failed",
+        type: "error",
+        typeLabel: "Error",
+        mode: "dialog",
+        timeout: 0,
+      }),
+    );
+    await waitForController();
+    await flushAnnouncements();
+    expect(assertive.textContent).toBe("");
+    expect(polite.textContent).toBe("");
+  });
+
+  it("routes interrupt status toasts into the assertive live region", async () => {
     const { list, assertive } = buildToaster({ maxVisible: 3, count: 0 });
-    list.appendChild(buildConnectedToast({ message: "Upload failed", type: "error", typeLabel: "Error" }));
+    list.appendChild(
+      buildConnectedToast({
+        message: "Upload failed",
+        type: "error",
+        typeLabel: "Error",
+        mode: "status",
+        timeout: 6000,
+        interrupt: true,
+      }),
+    );
     await waitForController();
     await flushAnnouncements();
     expect(assertive.textContent).toBe("Error: Upload failed");
