@@ -35,7 +35,7 @@ module Pathogen
     attr_reader :list_id, :max_visible, :region_label, :duration_preference, :duration_storage_key,
                 :more_label, :dismiss_all_label
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(position: DEFAULT_POSITION, strategy: DEFAULT_STRATEGY, list_id: 'flashes', max_visible: 3,
                    aria_label: nil, turbo_permanent: true, duration_preference: DEFAULT_DURATION_PREFERENCE,
                    duration_storage_key: DEFAULT_DURATION_STORAGE_KEY,
@@ -52,7 +52,6 @@ module Pathogen
       @system_arguments = system_arguments
       apply_system_arguments
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def before_render
       @region_label ||= t('pathogen.toast.region_label')

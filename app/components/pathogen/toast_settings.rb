@@ -24,7 +24,7 @@ module Pathogen
 
     attr_reader :storage_key, :options, :selected, :select_id, :description_id
 
-    # rubocop:disable Metrics/ParameterLists
+    # rubocop:disable-next Metrics/ParameterLists
     def initialize(storage_key: STORAGE_KEY, options: DEFAULT_OPTIONS, selected: :default, label: nil,
                    description: nil, **system_arguments)
       @storage_key = storage_key.to_s.presence || STORAGE_KEY
@@ -39,7 +39,6 @@ module Pathogen
       @system_arguments = system_arguments
       apply_system_arguments
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def label
       @label.presence || t('pathogen.toast.settings.label')
