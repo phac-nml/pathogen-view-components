@@ -9,9 +9,8 @@ import {
   ANNOUNCE_DEBOUNCE_MS,
   LiveRegionAnnouncer,
 } from "pathogen_view_components/toaster_controller/live_region_announcer";
+import { createStackPlan, describeToast, TOAST_GAP_PX } from "pathogen_view_components/toaster_controller/stack_plan";
 
-// Matches --pvc-toast-gap (0.875rem) at the default 16px root font size.
-const TOAST_GAP_PX = 14;
 const DISMISS_ALL_THRESHOLD = 3;
 
 export default class extends Controller {
@@ -28,8 +27,9 @@ export default class extends Controller {
   #resizeObserver = null;
   #motionQuery = null;
   #onMotionChange = null;
-  #applyingStack = false;
   #stackFrame = null;
+  #arrivalFrame = null;
+  #arrivals = new Set();
 
   connect() {
     this.#motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -46,6 +46,8 @@ export default class extends Controller {
     this.toastTargets.forEach((toast) => {
       this.#applyDurationPreference(toast);
       this.#resizeObserver.observe(toast);
+      const controller = this.application.getControllerForElementAndIdentifier(toast, "pathogen--toast");
+      if (controller) this.#queuePresentation(controller);
     });
 
     this.#applyStack();
@@ -58,6 +60,11 @@ export default class extends Controller {
       cancelAnimationFrame(this.#stackFrame);
       this.#stackFrame = null;
     }
+    if (this.#arrivalFrame) {
+      cancelAnimationFrame(this.#arrivalFrame);
+      this.#arrivalFrame = null;
+    }
+    this.#arrivals.clear();
     if (this.#motionQuery && this.#onMotionChange) {
       this.#motionQuery.removeEventListener("change", this.#onMotionChange);
     }
@@ -82,10 +89,7 @@ export default class extends Controller {
   }
 
   expandFromControl() {
-    this.#expanded = true;
-    this.#applyStack();
-    const front = this.#visibleToasts().at(-1);
-    front?.focus?.({ preventScroll: true });
+    this.expand();
   }
 
   collapseIfIdle() {
@@ -108,8 +112,52 @@ export default class extends Controller {
     this.#announcer?.announce({ message, politeness });
   }
 
+  presentToast(event) {
+    this.#queuePresentation(event.detail?.toast);
+  }
+
+  #queuePresentation(toast) {
+    if (!toast?.awaitingPresentation || !this.element.contains(toast.element)) return;
+
+    this.#arrivals.add(toast);
+    if (this.#arrivalFrame) return;
+
+    this.#arrivalFrame = requestAnimationFrame(() => {
+      this.#arrivalFrame = null;
+      const arrivals = [...this.#arrivals];
+      this.#arrivals.clear();
+      if (!this.element.isConnected) return;
+
+      this.#applyStack();
+      let focusClaimed = false;
+      arrivals.forEach((arrival) => {
+        if (!arrival.awaitingPresentation || !this.element.contains(arrival.element)) return;
+
+        const focus =
+          !focusClaimed &&
+          arrival.initialDialogIntent &&
+          arrival.dialogMode &&
+          !arrival.interruptValue &&
+          this.#mayMoveFocus();
+        if (focus) focusClaimed = true;
+        arrival.present({ focus });
+      });
+    });
+  }
+
+  #mayMoveFocus() {
+    const active = document.activeElement;
+    if (!(active instanceof HTMLElement)) return true;
+    if (this.element.contains(active)) return false;
+    if (active.isContentEditable || active.closest('[contenteditable]:not([contenteditable="false"])')) return false;
+    if (active.matches("textarea, select")) return false;
+    if (active.tagName !== "INPUT") return true;
+
+    return ["button", "submit", "reset", "checkbox", "radio", "range", "color", "file", "image"].includes(active.type);
+  }
+
   dismissAll() {
-    const dialogs = this.toastTargets.filter((toast) => this.#isDialogMode(toast) && toast.isConnected);
+    const dialogs = this.toastTargets.filter((toast) => describeToast(toast).dialog && toast.isConnected);
     dialogs.forEach((toast) => {
       const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
       if (controller && typeof controller.dismiss === "function") {
@@ -125,7 +173,7 @@ export default class extends Controller {
   }
 
   #applyDurationPreference(toast) {
-    if (this.#isPersistent(toast) || this.#isDialogMode(toast)) return;
+    if (describeToast(toast).persistent) return;
 
     const preference = this.#resolvedDurationPreference();
     if (preference === null) {
@@ -179,186 +227,84 @@ export default class extends Controller {
   }
 
   #applyStack() {
-    if (this.#applyingStack) return;
-    this.#applyingStack = true;
+    const plan = createStackPlan(
+      this.toastTargets.filter((toast) => toast.isConnected),
+      {
+        expanded: this.#expanded,
+        maxVisible: Math.max(1, this.maxVisibleValue),
+        reducedMotion: this.#prefersReducedMotion(),
+        measureToast: (toast) => this.#naturalSize(toast),
+      },
+    );
 
-    try {
-      this.#applyStackNow();
-      this.#syncChrome();
-    } finally {
-      this.#applyingStack = false;
-    }
-  }
-
-  #applyStackNow() {
-    const toasts = this.toastTargets.filter((toast) => toast.isConnected);
-    if (toasts.length === 0) {
-      this.#clearListMetrics();
-      return;
-    }
-
-    const reducedMotion = this.#prefersReducedMotion();
-    const hasDialog = toasts.some((toast) => this.#isDialogMode(toast));
-    const usePeek = !reducedMotion && !hasDialog;
-    const maxVisible = this.maxVisibleValue > 0 ? this.maxVisibleValue : 1;
-    const hiddenNonPersistentCount = this.#expanded
-      ? 0
-      : Math.max(0, toasts.filter((toast) => !this.#isPersistent(toast)).length - maxVisible);
-
-    let nonPersistentIndex = 0;
-    toasts.forEach((toast) => {
-      const isPersistent = this.#isPersistent(toast);
-      const isHiddenOverflow = !isPersistent && nonPersistentIndex < hiddenNonPersistentCount;
-      if (!isPersistent) nonPersistentIndex += 1;
-      toast.hidden = isHiddenOverflow;
-      this.#setToastInert(toast, isHiddenOverflow);
-      if (!usePeek) {
-        toast.setAttribute("aria-hidden", isHiddenOverflow ? "true" : "false");
-        toast.removeAttribute("data-behind");
-        if (!isHiddenOverflow && !this.#isDialogMode(toast)) {
-          // Status toasts stay out of the tab order.
-          toast.removeAttribute("tabindex");
-        }
-      }
-    });
-
-    this.element.dataset.stack = usePeek ? "peek" : "flat";
-    this.element.dataset.expanded = this.#expanded ? "true" : "false";
+    this.element.dataset.stack = plan.peek ? "peek" : "flat";
+    this.element.dataset.expanded = String(this.#expanded);
     this.element.dataset.anchor = this.#anchorEdge();
+    this.element.dataset.hasPeek = String(plan.peek && plan.peekCount > 0);
+    if (plan.metricsReady) this.element.dataset.stackReady = "true";
+    else delete this.element.dataset.stackReady;
 
-    const visible = toasts.filter((toast) => !toast.hidden);
-    if (!usePeek) {
-      this.#clearPeekStyles(toasts);
-      return;
-    }
+    plan.entries.forEach(({ toast, hidden, behind, inert, index, height, offset }) => {
+      toast.hidden = hidden;
+      toast.toggleAttribute("inert", inert);
+      toast.setAttribute("aria-hidden", String(inert));
+      if (behind) toast.tabIndex = -1;
+      else toast.removeAttribute("tabindex");
 
-    this.#applyPeekStack(visible, toasts);
-  }
-
-  #applyPeekStack(visible, allToasts) {
-    const frontFirst = [...visible].reverse();
-    const sizes = frontFirst.map((toast) => this.#naturalSize(toast));
-    const heights = sizes.map((size) => Math.ceil(size.height));
-    const frontHeight = heights[0] ?? 0;
-    const frontWidth = Math.ceil(sizes[0]?.width ?? 0);
-    const peekCount = Math.max(0, frontFirst.length - 1);
-    const list = this.#listElement();
-    const metricsReady = this.#expanded || peekCount === 0 || frontHeight > 0;
-
-    this.element.dataset.hasPeek = peekCount > 0 ? "true" : "false";
-    if (metricsReady) {
-      this.element.dataset.stackReady = "true";
-    } else {
-      delete this.element.dataset.stackReady;
-    }
-
-    frontFirst.forEach((toast, index) => {
-      const behind = metricsReady && !this.#expanded && index > 0;
-      toast.style.setProperty("--toast-index", String(index));
-      toast.style.setProperty("--toast-height", `${heights[index]}px`);
-      toast.dataset.behind = behind ? "true" : "false";
-      toast.setAttribute("aria-hidden", behind ? "true" : "false");
-      this.#setToastInert(toast, behind);
-
-      if (this.#isDialogMode(toast) && !behind) {
-        toast.tabIndex = -1;
-      } else if (!behind) {
-        toast.removeAttribute("tabindex");
-      } else {
-        toast.tabIndex = -1;
-      }
-
-      toast.style.removeProperty("max-height");
-      toast.style.removeProperty("height");
-      toast.style.removeProperty("overflow");
-      toast.style.removeProperty("position");
-      this.#clearAnchorOffset(toast);
-
-      if (this.#expanded && metricsReady) {
-        let offset = 0;
-        for (let i = 0; i < index; i += 1) {
-          offset += heights[i] + TOAST_GAP_PX;
-        }
+      if (plan.peek && !hidden) {
+        toast.dataset.behind = String(behind);
+        toast.style.setProperty("--toast-index", String(index));
+        toast.style.setProperty("--toast-height", `${height}px`);
         toast.style.setProperty("--toast-offset", `${offset}px`);
       } else {
-        toast.style.setProperty("--toast-offset", "0px");
+        toast.removeAttribute("data-behind");
+        ["--toast-index", "--toast-height", "--toast-offset"].forEach((property) =>
+          toast.style.removeProperty(property),
+        );
       }
+      ["max-height", "height", "overflow", "position", "top", "bottom"].forEach((property) =>
+        toast.style.removeProperty(property),
+      );
     });
 
-    allToasts
-      .filter((toast) => toast.hidden)
-      .forEach((toast) => {
-        toast.setAttribute("aria-hidden", "true");
-        toast.removeAttribute("data-behind");
-        this.#setToastInert(toast, true);
-        this.#clearToastPeekVars(toast);
-      });
-
-    if (!list) return;
-
-    if (frontWidth > 0) {
-      this.element.style.setProperty("--front-width", `${frontWidth}px`);
+    if (plan.peek && plan.frontWidth > 0) {
+      this.element.style.setProperty("--front-width", `${plan.frontWidth}px`);
     } else {
       this.element.style.removeProperty("--front-width");
     }
 
-    if (this.#expanded && metricsReady) {
-      const stackHeight =
-        heights.reduce((sum, height) => sum + height, 0) + Math.max(0, heights.length - 1) * TOAST_GAP_PX;
-      list.style.setProperty("--stack-height", `${stackHeight}px`);
-      list.style.setProperty("--front-height", `${frontHeight}px`);
-      list.style.setProperty("--peek-count", String(peekCount));
-    } else if (metricsReady) {
-      list.style.setProperty("--front-height", `${frontHeight}px`);
-      list.style.setProperty("--peek-count", String(peekCount));
-      list.style.removeProperty("--stack-height");
-    } else {
-      list.style.removeProperty("--front-height");
-      list.style.removeProperty("--peek-count");
-      list.style.removeProperty("--stack-height");
+    const list = this.#listElement();
+    if (list) {
+      const metrics = {
+        "--front-height": plan.metricsReady ? `${plan.frontHeight}px` : null,
+        "--peek-count": plan.metricsReady ? String(plan.peekCount) : null,
+        "--stack-height": plan.metricsReady && this.#expanded ? `${plan.stackHeight}px` : null,
+      };
+      Object.entries(metrics).forEach(([property, value]) => {
+        if (value === null) list.style.removeProperty(property);
+        else list.style.setProperty(property, value);
+      });
     }
-  }
-
-  #setToastInert(toast, inert) {
-    if (inert) {
-      toast.setAttribute("inert", "");
-    } else {
-      toast.removeAttribute("inert");
-    }
-  }
-
-  #syncChrome() {
-    const toasts = this.toastTargets.filter((toast) => toast.isConnected);
-    const hiddenCount = toasts.filter((toast) => toast.hidden).length;
-    const peekBehind = toasts.filter((toast) => toast.dataset.behind === "true").length;
-    const moreCount = hiddenCount + (this.#expanded ? 0 : peekBehind);
-    const dialogCount = toasts.filter((toast) => this.#isDialogMode(toast)).length;
 
     if (this.hasMoreTarget) {
-      if (moreCount > 0 && !this.#expanded) {
-        this.moreTarget.hidden = false;
-        this.moreTarget.textContent = this.#moreLabel(moreCount);
-      } else {
-        this.moreTarget.hidden = true;
-      }
+      // Focus can expand the stack before click/Enter. Keep the same control
+      // visible through that change so the user's focus stays anchored.
+      this.moreTarget.hidden = plan.moreCount === 0 && document.activeElement !== this.moreTarget;
+      this.moreTarget.setAttribute("aria-expanded", String(this.#expanded));
+      this.moreTarget.textContent = this.#moreLabel(plan.moreCount);
     }
-
     if (this.hasDismissAllTarget) {
-      this.dismissAllTarget.hidden = dialogCount < DISMISS_ALL_THRESHOLD;
+      this.dismissAllTarget.hidden = plan.dialogCount < DISMISS_ALL_THRESHOLD;
     }
   }
 
   #moreLabel(count) {
-    const template = this.moreTarget?.dataset?.template;
-    if (template) return template.replace("%{count}", String(count));
-    return `+${count} more`;
-  }
-
-  #visibleToasts() {
-    return this.toastTargets.filter((toast) => toast.isConnected && !toast.hidden);
+    const template = this.moreTarget.dataset.template;
+    return template ? template.replace("%{count}", String(count)) : `+${count} more`;
   }
 
   #naturalSize(toast) {
+    const hidden = toast.hidden;
     const previous = {
       height: toast.style.height,
       maxHeight: toast.style.maxHeight,
@@ -374,6 +320,7 @@ export default class extends Controller {
 
     const columnWidth = Math.ceil(this.#listElement()?.clientWidth ?? 0);
 
+    toast.hidden = false;
     toast.style.position = "static";
     toast.style.height = "auto";
     toast.style.maxHeight = "none";
@@ -393,56 +340,9 @@ export default class extends Controller {
     Object.entries(previous).forEach(([key, value]) => {
       toast.style[key] = value;
     });
+    toast.hidden = hidden;
 
     return size;
-  }
-
-  #clearAnchorOffset(toast) {
-    toast.style.removeProperty("top");
-    toast.style.removeProperty("bottom");
-  }
-
-  #clearPeekStyles(toasts) {
-    toasts.forEach((toast) => this.#clearToastPeekVars(toast));
-    this.#clearListMetrics();
-  }
-
-  #clearToastPeekVars(toast) {
-    toast.style.removeProperty("--toast-index");
-    toast.style.removeProperty("--toast-offset");
-    toast.style.removeProperty("--toast-height");
-    toast.style.removeProperty("max-height");
-    toast.style.removeProperty("height");
-    toast.style.removeProperty("overflow");
-    toast.style.removeProperty("position");
-    this.#clearAnchorOffset(toast);
-    toast.removeAttribute("data-behind");
-  }
-
-  #clearListMetrics() {
-    const list = this.#listElement();
-    this.element.style.removeProperty("--front-width");
-    this.element.dataset.hasPeek = "false";
-    delete this.element.dataset.stackReady;
-    if (!list) return;
-    list.style.removeProperty("--front-height");
-    list.style.removeProperty("--peek-count");
-    list.style.removeProperty("--stack-height");
-  }
-
-  #isDialogMode(toast) {
-    return toast.getAttribute("data-pathogen--toast-mode-value") === "dialog";
-  }
-
-  #isPersistent(toast) {
-    if (toast.getAttribute("data-pathogen--toast-persistent-value") === "true") return true;
-    if (this.#isDialogMode(toast)) return true;
-
-    const timeoutValue = toast.getAttribute("data-pathogen--toast-timeout-value");
-    if (timeoutValue === null) return false;
-
-    const timeout = Number(timeoutValue);
-    return Number.isFinite(timeout) && timeout <= 0;
   }
 }
 
