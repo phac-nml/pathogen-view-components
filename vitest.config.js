@@ -86,6 +86,11 @@ export default defineConfig({
       "pathogen_view_components/sidebar_controller": resolve(jsRoot, "sidebar_controller.js"),
       "pathogen_view_components/toolbar_controller": resolve(jsRoot, "toolbar_controller.js"),
       "pathogen_view_components/avatar_controller": resolve(jsRoot, "avatar_controller.js"),
+      "pathogen_view_components/toast_duration_preference": resolve(jsRoot, "toast_duration_preference.js"),
+      "pathogen_view_components/toaster_controller/live_region_announcer": resolve(
+        jsRoot,
+        "toaster_controller/live_region_announcer.js",
+      ),
     },
   },
   test: {
