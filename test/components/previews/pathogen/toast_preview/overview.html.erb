@@ -5,8 +5,8 @@
     <%= pathogen_heading(level: 3, class: "mb-2") { "Sample processing queue" } %>
 
     <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Toasts confirm background work without blocking the current task. Status is carried by the icon and message —
-      not decorative colour blocks.
+      Status toasts confirm background work when the UI already shows the result. Warnings and errors use notification
+      dialogs (focus moves in). Pair overlays with durable UI — the toaster notification log keeps a reviewable history.
     <% end %>
 
     <div
@@ -69,41 +69,32 @@
   </section>
 
   <section>
-    <%= pathogen_heading(level: 3, class: "mb-2") { "Status types" } %>
-
-    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
-      Semantic roles for success, warning, and error. Info stays quiet with a muted icon; reserve accent for actions
-      inside the toast.
-    <% end %>
+    <%= pathogen_heading(level: 3, class: "mb-2") { "When to use which mode" } %>
 
     <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <dl class="space-y-3 text-sm">
-        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Success" } %>
-          <dd class="font-mono text-(--pvc-color-success)">--pvc-color-success</dd>
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Status toast" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
+            Redundant success/info only. Auto-dismisses. No controls. Announced politely. Keep the same fact in page UI
+            or the notification log.
+          <% end %>
         </div>
-        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Warning" } %>
-          <dd class="font-mono text-(--pvc-color-warning)">--pvc-color-warning</dd>
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Notification dialog" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
+            Warnings, errors, dismissible, or actionable notifications. Focus moves in; no live-region announce. Prefer
+            an in-flow banner when the message belongs next to the task.
+          <% end %>
         </div>
-        <div class="flex items-baseline justify-between gap-4 border-b border-(--pvc-color-border) pb-2">
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Error" } %>
-          <dd class="font-mono text-(--pvc-color-danger)">--pvc-color-danger</dd>
-        </div>
-        <div class="flex items-baseline justify-between gap-4">
-          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Info" } %>
-          <%= pathogen_supporting(tag: :dd, variant: :muted, class: "font-mono") { "--pvc-color-text-muted" } %>
+        <div>
+          <%= pathogen_supporting(tag: :dt, class: "font-semibold") { "Undo" } %>
+          <%= pathogen_supporting(tag: :dd, variant: :muted) do %>
+            Put Undo in the page next to the changed item. An optional status toast may confirm the action; do not make
+            the toast the only Undo path.
+          <% end %>
         </div>
       </dl>
     </div>
   </section>
-
-  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
-    <%= pathogen_supporting(class: "font-semibold") { "Usage" } %>
-    <%= pathogen_supporting(variant: :muted, class: "mt-2") do %>
-      Mount a persistent <%= pathogen_code { "Pathogen::Toaster" } %> in the host layout (for example
-      <%= pathogen_code { "#flashes" } %>) and stream <%= pathogen_code { "Pathogen::Toast" } %> instances into
-      it after Turbo responses. Errors and actionable toasts do not auto-dismiss.
-    <% end %>
-  </div>
 </div>
