@@ -18,6 +18,7 @@ module Pathogen
       assert_selector 'p', text: '12 samples were assigned.'
       assert_selector 'button[aria-label="Dismiss notification"]'
       assert_selector 'li[data-pathogen--toast-timeout-value="6000"]'
+      assert_selector 'li[data-pathogen--toast-type-label-value="Success"]'
     end
 
     test 'normalizes rails flash aliases' do
@@ -26,6 +27,14 @@ module Pathogen
 
       render_inline(Pathogen::Toast.new(type: :alert, message: 'Failed'))
       assert_selector 'li[data-pathogen--toast-type-value="error"]'
+    end
+
+    test 'raises for unsupported type values in development and test environments' do
+      error = assert_raises(Pathogen::FetchOrFallbackHelper::InvalidValueError) do
+        render_inline(Pathogen::Toast.new(type: :unsupported, message: 'Unknown state'))
+      end
+
+      assert_match(/Expected one of/, error.message)
     end
 
     test 'errors are persistent and route as error type' do
@@ -67,6 +76,7 @@ module Pathogen
       end
 
       assert_selector 'button[aria-label="Fermer la notification"]'
+      assert_selector 'li[data-pathogen--toast-type-label-value="Information"]'
     end
 
     test 'uses contract typography, status icon, and dismiss button styles' do
