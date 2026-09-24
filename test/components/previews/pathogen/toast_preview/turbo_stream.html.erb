@@ -1,0 +1,119 @@
+<%# herb:formatter ignore %>
+
+<div
+  id="pv-toast-stream-root"
+  data-list-id="flashes-stream-sim"
+  class="flex max-w-4xl flex-col gap-4 p-4"
+>
+  <%= pathogen_heading(level: 3, class: "mb-2") { "Turbo stream" } %>
+
+  <%= pathogen_supporting(variant: :muted) do %>
+    Push appends a real <%= pathogen_code { "Pathogen::Toast" } %> via
+    <%= pathogen_code { "Turbo.renderStreamMessage" } %>.
+  <% end %>
+
+  <div>
+    <%= render Pathogen::Button.new(
+      text: 'Push event',
+      tone: :primary,
+      emphasis: :solid,
+      size: :small,
+      'data-pv-stream-push': true
+    ) %>
+  </div>
+
+  <div
+    class="
+      relative min-h-96 overflow-hidden rounded-(--pvc-radius-panel) border
+      border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
+    "
+  >
+    <%= pathogen_supporting(variant: :muted) do %>
+      Outbreak event channel — workspace stays interactive while notifications arrive.
+    <% end %>
+
+    <%= render Pathogen::Toaster.new(
+      position: :top_center,
+      strategy: :absolute,
+      turbo_permanent: false,
+      max_visible: 4,
+      list_id: 'flashes-stream-sim'
+    ) %>
+  </div>
+
+  <div class="hidden" aria-hidden="true">
+    <template data-pv-stream-toast-template>
+      <%= render Pathogen::Toast.new(
+        type: :success,
+        message: 'Metadata sync complete.',
+        description: '19 newly published records were indexed.'
+      ) %>
+    </template>
+
+    <template data-pv-stream-toast-template>
+      <%= render Pathogen::Toast.new(
+        type: :info,
+        message: 'Background reconciliation running.',
+        description: 'Remote sequencing updates are processing in batches.'
+      ) %>
+    </template>
+
+    <template data-pv-stream-toast-template>
+      <%= render Pathogen::Toast.new(
+        type: :warning,
+        message: 'One lineage annotation needs review.',
+        description: 'Coverage dropped below the release threshold for SPEC-2026-1142.'
+      ) %>
+    </template>
+
+    <template data-pv-stream-toast-template>
+      <%= render Pathogen::Toast.new(
+        type: :error,
+        message: 'Submission export failed.',
+        description: 'Connection to the provincial endpoint timed out.'
+      ) %>
+    </template>
+  </div>
+</div>
+
+<script nonce="<%= request.content_security_policy_nonce %>">
+  (function () {
+    const root = document.getElementById("pv-toast-stream-root");
+    if (!root || root.dataset.initialized === "true") return;
+    root.dataset.initialized = "true";
+
+    const listId = root.dataset.listId;
+    const pushBtn = root.querySelector("[data-pv-stream-push]");
+    const templates = Array.from(root.querySelectorAll("template[data-pv-stream-toast-template]"));
+
+    const renderStream = (html) => {
+      if (!window.Turbo || typeof window.Turbo.renderStreamMessage !== "function") return false;
+
+      const payload = `<turbo-stream action="append" target="${listId}"><template>${html}</template></turbo-stream>`;
+      window.Turbo.renderStreamMessage(payload);
+      return true;
+    };
+
+    const appendRandomToast = () => {
+      if (templates.length === 0) return;
+
+      const selectedTemplate = templates[Math.floor(Math.random() * templates.length)];
+      const toastHtml = selectedTemplate.innerHTML.trim();
+      if (!toastHtml) return;
+
+      if (!renderStream(toastHtml)) {
+        document.getElementById(listId)?.insertAdjacentHTML("beforeend", toastHtml);
+      }
+    };
+
+    pushBtn?.addEventListener("click", appendRandomToast);
+
+    document.addEventListener(
+      "turbo:before-cache",
+      () => {
+        root.dataset.initialized = "false";
+      },
+      { once: true }
+    );
+  })();
+</script>
