@@ -1,6 +1,10 @@
 ---
 en:
   pathogen:
+    copyable_value:
+      copied: Copied to clipboard
+      copy_aria_label: Copy %{value} to clipboard
+      copy_failed: Unable to copy to clipboard
     data_grid:
       empty_state:
         default: No rows found. Try adjusting filters or refreshing the data.
