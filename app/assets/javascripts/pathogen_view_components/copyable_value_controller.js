@@ -51,63 +51,56 @@ export default class extends Controller {
   };
 
   #resetTimeout = null;
+  #connectionGeneration = 0;
 
   connect() {
-    this.#setState(COPY_STATES.idle);
+    this.#reset();
     this.element.dataset.controllerConnected = "true";
   }
 
   disconnect() {
+    this.#connectionGeneration += 1;
     this.#clearResetTimeout();
     delete this.element.dataset.controllerConnected;
   }
 
   async copy() {
     const text = this.textTarget.textContent ?? "";
+    const connectionGeneration = this.#connectionGeneration;
+    let state = COPY_STATES.success;
 
     try {
       await writeTextToClipboard(text, this.textTarget);
-      this.#showSuccess();
     } catch {
-      this.#showFailure();
+      state = COPY_STATES.error;
     }
+
+    if (connectionGeneration !== this.#connectionGeneration || !this.element.isConnected) return;
+
+    this.#showFeedback(state);
   }
 
-  #showSuccess() {
+  #showFeedback(state) {
     this.#clearResetTimeout();
-    this.#setState(COPY_STATES.success, { replay: true });
-    this.#announce(this.copiedMessageValue);
-    this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
-  }
-
-  #showFailure() {
-    this.#clearResetTimeout();
-    this.#setState(COPY_STATES.error);
-    this.#announce(this.copyFailedMessageValue);
+    this.#setState(state);
+    this.announcementTarget.textContent =
+      state === COPY_STATES.success ? this.copiedMessageValue : this.copyFailedMessageValue;
     this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
 
   #reset() {
     this.#setState(COPY_STATES.idle);
-    this.#clearAnnouncement();
+    this.announcementTarget.textContent = "";
     this.#resetTimeout = null;
   }
 
-  #setState(state, { replay = false } = {}) {
-    if (replay && state === COPY_STATES.success && this.element.dataset.state === COPY_STATES.success) {
+  #setState(state) {
+    if (state === COPY_STATES.success && this.element.dataset.state === COPY_STATES.success) {
       this.element.dataset.state = COPY_STATES.idle;
       void this.element.offsetWidth;
     }
 
     this.element.dataset.state = state;
-  }
-
-  #announce(message) {
-    this.announcementTarget.textContent = message;
-  }
-
-  #clearAnnouncement() {
-    this.announcementTarget.textContent = "";
   }
 
   #clearResetTimeout() {

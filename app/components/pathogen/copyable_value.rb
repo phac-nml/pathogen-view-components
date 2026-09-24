@@ -84,26 +84,21 @@ module Pathogen
     end
 
     def build_data_attributes
-      data = (@system_arguments[:data] || {}).dup
-      existing_controller = data.delete(:controller) || data.delete('controller')
+      data = (@system_arguments[:data] || {}).deep_stringify_keys
+      controllers = [data['controller'], controller_name].compact.join(' ').split.uniq.join(' ')
 
-      data[:controller] = [existing_controller, controller_name]
-                          .compact
-                          .join(' ')
-                          .split
-                          .uniq
-                          .join(' ')
-      data.merge!(stimulus_values)
-      data[:state] = 'idle'
-
-      data
+      data.merge(
+        'controller' => controllers,
+        'state' => 'idle',
+        **stimulus_values
+      )
     end
 
     def stimulus_values
       {
-        "#{controller_name}-copied-message-value": copied_message,
-        "#{controller_name}-copy-failed-message-value": copy_failed_message,
-        "#{controller_name}-reset-delay-value": @reset_delay
+        "#{controller_name}-copied-message-value" => copied_message,
+        "#{controller_name}-copy-failed-message-value" => copy_failed_message,
+        "#{controller_name}-reset-delay-value" => @reset_delay
       }
     end
 
