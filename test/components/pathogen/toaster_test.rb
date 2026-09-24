@@ -25,7 +25,8 @@ module Pathogen
       assert_no_selector 'div[data-pathogen--toaster-target="assertive"][role="alert"]', visible: :all
       assert_no_selector '[data-pathogen--toaster-target="log"]'
       assert_no_selector 'button[data-pathogen--toaster-target="logToggle"]'
-      assert_selector 'button[data-pathogen--toaster-target="more"][hidden]', visible: :all
+      assert_selector 'button[data-pathogen--toaster-target="more"][hidden]' \
+                      '[aria-controls="flashes"][aria-expanded="false"]', visible: :all
       assert_selector 'button[data-pathogen--toaster-target="dismissAll"][hidden]', visible: :all
     end
 
@@ -33,6 +34,26 @@ module Pathogen
       render_inline(Pathogen::Toaster.new(list_id: 'flash-stack'))
 
       assert_selector 'section#flash-stack-toaster[data-turbo-permanent="true"]'
+    end
+
+    test 'merges nested and flat host data attributes with required wiring' do
+      render_inline(
+        Pathogen::Toaster.new(
+          data: { controller: 'host-controller', action: 'click->host#record', qa_hook: 'notifications' },
+          'data-controller': 'analytics',
+          'data-action': 'focusin->analytics#record'
+        )
+      )
+
+      assert_selector 'section[data-controller="host-controller analytics pathogen--toaster"]' \
+                      '[data-action~="click->host#record"][data-action~="focusin->analytics#record"]' \
+                      '[data-action~="pathogen:toast:ready->pathogen--toaster#presentToast"]' \
+                      '[data-action~="pathogen:toast:announce->pathogen--toaster#announce"]' \
+                      '[data-action~="pathogen:toast:dismissed->pathogen--toaster#handleToastDismissed"]' \
+                      '[data-qa-hook="notifications"]'
+      root_markup = rendered_content[/<section\b[^>]*>/]
+      assert_equal 1, root_markup.scan('data-controller=').length
+      assert_equal 1, root_markup.scan('data-action=').length
     end
 
     test 'supports position presets and list id override' do
