@@ -1,6 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
+import { DURATION_STORAGE_KEY } from "pathogen_view_components/toast_duration_preference";
 
-const DEFAULT_STORAGE_KEY = "pathogen.toast.durationMs";
+const DEFAULT_STORAGE_KEY = DURATION_STORAGE_KEY;
 
 // Persists the user's status-toast duration preference to localStorage, which
 // Pathogen::Toaster / Pathogen::Toast read. This is the user-facing mechanism
