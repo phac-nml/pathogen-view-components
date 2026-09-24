@@ -9,9 +9,10 @@ module Pathogen
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
 
-      assert_selector 'section#flashes-toaster[data-controller~="pathogen--toaster"][data-turbo-permanent="true"]'
-      assert_selector 'section.pointer-events-none'
-      assert_selector 'ol#flashes[aria-label="Notifications"]'
+      assert_selector 'section#flashes-toaster.pvc-toaster[data-controller~="pathogen--toaster"][data-turbo-permanent="true"]'
+      assert_selector 'section.pointer-events-none.top-4.left-1\\/2.-translate-x-1\\/2'
+      assert_selector 'section[data-pathogen--toaster-position-value="top_center"][data-stack="peek"][data-anchor="top"]'
+      assert_selector 'ol#flashes.pvc-toaster__list[aria-label="Notifications"]'
       assert_no_selector 'ol#flashes[data-pathogen--toaster-target]'
       assert_no_selector 'section[data-action*="handleToastDismissed"]'
       assert_no_selector 'ol#flashes[aria-live]'
@@ -28,11 +29,11 @@ module Pathogen
     end
 
     test 'supports position presets and list id override' do
-      render_inline(Pathogen::Toaster.new(position: :top_center, list_id: 'flash-stack')) do
+      render_inline(Pathogen::Toaster.new(position: :bottom_right, list_id: 'flash-stack')) do
         '<li data-pathogen--toaster-target="toast">Running sync</li>'.html_safe
       end
 
-      assert_selector 'section.left-1\\/2.-translate-x-1\\/2.top-4'
+      assert_selector 'section.bottom-4.right-4[data-pathogen--toaster-position-value="bottom_right"][data-anchor="bottom"]'
       assert_selector 'ol#flash-stack'
     end
 
@@ -56,16 +57,16 @@ module Pathogen
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
 
-      assert_selector 'section.bottom-4.right-4.left-4.sm\\:left-auto.sm\\:w-max.max-w-md'
+      assert_selector 'section.bottom-4.right-4.left-4.sm\\:left-auto.sm\\:w-max.max-w-md[data-layout="corner"]'
       assert_no_selector 'section.w-full'
     end
 
     test 'center positions keep full width for anchoring' do
-      render_inline(Pathogen::Toaster.new(position: :bottom_center)) do
+      render_inline(Pathogen::Toaster.new(position: :top_center)) do
         '<li data-pathogen--toaster-target="toast">Saved</li>'.html_safe
       end
 
-      assert_selector 'section.bottom-4.left-1\\/2.-translate-x-1\\/2.w-full.max-w-md.px-4'
+      assert_selector 'section.top-4.left-1\\/2.-translate-x-1\\/2.w-full.max-w-md.px-4[data-layout="center"]'
     end
 
     test 'passes axe structural checks' do
