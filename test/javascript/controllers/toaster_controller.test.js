@@ -57,14 +57,16 @@ const buildConnectedToast = ({ message = "Saved", type = "success", typeLabel = 
   return toast;
 };
 
-const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
+const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {}) => {
   const section = document.createElement("section");
   section.setAttribute("data-controller", "pathogen--toaster");
   section.setAttribute("data-pathogen--toaster-max-visible-value", String(maxVisible));
+  section.setAttribute("data-pathogen--toaster-position-value", position);
   section.setAttribute("data-action", TOASTER_ACTIONS);
 
   const list = document.createElement("ol");
   list.id = "flashes";
+  list.className = "pvc-toaster__list";
   section.appendChild(list);
 
   const polite = document.createElement("div");
@@ -86,11 +88,35 @@ const buildToaster = ({ maxVisible = 3, count = 4 } = {}) => {
   return { section, list, polite, assertive };
 };
 
+const mockReducedMotion = (matches) => {
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: query === "(prefers-reduced-motion: reduce)" ? matches : false,
+      media: query,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+};
+
 describe("toaster_controller", () => {
   let application;
 
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    mockReducedMotion(false);
+    global.ResizeObserver = class {
+      observe() {}
+
+      unobserve() {}
+
+      disconnect() {}
+    };
     application = Application.start();
     application.register("pathogen--toaster", ToasterController);
     application.register("pathogen--toast", ToastController);
@@ -112,6 +138,54 @@ describe("toaster_controller", () => {
     expect(toasts[2].hidden).toBe(false);
     expect(toasts[4].hidden).toBe(false);
     expect(toasts[0].getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("marks collapsed peek-behind toasts as non-interactive", async () => {
+    const { section, list } = buildToaster({ maxVisible: 3, count: 3 });
+    await waitForController();
+
+    const toasts = Array.from(list.querySelectorAll("li"));
+    expect(section.dataset.stack).toBe("peek");
+    expect(section.dataset.expanded).toBe("false");
+    expect(section.dataset.anchor).toBe("top");
+    expect(toasts[2].dataset.behind).toBe("false");
+    expect(toasts[2].tabIndex).toBe(0);
+    expect(toasts[1].dataset.behind).toBe("true");
+    expect(toasts[1].tabIndex).toBe(-1);
+    expect(toasts[1].getAttribute("aria-hidden")).toBe("true");
+    expect(toasts[0].dataset.behind).toBe("true");
+    expect(list.style.getPropertyValue("--peek-count")).toBe("2");
+  });
+
+  it("uses bottom anchor metrics for bottom positions", async () => {
+    const { section } = buildToaster({ maxVisible: 2, count: 2, position: "bottom_right" });
+    await waitForController();
+    expect(section.dataset.anchor).toBe("bottom");
+  });
+
+  it("sets --front-width so corner peek stacks keep a measurable width", async () => {
+    const { section, list } = buildToaster({ maxVisible: 2, count: 0, position: "top_right" });
+    section.dataset.layout = "corner";
+    const toast = buildToast({ text: "Position: Top right" });
+    Object.defineProperty(toast, "getBoundingClientRect", {
+      configurable: true,
+      value: () => ({
+        width: 280,
+        height: 72,
+        top: 0,
+        left: 0,
+        bottom: 72,
+        right: 280,
+        x: 0,
+        y: 0,
+        toJSON: () => ({}),
+      }),
+    });
+    list.appendChild(toast);
+    await waitForController();
+    await waitForAnimationFrame();
+
+    expect(section.style.getPropertyValue("--front-width")).toBe("280px");
   });
 
   it("keeps persistent toasts visible while collapsed", async () => {
@@ -138,7 +212,11 @@ describe("toaster_controller", () => {
     Array.from(list.querySelectorAll("li")).forEach((toast) => {
       expect(toast.hidden).toBe(false);
       expect(toast.getAttribute("aria-hidden")).toBe("false");
+      expect(toast.dataset.behind).toBe("false");
+      expect(toast.tabIndex).toBe(0);
     });
+    expect(section.dataset.expanded).toBe("true");
+    expect(list.style.getPropertyValue("--stack-height")).not.toBe("");
   });
 
   it("collapses the stack after mouse leave when idle", async () => {
@@ -156,6 +234,21 @@ describe("toaster_controller", () => {
     expect(toasts[1].hidden).toBe(true);
     expect(toasts[2].hidden).toBe(false);
     expect(toasts[3].hidden).toBe(false);
+    expect(section.dataset.expanded).toBe("false");
+  });
+
+  it("falls back to a flat stack when reduced motion is preferred", async () => {
+    mockReducedMotion(true);
+    const { section, list } = buildToaster({ maxVisible: 2, count: 4 });
+    await waitForController();
+
+    const toasts = Array.from(list.querySelectorAll("li"));
+    expect(section.dataset.stack).toBe("flat");
+    expect(toasts[0].hidden).toBe(true);
+    expect(toasts[1].hidden).toBe(true);
+    expect(toasts[2].hidden).toBe(false);
+    expect(toasts[3].hidden).toBe(false);
+    expect(list.style.getPropertyValue("--peek-count")).toBe("");
   });
 
   it("rebalances the stack when a toast target disconnects", async () => {
@@ -163,6 +256,8 @@ describe("toaster_controller", () => {
     await waitForController();
 
     list.querySelector("li").remove();
+    await waitForController();
+    await waitForAnimationFrame();
     await waitForController();
 
     const toasts = Array.from(list.querySelectorAll("li"));
