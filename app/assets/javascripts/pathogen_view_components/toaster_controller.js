@@ -65,9 +65,7 @@ export default class extends Controller {
       this.#arrivalFrame = null;
     }
     this.#arrivals.clear();
-    if (this.#motionQuery && this.#onMotionChange) {
-      this.#motionQuery.removeEventListener("change", this.#onMotionChange);
-    }
+    this.#motionQuery.removeEventListener("change", this.#onMotionChange);
     this.#resizeObserver?.disconnect();
     this.#resizeObserver = null;
   }
@@ -199,7 +197,9 @@ export default class extends Controller {
 
   #resolvedDurationPreference() {
     return resolveDurationPreference({
-      explicitPreference: this.hasDurationPreferenceValue ? this.durationPreferenceValue : null,
+      // durationPreferenceValue defaults to the -1 sentinel, which
+      // resolveDurationPreference treats as "no explicit preference".
+      explicitPreference: this.durationPreferenceValue,
       storageKey: this.durationStorageKeyValue || DURATION_STORAGE_KEY,
     });
   }
