@@ -201,8 +201,7 @@ module Pathogen
     DEFAULT_VIRTUAL_PAGE_SIZE = 20
     DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
     DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Try again.'
-    VirtualPagination = Data.define(:mode, :total_count, :rows_url, :page_size, :row_offset, :search_params,
-                                    :next_cursor, :refresh_url)
+    VirtualPagination = DataGrid::VirtualPaginationConfig::Config
 
     attr_reader :rows, :keyboard_help_id, :virtual_pagination
 
@@ -450,95 +449,7 @@ module Pathogen
     private
 
     def normalize_virtual_pagination(config)
-      return nil if config.nil?
-
-      values = virtual_pagination_values(config)
-      mode = virtual_pagination_mode!(values)
-      total_count = virtual_pagination_total_count!(values, optional: mode == :cursor)
-      rows_url = virtual_pagination_rows_url!(values)
-      page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
-      row_offset = virtual_pagination_row_offset!(values)
-      search_params = virtual_pagination_search_params!(values)
-      next_cursor = virtual_pagination_cursor!(values, mode:, row_offset:)
-      refresh_url = virtual_pagination_value(values, :refresh_url).presence
-
-      VirtualPagination.new(mode:, total_count:, rows_url:, page_size:, row_offset:, search_params:,
-                            next_cursor:, refresh_url:)
-    end
-
-    def virtual_pagination_mode!(values)
-      mode = virtual_pagination_value(values, :mode, :offset).to_s
-      return mode.to_sym if %w[offset cursor].include?(mode)
-
-      raise ArgumentError, 'virtual_pagination mode must be offset or cursor'
-    end
-
-    def virtual_pagination_cursor!(values, mode:, row_offset:)
-      return unless mode == :cursor
-
-      raise ArgumentError, 'cursor pagination requires row_offset to be zero' unless row_offset.zero?
-
-      cursor = virtual_pagination_value(values, :next_cursor)
-      return if cursor.nil?
-      return cursor if cursor.is_a?(String) && cursor.present?
-
-      raise ArgumentError, 'cursor pagination next_cursor must be a non-empty string or nil'
-    end
-
-    def virtual_pagination_values(config)
-      values = config.respond_to?(:to_h) ? config.to_h : config
-      return values if values.respond_to?(:key?)
-
-      raise ArgumentError, 'virtual_pagination must be a hash-like object'
-    end
-
-    def positive_virtual_pagination_integer!(values, key, default = nil)
-      value = virtual_pagination_value(values, key, default).to_i
-      return value if value.positive?
-
-      raise ArgumentError, "virtual_pagination requires a positive #{key}"
-    end
-
-    def virtual_pagination_total_count!(values, optional: false)
-      value = virtual_pagination_value(values, :total_count)
-      return if optional && value.nil?
-
-      total_count = Integer(value.to_s, 10, exception: false)
-      return total_count if total_count && !total_count.negative?
-
-      raise ArgumentError, 'virtual_pagination requires a non-negative total_count'
-    end
-
-    def virtual_pagination_rows_url!(values)
-      rows_url = virtual_pagination_value(values, :rows_url)
-      raise ArgumentError, 'virtual_pagination requires rows_url' if rows_url.blank?
-
-      rows_url
-    end
-
-    def virtual_pagination_row_offset!(values)
-      row_offset = virtual_pagination_value(values, :row_offset, 0).to_i
-      raise ArgumentError, 'virtual_pagination requires a non-negative row_offset' if row_offset.negative?
-
-      row_offset
-    end
-
-    def virtual_pagination_search_params!(values)
-      search_params = virtual_pagination_value(values, :search_params, {})
-      return if search_params.blank?
-
-      unless search_params.respond_to?(:to_h)
-        raise ArgumentError, 'virtual_pagination search_params must be a hash-like object'
-      end
-
-      Rack::Utils.build_nested_query(search_params.to_h)
-    end
-
-    def virtual_pagination_value(values, key, default = nil)
-      return values[key] if values.key?(key)
-      return values[key.to_s] if values.key?(key.to_s)
-
-      default
+      DataGrid::VirtualPaginationConfig.build(config, default_page_size: DEFAULT_VIRTUAL_PAGE_SIZE)
     end
 
     def table_aria_attributes
