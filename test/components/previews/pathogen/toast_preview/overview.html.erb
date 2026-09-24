@@ -1,0 +1,46 @@
+<div class="relative min-h-[34rem] bg-[var(--pvc-color-surface-muted)] p-6">
+  <div
+    class="
+      mx-auto max-w-3xl space-y-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+      bg-[var(--pvc-color-surface)] p-4
+    "
+  >
+    <h2 class="text-base font-semibold text-[var(--pvc-color-text)]">Sample processing queue</h2>
+
+    <p class="text-sm text-[var(--pvc-color-text-muted)]">
+      Toasts confirm actions without interrupting your current task.
+    </p>
+  </div>
+
+  <%= render Pathogen::Toaster.new(
+    position: :bottom_right,
+    strategy: :absolute,
+    turbo_permanent: false,
+    max_visible: 4,
+    list_id: 'flashes'
+  ) do %>
+    <%= render Pathogen::Toast.new(
+      type: :success,
+      message: 'Batch assignment completed.',
+      description: '24 samples moved to run B-2026-06.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :info,
+      message: 'Sync running in background.',
+      description: 'You can keep working while metadata updates.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :warning,
+      message: 'One sample skipped.',
+      description: 'Coverage threshold was below 95%.'
+    ) %>
+
+    <%= render Pathogen::Toast.new(
+      type: :error,
+      message: 'Upload failed.',
+      description: 'The attachment exceeds the configured file-size limit.'
+    ) %>
+  <% end %>
+</div>
