@@ -19,6 +19,10 @@ module Pathogen
     # Shows multiple CopyableValue components in a table-like dense layout
     def dense_list; end
 
+    # @label Accessibility
+    # Keyboard focus, aria-label patterns, and screen-reader feedback
+    def accessibility; end
+
     # @!endgroup
   end
 end
