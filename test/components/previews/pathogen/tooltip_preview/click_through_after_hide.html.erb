@@ -7,8 +7,8 @@
       underneath it.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <ol class="list-decimal space-y-1 pl-5 text-sm text-[var(--pvc-color-text-muted)]">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+      <ol class="list-decimal space-y-1 pl-5 text-sm text-(--pvc-color-text-muted)">
         <li>Hover the “Tooltip trigger” button to show the tooltip.</li>
         <li>Move your mouse away to hide the tooltip.</li>
 
@@ -21,18 +21,18 @@
   </section>
 
   <section>
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="mb-4 flex items-center justify-between gap-3">
         <div>
           <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted) { "Underlying action clicks" } %>
 
-          <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-semibold text-[var(--pvc-color-text)]">0</p>
+          <p id="pv-tooltip-clicks" class="mt-1 text-3xl font-semibold text-(--pvc-color-text)">0</p>
         </div>
 
         <%= render Pathogen::Button.new(id: "pv-tooltip-reset", tone: :neutral, emphasis: :soft, size: :small, text: "Reset") %>
       </div>
 
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-6">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-6">
         <div class="flex flex-col items-center gap-3">
           <div
             data-controller="pathogen--tooltip"
@@ -64,13 +64,8 @@
         </div>
       </div>
 
-      <div
-        class="
-          mt-4 rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
-          bg-[var(--pvc-color-surface-muted)] p-3
-        "
-      >
-        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "What “broken” looks like" } %>
+      <div class="mt-4 rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-3">
+        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-(--pvc-color-text)") { "What “broken” looks like" } %>
 
         <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-2") do %>
           If the tooltip is visually hidden but still intercepting pointer events, clicks on “Underlying action” will

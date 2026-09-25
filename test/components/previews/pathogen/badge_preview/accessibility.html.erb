@@ -1,8 +1,8 @@
 <div class="flex max-w-3xl flex-col gap-8 p-4">
   <section>
-    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-[var(--pvc-color-text)]') { 'Text carries meaning' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-(--pvc-color-text)') { 'Text carries meaning' } %>
 
-    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4 text-[var(--pvc-color-text-muted)]') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4 text-(--pvc-color-text-muted)') do %>
       Badges are plain spans by default — not live regions, not controls. Screen readers announce the visible label,
       and <code>aria-label</code> is rejected so the accessible name can never drift from it. Prefer host
       <code>role="status"</code> only when this badge node itself updates live.
@@ -10,8 +10,8 @@
 
     <div
       class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
+        flex flex-wrap items-center gap-2 rounded-(--pvc-radius-panel) border border-(--pvc-color-border)
+        bg-(--pvc-color-surface) p-4
       "
     >
       <%= render Pathogen::Badge.new(text: 'Ready', tone: :success) %>
@@ -21,17 +21,17 @@
   </section>
 
   <section>
-    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-[var(--pvc-color-text)]') { 'Leading visual is decorative' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-(--pvc-color-text)') { 'Leading visual is decorative' } %>
 
-    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4 text-[var(--pvc-color-text-muted)]') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4 text-(--pvc-color-text-muted)') do %>
       Optional leading visuals are <code>aria-hidden</code> and <code>inert</code>, so slotted content stays decorative
       and cannot take focus. Icon-only badges are rejected — hosts must always pass text.
     <% end %>
 
     <div
       class="
-        flex flex-wrap items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
+        flex flex-wrap items-center gap-2 rounded-(--pvc-radius-panel) border border-(--pvc-color-border)
+        bg-(--pvc-color-surface) p-4
       "
     >
       <%= render Pathogen::Badge.new(text: 'Required', tone: :accent) do |badge| %>
@@ -74,9 +74,9 @@
   </section>
 
   <section>
-    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-[var(--pvc-color-text)]') { 'Not for interaction' } %>
+    <%= render Pathogen::Typography::Heading.new(level: 5, class: 'mb-2 text-(--pvc-color-text)') { 'Not for interaction' } %>
 
-    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'text-[var(--pvc-color-text-muted)]') do %>
+    <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'text-(--pvc-color-text-muted)') do %>
       Do not use Badge for dismissible filters, selection chips, or notification counts. Those patterns need a dedicated
       interactive component so static labels never look like buttons.
     <% end %>

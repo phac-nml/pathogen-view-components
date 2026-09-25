@@ -2,13 +2,13 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Protocol installation</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Protocol installation</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Lists, code, and section wrappers in a realistic setup flow. Section validates heading hierarchy in development.
     </p>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Section.new(level: 2) do |section| %>
         <% section.with_heading { "Prerequisites" } %>
 
@@ -35,9 +35,9 @@ bin/setup
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Card header group</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Card header group</h2>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::HeadingGroup.new(level: 3, spacing: :compact) do |group| %>
         <%= group.with_heading { "COVID-19 Analysis" } %>
         <%= group.with_metadata { "45 samples · Running" } %>
@@ -45,8 +45,8 @@ bin/setup
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+  <div class="rounded-md border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <p class="font-semibold text-(--pvc-color-text)">Usage</p>
     <p class="mt-2">
       Use <code class="font-mono">render Pathogen::Typography::List.new</code> for steps,
       <code class="font-mono">render Pathogen::Typography::Code.new</code> and

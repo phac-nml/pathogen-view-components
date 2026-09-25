@@ -113,9 +113,9 @@ module Pathogen
       ).css('span[role="img"]').first['class'].split
 
       assert_includes classes, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]'
-      assert_includes classes, 'text-[var(--pvc-color-success-strong)]'
-      assert_not_includes classes, 'text-[var(--pvc-color-success)]'
-      assert_not_includes classes, 'text-[var(--pvc-color-text)]'
+      assert_includes classes, 'text-(--pvc-color-success-strong)'
+      assert_not_includes classes, 'text-(--pvc-color-success)'
+      assert_not_includes classes, 'text-(--pvc-color-text)'
     end
 
     test 'uses equivalent deterministic fallback palette classes for color_seed alias' do

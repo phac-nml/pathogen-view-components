@@ -9,7 +9,7 @@
       Arrow keys move between tabs; selection activates immediately.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Tabs.new(id: 'run-review-tabs', label: 'Sequencing run sections')) do |tabs| %>
         <% tabs.with_tab(id: 'tab-summary', label: 'Summary', selected: true) %>
         <% tabs.with_tab(id: 'tab-qc', label: 'QC') %>
@@ -17,39 +17,39 @@
         <% tabs.with_tab(id: 'tab-metadata', label: 'Metadata') %>
 
         <% tabs.with_panel(id: 'panel-summary', tab_id: 'tab-summary') do %>
-          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-2">
+          <dl class="grid gap-3 text-(length:--type-control) sm:grid-cols-2">
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Run ID</dt>
-              <dd class="font-mono text-[var(--pvc-color-text-muted)]">RUN-2026-0142</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Run ID</dt>
+              <dd class="font-mono text-(--pvc-color-text-muted)">RUN-2026-0142</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Instrument</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">NovaSeq X Plus</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Instrument</dt>
+              <dd class="text-(--pvc-color-text-muted)">NovaSeq X Plus</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Samples</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">48 submitted · 46 passed initial QC</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Samples</dt>
+              <dd class="text-(--pvc-color-text-muted)">48 submitted · 46 passed initial QC</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Status</dt>
-              <dd class="text-[var(--pvc-color-success)]">Ready for review</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Status</dt>
+              <dd class="text-(--pvc-color-success)">Ready for review</dd>
             </div>
           </dl>
         <% end %>
 
         <% tabs.with_panel(id: 'panel-qc', tab_id: 'tab-qc') do %>
-          <div class="space-y-3 text-[length:var(--type-control)]">
-            <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] pb-2">
-              <span class="font-semibold text-[var(--pvc-color-text)]">Mean Q30</span>
-              <span class="text-[var(--pvc-color-text)]">92.4%</span>
+          <div class="space-y-3 text-(length:--type-control)">
+            <div class="flex items-center justify-between border-b border-(--pvc-color-border) pb-2">
+              <span class="font-semibold text-(--pvc-color-text)">Mean Q30</span>
+              <span class="text-(--pvc-color-text)">92.4%</span>
             </div>
-            <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] pb-2">
-              <span class="font-semibold text-[var(--pvc-color-text)]">Clusters passing filter</span>
-              <span class="text-[var(--pvc-color-text)]">89.1%</span>
+            <div class="flex items-center justify-between border-b border-(--pvc-color-border) pb-2">
+              <span class="font-semibold text-(--pvc-color-text)">Clusters passing filter</span>
+              <span class="text-(--pvc-color-text)">89.1%</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="font-semibold text-[var(--pvc-color-text)]">PhiX alignment rate</span>
-              <span class="text-[var(--pvc-color-warning)]">0.42% — review recommended</span>
+              <span class="font-semibold text-(--pvc-color-text)">PhiX alignment rate</span>
+              <span class="text-(--pvc-color-warning)">0.42% — review recommended</span>
             </div>
           </div>
         <% end %>
@@ -61,18 +61,18 @@
         <% end %>
 
         <% tabs.with_panel(id: 'panel-metadata', tab_id: 'tab-metadata') do %>
-          <dl class="space-y-2 text-[length:var(--type-control)]">
+          <dl class="space-y-2 text-(length:--type-control)">
             <div class="flex gap-2">
-              <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Protocol</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">WGS bacterial v3.2</dd>
+              <dt class="w-28 shrink-0 font-semibold text-(--pvc-color-text)">Protocol</dt>
+              <dd class="text-(--pvc-color-text-muted)">WGS bacterial v3.2</dd>
             </div>
             <div class="flex gap-2">
-              <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Operator</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">lab-seq-review</dd>
+              <dt class="w-28 shrink-0 font-semibold text-(--pvc-color-text)">Operator</dt>
+              <dd class="text-(--pvc-color-text-muted)">lab-seq-review</dd>
             </div>
             <div class="flex gap-2">
-              <dt class="w-28 shrink-0 font-semibold text-[var(--pvc-color-text)]">Submitted</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">2026-06-10 14:32 UTC</dd>
+              <dt class="w-28 shrink-0 font-semibold text-(--pvc-color-text)">Submitted</dt>
+              <dd class="text-(--pvc-color-text-muted)">2026-06-10 14:32 UTC</dd>
             </div>
           </dl>
         <% end %>
@@ -88,7 +88,7 @@
       starts on the QC step.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Tabs.new(
         id: 'tabs-custom-default',
         label: 'Submission review steps',
@@ -127,19 +127,19 @@
       A single tab is valid, but consider a plain heading when only one view exists.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Tabs.new(id: 'single-tab', label: 'Run status')) do |tabs| %>
         <% tabs.with_tab(id: 'tab-only', label: 'Status') %>
 
         <% tabs.with_panel(id: 'panel-only', tab_id: 'tab-only') do %>
-          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-2">
+          <dl class="grid gap-3 text-(length:--type-control) sm:grid-cols-2">
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Run ID</dt>
-              <dd class="font-mono text-[var(--pvc-color-text-muted)]">RUN-2026-0142</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Run ID</dt>
+              <dd class="font-mono text-(--pvc-color-text-muted)">RUN-2026-0142</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Status</dt>
-              <dd class="text-[var(--pvc-color-success)]">Ready for review</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Status</dt>
+              <dd class="text-(--pvc-color-success)">Ready for review</dd>
             </div>
           </dl>
         <% end %>

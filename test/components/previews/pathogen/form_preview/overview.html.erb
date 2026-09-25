@@ -7,10 +7,10 @@
       control with a label and optional help text using semantic text roles.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= form_with url: "#", builder: Pathogen::FormBuilders::PathogenFormBuilder do |f| %>
         <fieldset class="space-y-4">
-          <legend class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Export options</legend>
+          <legend class="mb-3 text-sm font-semibold text-(--pvc-color-text)">Export options</legend>
 
           <div class="flex items-start gap-3">
             <%= f.check_box :include_metadata, { checked: true }, "1", "0" %>
@@ -42,10 +42,10 @@
       without <%= render Pathogen::Typography::Code.new { "neutral-950" } %> backgrounds.
     <% end %>
 
-    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
       <table class="w-full min-w-[36rem] border-collapse text-sm">
         <thead>
-          <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+          <tr class="border-b border-(--pvc-color-border) bg-(--pvc-color-surface-muted)">
             <th scope="col" class="px-4 py-2 text-left">
               <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold") { "State" } %>
             </th>
@@ -60,7 +60,7 @@
           </tr>
         </thead>
 
-        <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+        <tbody class="divide-y divide-(--pvc-color-border) bg-(--pvc-color-surface)">
           <tr>
             <td class="px-4 py-3 align-middle">
               <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted) { "Default" } %>
@@ -130,28 +130,28 @@
       grids.
     <% end %>
 
-    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
-      <table class="w-full min-w-[32rem] border-separate border-spacing-0 text-left text-sm text-[var(--pvc-color-text)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
+      <table class="w-full min-w-[32rem] border-separate border-spacing-0 text-left text-sm text-(--pvc-color-text)">
         <thead>
           <tr>
-            <th class="border-b border-[var(--pvc-color-border)] px-3 py-2">
+            <th class="border-b border-(--pvc-color-border) px-3 py-2">
               <%= check_box_tag "select_all", "1", false, id: "form_preview_select_all", data: { table: true } %>
             </th>
 
-            <th class="border-b border-[var(--pvc-color-border)] px-3 py-2 font-semibold">Sample</th>
-            <th class="border-b border-[var(--pvc-color-border)] px-3 py-2 font-semibold">Status</th>
+            <th class="border-b border-(--pvc-color-border) px-3 py-2 font-semibold">Sample</th>
+            <th class="border-b border-(--pvc-color-border) px-3 py-2 font-semibold">Status</th>
           </tr>
         </thead>
 
         <tbody>
           <tr>
-            <td class="border-b border-[var(--pvc-color-border)] px-3 py-2">
+            <td class="border-b border-(--pvc-color-border) px-3 py-2">
               <%= check_box_tag "sample_ids[]", "spc-24018", true, id: "form_preview_sample_a", data: { table: true } %>
             </td>
 
-            <td class="border-b border-[var(--pvc-color-border)] px-3 py-2">SPC-24018</td>
+            <td class="border-b border-(--pvc-color-border) px-3 py-2">SPC-24018</td>
 
-            <td class="border-b border-[var(--pvc-color-border)] px-3 py-2 text-[var(--pvc-color-text-muted)]">
+            <td class="border-b border-(--pvc-color-border) px-3 py-2 text-(--pvc-color-text-muted)">
               Ready
             </td>
           </tr>
@@ -162,7 +162,7 @@
             </td>
 
             <td class="px-3 py-2">SPC-24019</td>
-            <td class="px-3 py-2 text-[var(--pvc-color-text-muted)]">Pending QC</td>
+            <td class="px-3 py-2 text-(--pvc-color-text-muted)">Pending QC</td>
           </tr>
         </tbody>
       </table>
@@ -177,7 +177,7 @@
       Help text stays muted and associated through the component label stack.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="space-y-4">
         <%= render Pathogen::Form::RadioButton.new(
               attribute: :analysis_type,
@@ -211,7 +211,7 @@
       Checked tracks use <%= render Pathogen::Typography::Code.new { "--pvc-color-accent-solid" } %>.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= form_with url: "#", builder: Pathogen::FormBuilders::PathogenFormBuilder do |f| %>
         <div class="space-y-4">
           <%= f.switch :email_notifications, label: "Email notifications", checked: true %>
@@ -230,7 +230,7 @@
       <%= render Pathogen::Typography::Code.new { "aria-describedby" } %> explicitly.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <% switch_id = "form-preview-v2-samplesheet" %>
       <% label_id = "form-preview-v2-samplesheet-label" %>
       <% description_id = "form-preview-v2-samplesheet-description" %>
@@ -239,7 +239,7 @@
         <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div class="min-w-0 flex-1">
             <%= label_tag switch_id, "V2 samplesheet", id: label_id,
-                  class: "cursor-pointer text-sm font-semibold text-[var(--pvc-color-text)]" %>
+                  class: "cursor-pointer text-sm font-semibold text-(--pvc-color-text)" %>
 
             <%= render Pathogen::Typography::Supporting.new(tag: :p, id: description_id, variant: :muted, class: "mt-1") do %>
               Try the redesigned samplesheet layout for dense review work.
@@ -266,18 +266,13 @@
       beside the label. Keep the marker in the tab order only when needed for comprehension.
     <% end %>
 
-    <div
-      class="
-        max-w-sm rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]
-        p-4
-      "
-    >
+    <div class="max-w-sm rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="flex flex-col gap-1.5">
         <label
           for="form-preview-contact-email"
-          class="flex items-center gap-1 text-sm font-semibold text-[var(--pvc-color-text)]"
+          class="flex items-center gap-1 text-sm font-semibold text-(--pvc-color-text)"
         >
-          Contact email <abbr class="req text-[var(--pvc-color-danger-strong)] no-underline" aria-hidden="true">*</abbr>
+          Contact email <abbr class="req text-(--pvc-color-danger-strong) no-underline" aria-hidden="true">*</abbr>
         </label>
 
         <input
@@ -286,9 +281,9 @@
           autocomplete="email"
           placeholder="analyst@agency.ca"
           class="
-            w-full rounded-[var(--pvc-radius-action)] border border-[var(--pvc-color-border-strong)]
-            bg-[var(--pvc-color-surface)] px-3 py-2 text-sm text-[var(--pvc-color-text)] focus-visible:outline
-            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+            w-full rounded-(--pvc-radius-action) border border-(--pvc-color-border-strong) bg-(--pvc-color-surface)
+            px-3 py-2 text-sm text-(--pvc-color-text) focus-visible:outline focus-visible:outline-2
+            focus-visible:outline-offset-2 focus-visible:outline-(--pvc-color-focus)
           "
         >
       </div>
@@ -304,7 +299,7 @@
       <%= render Pathogen::Typography::Code.new { "--pvc-color-focus" } %>.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-4">
       <%= render Pathogen::Form::Switch.new(attribute: :focus_demo, id: "form-preview-focus-switch", label: "Tab here to inspect focus") %>
     </div>
   </section>

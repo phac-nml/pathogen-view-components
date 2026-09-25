@@ -8,7 +8,7 @@
       <%= render Pathogen::Typography::Code.new { "--pvc-color-accent-strong" } %>.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Text.new do %>
         Specimen <strong>SPC-24018</strong> was submitted on 12 May 2026. Review the
         <%= render Pathogen::Link.new(href: "#qc-summary") { "QC summary" } %> before approving the run, or open the
@@ -24,13 +24,13 @@
       Group related links in compact stacks when they support the same record or task. Keep labels specific.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
-      <div class="border-b border-[var(--pvc-color-border)] px-4 py-3">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface)">
+      <div class="border-b border-(--pvc-color-border) px-4 py-3">
         <%= render Pathogen::Typography::Heading.new(level: 5, class: "font-semibold") { "Run INV-8821" } %>
         <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-1") { "Salmonella enterica · Whole genome assembly" } %>
       </div>
 
-      <ul class="divide-y divide-[var(--pvc-color-border)] px-4 py-2 text-sm">
+      <ul class="divide-y divide-(--pvc-color-border) px-4 py-2 text-sm">
         <li class="py-2">
           <%= render Pathogen::Link.new(href: "#protocol") { "View sequencing protocol" } %>
         </li>
@@ -55,7 +55,7 @@
       link text alone is not enough context.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Text.new do %>
         Reference assembly
         <%= render Pathogen::Link.new(href: "https://www.ncbi.nlm.nih.gov/") { "NCBI GenBank record GCA_000006945.2" } %>
@@ -72,7 +72,7 @@
       supplements the link; it does not replace the visible label.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Text.new do %>
         Export status is pending validation. See
         <%= render Pathogen::Link.new(href: "#export-policy") do |component| %>
@@ -93,7 +93,7 @@
       <%= render Pathogen::Typography::Code.new { "Pathogen::Link" } %>.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted) { "Inline:" } %>
         <%= render Pathogen::Link.new(href: "#sample") { "Open specimen SPC-24018" } %>
@@ -113,7 +113,7 @@
       underline without removing readable contrast.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-4">
       <%= render Pathogen::Link.new(href: "#focus-example") { "Tab here to inspect focus ring" } %>
     </div>
   </section>

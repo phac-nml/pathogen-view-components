@@ -59,9 +59,9 @@ module Pathogen
                       id: 'tooltip-123'
                     ))
 
-      assert_selector 'div.fixed.z-50.rounded-\\[var\\(--pvc-radius-panel\\)\\]' \
-                      '.shadow-\\[var\\(--pvc-shadow-overlay\\)\\]' \
-                      '.duration-\\[var\\(--pvc-duration-overlay\\)\\]'
+      assert_selector 'div.fixed.z-50[class*="rounded-(--pvc-radius-panel)"]' \
+                      '[class*="shadow-(--pvc-shadow-overlay)"]' \
+                      '[class*="duration-(--pvc-duration-overlay)"]'
     end
 
     test 'starts with closed state' do

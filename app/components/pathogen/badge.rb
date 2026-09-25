@@ -33,10 +33,10 @@ module Pathogen
 
     BASE_CLASSES = %w[
       inline-flex shrink-0 items-center gap-1 border
-      rounded-[var(--pvc-radius-control)]
+      rounded-(--pvc-radius-control)
       px-2 py-0.5
       font-sans font-medium leading-none tracking-[0.01em]
-      text-[length:var(--type-meta)]
+      text-(length:--type-meta)
       whitespace-nowrap
     ].join(' ').freeze
 

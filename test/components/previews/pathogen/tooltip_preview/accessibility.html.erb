@@ -10,7 +10,7 @@
     <% end %>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-center">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-center">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Mouse hover" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -18,7 +18,7 @@
         <% end %>
       </div>
 
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-center">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-center">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Keyboard focus" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -37,8 +37,8 @@
       surface.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-      <pre class="overflow-x-auto text-xs text-[var(--pvc-color-text-muted)]"><code>&lt;a href="/specimens" aria-describedby="tooltip-abc123"
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+      <pre class="overflow-x-auto text-xs text-(--pvc-color-text-muted)"><code>&lt;a href="/specimens" aria-describedby="tooltip-abc123"
    data-pathogen--tooltip-target="trigger"&gt;Specimens&lt;/a&gt;
 &lt;div id="tooltip-abc123" role="tooltip"
    data-pathogen--tooltip-target="tooltip"&gt;Browse submitted specimens&lt;/div&gt;</code></pre>
@@ -52,7 +52,7 @@
       Tab through the links below. Each trigger should announce its tooltip when focused.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Pathogen::Link.new(href: "#runs") do |link| %>
           <% link.with_tooltip(text: "Open sequencing runs", placement: :top) %> Runs
@@ -82,13 +82,13 @@
     <% end %>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "Prefer" } %>
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-(--pvc-color-text)") { "Prefer" } %>
         <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-2") { "Distinct names on repeated icon-only actions." } %>
       </div>
 
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
-        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "Avoid" } %>
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
+        <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-(--pvc-color-text)") { "Avoid" } %>
         <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-2") { "Long paragraphs or instructions that belong in help text or dialogs." } %>
       </div>
     </div>

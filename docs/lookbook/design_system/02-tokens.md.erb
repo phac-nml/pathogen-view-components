@@ -296,7 +296,7 @@ In dark mode, accent and status text and borders lighten for contrast. Solid fil
 | `--type-title` | 24 | `Heading` level 2 |
 | `--type-page` | 32 | Page titles, `Heading` level 1 |
 
-Components consume these through `text-[length:var(--type-*)]` utilities. The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
+Components consume these through `text-(length:--type-*)` utilities. The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
 ## Spacing
 
@@ -326,7 +326,7 @@ Buttons and tabs share `--pvc-control-size-small` (2rem / 32px) and `--pvc-contr
 --pvc-radius-panel: 0.5rem;        /* 8px */
 ```
 
-Use the radius that matches the role. Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when the component job is known.
+Use the radius that matches the role. Prefer `rounded-(--pvc-radius-action)` over guessing `rounded-md` when the component job is known.
 
 ## Elevation
 

@@ -11,25 +11,25 @@
       flight, then replaces it with the fetched content.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Tabs.new(id: 'lazy-load-preview-tabs', label: 'Lazy-loaded run sections')) do |tabs| %>
         <% tabs.with_tab(id: 'preview-tab-summary', label: 'Summary', selected: true) %>
         <% tabs.with_tab(id: 'preview-tab-metrics', label: 'Metrics') %>
         <% tabs.with_tab(id: 'preview-tab-timeline', label: 'Timeline') %>
 
         <% tabs.with_panel(id: 'preview-panel-summary', tab_id: 'preview-tab-summary') do %>
-          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-3">
+          <dl class="grid gap-3 text-(length:--type-control) sm:grid-cols-3">
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Batch</dt>
-              <dd class="font-mono text-[var(--pvc-color-text-muted)]">PV-2026-06-08</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Batch</dt>
+              <dd class="font-mono text-(--pvc-color-text-muted)">PV-2026-06-08</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Status</dt>
-              <dd class="text-[var(--pvc-color-success)]">Ready for review</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Status</dt>
+              <dd class="text-(--pvc-color-success)">Ready for review</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Updated</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">10:45 UTC</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Updated</dt>
+              <dd class="text-(--pvc-color-text-muted)">10:45 UTC</dd>
             </div>
           </dl>
         <% end %>
