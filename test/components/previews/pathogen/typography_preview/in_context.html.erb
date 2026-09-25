@@ -8,7 +8,7 @@
       Article preset for a record header, followed by sectioned body copy and a protocol note.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= pathogen_typography_preset(:article) do |group| %>
         <%= group.with_heading { "SPEC-2026-00891" } %>
         <%= group.with_metadata { "Collected 2026-06-09 · Nasopharyngeal swab · Provincial public health lab" } %>
@@ -41,7 +41,7 @@
       Card preset for compact list rows. Section preset for a workspace region title.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= pathogen_typography_preset(:section) do |group| %>
         <%= group.with_heading { "Active projects" } %>
         <%= group.with_metadata { "Updated 2 minutes ago" } %>
@@ -75,7 +75,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Confirm destructive action</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= pathogen_typography_preset(:dialog) do |group| %>
         <%= group.with_heading { "Delete sequencing run?" } %>
       <% end %>
