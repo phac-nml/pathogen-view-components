@@ -16,5 +16,7 @@ export default defineConfig({
     command: "node test/browser/server.mjs",
     url: "http://127.0.0.1:4179",
     reuseExistingServer: false,
+    // Cover a cold Rails boot plus esbuild bundle before the fixture server binds.
+    timeout: 120_000,
   },
 });

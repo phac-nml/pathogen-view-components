@@ -1,6 +1,10 @@
 import { writeFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
+// Must exceed the tooltip controller's default hideDelay (300ms) so persistence
+// assertions prove the tooltip stays open rather than merely having opened.
+const TOOLTIP_PERSISTENCE_WAIT_MS = 500;
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#mixed-container")).toHaveAttribute("data-controller-connected", "true");
@@ -37,12 +41,11 @@ test("tooltip persists across mixed hover and focus, and Escape preserves focus"
   await trigger.hover();
   await trigger.focus();
   await other.hover();
-  // Wait beyond the configured hide delay to test persistence, not just opening.
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(TOOLTIP_PERSISTENCE_WAIT_MS);
   await expect(tooltip).toHaveAttribute("data-state", "open");
   await trigger.hover();
   await other.focus();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(TOOLTIP_PERSISTENCE_WAIT_MS);
   await expect(tooltip).toHaveAttribute("data-state", "open");
   await page.keyboard.press("Escape");
   await expect(tooltip).toHaveAttribute("data-state", "closed");
@@ -94,6 +97,7 @@ async function switchContrast(page) {
       const canvas = document.createElement("canvas");
       canvas.width = canvas.height = 1;
       const context = canvas.getContext("2d");
+      // WCAG 2.x relative luminance (sRGB linearisation) and contrast ratio.
       const luminance = (color, backdrop) => {
         context.clearRect(0, 0, 1, 1);
         context.fillStyle = backdrop;
