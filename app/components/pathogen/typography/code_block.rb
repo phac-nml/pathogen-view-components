@@ -16,7 +16,7 @@ module Pathogen
 
       PRE_CLASSES = %w[
         overflow-x-auto whitespace-pre-wrap bg-transparent p-4 font-mono
-        text-[length:var(--type-control)] leading-relaxed text-inherit
+        text-(length:--type-control) leading-relaxed text-inherit
       ].join(' ').freeze
 
       CODE_CLASSES = 'block min-w-full bg-transparent font-mono text-inherit -tracking-tight'

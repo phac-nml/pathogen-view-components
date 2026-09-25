@@ -10,7 +10,7 @@
       <%= render(Pathogen::Typography::Code.new) { "emphasis" } %> to style submit actions.
     <% end %>
 
-    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= pathogen_button_to "Retry analysis", "#", method: :post, tone: :primary, emphasis: :solid %>
         <%= pathogen_button_to "Cancel", "#", method: :post, tone: :neutral, emphasis: :soft %>
@@ -28,7 +28,7 @@
     <% end %>
 
     <div class="flex flex-col gap-4">
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <div class="flex flex-wrap items-center gap-2">
           <%= pathogen_button_to "Delete specimen", "#", method: :delete, tone: :danger, emphasis: :soft,
                 data: { turbo_confirm: "Delete this record?" } %>
@@ -37,7 +37,7 @@
         </div>
       </div>
 
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render(Pathogen::Typography::Heading.new(level: 5, class: "mb-3 font-semibold")) { "Confirm delete" } %>
 
         <div class="flex flex-wrap items-center gap-2">
