@@ -62,7 +62,16 @@
               <%= render(Pathogen::Typography::Supporting.new(tag: :span)) { filename } %>
 
               <div class="flex items-center gap-4">
-                <%= render(Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, size: :meta)) { 'Ready' } %>
+                <span
+                  class="
+                    inline-flex items-center gap-1 rounded-full
+                    bg-[color-mix(in_oklab,var(--pvc-color-success)_14%,var(--pvc-color-surface))] px-2 py-0.5
+                    text-[length:var(--type-meta)] font-medium text-[var(--pvc-color-success-strong)]
+                  "
+                >
+                  <%= icon('check', class: 'size-3') %> Ready
+                </span>
+
                 <%= render Pathogen::Button.new(size: :small, emphasis: :ghost, text: 'View', aria: { label: "View #{filename}" }) %>
               </div>
             </li>
@@ -88,8 +97,8 @@
 
       <div class="ms-auto flex flex-wrap items-center gap-2" role="group" aria-label="Specimen form actions">
         <%= render Pathogen::Button.new(emphasis: :ghost, text: 'Cancel') %>
-        <%= render Pathogen::Button.new(tone: :primary, emphasis: :soft, text: 'Save draft') %>
-        <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes') %>
+        <%= render Pathogen::Button.new(emphasis: :soft, text: 'Save draft') %>
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes', class: 'ms-2') %>
       </div>
     </div>
   </section>
