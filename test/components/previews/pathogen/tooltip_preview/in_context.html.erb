@@ -11,7 +11,7 @@
       breadcrumb links below).
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <% [
         ["SP-2026-0042", "Collected 12 Mar 2026", "View specimen detail", "Edit collection metadata", "Download FASTQ files"],
         ["SP-2026-0043", "Collected 13 Mar 2026", "View specimen detail", "Edit collection metadata", "Download FASTQ files"]
@@ -58,7 +58,7 @@
 
     <div
       class="
-        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        overflow-hidden rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
         bg-[var(--pvc-color-surface)]
       "
     >
@@ -101,12 +101,7 @@
       inside the page header.
     <% end %>
 
-    <div
-      class="
-        rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] px-4
-        py-3
-      "
-    >
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] px-4 py-3">
       <nav aria-label="Breadcrumb" class="flex flex-wrap items-center gap-2 text-sm">
         <%= render Pathogen::Link.new(href: "/", aria: { label: "Workspace home" }) do |link| %>
           <% link.with_tooltip(text: "Return to workspace home", placement: :bottom) %>

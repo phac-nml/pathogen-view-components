@@ -8,7 +8,7 @@
       Vertical tabs in a settings layout with URL sync so the active section stays bookmarkable.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
         id: 'operator-settings-tabs',
         label: 'Operator account settings',
@@ -67,7 +67,7 @@
       Tabs organize read-only review sections; the primary action stays in the form footer below.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'submission-review-tabs', label: 'Submission review')) do |tabs| %>
         <% tabs.with_tab(id: 'tab-checklist', label: 'Checklist', selected: true) %>
         <% tabs.with_tab(id: 'tab-attachments', label: 'Attachments') %>

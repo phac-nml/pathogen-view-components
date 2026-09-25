@@ -9,7 +9,7 @@
       Arrow keys move between tabs; selection activates immediately.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'run-review-tabs', label: 'Sequencing run sections')) do |tabs| %>
         <% tabs.with_tab(id: 'tab-summary', label: 'Summary', selected: true) %>
         <% tabs.with_tab(id: 'tab-qc', label: 'QC') %>
@@ -88,7 +88,7 @@
       starts on the QC step.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
         id: 'tabs-custom-default',
         label: 'Submission review steps',
@@ -127,7 +127,7 @@
       A single tab is valid, but consider a plain heading when only one view exists.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'single-tab', label: 'Run status')) do |tabs| %>
         <% tabs.with_tab(id: 'tab-only', label: 'Status') %>
 
