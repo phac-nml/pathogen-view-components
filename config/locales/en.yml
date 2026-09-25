@@ -16,8 +16,15 @@ en:
         loaded: Rows loaded.
         loading: Loading rows…
         pagination:
-          fetch_error: Unable to load more rows. Scroll to try again.
+          end: All %{count} rows loaded.
+          fetch_error: Unable to load more rows. Try again.
+          loaded: "%{count} rows loaded."
           loading_more: Loading more rows…
+          mismatch: These results have changed. Refresh the results to continue.
+          range: Rows %{start}–%{end} · %{count} loaded
+          range_total: Rows %{start}–%{end} of %{total}
+          refresh: Refresh results
+          retry: Retry
     form:
       switch:
         'off': 'Off'

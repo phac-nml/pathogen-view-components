@@ -4,8 +4,23 @@ import {
   ensureCellFullyVisible,
   ensureCellInViewport,
   headerOverlayHeight,
+  horizontalStickyEnabled,
   stickyOverlayWidth,
 } from "pathogen_view_components/data_grid_controller/scroll";
+
+describe("horizontalStickyEnabled", () => {
+  it("defaults to sticky unless the scroll container's computed CSS disables it", () => {
+    const scrollContainer = document.createElement("div");
+    document.body.appendChild(scrollContainer);
+
+    expect(horizontalStickyEnabled(null)).toBe(true);
+    expect(horizontalStickyEnabled(scrollContainer)).toBe(true);
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", " 0 ");
+    expect(horizontalStickyEnabled(scrollContainer)).toBe(false);
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", "1");
+    expect(horizontalStickyEnabled(scrollContainer)).toBe(true);
+  });
+});
 
 describe("stickyOverlayWidth", () => {
   afterEach(() => {
@@ -125,6 +140,26 @@ describe("ensureCellFullyVisible", () => {
   afterEach(() => {
     vi.restoreAllMocks();
     document.body.innerHTML = "";
+  });
+
+  it("ignores horizontal pinned overlap when CSS unpins columns but still clears the header", () => {
+    const scrollContainer = document.createElement("div");
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", "0");
+    const grid = document.createElement("div");
+    const header = document.createElement("div");
+    header.setAttribute("role", "columnheader");
+    const cell = document.createElement("div");
+    grid.append(header, cell);
+    scrollContainer.appendChild(grid);
+    document.body.appendChild(scrollContainer);
+    vi.spyOn(scrollContainer, "getBoundingClientRect").mockReturnValue({ top: 0, bottom: 200, left: 0, right: 320 });
+    vi.spyOn(header, "getBoundingClientRect").mockReturnValue({ bottom: 40 });
+    vi.spyOn(cell, "getBoundingClientRect").mockReturnValue({ top: 20, bottom: 60, left: 30, right: 110 });
+
+    ensureCellFullyVisible(cell, scrollContainer, grid, { pinnedWidth: 180 });
+
+    expect(scrollContainer.scrollLeft).toBe(0);
+    expect(scrollContainer.scrollTop).toBe(-20);
   });
 
   it("calls ensureCellInViewport after container scroll adjustment", () => {

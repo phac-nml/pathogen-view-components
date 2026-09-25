@@ -5,17 +5,23 @@ module Demo
   module SamplesGrid
     DEFAULT_PAGE_SIZE = 50
     ROWS_URL = '/demo/samples/rows.json'
+    CURSOR_ROWS_URL = '/demo/samples/cursor_rows.json'
 
     module_function
 
-    def build(rows:, pagination: {}, **options)
+    def build(rows:, pagination: {}, sticky_columns: 2, **options)
       Pathogen::DataGridComponent.new(
         virtual: true,
-        sticky_columns: 2,
+        sticky_columns:,
         rows: rows,
         virtual_pagination: pagination_defaults.merge(pagination),
         **options
       ).tap { |grid| add_columns!(grid) }
+    end
+
+    def build_cursor(rows:, next_cursor:, refresh_url: nil, **)
+      build(rows:, sticky_columns: 1,
+            pagination: { mode: :cursor, rows_url: CURSOR_ROWS_URL, next_cursor:, refresh_url: }, **)
     end
 
     def pagination_defaults

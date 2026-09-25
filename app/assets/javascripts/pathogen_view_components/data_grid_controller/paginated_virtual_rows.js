@@ -1,9 +1,11 @@
+import { CursorRowSource } from "pathogen_view_components/data_grid_controller/cursor_source";
 import { PaginatedRowSource } from "pathogen_view_components/data_grid_controller/page_source";
 
 const SCROLL_SETTLE_MS = 150;
 
 export class PaginatedVirtualRows {
   #source;
+  #cursorMode;
   #placeholderTemplate;
   #fetchAbort = new AbortController();
   #failedPages = new Set();
@@ -31,7 +33,10 @@ export class PaginatedVirtualRows {
     setBusy,
     handleError,
   }) {
-    this.#source = new PaginatedRowSource({
+    this.#cursorMode = contract.mode === "cursor";
+    const Source = this.#cursorMode ? CursorRowSource : PaginatedRowSource;
+    this.#source = new Source({
+      nextCursor: contract.nextCursor,
       url: contract.rowsUrl,
       pageSize: contract.pageSize,
       totalRows: contract.totalRows,
@@ -48,6 +53,22 @@ export class PaginatedVirtualRows {
     this.#onVisibleRowsChanged = onVisibleRowsChanged;
     this.#setBusy = setBusy;
     this.#handleError = handleError;
+  }
+
+  get cursorMode() {
+    return this.#cursorMode;
+  }
+
+  get hasMore() {
+    return this.#cursorMode && this.#source.hasMore;
+  }
+
+  loadNext() {
+    return this.#fetchPages([this.#source.nextPage]);
+  }
+
+  retry() {
+    return this.#fetchPages([...this.#failedPages]);
   }
 
   get totalRows() {
@@ -97,42 +118,47 @@ export class PaginatedVirtualRows {
     if (this.#fetchAbort.signal.aborted || startIndex < 0 || endIndex <= startIndex) return;
 
     const missingPages = this.#source.missingPagesForRange(startIndex, endIndex);
-    if (missingPages.length === 0) return;
+    return this.#fetchPages(missingPages.filter((page) => !this.#cursorMode || !this.#failedPages.has(page)));
+  }
 
+  #fetchPages(pages) {
+    if (this.#fetchAbort.signal.aborted || pages.length === 0) return Promise.resolve();
     const signal = this.#fetchAbort.signal;
     if (!this.#source.isFetching) this.#setBusy(true);
 
-    missingPages.forEach((page) => {
-      const request = this.#source.fetchPage(page, { signal });
+    return Promise.all(
+      pages.map((page) => {
+        const request = this.#source.fetchPage(page, { signal });
 
-      request
-        .then((result) => {
-          if (signal.aborted || result.aborted) return;
+        return request
+          .then((result) => {
+            if (signal.aborted || result.aborted) return;
 
-          this.#failedPages.delete(page);
-          const evicted = this.#evictRows();
-          if (result.cacheChanged || evicted) this.#onCacheChanged();
-          this.#onRowsChanged({ hasPageErrors: this.#failedPages.size > 0 });
+            this.#failedPages.delete(page);
+            const evicted = this.#evictRows();
+            if (result.cacheChanged || evicted) this.#onCacheChanged();
+            this.#onRowsChanged({ hasPageErrors: this.#failedPages.size > 0 });
 
-          const pageStart = (page - 1) * this.pageSize;
-          const pageEnd = pageStart + this.pageSize;
-          const { startIndex: visibleStart, endIndex: visibleEnd } = this.#visibleRange();
-          const overlapsVisible = pageEnd > visibleStart && pageStart < visibleEnd;
+            const pageStart = (page - 1) * this.pageSize;
+            const pageEnd = pageStart + this.pageSize;
+            const { startIndex: visibleStart, endIndex: visibleEnd } = this.#visibleRange();
+            const overlapsVisible = pageEnd > visibleStart && pageStart < visibleEnd;
 
-          if (overlapsVisible) this.#onVisibleRowsChanged();
-        })
-        .catch((error) => {
-          if (signal.aborted || error.name === "AbortError") return;
+            if (this.#cursorMode || overlapsVisible) this.#onVisibleRowsChanged();
+          })
+          .catch((error) => {
+            if (signal.aborted || error.name === "AbortError") return;
 
-          this.#failedPages.add(page);
-          this.#handleError(error);
-        })
-        .finally(() => {
-          if (signal.aborted) return;
+            this.#failedPages.add(page);
+            this.#handleError(error);
+          })
+          .finally(() => {
+            if (signal.aborted) return;
 
-          this.#setBusy(this.#source.isFetching);
-        });
-    });
+            this.#setBusy(this.#source.isFetching);
+          });
+      }),
+    );
   }
 
   disconnect() {

@@ -14,8 +14,10 @@ module Pathogen
   #   so the grid can fill and scroll within a constrained parent container.
   # @param virtual [Boolean] When true, renders the virtualized grid layout.
   # @param virtual_pagination [Hash, nil] Optional server-side pagination contract.
-  #   Supports `total_count`, `rows_url`, `page_size`, `row_offset`, and a hash-like
-  #   `search_params` value forwarded with each page request.
+  #   Offset mode supports `total_count`, `rows_url`, `page_size`, `row_offset`, and
+  #   `search_params`. Cursor mode adds `mode: :cursor`, `next_cursor`, and an optional
+  #   `refresh_url`; it starts at row zero and accepts an optional `total_count` for
+  #   accessible counts and the footer without extending the loaded row window.
   # @param system_arguments [Hash] Additional HTML attributes for the outer wrapper.
   #
   # @example Basic usage
@@ -198,8 +200,8 @@ module Pathogen
     DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
     DEFAULT_VIRTUAL_PAGE_SIZE = 20
     DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
-    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Scroll to try again.'
-    VirtualPagination = Data.define(:total_count, :rows_url, :page_size, :row_offset, :search_params)
+    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Try again.'
+    VirtualPagination = DataGrid::VirtualPaginationConfig::Config
 
     attr_reader :rows, :keyboard_help_id, :virtual_pagination
 
@@ -226,6 +228,8 @@ module Pathogen
 
     def virtual_pagination? = @virtual && @virtual_pagination.present?
 
+    def virtual_cursor_pagination? = virtual_pagination? && @virtual_pagination.mode == :cursor
+
     def virtual_total_count = @virtual_pagination&.total_count
 
     def virtual_rows_url = @virtual_pagination&.rows_url
@@ -235,6 +239,10 @@ module Pathogen
     def virtual_row_offset = @virtual_pagination&.row_offset || 0
 
     def virtual_search_params = @virtual_pagination&.search_params
+
+    def virtual_next_cursor = @virtual_pagination&.next_cursor
+
+    def virtual_refresh_url = @virtual_pagination&.refresh_url
 
     def virtual_global_data_row_index(local_row_index) = virtual_row_offset + local_row_index
 
@@ -251,7 +259,7 @@ module Pathogen
       attributes.merge!(virtual_metadata_attributes) if @virtual
 
       label_attributes = table_aria_attributes
-      label_attributes[:rowcount] = virtual_rowcount
+      label_attributes[:rowcount] = virtual_metadata.rowcount
       label_attributes[:colcount] = columns.size
       attributes[:aria] = label_attributes
       attributes
@@ -388,6 +396,14 @@ module Pathogen
       # controller transfers focus to interactive descendants on Enter/F2 (widget mode).
       return { content: rendered_value, focus_on_cell: active, interactive: true } if column.interactive?
 
+      interactive_cell_payload(rendered_value, active:)
+    end
+
+    def header_cell_payload(column:)
+      interactive_cell_payload(column.render_header, active: false)
+    end
+
+    def interactive_cell_payload(rendered_value, active:)
       # Only invoke Nokogiri when the value is already html_safe (i.e. produced by a
       # view helper or content_tag) AND plausibly contains an interactive tag.
       # Plain strings are never html_safe, so they take the fast path here, which also
@@ -433,69 +449,7 @@ module Pathogen
     private
 
     def normalize_virtual_pagination(config)
-      return nil if config.nil?
-
-      values = virtual_pagination_values(config)
-      total_count = virtual_pagination_total_count!(values)
-      rows_url = virtual_pagination_rows_url!(values)
-      page_size = positive_virtual_pagination_integer!(values, :page_size, DEFAULT_VIRTUAL_PAGE_SIZE)
-      row_offset = virtual_pagination_row_offset!(values)
-      search_params = virtual_pagination_search_params!(values)
-
-      VirtualPagination.new(total_count:, rows_url:, page_size:, row_offset:, search_params:)
-    end
-
-    def virtual_pagination_values(config)
-      values = config.respond_to?(:to_h) ? config.to_h : config
-      return values if values.respond_to?(:key?)
-
-      raise ArgumentError, 'virtual_pagination must be a hash-like object'
-    end
-
-    def positive_virtual_pagination_integer!(values, key, default = nil)
-      value = virtual_pagination_value(values, key, default).to_i
-      return value if value.positive?
-
-      raise ArgumentError, "virtual_pagination requires a positive #{key}"
-    end
-
-    def virtual_pagination_total_count!(values)
-      total_count = Integer(virtual_pagination_value(values, :total_count).to_s, 10, exception: false)
-      return total_count if total_count && !total_count.negative?
-
-      raise ArgumentError, 'virtual_pagination requires a non-negative total_count'
-    end
-
-    def virtual_pagination_rows_url!(values)
-      rows_url = virtual_pagination_value(values, :rows_url)
-      raise ArgumentError, 'virtual_pagination requires rows_url' if rows_url.blank?
-
-      rows_url
-    end
-
-    def virtual_pagination_row_offset!(values)
-      row_offset = virtual_pagination_value(values, :row_offset, 0).to_i
-      raise ArgumentError, 'virtual_pagination requires a non-negative row_offset' if row_offset.negative?
-
-      row_offset
-    end
-
-    def virtual_pagination_search_params!(values)
-      search_params = virtual_pagination_value(values, :search_params, {})
-      return if search_params.blank?
-
-      unless search_params.respond_to?(:to_h)
-        raise ArgumentError, 'virtual_pagination search_params must be a hash-like object'
-      end
-
-      Rack::Utils.build_nested_query(search_params.to_h)
-    end
-
-    def virtual_pagination_value(values, key, default = nil)
-      return values[key] if values.key?(key)
-      return values[key.to_s] if values.key?(key.to_s)
-
-      default
+      DataGrid::VirtualPaginationConfig.build(config, default_page_size: DEFAULT_VIRTUAL_PAGE_SIZE)
     end
 
     def table_aria_attributes
@@ -553,28 +507,21 @@ module Pathogen
     end
 
     def virtual_metadata_attributes
-      attributes = {
-        'data-pvc-data-grid-row-height': DEFAULT_VIRTUAL_ROW_HEIGHT,
-        'data-pvc-data-grid-row-overscan': DEFAULT_VIRTUAL_ROW_OVERSCAN,
-        'data-pvc-data-grid-column-overscan': DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
-        'data-pvc-data-grid-pinned-count': virtual_pinned_count,
-        'data-pvc-data-grid-column-widths': virtual_column_widths
-      }
-      return attributes unless virtual_pagination?
-
-      attributes.merge(
-        'data-pvc-data-grid-total-count': virtual_total_count,
-        'data-pvc-data-grid-rows-url': virtual_rows_url,
-        'data-pvc-data-grid-page-size': virtual_page_size,
-        'data-pvc-data-grid-row-offset': virtual_row_offset,
-        'data-pvc-data-grid-search-params': virtual_search_params
-      ).compact
+      virtual_metadata.attributes
     end
 
-    def virtual_rowcount
-      return virtual_total_count + 1 if virtual_pagination? # +1 for header row
-
-      @rows.size + 1
+    def virtual_metadata
+      @virtual_metadata ||= DataGrid::VirtualMetadata.new(
+        layout: {
+          'data-pvc-data-grid-row-height' => DEFAULT_VIRTUAL_ROW_HEIGHT,
+          'data-pvc-data-grid-row-overscan' => DEFAULT_VIRTUAL_ROW_OVERSCAN,
+          'data-pvc-data-grid-column-overscan' => DEFAULT_VIRTUAL_COLUMN_OVERSCAN,
+          'data-pvc-data-grid-pinned-count' => virtual_pinned_count,
+          'data-pvc-data-grid-column-widths' => virtual_column_widths
+        },
+        pagination: @virtual_pagination,
+        rows_count: @rows.size
+      )
     end
 
     def virtual_pinned_count
