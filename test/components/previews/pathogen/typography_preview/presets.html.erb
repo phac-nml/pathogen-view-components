@@ -8,7 +8,7 @@
       Pre-configured <code class="font-mono">HeadingGroup</code> levels and spacing for common product surfaces.
     </p>
 
-    <dl class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 space-y-3 text-sm">
+    <dl class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 space-y-3 text-sm">
       <div class="flex gap-4 border-b border-[var(--pvc-color-border)] pb-2">
         <dt class="w-24 shrink-0 font-semibold text-[var(--pvc-color-text)]">:article</dt>
         <dd class="text-[var(--pvc-color-text-muted)]">h1 · default spacing · record or page header</dd>
@@ -35,7 +35,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Form section preset</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= pathogen_typography_preset(:form_section) do |group| %>
         <%= group.with_heading { "Specimen metadata" } %>
         <%= group.with_metadata { "Required for accessioning" } %>
@@ -54,7 +54,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Article preset</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= pathogen_typography_preset(:article) do |group| %>
         <%= group.with_heading { "WGS bacterial v3.2 release notes" } %>
         <%= group.with_metadata { "Published 2026-05-28 · Bioinformatics team" } %>

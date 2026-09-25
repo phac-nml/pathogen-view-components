@@ -15,7 +15,7 @@
       inspect the pressed-in effect.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full min-w-[40rem] border-collapse text-sm">
         <thead>
           <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
@@ -72,7 +72,7 @@
       and reset secondary. Place destructive soft actions away from the main forward step.
     <% end %>
 
-    <form class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <form class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="border-b border-[var(--pvc-color-border)] px-4 py-3">
         <%= render(Pathogen::Typography::Heading.new(level: 5, class: "font-semibold")) { "Update specimen metadata" } %>
         <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-1")) { "Changes apply to the selected isolate record." } %>
@@ -102,7 +102,7 @@
       emphasis, and icon-only controls with distinct accessible names. Keep 8px between neighbours.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
         <%= render(Pathogen::Typography::Heading.new(level: 5, class: "font-semibold")) { "Sequencing submissions" } %>
 
@@ -144,7 +144,7 @@
 
         <div
           class="
-            inline-flex items-center gap-2 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+            inline-flex items-center gap-2 rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
             bg-[var(--pvc-color-surface-muted)] p-3
           "
         >
@@ -178,7 +178,7 @@
 
         <div
           class="
-            flex items-center justify-between gap-4 rounded-[var(--pvc-radius-panel)] border
+            flex items-center justify-between gap-4 rounded-(--pvc-radius-panel) border
             border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-3 py-2
           "
         >
@@ -244,7 +244,7 @@
       <%= render(Pathogen::Typography::Code.new) { "Pathogen::Link" } %> for inline text navigation.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid, text: 'View samples') %>
         <%= render Pathogen::Button.new(tag: :a, href: '/runs/draft', tone: :primary, emphasis: :soft, text: 'Open draft') %>
@@ -281,7 +281,7 @@
       validation feedback can be announced after activation.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full min-w-[48rem] border-collapse text-sm">
         <thead>
           <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
