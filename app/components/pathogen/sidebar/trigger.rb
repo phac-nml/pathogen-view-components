@@ -7,12 +7,12 @@ module Pathogen
       BASE_CLASSES = %w[
         pathogen-sidebar-trigger
         inline-flex min-h-11 min-w-11 items-center justify-center
-        rounded-[var(--pvc-radius-action)] border border-transparent
-        bg-transparent text-[color:var(--pvc-color-text-muted)]
-        interactive-hover:bg-[var(--pvc-color-surface-muted)]
-        interactive-hover:text-[color:var(--pvc-color-text)]
+        rounded-(--pvc-radius-action) border border-transparent
+        bg-transparent text-(color:--pvc-color-text-muted)
+        interactive-hover:bg-(--pvc-color-surface-muted)
+        interactive-hover:text-(color:--pvc-color-text)
         focus-visible:outline focus-visible:outline-2
-        focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+        focus-visible:outline-(--pvc-color-focus) focus-visible:outline-offset-2
       ].join(' ').freeze
 
       ICON_CLASSES = 'pathogen-sidebar-trigger__icon relative block h-4 w-4'
