@@ -6,10 +6,10 @@ module Pathogen
     class VirtualStateComponent < StateComponent
       VIRTUAL_STATUS_CLASSES = %w[
         hidden items-center gap-2
-        py-2.5 px-[var(--pvc-data-grid-cell-padding-x)]
-        text-[var(--pvc-data-grid-text-muted-color)]
-        text-[length:var(--pvc-data-grid-font-size)]
-        leading-[var(--pvc-data-grid-line-height)]
+        py-2.5 px-(--pvc-data-grid-cell-padding-x)
+        text-(--pvc-data-grid-text-muted-color)
+        text-(length:--pvc-data-grid-font-size)
+        leading-(--pvc-data-grid-line-height)
       ].freeze
 
       VIRTUAL_ROW_CLASSES = %w[
@@ -17,8 +17,8 @@ module Pathogen
       ].freeze
 
       VIRTUAL_HEADER_ROW_CLASSES = %w[
-        sticky top-0 z-[var(--pvc-data-grid-header-z)] bg-[var(--pvc-data-grid-header-bg)]
-        items-stretch border-b border-[var(--pvc-data-grid-border-color)]
+        sticky top-0 z-(--pvc-data-grid-header-z) bg-(--pvc-data-grid-header-bg)
+        items-stretch border-b border-(--pvc-data-grid-border-color)
       ].freeze
 
       VIRTUAL_LANE_CLASSES = %w[
@@ -26,19 +26,19 @@ module Pathogen
       ].freeze
 
       VIRTUAL_LANE_PINNED_CLASSES = %w[
-        sticky left-0 z-[calc(var(--pvc-data-grid-sticky-z)+1)] bg-[var(--pvc-data-grid-body-bg)]
+        sticky left-0 z-[calc(var(--pvc-data-grid-sticky-z)+1)] bg-(--pvc-data-grid-body-bg)
       ].freeze
 
       VIRTUAL_LANE_CENTER_CLASSES = %w[
-        flex-1 min-w-max bg-[var(--pvc-data-grid-body-bg)]
+        flex-1 min-w-max bg-(--pvc-data-grid-body-bg)
       ].freeze
 
       VIRTUAL_HEADER_LANE_PINNED_CLASSES = %w[
-        z-[calc(var(--pvc-data-grid-header-z)+2)] bg-[var(--pvc-data-grid-header-bg)]
+        z-[calc(var(--pvc-data-grid-header-z)+2)] bg-(--pvc-data-grid-header-bg)
       ].freeze
 
       VIRTUAL_HEADER_LANE_CENTER_CLASSES = %w[
-        bg-[var(--pvc-data-grid-header-bg)]
+        bg-(--pvc-data-grid-header-bg)
       ].freeze
 
       VIEWPORT_CLASSES = %w[

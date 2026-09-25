@@ -6,7 +6,7 @@ module Pathogen
     class Separator < Region
       BASE_CLASSES = %w[
         pathogen-sidebar-separator
-        my-2 border-0 border-t border-[color:var(--pvc-color-border)]
+        my-2 border-0 border-t border-(color:--pvc-color-border)
       ].join(' ').freeze
 
       def call

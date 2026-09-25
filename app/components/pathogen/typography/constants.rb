@@ -12,13 +12,13 @@ module Pathogen
       # Role-based type scale. Each entry maps a role to the Tailwind utility that
       # resolves the matching `--type-*` custom property.
       TYPE_SIZES = {
-        meta: 'text-[length:var(--type-meta)]',       # 12px — hints, timestamps
-        control: 'text-[length:var(--type-control)]', # 14px — labels, dense UI
-        body: 'text-[length:var(--type-body)]',       # 16px — body copy
-        callout: 'text-[length:var(--type-callout)]', # 18px — emphasised lead-ins
-        section: 'text-[length:var(--type-section)]', # 20px — section titles
-        title: 'text-[length:var(--type-title)]',     # 24px — sub-page headings
-        page: 'text-[length:var(--type-page)]'        # 32px — page titles
+        meta: 'text-(length:--type-meta)',       # 12px — hints, timestamps
+        control: 'text-(length:--type-control)', # 14px — labels, dense UI
+        body: 'text-(length:--type-body)',       # 16px — body copy
+        callout: 'text-(length:--type-callout)', # 18px — emphasised lead-ins
+        section: 'text-(length:--type-section)', # 20px — section titles
+        title: 'text-(length:--type-title)',     # 24px — sub-page headings
+        page: 'text-(length:--type-page)'        # 32px — page titles
       }.freeze
 
       FONT_FAMILIES = {
@@ -70,9 +70,9 @@ module Pathogen
       }.freeze
 
       COLOR_VARIANTS = {
-        default: 'text-[var(--pvc-color-text)]',
-        muted: 'text-[var(--pvc-color-text-muted)]',
-        subdued: 'text-[var(--pvc-color-text-muted)]/80',
+        default: 'text-(--pvc-color-text)',
+        muted: 'text-(--pvc-color-text-muted)',
+        subdued: 'text-(--pvc-color-text-muted)/80',
         inverse: 'text-white'
       }.freeze
 
