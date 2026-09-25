@@ -8,7 +8,7 @@
       Lists, code, and section wrappers in a realistic setup flow. Section validates heading hierarchy in development.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Section.new(level: 2) do |section| %>
         <% section.with_heading { "Prerequisites" } %>
 
@@ -37,7 +37,7 @@ bin/setup
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Card header group</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::HeadingGroup.new(level: 3, spacing: :compact) do |group| %>
         <%= group.with_heading { "COVID-19 Analysis" } %>
         <%= group.with_metadata { "45 samples · Running" } %>

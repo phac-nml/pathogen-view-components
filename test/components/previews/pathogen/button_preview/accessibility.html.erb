@@ -8,7 +8,7 @@
       accent colour on primary controls. Check both light and dark mode in Lookbook.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex flex-wrap items-center gap-2">
         <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Submit run') %>
         <%= render Pathogen::Button.new(tone: :primary, emphasis: :soft, text: 'Save draft') %>
@@ -42,7 +42,7 @@
 
     <div
       class="
-        overflow-hidden rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        overflow-hidden rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
         bg-[var(--pvc-color-surface)]
       "
     >
@@ -95,7 +95,7 @@
       When multiple icon-only buttons share the same visual, give each a distinct accessible name.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Typography::Heading.new(level: 5, class: "font-semibold")) { "Specimen collection details" } %>
 
       <div class="mt-4 flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] py-3">
@@ -129,7 +129,7 @@
       Overview preview compares all three states side by side.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <form>
         <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4", id: "continue-unavailable-reason")) { "Complete required fields before continuing." } %>
 
