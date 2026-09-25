@@ -16,8 +16,8 @@ module Pathogen
         Pathogen::InlineCodeStyles::SURFACE_CLASSES,
         %w[
           inline-flex items-center gap-1 font-mono
-          text-[length:var(--type-control)] leading-4
-          rounded-[var(--pvc-radius-control)]
+          text-(length:--type-control) leading-4
+          rounded-(--pvc-radius-control)
           px-1.5 py-0.5 whitespace-nowrap align-middle
         ]
       ].flatten.join(' ').freeze

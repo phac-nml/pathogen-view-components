@@ -54,7 +54,7 @@ module Pathogen
 
         html = builder.checkbox(:active)
 
-        assert_includes html, 'focus-visible:outline-[var(--pvc-color-focus)]'
+        assert_includes html, 'focus-visible:outline-(--pvc-color-focus)'
         assert_not_includes html, 'focus-visible:outline-black'
         assert_not_includes html, 'dark:focus-visible:outline-white'
       end
@@ -65,7 +65,7 @@ module Pathogen
 
         html = view.check_box_tag(:active)
 
-        assert_includes html, 'focus-visible:outline-[var(--pvc-color-focus)]'
+        assert_includes html, 'focus-visible:outline-(--pvc-color-focus)'
         assert_not_includes html, 'focus-visible:outline-black'
         assert_not_includes html, 'dark:focus-visible:outline-white'
       end
@@ -81,7 +81,7 @@ module Pathogen
         assert_includes html, 'id="active"'
         assert_includes html, 'aria-describedby="active-help"'
         assert_includes html, 'disabled'
-        assert_includes html, 'focus-visible:outline-[var(--pvc-color-focus)]'
+        assert_includes html, 'focus-visible:outline-(--pvc-color-focus)'
       end
 
       test 'submit renders a Pathogen button with type submit' do
@@ -93,7 +93,7 @@ module Pathogen
         assert_includes html, 'type="submit"'
         assert_includes html, 'Save changes'
         assert_includes html, 'name="commit"'
-        assert_includes html, 'bg-[var(--pvc-color-accent-solid)]'
+        assert_includes html, 'bg-(--pvc-color-accent-solid)'
       end
 
       test 'submit supports disabled state' do

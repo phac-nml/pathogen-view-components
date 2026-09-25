@@ -18,32 +18,32 @@ module Pathogen
         render_inline(Pathogen::Button.new(**{ key => value }, tone: :primary, emphasis: :solid)) { 'Submit' }
 
         assert_no_selector 'button[class*="opacity-"]'
-        assert_selector 'button[class*="unavailable:text-[var(--pvc-color-text-muted)]"]'
-        assert_selector 'button[class*="unavailable:bg-[var(--pvc-color-surface-muted)]"]'
-        assert_selector 'button[class*="focus-visible:outline-[var(--pvc-color-focus)]"]'
+        assert_selector 'button[class*="unavailable:text-(--pvc-color-text-muted)"]'
+        assert_selector 'button[class*="unavailable:bg-(--pvc-color-surface-muted)"]'
+        assert_selector 'button[class*="focus-visible:outline-(--pvc-color-focus)"]'
       end
     end
 
     test 'medium size uses 44px touch target' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
-      assert_selector 'button.inline-flex.items-center[class*="rounded-[var(--pvc-radius-action)]"]',
+      assert_selector 'button.inline-flex.items-center[class*="rounded-(--pvc-radius-action)"]',
                       text: 'Click me'
-      assert_selector 'button[class*="min-h-[var(--pvc-control-size-medium)]"]'
+      assert_selector 'button[class*="min-h-(--pvc-control-size-medium)"]'
     end
 
     test 'default tone and emphasis map to neutral soft semantic tokens' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector 'button.border-transparent'
-      assert_selector "button[class*='bg-[var(--pvc-color-surface-muted)]']"
-      assert_selector "button[class*='text-[var(--pvc-color-text)]']"
+      assert_selector "button[class*='bg-(--pvc-color-surface-muted)']"
+      assert_selector "button[class*='text-(--pvc-color-text)']"
     end
 
     test 'primary solid emits primary solid without shadow' do
       render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid)) { 'Submit' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
+      assert_selector "button[class*='bg-(--pvc-color-accent-solid)']"
       assert_selector "button[class*='text-white']"
       assert_no_selector "button[class*='shadow-sm']"
     end
@@ -51,14 +51,14 @@ module Pathogen
     test 'danger soft emits danger soft semantic tokens' do
       render_inline(Pathogen::Button.new(tone: :danger, emphasis: :soft)) { 'Delete' }
 
-      assert_selector "button[class*='text-[var(--pvc-color-danger-strong)]']"
+      assert_selector "button[class*='text-(--pvc-color-danger-strong)']"
       assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]']"
     end
 
     test 'tone primary emphasis solid emits primary solid classes' do
       render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid)) { 'Submit' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
+      assert_selector "button[class*='bg-(--pvc-color-accent-solid)']"
     end
 
     test 'tone neutral emphasis ghost emits quiet classes' do
@@ -71,7 +71,7 @@ module Pathogen
     test 'tone danger emphasis solid emits solid destructive classes' do
       render_inline(Pathogen::Button.new(tone: :danger, emphasis: :solid)) { 'Delete' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-danger-solid)]']"
+      assert_selector "button[class*='bg-(--pvc-color-danger-solid)']"
       assert_selector "button[class*='text-white']"
     end
 
@@ -79,35 +79,35 @@ module Pathogen
       render_inline(Pathogen::Button.new(tone: :neutral, emphasis: :ghost)) { 'Back' }
 
       assert_selector "button[class*='bg-transparent']"
-      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
+      assert_no_selector "button[class*='bg-(--pvc-color-accent-solid)']"
     end
 
     test 'tone without emphasis uses soft emphasis for requested tone' do
       render_inline(Pathogen::Button.new(tone: :primary)) { 'Save draft' }
 
-      assert_selector "button[class*='text-[var(--pvc-color-accent-strong)]']"
+      assert_selector "button[class*='text-(--pvc-color-accent-strong)']"
       assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-accent)_10%,var(--pvc-color-surface))]']"
-      assert_no_selector "button[class*='bg-[var(--pvc-color-accent-solid)]']"
+      assert_no_selector "button[class*='bg-(--pvc-color-accent-solid)']"
     end
 
     test 'emphasis without tone uses neutral tone' do
       render_inline(Pathogen::Button.new(emphasis: :solid)) { 'Proceed' }
 
-      assert_selector "button[class*='bg-[var(--pvc-color-text)]']"
-      assert_selector "button[class*='text-[var(--pvc-color-surface)]']"
+      assert_selector "button[class*='bg-(--pvc-color-text)']"
+      assert_selector "button[class*='text-(--pvc-color-surface)']"
     end
 
     test 'medium size padding by default' do
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector 'button.px-4.py-2'
-      assert_selector "button[class*='text-[length:var(--type-control)]']"
+      assert_selector "button[class*='text-(length:--type-control)']"
     end
 
     test 'small size uses 32px minimum touch target and balanced padding' do
       render_inline(Pathogen::Button.new(size: :small)) { 'Small' }
 
-      assert_selector "button[class*='min-h-[var(--pvc-control-size-small)]']"
+      assert_selector "button[class*='min-h-(--pvc-control-size-small)']"
       assert_selector 'button.px-3.py-1'
     end
 
@@ -127,14 +127,14 @@ module Pathogen
       render_inline(Pathogen::Button.new(tone: :primary, emphasis: :solid, size: :small)) { 'Submit' }
 
       assert_selector "button[class*='text-white']"
-      assert_selector "button[class*='text-[length:var(--type-control)]']"
+      assert_selector "button[class*='text-(length:--type-control)']"
     end
 
     test 'all tone and emphasis combinations emit token-backed focus outline classes' do
       Pathogen::Button::TONE_OPTIONS.product(Pathogen::Button::EMPHASIS_OPTIONS).each do |tone, emphasis|
         render_inline(Pathogen::Button.new(tone: tone, emphasis: emphasis)) { "#{tone} #{emphasis}" }
 
-        assert_selector "button[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
+        assert_selector "button[class*='focus-visible:outline-(--pvc-color-focus)']"
         assert_no_selector "button[class*='focus-visible:outline-black']"
         assert_no_selector "button[class*='focus-visible:outline-white']"
       end
@@ -195,7 +195,7 @@ module Pathogen
       render_inline(Pathogen::Button.new(tag: :a, href: '/samples', tone: :primary, emphasis: :solid,
                                          text: 'View samples'))
 
-      assert_selector "a[class*='interactive-hover:bg-[var(--pvc-color-accent-solid-hover)]']"
+      assert_selector "a[class*='interactive-hover:bg-(--pvc-color-accent-solid-hover)']"
     end
 
     test 'icon_only passes axe-core checks when rendered as a link' do
@@ -237,7 +237,7 @@ module Pathogen
 
       assert_selector 'button[aria-label="Search"]'
       assert_selector 'button[class*="aspect-square"]'
-      assert_selector 'button[class*="size-[var(--pvc-control-size-medium)]"]'
+      assert_selector 'button[class*="size-(--pvc-control-size-medium)"]'
       assert_selector 'button[class*="p-0"]'
       assert_no_selector 'button > span:not([aria-hidden])'
     end
@@ -247,7 +247,7 @@ module Pathogen
         button.with_leading_visual { 'Icon' }
       end
 
-      assert_selector 'button[class*="size-[var(--pvc-control-size-small)]"]'
+      assert_selector 'button[class*="size-(--pvc-control-size-small)"]'
     end
 
     test 'icon_only raises without an accessible name' do
