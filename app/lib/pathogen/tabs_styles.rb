@@ -71,7 +71,7 @@ module Pathogen
 
     LAZY_PANEL_SKELETON = %w[
       motion-reduce:animate-none animate-pulse
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+      rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
       bg-[var(--pvc-color-surface-muted)] p-4
     ].freeze
 
