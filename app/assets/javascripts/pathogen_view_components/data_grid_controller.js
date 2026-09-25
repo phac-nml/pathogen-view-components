@@ -18,9 +18,7 @@ import {
   resolveInteractiveTarget,
 } from "pathogen_view_components/data_grid_controller/widget_mode";
 
-import { setPaginationBusy } from "pathogen_view_components/data_grid_controller/pagination_mode";
-import { navigateCursorBoundary } from "pathogen_view_components/data_grid_controller/cursor_boundary_navigator";
-import { PaginationStatusPresenter } from "pathogen_view_components/data_grid_controller/pagination_status_presenter";
+import { PaginationCoordinator } from "pathogen_view_components/data_grid_controller/pagination_coordinator";
 import { VirtualViewport } from "pathogen_view_components/data_grid_controller/virtual_viewport";
 import { CellIndex } from "pathogen_view_components/data_grid_controller/cell_index";
 
@@ -61,9 +59,7 @@ export default class extends Controller {
   // Tracks the previously-active cell so #setActiveCell only touches two cells per call.
   #lastActiveCell = null;
   #pendingFocusCoordinate = null;
-  #boundaryIntent = null;
-  #paginationError = null;
-  #paginationStatus = null;
+  #paginationCoordinator = null;
 
   #virtualViewport = null;
 
@@ -96,9 +92,8 @@ export default class extends Controller {
     this.#virtualViewport?.disconnect();
     this.#virtualViewport = null;
     this.#pendingFocusCoordinate = null;
-    this.#boundaryIntent = null;
-    this.#paginationError = null;
-    this.#paginationStatus = null;
+    this.#paginationCoordinator?.reset();
+    this.#paginationCoordinator = null;
     this.#lastActiveCell = null;
     this.#invalidateCellCaches();
     this.element.removeAttribute("data-virtual-ready");
@@ -126,7 +121,7 @@ export default class extends Controller {
   }
 
   handleClick(event) {
-    this.#boundaryIntent = null;
+    this.#paginationCoordinator?.resetBoundaryIntent();
     const cell = this.#resolveCell(event.target);
     if (!cell) return;
 
@@ -143,7 +138,7 @@ export default class extends Controller {
   }
 
   handleKeydown(event) {
-    this.#boundaryIntent = null;
+    this.#paginationCoordinator?.resetBoundaryIntent();
     if (!this.hasGridTarget) return;
 
     const targetCell = this.#resolveCell(event.target);
@@ -203,19 +198,7 @@ export default class extends Controller {
   }
 
   #navigateCursorBoundary(event, activeCell) {
-    return navigateCursorBoundary({
-      event,
-      activeCell,
-      viewport: this.#virtualViewport,
-      pageSize: this.#pageSize(),
-      boundaryIntent: () => this.#boundaryIntent,
-      setBoundaryIntent: (intent) => {
-        this.#boundaryIntent = intent;
-      },
-      hasPaginationError: () => this.#paginationError !== null,
-      focusCell: (cell) => this.#focusCell(cell),
-      cellByCoordinate: (row, column) => this.#cellByCoordinate(row, column),
-    });
+    return this.#paginationCoordinator?.navigateCursorBoundary(event, activeCell) || false;
   }
 
   handleErrorEvent(event) {
@@ -489,7 +472,7 @@ export default class extends Controller {
       "focusin",
       (event) => {
         if (!this.hasGridTarget || !this.gridTarget.contains(event.target)) {
-          this.#boundaryIntent = null;
+          this.#paginationCoordinator?.resetBoundaryIntent();
           this.#pendingFocusCoordinate = null;
         }
       },
@@ -573,14 +556,21 @@ export default class extends Controller {
     this.gridTarget.setAttribute("aria-busy", "true");
     if (this.hasVirtualStatusTarget && loadingText) this.virtualStatusTarget.textContent = loadingText;
 
-    this.#paginationStatus = new PaginationStatusPresenter({
+    this.#paginationCoordinator = new PaginationCoordinator({
       /* v8 ignore next -- defensive: virtual mode only initializes when the grid target exists */
       grid: this.hasGridTarget ? this.gridTarget : null,
-      status: this.hasPaginationStatusTarget ? this.paginationStatusTarget : null,
-      position: this.hasPaginationPositionTarget ? this.paginationPositionTarget : null,
-      retry: this.hasPaginationRetryTarget ? this.paginationRetryTarget : null,
-      refresh: this.hasPaginationRefreshTarget ? this.paginationRefreshTarget : null,
+      virtualStatus: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
+      paginationStatus: this.hasPaginationStatusTarget ? this.paginationStatusTarget : null,
+      paginationPosition: this.hasPaginationPositionTarget ? this.paginationPositionTarget : null,
+      paginationRetry: this.hasPaginationRetryTarget ? this.paginationRetryTarget : null,
+      paginationRefresh: this.hasPaginationRefreshTarget ? this.paginationRefreshTarget : null,
       virtualStatusMessage: (key, fallback) => this.#virtualStatusMessage(key, fallback),
+      viewport: () => this.#virtualViewport,
+      pageSize: () => this.#pageSize(),
+      focusCell: (cell) => this.#focusCell(cell),
+      cellByCoordinate: (row, column) => this.#cellByCoordinate(row, column),
+      showErrorState: (message) => this.#showErrorState(message),
+      reportError: (error) => this.#reportError(error),
     });
 
     this.#virtualViewport = new VirtualViewport({
@@ -601,14 +591,13 @@ export default class extends Controller {
       /* v8 ignore next -- defensive: forwards asynchronous virtual render errors to the shared error surface */
       onError: (error) => this.#reportError(error),
       syncScrollAffordance: () => this.#syncScrollAffordance(),
-      setBusy: (busy) => this.#setPaginationBusy(busy),
-      onPageError: (error) => this.#handlePaginationError(error),
-      onPositionChanged: (position) => this.#updatePaginationPosition(position),
+      setBusy: (busy) => this.#paginationCoordinator?.setBusy(busy),
+      onPageError: (error) => this.#paginationCoordinator?.handleError(error),
+      onPositionChanged: (position) => this.#paginationCoordinator?.updatePosition(position),
       onPageSuccess: (hasPageErrors) => {
         if (!hasPageErrors) {
           this.#hideErrorState();
-          this.#paginationError = null;
-          const retryHadFocus = this.#paginationStatus?.clearRecovery(document.activeElement) || false;
+          const retryHadFocus = this.#paginationCoordinator?.handlePageSuccess(document.activeElement) || false;
           if (retryHadFocus) {
             this.#focusCell(this.#activeCell());
           }
@@ -630,43 +619,6 @@ export default class extends Controller {
     const fallbackCell = this.viewportTarget.querySelector(CELL_SELECTOR);
     /* v8 ignore next -- defensive: a rendered virtual window always contains at least one cell */
     if (fallbackCell) this.#setActiveCell(fallbackCell);
-  }
-
-  #setPaginationBusy(isBusy) {
-    const handled =
-      this.#paginationStatus?.setBusy({
-        isBusy,
-        paginationError: this.#paginationError,
-        hasMore: this.#virtualViewport?.hasMore || false,
-        cursorMode: this.#virtualViewport?.cursorMode || false,
-        totalRows: this.#virtualViewport?.totalRows || 0,
-      }) || false;
-    if (handled) return;
-
-    setPaginationBusy(
-      {
-        /* v8 ignore next -- defensive: pagination only runs when the grid target is present */
-        grid: this.hasGridTarget ? this.gridTarget : null,
-        status: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
-        loadingMoreText: this.#virtualStatusMessage("loadingMoreText", null),
-        loadedText: this.#virtualStatusMessage("loadedText", null),
-      },
-      isBusy,
-    );
-  }
-
-  #handlePaginationError(error) {
-    console.error("[pathogen--data-grid] Pagination fetch error", error);
-    this.#paginationError = this.#paginationStatus?.showError(error.refreshRequired) || null;
-    if (!this.#paginationError) {
-      const message = this.#virtualStatusMessage("fetchErrorText", null);
-      if (message) this.#showErrorState(message);
-      else this.#reportError(error);
-    }
-  }
-
-  #updatePaginationPosition({ start, end, count, total }) {
-    this.#paginationStatus?.updatePosition({ start, end, count, total });
   }
 
   #syncScrollAffordance() {
