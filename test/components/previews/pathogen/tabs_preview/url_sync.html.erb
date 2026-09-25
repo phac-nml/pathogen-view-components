@@ -9,7 +9,7 @@
       the link returns to the same section. Arrow-key navigation updates the hash as well.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(
         id: 'url-sync-demo',
         label: 'Outbreak investigation sections',
@@ -60,7 +60,7 @@
   <section>
     <%= render Pathogen::Typography::Heading.new(level: 2, class: "mb-2") { "Hash formats" } %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
       <%= render Pathogen::Typography::List.new(variant: :muted) do |list| %>
         <% list.with_item do %>
           <%= render Pathogen::Typography::Code.new { "#tab-specimens" } %> — matches a tab id

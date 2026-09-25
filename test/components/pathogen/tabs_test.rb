@@ -142,7 +142,7 @@ module Pathogen
                       visible: :all
       assert_selector 'turbo-frame#history-frame[src="/history"][loading="lazy"]', visible: :all
       assert_includes rendered_content, 'motion-reduce:animate-none'
-      assert_includes rendered_content, 'rounded-[var(--pvc-radius-panel)]'
+      assert_includes rendered_content, 'rounded-(--pvc-radius-panel)'
       assert_includes rendered_content, 'border-[var(--pvc-color-border)]'
     end
   end

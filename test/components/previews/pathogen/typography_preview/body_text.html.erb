@@ -9,7 +9,7 @@
       a single constraint or note.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Heading.new(level: 2) { "QC review notes" } %>
 
       <%= render Pathogen::Typography::Lead.new(class: "mt-3") do %>
@@ -31,7 +31,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Text colour variants</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 space-y-2">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 space-y-2">
       <%= render Pathogen::Typography::Text.new(variant: :default) { "Default body copy for primary explanations." } %>
       <%= render Pathogen::Typography::Text.new(variant: :muted) { "Muted copy for secondary detail and helper text." } %>
       <%= render Pathogen::Typography::Text.new(variant: :subdued) { "Subdued copy for de-emphasised context." } %>

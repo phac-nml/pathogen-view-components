@@ -8,7 +8,7 @@
       Control scale for labels and help text; meta scale for timestamps and record metadata lines.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Heading.new(level: 2) { "Register specimen" } %>
 
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: "mt-1") do %>
@@ -32,7 +32,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Grid footnote</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <dl class="grid gap-3 text-sm sm:grid-cols-2">
         <div>
           <dt class="font-semibold text-[var(--pvc-color-text)]">Specimen ID</dt>

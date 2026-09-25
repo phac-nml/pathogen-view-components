@@ -9,7 +9,7 @@
       visual size alone.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Heading.new(level: 1) { "SPEC-2026-00891" } %>
 
       <%= render Pathogen::Typography::Heading.new(level: 2, class: "mt-6") { "Collection" } %>
@@ -34,7 +34,7 @@
       <code class="font-mono">for</code> attribute for form fields.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "accession-id", class: "mb-1 block font-semibold") { "Accession ID" } %>
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, id: "accession-help") { "Matches the barcode on the specimen tube." } %>
     </div>

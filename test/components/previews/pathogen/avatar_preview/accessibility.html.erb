@@ -8,7 +8,7 @@
 
     <div
       class="
-        flex items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        flex items-center gap-3 rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
         bg-[var(--pvc-color-surface)] p-4
       "
     >
@@ -25,7 +25,7 @@
       Decorative avatars are hidden from assistive technology when adjacent text already communicates identity.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="flex items-center gap-3">
         <%= render Pathogen::Avatar.new(decorative: true, initials: 'JD', colour_seed: 'decorative-avatar') %>
 
@@ -43,7 +43,7 @@
 
     <div
       class="
-        flex items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        flex items-center gap-3 rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
         bg-[var(--pvc-color-surface)] p-4
       "
     >

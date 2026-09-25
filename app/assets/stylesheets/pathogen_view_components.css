@@ -760,6 +760,9 @@
   .rounded {
     border-radius: 0.25rem;
   }
+  .rounded-\(--pvc-radius-panel\) {
+    border-radius: var(--pvc-radius-panel);
+  }
   .rounded-\[inherit\] {
     border-radius: inherit;
   }
@@ -768,9 +771,6 @@
   }
   .rounded-\[var\(--pvc-radius-control\)\] {
     border-radius: var(--pvc-radius-control);
-  }
-  .rounded-\[var\(--pvc-radius-panel\)\] {
-    border-radius: var(--pvc-radius-panel);
   }
   .rounded-full {
     border-radius: calc(infinity * 1px);

@@ -9,7 +9,7 @@
 
     <div
       class="
-        flex flex-wrap items-center gap-3 rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
+        flex flex-wrap items-center gap-3 rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]
         bg-[var(--pvc-color-surface)] p-4
       "
     >
@@ -30,7 +30,7 @@
       Typical product usage pairs compact avatars with role metadata and restrained actions.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="flex items-center justify-between border-b border-[var(--pvc-color-border)] px-4 py-3">
         <%= render Pathogen::Typography::Text.new(tag: :h3, class: 'font-semibold text-[var(--pvc-color-text)]') { 'Run collaborators' } %>
         <%= render Pathogen::Button.new(size: :small, tone: :neutral, emphasis: :ghost, text: 'Manage') %>

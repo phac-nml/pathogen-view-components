@@ -7,7 +7,7 @@
       control with a label and optional help text using semantic text roles.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= form_with url: "#", builder: Pathogen::FormBuilders::PathogenFormBuilder do |f| %>
         <fieldset class="space-y-4">
           <legend class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Export options</legend>
@@ -42,7 +42,7 @@
       without <%= render Pathogen::Typography::Code.new { "neutral-950" } %> backgrounds.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full min-w-[36rem] border-collapse text-sm">
         <thead>
           <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
@@ -130,7 +130,7 @@
       grids.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full min-w-[32rem] border-separate border-spacing-0 text-left text-sm text-[var(--pvc-color-text)]">
         <thead>
           <tr>
@@ -177,7 +177,7 @@
       Help text stays muted and associated through the component label stack.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <div class="space-y-4">
         <%= render Pathogen::Form::RadioButton.new(
               attribute: :analysis_type,
@@ -211,7 +211,7 @@
       Checked tracks use <%= render Pathogen::Typography::Code.new { "--pvc-color-accent-solid" } %>.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= form_with url: "#", builder: Pathogen::FormBuilders::PathogenFormBuilder do |f| %>
         <div class="space-y-4">
           <%= f.switch :email_notifications, label: "Email notifications", checked: true %>
@@ -230,7 +230,7 @@
       <%= render Pathogen::Typography::Code.new { "aria-describedby" } %> explicitly.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <% switch_id = "form-preview-v2-samplesheet" %>
       <% label_id = "form-preview-v2-samplesheet-label" %>
       <% description_id = "form-preview-v2-samplesheet-description" %>
@@ -268,8 +268,8 @@
 
     <div
       class="
-        max-w-sm rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface)] p-4
+        max-w-sm rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]
+        p-4
       "
     >
       <div class="flex flex-col gap-1.5">
@@ -304,12 +304,7 @@
       <%= render Pathogen::Typography::Code.new { "--pvc-color-focus" } %>.
     <% end %>
 
-    <div
-      class="
-        rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-        bg-[var(--pvc-color-surface-muted)] p-4
-      "
-    >
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4">
       <%= render Pathogen::Form::Switch.new(attribute: :focus_demo, id: "form-preview-focus-switch", label: "Tab here to inspect focus") %>
     </div>
   </section>

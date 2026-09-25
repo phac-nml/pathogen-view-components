@@ -11,7 +11,7 @@
       to navigate.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'vertical-tabs', label: 'Protocol configuration', orientation: :vertical)) do |tabs| %>
         <% tabs.with_tab(id: 'v-tab-general', label: 'General', selected: true) %>
         <% tabs.with_tab(id: 'v-tab-samples', label: 'Sample handling') %>
@@ -61,7 +61,7 @@
       Horizontal tabs wrap when the list is long. For eight or more sections, prefer vertical orientation.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render(Pathogen::Tabs.new(id: 'many-tabs', label: 'Batch lanes')) do |tabs| %>
         <% (1..8).each do |i| %>
           <% tabs.with_tab(id: "tab-lane-#{i}", label: "Lane #{i}", selected: i == 1) %>
@@ -79,7 +79,7 @@
   <section>
     <%= render Pathogen::Typography::Heading.new(level: 2, class: "mb-2") { "Orientation comparison" } %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full text-[length:var(--type-control)]">
         <thead class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
           <tr>

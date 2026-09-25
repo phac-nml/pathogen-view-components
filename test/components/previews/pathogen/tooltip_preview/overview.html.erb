@@ -9,7 +9,7 @@
       <%= render Pathogen::Typography::Code.new { ":top" } %>. Hover or focus each trigger to inspect position.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
       <table class="w-full min-w-[36rem] border-collapse text-sm">
         <thead>
           <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
@@ -65,7 +65,7 @@
     <% end %>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Short label" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -73,7 +73,7 @@
         <% end %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Wrapped copy" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -96,7 +96,7 @@
       pagination below.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
       <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
         <%= render Pathogen::Typography::Heading.new(level: 5, class: "font-semibold") { "Sequencing submissions" } %>
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted) { "48 specimens · 2 need review" } %>
@@ -128,12 +128,7 @@
     </div>
   </section>
 
-  <div
-    class="
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
-      text-sm
-    "
-  >
+  <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm">
     <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "Usage" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-2") do %>

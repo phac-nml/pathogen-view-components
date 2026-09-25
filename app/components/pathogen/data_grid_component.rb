@@ -36,7 +36,7 @@ module Pathogen
     include Pathogen::StimulusDataMerge
 
     ROOT_CLASSES = %w[
-      max-w-full rounded-[var(--pvc-radius-panel)] isolate [container-type:inline-size]
+      max-w-full rounded-(--pvc-radius-panel) isolate [container-type:inline-size]
       border border-[var(--pvc-data-grid-border-color)]
       bg-[var(--pvc-data-grid-body-bg)]
       text-[var(--pvc-data-grid-text-color)]

@@ -9,7 +9,7 @@
     </p>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Preferred</p>
 
         <%= render Pathogen::Typography::Heading.new(level: 2) { "Run review" } %>
@@ -17,7 +17,7 @@
         <%= render Pathogen::Typography::Heading.new(level: 4, class: "mt-4") { "Lane metrics" } %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Avoid</p>
 
         <%= render Pathogen::Typography::Heading.new(level: 2) { "Run review" } %>
@@ -34,14 +34,14 @@
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sizing and emphasis</h2>
 
     <div class="grid gap-4 md:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Preferred</p>
 
         <%= render Pathogen::Typography::Heading.new(level: 1) { "RUN-2026-0142" } %>
         <%= render Pathogen::Typography::Text.new(variant: :muted, class: "mt-2") { "Use component levels for hierarchy." } %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <p class="mb-3 text-sm font-semibold text-[var(--pvc-color-text)]">Avoid</p>
 
         <%= render Pathogen::Typography::Heading.new(level: 1, class: "text-sm") { "Shrunken page title" } %>
@@ -56,7 +56,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Code in copy</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Text.new do %>
         Call <%= render Pathogen::Typography::Code.new { "render Pathogen::Typography::Heading.new" } %> for titles and
         <%= render Pathogen::Typography::Code.new { "render Pathogen::Typography::Code.new" } %> for identifiers such as

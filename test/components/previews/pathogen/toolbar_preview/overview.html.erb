@@ -161,7 +161,7 @@
       editor contexts. Use a toolbar only when grouping three or more controls.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Toolbar.new(label: 'Sample actions', variant: :chip) do %>
         <%= render Pathogen::Toolbar::Button.new do %>
           Edit
@@ -190,7 +190,7 @@
     <% end %>
 
     <div class="flex flex-wrap gap-4">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <%= render Pathogen::Toolbar.new(label: 'Display options', variant: :chip) do %>
           <%= render Pathogen::Toolbar::Button.new(pressed: true) do %>
             Compact rows
@@ -206,7 +206,7 @@
         <% end %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
         <%= render Pathogen::Toolbar.new(label: 'Sync actions', variant: :chip) do %>
           <%= render Pathogen::Toolbar::Button.new do %>
             Refresh data
@@ -239,7 +239,7 @@
       <code class="font-mono">data-pathogen--toolbar-target="item"</code>.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title', variant: :chip) do %>
         <%= render Pathogen::Toolbar::Button.new do %>
           Refresh data
@@ -268,8 +268,8 @@
 
   <section
     class="
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]
-      p-4 text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
+      rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4
+      text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
     "
   >
     <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Usage notes' } %>

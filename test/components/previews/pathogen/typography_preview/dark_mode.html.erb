@@ -9,7 +9,7 @@
       inspect contrast on the same markup.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Heading.new(level: 2) { "Operator account" } %>
 
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: "mt-1") do %>
@@ -40,7 +40,7 @@
   <section>
     <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Inline code on surface</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
       <%= render Pathogen::Typography::Text.new do %>
         Run ID <%= render Pathogen::Typography::Code.new { "RUN-2026-0142" } %> is referenced by the QC panel and export jobs.
       <% end %>
