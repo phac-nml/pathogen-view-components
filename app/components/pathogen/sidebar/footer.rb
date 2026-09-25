@@ -6,7 +6,7 @@ module Pathogen
     class Footer < Region
       BASE_CLASSES = %w[
         pathogen-sidebar-footer
-        mt-auto border-t border-[color:var(--pvc-color-border)]
+        mt-auto border-t border-(color:--pvc-color-border)
         p-2
       ].join(' ').freeze
     end

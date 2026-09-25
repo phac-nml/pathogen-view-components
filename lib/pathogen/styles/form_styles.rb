@@ -11,22 +11,22 @@ module Pathogen
       CHECKBOX_CLASSES = [
         'size-6', # 24px - better accessibility
         'border-2',
-        'border-[var(--pvc-color-border-strong)]',
-        'bg-[var(--pvc-color-surface)]',
+        'border-(--pvc-color-border-strong)',
+        'bg-(--pvc-color-surface)',
         'rounded-sm', # Consistent with style guide for form elements
         'cursor-pointer',
-        'accent-[var(--pvc-color-accent-solid)]',
+        'accent-(--pvc-color-accent-solid)',
         'transition-[border-color,background-color]',
-        'enabled:hover:bg-[var(--pvc-color-surface-muted)]',
-        'enabled:hover:border-[var(--pvc-color-accent)]',
+        'enabled:hover:bg-(--pvc-color-surface-muted)',
+        'enabled:hover:border-(--pvc-color-accent)',
         'focus-visible:outline',
         'focus-visible:outline-2',
-        'focus-visible:outline-[var(--pvc-color-focus)]',
+        'focus-visible:outline-(--pvc-color-focus)',
         'focus-visible:outline-offset-2',
         'disabled:opacity-50',
         'disabled:cursor-not-allowed',
-        'disabled:border-[var(--pvc-color-border)]',
-        'disabled:bg-[var(--pvc-color-surface-muted)]'
+        'disabled:border-(--pvc-color-border)',
+        'disabled:bg-(--pvc-color-surface-muted)'
       ].freeze
 
       # Classes to add when checkbox is in a table context
