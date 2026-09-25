@@ -77,6 +77,8 @@ export class CursorRowSource {
   fetchPage(page, { signal } = {}) {
     if (this.#inFlight.has(page)) return this.#inFlight.get(page);
     const checkpoint = this.#checkpoints[page - 1];
+    // Serve only known checkpoints or the current frontier page while a cursor
+    // continuation exists. Ignore requests that skip ahead or ask past exhaustion.
     if (!checkpoint && (page !== this.nextPage || !this.hasMore)) return Promise.resolve({ aborted: false });
     const request = this.#request(checkpoint, signal).finally(() => this.#inFlight.delete(page));
     this.#inFlight.set(page, request);
