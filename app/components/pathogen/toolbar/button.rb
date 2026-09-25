@@ -9,7 +9,7 @@ module Pathogen
 
     # rubocop:disable-next Metrics/ParameterLists
     def initialize(label: nil, pressed: nil, disabled: false, aria_disabled: false, tag: :button, tone: :neutral,
-                   emphasis: :outline, size: :small, **system_arguments)
+                   emphasis: :soft, size: :small, **system_arguments)
       disabled ||= system_arguments.delete('disabled') == true
 
       raise ArgumentError, 'Cannot set both disabled and aria_disabled on a toolbar button' if disabled && aria_disabled

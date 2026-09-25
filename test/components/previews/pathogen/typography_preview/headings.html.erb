@@ -2,13 +2,13 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Specimen record headings</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Specimen record headings</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Semantic levels map to role tokens. Use sequential h1–h6 without skipping levels inside a page region.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Heading.new(level: 1) { "SPEC-2026-00891" } %>
 
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: "mt-1") do %>
@@ -36,29 +36,29 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Colour variants</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Colour variants</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Default for primary labels; muted for secondary section titles; subdued and inverse for constrained surfaces.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 space-y-3">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 space-y-3">
       <%= render Pathogen::Typography::Heading.new(level: 3, variant: :default) { "Default section title" } %>
       <%= render Pathogen::Typography::Heading.new(level: 3, variant: :muted) { "Muted section title" } %>
       <%= render Pathogen::Typography::Heading.new(level: 3, variant: :subdued) { "Subdued section title" } %>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border-strong)] bg-neutral-950 p-3">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border-strong) bg-neutral-950 p-3">
         <%= render Pathogen::Typography::Heading.new(level: 3, variant: :inverse) { "Inverse section title" } %>
       </div>
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+  <div class="rounded-md border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <p class="font-semibold text-(--pvc-color-text)">Usage</p>
     <p class="mt-2">
       Use sequential heading levels inside a page region. Do not override page-title sizing with custom classes;
       hierarchy comes from level, weight, and placement.
     </p>
-    <pre class="mt-2 overflow-x-auto rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-3 text-xs text-[var(--pvc-color-text)]"><code>&lt;%= render Pathogen::Typography::Heading.new(level: 2) { "Section" } %&gt;</code></pre>
+    <pre class="mt-2 overflow-x-auto rounded-(--pvc-radius-control) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-3 text-xs text-(--pvc-color-text)"><code>&lt;%= render Pathogen::Typography::Heading.new(level: 2) { "Section" } %&gt;</code></pre>
   </div>
 </div>

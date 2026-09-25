@@ -7,7 +7,7 @@ module Pathogen
       include FormStyles
 
       SWITCH_NAME_LABEL_CLASSES = %w[
-        block cursor-pointer font-sans text-sm font-semibold text-[var(--pvc-color-text)]
+        block cursor-pointer font-sans text-sm font-semibold text-(--pvc-color-text)
       ].join(' ').freeze
 
       SWITCH_CONTROL_CONTAINER_CLASSES = 'inline-flex shrink-0 items-center gap-2'
@@ -16,8 +16,8 @@ module Pathogen
         group inline-flex cursor-pointer select-none items-center gap-2 leading-none
         peer-disabled:cursor-not-allowed peer-aria-disabled:cursor-not-allowed
         peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2
-        peer-focus-visible:outline-[var(--pvc-color-focus)]
-        peer-checked:[&_.pathogen-switch-track]:bg-[var(--pvc-color-accent-solid)]
+        peer-focus-visible:outline-(--pvc-color-focus)
+        peer-checked:[&_.pathogen-switch-track]:bg-(--pvc-color-accent-solid)
         peer-checked:[&_.pathogen-switch-track]:after:translate-x-5
         peer-checked:[&_.pathogen-switch-track]:after:-translate-y-1/2
         peer-disabled:[&_.pathogen-switch-track]:opacity-60
@@ -28,14 +28,14 @@ module Pathogen
 
       SWITCH_TRACK_CLASSES = %w[
         pathogen-switch-track relative inline-block h-6 w-11 shrink-0 rounded-full border-2
-        border-[var(--pvc-color-border-strong)] bg-[var(--pvc-color-surface-muted)] align-middle
+        border-(--pvc-color-border-strong) bg-(--pvc-color-surface-muted) align-middle
         after:absolute after:top-1/2 after:left-[2px] after:h-4 after:w-4 after:-translate-y-1/2
-        after:rounded-full after:bg-[var(--pvc-color-surface-raised)] after:content-['']
+        after:rounded-full after:bg-(--pvc-color-surface-raised) after:content-['']
         motion-safe:after:transition-[transform]
       ].join(' ').freeze
 
       SWITCH_STATE_TEXT_CLASSES = %w[
-        text-sm text-[var(--pvc-color-text-muted)]
+        text-sm text-(--pvc-color-text-muted)
       ].join(' ').freeze
 
       # @param user_class [String, nil] additional user-provided classes

@@ -1,5 +1,5 @@
 <div class="flex max-w-lg flex-col gap-8 p-4">
-  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+  <section class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
     <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Closed by default" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
@@ -17,7 +17,7 @@
     <% end %>
   </section>
 
-  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+  <section class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
     <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Open by default with heading" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
@@ -48,7 +48,7 @@
     <% end %>
   </section>
 
-  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+  <section class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
     <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Custom trigger content" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
@@ -59,14 +59,14 @@
 
     <%= render Pathogen::Disclosure.new(id: "metadata-templates") do |disclosure| %>
       <% disclosure.with_trigger do %>
-        Metadata templates <span class="ml-2 text-xs font-normal text-[color:var(--pvc-color-text-muted)]">(3)</span>
+        Metadata templates <span class="ml-2 text-xs font-normal text-(color:--pvc-color-text-muted)">(3)</span>
       <% end %>
 
       <p class="text-sm">Specimen, isolate, and outbreak templates for this group.</p>
     <% end %>
   </section>
 
-  <section class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+  <section class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
     <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-2") { "Dense size" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>

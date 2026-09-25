@@ -6,14 +6,14 @@
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
       Tabs follow the W3C automatic activation pattern. Focus a tab, then use arrow keys to move and activate.
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-[length:var(--type-meta)]">Home</kbd> and
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-[length:var(--type-meta)]">End</kbd>
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-(length:--type-meta)">Home</kbd> and
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-(length:--type-meta)">End</kbd>
       jump to the first and last tab. Press
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-[length:var(--type-meta)]">Tab</kbd>
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-(length:--type-meta)">Tab</kbd>
       to leave the tab list and enter the panel.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Tabs.new(id: 'keyboard-demo-tabs', label: 'Specimen review sections')) do |tabs| %>
         <% tabs.with_tab(id: 'kbd-tab-collection', label: 'Collection', selected: true) %>
         <% tabs.with_tab(id: 'kbd-tab-lab', label: 'Lab results') %>
@@ -21,14 +21,14 @@
         <% tabs.with_tab(id: 'kbd-tab-audit', label: 'Audit') %>
 
         <% tabs.with_panel(id: 'kbd-panel-collection', tab_id: 'kbd-tab-collection') do %>
-          <dl class="grid gap-3 text-[length:var(--type-control)] sm:grid-cols-2">
+          <dl class="grid gap-3 text-(length:--type-control) sm:grid-cols-2">
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Specimen ID</dt>
-              <dd class="font-mono text-[var(--pvc-color-text-muted)]">SPEC-2026-00891</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Specimen ID</dt>
+              <dd class="font-mono text-(--pvc-color-text-muted)">SPEC-2026-00891</dd>
             </div>
             <div>
-              <dt class="font-semibold text-[var(--pvc-color-text)]">Collected</dt>
-              <dd class="text-[var(--pvc-color-text-muted)]">2026-06-09</dd>
+              <dt class="font-semibold text-(--pvc-color-text)">Collected</dt>
+              <dd class="text-(--pvc-color-text-muted)">2026-06-09</dd>
             </div>
           </dl>
         <% end %>
@@ -40,7 +40,7 @@
         <% end %>
 
         <% tabs.with_panel(id: 'kbd-panel-qc', tab_id: 'kbd-tab-qc') do %>
-          <%= render Pathogen::Typography::Supporting.new(class: "text-[var(--pvc-color-warning)]") do %>
+          <%= render Pathogen::Typography::Supporting.new(class: "text-(--pvc-color-warning)") do %>
             Coverage below threshold on contig 3 — review required.
           <% end %>
         <% end %>
@@ -65,10 +65,10 @@
     <% end %>
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-3") { "Tab list" } %>
 
-        <dl class="space-y-2 text-[length:var(--type-control)]">
+        <dl class="space-y-2 text-(length:--type-control)">
           <div class="flex gap-2">
             <dt class="shrink-0"><%= render Pathogen::Typography::Code.new { "role" } %></dt>
             <dd><%= render Pathogen::Typography::Supporting.new(variant: :muted, tag: :span) do %><%= render Pathogen::Typography::Code.new { "tablist" } %> on <%= render Pathogen::Typography::Code.new { "nav" } %><% end %></dd>
@@ -84,10 +84,10 @@
         </dl>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-3") { "Tab buttons" } %>
 
-        <dl class="space-y-2 text-[length:var(--type-control)]">
+        <dl class="space-y-2 text-(length:--type-control)">
           <div class="flex gap-2">
             <dt class="shrink-0"><%= render Pathogen::Typography::Code.new { "role" } %></dt>
             <dd><%= render Pathogen::Typography::Supporting.new(variant: :muted, tag: :span) do %><%= render Pathogen::Typography::Code.new { "tab" } %> on native <%= render Pathogen::Typography::Code.new { "button" } %><% end %></dd>
@@ -103,10 +103,10 @@
         </dl>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 lg:col-span-2">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 lg:col-span-2">
         <%= render Pathogen::Typography::Heading.new(level: 3, class: "mb-3") { "Panels" } %>
 
-        <dl class="grid gap-2 text-[length:var(--type-control)] sm:grid-cols-2">
+        <dl class="grid gap-2 text-(length:--type-control) sm:grid-cols-2">
           <div class="flex gap-2">
             <dt class="shrink-0"><%= render Pathogen::Typography::Code.new { "role" } %></dt>
             <dd><%= render Pathogen::Typography::Supporting.new(variant: :muted, tag: :span) do %><%= render Pathogen::Typography::Code.new { "tabpanel" } %><% end %></dd>

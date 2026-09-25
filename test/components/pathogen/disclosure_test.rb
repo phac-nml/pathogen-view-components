@@ -63,7 +63,7 @@ module Pathogen
 
       assert_selector "button[class*='focus-visible:outline']"
       assert_selector "button[class*='focus-visible:outline-2']"
-      assert_selector "button[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
+      assert_selector "button[class*='focus-visible:outline-(--pvc-color-focus)']"
     end
 
     test 'medium size meets the 44px minimum target' do

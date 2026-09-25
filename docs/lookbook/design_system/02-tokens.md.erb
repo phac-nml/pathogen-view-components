@@ -296,7 +296,7 @@ In dark mode, accent and status text and borders lighten for contrast. Solid fil
 | `--type-title` | 24 | `Heading` level 2 |
 | `--type-page` | 32 | Page titles, `Heading` level 1 |
 
-Components consume these through `text-[length:var(--type-*)]` utilities. The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
+Components consume these through `text-(length:--type-*)` utilities. The scale is role-based, not a strict mathematical ratio. Each step should be the smallest jump that clearly changes hierarchy.
 
 ## Spacing
 
@@ -313,6 +313,10 @@ Spacing uses the 4px Tailwind rhythm.
 
 Do not tokenise spacing unless a repeated component pattern needs a named value.
 
+## Control Sizes
+
+Buttons and tabs share `--pvc-control-size-small` (2rem / 32px) and `--pvc-control-size-medium` (2.75rem / 44px) minimum targets. Both button sizes use `--type-control`. Icon-only buttons use square targets at the same sizes.
+
 ## Radius
 
 ```css
@@ -322,7 +326,7 @@ Do not tokenise spacing unless a repeated component pattern needs a named value.
 --pvc-radius-panel: 0.5rem;        /* 8px */
 ```
 
-Use the radius that matches the role. Prefer `rounded-[var(--pvc-radius-action)]` over guessing `rounded-md` when the component job is known.
+Use the radius that matches the role. Prefer `rounded-(--pvc-radius-action)` over guessing `rounded-md` when the component job is known.
 
 ## Elevation
 
@@ -353,7 +357,7 @@ Use colour, border, background, and opacity transitions before movement. Honour 
 
 | Component | Semantic colour | Radius tokens | Type tokens |
 |-----------|-----------------|---------------|-------------|
-| `Button` | Yes | `--pvc-radius-action` | via `text-sm` |
+| `Button` | Yes | `--pvc-radius-action` | `--type-control` |
 | `CopyableValue` | Yes | `--pvc-radius-action` | `--type-meta` |
 | `Link` | Yes | `--pvc-radius-action` | via `text-sm` |
 | `Typography` | Yes | Mixed (`CodeBlock`: `--pvc-radius-panel`; `Code`: `--pvc-radius-control`) | `--type-*` |

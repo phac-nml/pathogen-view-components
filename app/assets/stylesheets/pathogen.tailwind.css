@@ -1,6 +1,7 @@
 /* Pathogen ViewComponents — Tailwind v4 entry (build: pnpm run build:css → pathogen_view_components.css) */
 
 @custom-variant dark (&:where(.dark, .dark *));
+@custom-variant unavailable (&:is(:disabled, [aria-disabled="true"]));
 @custom-variant interactive-hover {
   @media (hover: hover) {
     &:hover:not(:disabled):not([aria-disabled="true"]) {
@@ -17,7 +18,7 @@
 @source "../../assets/javascripts/**/*.js";
 @source "../../../lib/**/*.rb";
 /* Anchor utilities so full @theme primary scale and `text-primary` emit for host overrides. */
-@source inline("text-primary bg-primary-950 text-red-300 text-red-700 text-[length:var(--type-meta)] text-[length:var(--type-section)]");
+@source inline("text-primary bg-primary-950 text-red-300 text-red-700 text-(length:--type-meta) text-(length:--type-section)");
 
 /*
  * Theme contract (host apps may override after @import):
@@ -92,6 +93,8 @@
     --type-page: 2rem;
 
     --pvc-radius-control-sm: 0.125rem;
+    --pvc-control-size-small: 2rem;
+    --pvc-control-size-medium: 2.75rem;
     --pvc-radius-control: 0.25rem;
     --pvc-radius-action: 0.375rem;
     --pvc-radius-panel: 0.5rem;

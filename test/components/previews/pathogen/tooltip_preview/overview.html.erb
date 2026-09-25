@@ -9,10 +9,10 @@
       <%= render Pathogen::Typography::Code.new { ":top" } %>. Hover or focus each trigger to inspect position.
     <% end %>
 
-    <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
+    <div class="overflow-x-auto rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
       <table class="w-full min-w-[36rem] border-collapse text-sm">
         <thead>
-          <tr class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]">
+          <tr class="border-b border-(--pvc-color-border) bg-(--pvc-color-surface-muted)">
             <th scope="col" class="px-4 py-2 text-left">
               <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold") { "Placement" } %>
             </th>
@@ -27,7 +27,7 @@
           </tr>
         </thead>
 
-        <tbody class="divide-y divide-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+        <tbody class="divide-y divide-(--pvc-color-border) bg-(--pvc-color-surface)">
           <% [
             [:top, "Default. Use when space below the trigger is tight.", "View QC summary"],
             [:bottom, "Top navigation, breadcrumbs, and page chrome.", "Open run detail"],
@@ -65,7 +65,7 @@
     <% end %>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Short label" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -73,7 +73,7 @@
         <% end %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mb-3 block") { "Wrapped copy" } %>
 
         <%= render Pathogen::Link.new(href: "#") do |link| %>
@@ -96,45 +96,40 @@
       pagination below.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
-      <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface)">
+      <div class="flex items-center justify-between gap-4 border-b border-(--pvc-color-border) px-4 py-3">
         <%= render Pathogen::Typography::Heading.new(level: 5, class: "font-semibold") { "Sequencing submissions" } %>
         <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted) { "48 specimens · 2 need review" } %>
       </div>
 
-      <div class="flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] px-4 py-3">
+      <div class="flex items-center justify-between gap-4 border-b border-(--pvc-color-border) px-4 py-3">
         <div>
-          <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "RUN-2026-0142" } %>
+          <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-(--pvc-color-text)") { "RUN-2026-0142" } %>
           <%= render Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, class: "mt-0.5 block") { "Submitted 10 Jun 2026" } %>
         </div>
 
         <div class="flex items-center gap-2">
           <%= render Pathogen::Link.new(href: "#view", aria: { label: "View run detail" }) do |link| %>
             <% link.with_tooltip(text: "View run detail", placement: :top) %>
-            <%= icon("eye", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon("eye", class: "size-4 text-(--pvc-color-text-muted)") %>
           <% end %>
 
           <%= render Pathogen::Link.new(href: "#download", aria: { label: "Download QC report" }) do |link| %>
             <% link.with_tooltip(text: "Download QC report", placement: :top) %>
-            <%= icon("download-simple", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon("download-simple", class: "size-4 text-(--pvc-color-text-muted)") %>
           <% end %>
 
           <%= render Pathogen::Link.new(href: "#edit", aria: { label: "Edit run metadata" }) do |link| %>
             <% link.with_tooltip(text: "Edit run metadata", placement: :top) %>
-            <%= icon("pencil", class: "size-4 text-[var(--pvc-color-text-muted)]") %>
+            <%= icon("pencil", class: "size-4 text-(--pvc-color-text-muted)") %>
           <% end %>
         </div>
       </div>
     </div>
   </section>
 
-  <div
-    class="
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4
-      text-sm
-    "
-  >
-    <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-[var(--pvc-color-text)]") { "Usage" } %>
+  <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm">
+    <%= render Pathogen::Typography::Supporting.new(tag: :span, class: "font-semibold text-(--pvc-color-text)") { "Usage" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mt-2") do %>
       Tooltips supplement visible labels. Do not hide critical workflow steps behind hover-only copy.

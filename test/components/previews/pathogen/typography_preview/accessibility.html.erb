@@ -2,14 +2,14 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Semantic structure</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Semantic structure</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Typography components render real heading and paragraph elements. Screen readers use level and document order — not
       visual size alone.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Heading.new(level: 1) { "SPEC-2026-00891" } %>
 
       <%= render Pathogen::Typography::Heading.new(level: 2, class: "mt-6") { "Collection" } %>
@@ -27,21 +27,21 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Label association</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Label association</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Supporting text can render as a <code class="font-mono">label</code> element with a
       <code class="font-mono">for</code> attribute for form fields.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Supporting.new(tag: :label, for: "accession-id", class: "mb-1 block font-semibold") { "Accession ID" } %>
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, id: "accession-help") { "Matches the barcode on the specimen tube." } %>
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+  <div class="rounded-md border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <p class="font-semibold text-(--pvc-color-text)">Usage</p>
     <p class="mt-2">
       Do not skip heading levels within a region. Pair labels with controls using
       <code class="font-mono">for</code>/<code class="font-mono">id</code> or an enclosing

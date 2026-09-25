@@ -2,13 +2,13 @@
 
 <div class="flex max-w-4xl flex-col gap-8 p-4">
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Sample intake form</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Sample intake form</h2>
 
-    <p class="mb-4 text-sm text-[var(--pvc-color-text-muted)]">
+    <p class="mb-4 text-sm text-(--pvc-color-text-muted)">
       Control scale for labels and help text; meta scale for timestamps and record metadata lines.
     </p>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Typography::Heading.new(level: 2) { "Register specimen" } %>
 
       <%= render Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: "mt-1") do %>
@@ -30,17 +30,17 @@
   </section>
 
   <section>
-    <h2 class="mb-2 text-base font-semibold text-[var(--pvc-color-text)]">Grid footnote</h2>
+    <h2 class="mb-2 text-base font-semibold text-(--pvc-color-text)">Grid footnote</h2>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <dl class="grid gap-3 text-sm sm:grid-cols-2">
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Specimen ID</dt>
-          <dd class="font-mono text-[var(--pvc-color-text-muted)]">SPEC-2026-00891</dd>
+          <dt class="font-semibold text-(--pvc-color-text)">Specimen ID</dt>
+          <dd class="font-mono text-(--pvc-color-text-muted)">SPEC-2026-00891</dd>
         </div>
         <div>
-          <dt class="font-semibold text-[var(--pvc-color-text)]">Collected</dt>
-          <dd class="text-[var(--pvc-color-text-muted)]">2026-06-09</dd>
+          <dt class="font-semibold text-(--pvc-color-text)">Collected</dt>
+          <dd class="text-(--pvc-color-text-muted)">2026-06-09</dd>
         </div>
       </dl>
 
@@ -50,8 +50,8 @@
     </div>
   </section>
 
-  <div class="rounded-md border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4 text-sm text-[var(--pvc-color-text-muted)]">
-    <p class="font-semibold text-[var(--pvc-color-text)]">Usage</p>
+  <div class="rounded-md border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4 text-sm text-(--pvc-color-text-muted)">
+    <p class="font-semibold text-(--pvc-color-text)">Usage</p>
     <p class="mt-2">
       Default <code class="font-mono">render Pathogen::Typography::Supporting.new</code> uses control scale. Pass
       <code class="font-mono">size: :meta</code> for timestamps and footnotes. HeadingGroup metadata defaults to meta

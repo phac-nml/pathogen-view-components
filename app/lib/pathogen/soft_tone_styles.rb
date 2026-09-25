@@ -14,28 +14,28 @@ module Pathogen
 
     SOFT_TONE_CLASSES = {
       neutral: %w[
-        bg-[var(--pvc-color-surface-muted)]
-        text-[var(--pvc-color-text)]
-        border-[var(--pvc-color-border-strong)]
+        bg-(--pvc-color-surface-muted)
+        text-(--pvc-color-text)
+        border-(--pvc-color-border-strong)
       ].join(' '),
       accent: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-accent)_16%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-accent-strong)]
+        text-(--pvc-color-accent-strong)
         border-[color-mix(in_oklab,var(--pvc-color-accent)_45%,var(--pvc-color-border))]
       ].join(' '),
       success: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-success-strong)]
+        text-(--pvc-color-success-strong)
         border-[color-mix(in_oklab,var(--pvc-color-success)_45%,var(--pvc-color-border))]
       ].join(' '),
       warning: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-warning)_8%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-warning-strong)]
+        text-(--pvc-color-warning-strong)
         border-[color-mix(in_oklab,var(--pvc-color-warning)_45%,var(--pvc-color-border))]
       ].join(' '),
       danger: %w[
         bg-[color-mix(in_oklab,var(--pvc-color-danger)_14%,var(--pvc-color-surface))]
-        text-[var(--pvc-color-danger-strong)]
+        text-(--pvc-color-danger-strong)
         border-[color-mix(in_oklab,var(--pvc-color-danger)_45%,var(--pvc-color-border))]
       ].join(' ')
     }.freeze

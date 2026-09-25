@@ -74,10 +74,10 @@
           autocomplete="off"
           placeholder="Search samples by ID or name"
           class="
-            w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-            bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+            w-full min-w-0 rounded-(--pvc-radius-control) border border-(--pvc-color-border)
+            bg-(--pvc-color-surface) px-3 py-2 text-(length:--type-control) text-(--pvc-color-text)
             focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-            focus-visible:outline-[var(--pvc-color-focus)]
+            focus-visible:outline-(--pvc-color-focus)
           "
         >
       <% end %>
@@ -139,10 +139,10 @@
           autocomplete="off"
           placeholder="Search samples by ID or name"
           class="
-            w-full min-w-0 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-            bg-[var(--pvc-color-surface)] px-3 py-2 text-[length:var(--type-control)] text-[var(--pvc-color-text)]
+            w-full min-w-0 rounded-(--pvc-radius-control) border border-(--pvc-color-border)
+            bg-(--pvc-color-surface) px-3 py-2 text-(length:--type-control) text-(--pvc-color-text)
             focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-            focus-visible:outline-[var(--pvc-color-focus)]
+            focus-visible:outline-(--pvc-color-focus)
           "
         >
       <% end %>
@@ -161,7 +161,7 @@
       editor contexts. Use a toolbar only when grouping three or more controls.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Toolbar.new(label: 'Sample actions', variant: :chip) do %>
         <%= render Pathogen::Toolbar::Button.new do %>
           Edit
@@ -190,7 +190,7 @@
     <% end %>
 
     <div class="flex flex-wrap gap-4">
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Toolbar.new(label: 'Display options', variant: :chip) do %>
           <%= render Pathogen::Toolbar::Button.new(pressed: true) do %>
             Compact rows
@@ -206,7 +206,7 @@
         <% end %>
       </div>
 
-      <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
         <%= render Pathogen::Toolbar.new(label: 'Sync actions', variant: :chip) do %>
           <%= render Pathogen::Toolbar::Button.new do %>
             Refresh data
@@ -231,15 +231,15 @@
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: 'mb-4') do %>
       Tab into the toolbar once, then use
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">←</kbd>
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">→</kbd>
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">Home</kbd> and
-      <kbd class="rounded-sm border border-[var(--pvc-color-border-strong)] px-1.5 py-0.5 text-xs">End</kbd> to move
-      between items. Custom controls join roving focus when they expose
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-xs">←</kbd>
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-xs">→</kbd>
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-xs">Home</kbd> and
+      <kbd class="rounded-sm border border-(--pvc-color-border-strong) px-1.5 py-0.5 text-xs">End</kbd> to move between
+      items. Custom controls join roving focus when they expose
       <code class="font-mono">data-pathogen--toolbar-target="item"</code>.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render Pathogen::Toolbar.new(labelled_by: 'toolbar-preview-a11y-title', variant: :chip) do %>
         <%= render Pathogen::Toolbar::Button.new do %>
           Refresh data
@@ -256,8 +256,8 @@
           tabindex="-1"
           data-pathogen--toolbar-target="item"
           class="
-            rounded-[var(--pvc-radius-action)] border border-[var(--pvc-color-border)] px-2 py-1
-            text-[length:var(--type-control)] text-[var(--pvc-color-text)] hover:bg-[var(--pvc-color-surface-muted)]
+            rounded-(--pvc-radius-action) border border-(--pvc-color-border) px-2 py-1 text-(length:--type-control)
+            text-(--pvc-color-text) hover:bg-(--pvc-color-surface-muted)
           "
         >
           Custom control
@@ -268,8 +268,8 @@
 
   <section
     class="
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)]
-      p-4 text-[length:var(--type-control)] text-[var(--pvc-color-text-muted)]
+      rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-4
+      text-(length:--type-control) text-(--pvc-color-text-muted)
     "
   >
     <%= render Pathogen::Typography::Heading.new(level: 2, class: 'mb-2') { 'Usage notes' } %>
