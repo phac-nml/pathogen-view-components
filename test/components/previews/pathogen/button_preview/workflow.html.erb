@@ -1,5 +1,5 @@
 <div class="max-w-4xl p-4">
-  <section class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)]">
+  <section class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface)">
     <div class="p-4 sm:p-6">
       <%= render(Pathogen::Typography::Supporting.new(variant: :muted, size: :meta)) { 'Enteric surveillance / Specimens' } %>
       <%= render(Pathogen::Typography::Heading.new(level: 2, class: 'mt-2')) { 'Specimen details' } %>
@@ -7,30 +7,30 @@
 
       <div class="my-6 grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="button-workflow-name" class="mb-2 block text-[length:var(--type-control)] font-semibold">Specimen name</label>
+          <label for="button-workflow-name" class="mb-2 block text-(length:--type-control) font-semibold">Specimen name</label>
 
           <input
             id="button-workflow-name"
             value="SP-2026-0142"
             class="
-              min-h-[var(--pvc-control-size-medium)] w-full min-w-0 rounded-[var(--pvc-radius-control)] border
-              border-[var(--pvc-color-border-strong)] bg-[var(--pvc-color-surface)] px-3 py-2
-              text-[length:var(--type-control)] text-[var(--pvc-color-text)] focus-visible:outline-2
-              focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+              min-h-(--pvc-control-size-medium) w-full min-w-0 rounded-(--pvc-radius-control) border
+              border-(--pvc-color-border-strong) bg-(--pvc-color-surface) px-3 py-2 text-(length:--type-control)
+              text-(--pvc-color-text) focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-(--pvc-color-focus)
             "
           >
         </div>
 
         <div>
-          <label for="button-workflow-protocol" class="mb-2 block text-[length:var(--type-control)] font-semibold">Protocol</label>
+          <label for="button-workflow-protocol" class="mb-2 block text-(length:--type-control) font-semibold">Protocol</label>
 
           <select
             id="button-workflow-protocol"
             class="
-              min-h-[var(--pvc-control-size-medium)] w-full min-w-0 rounded-[var(--pvc-radius-control)] border
-              border-[var(--pvc-color-border-strong)] bg-[var(--pvc-color-surface)] px-3 py-2
-              text-[length:var(--type-control)] text-[var(--pvc-color-text)] focus-visible:outline-2
-              focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+              min-h-(--pvc-control-size-medium) w-full min-w-0 rounded-(--pvc-radius-control) border
+              border-(--pvc-color-border-strong) bg-(--pvc-color-surface) px-3 py-2 text-(length:--type-control)
+              text-(--pvc-color-text) focus-visible:outline-2 focus-visible:outline-offset-2
+              focus-visible:outline-(--pvc-color-focus)
             "
           >
             <%= options_for_select(['Whole genome sequencing', 'Quality control']) %>
@@ -38,8 +38,8 @@
         </div>
       </div>
 
-      <div class="rounded-(--pvc-radius-panel) border border-[var(--pvc-color-border)]">
-        <div class="border-b border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-3">
+      <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border)">
+        <div class="border-b border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-3">
           <%= render Pathogen::Toolbar.new(label: 'Sequence file actions') do %>
             <%= render(Pathogen::Typography::Supporting.new(tag: :span, class: 'font-semibold')) { 'Sequence files' } %>
             <%= render Pathogen::Toolbar::Spacer.new %>
@@ -56,7 +56,7 @@
           <% end %>
         </div>
 
-        <ul class="divide-y divide-[var(--pvc-color-border)]">
+        <ul class="divide-y divide-(--pvc-color-border)">
           <% %w[0142_R1.fastq.gz 0142_R2.fastq.gz].each do |filename| %>
             <li class="flex flex-wrap items-center justify-between gap-2 px-3 py-3">
               <%= render(Pathogen::Typography::Supporting.new(tag: :span)) { filename } %>
@@ -66,7 +66,7 @@
                   class="
                     inline-flex items-center gap-1 rounded-full
                     bg-[color-mix(in_oklab,var(--pvc-color-success)_14%,var(--pvc-color-surface))] px-2 py-0.5
-                    text-[length:var(--type-meta)] font-medium text-[var(--pvc-color-success-strong)]
+                    text-(length:--type-meta) font-medium text-(--pvc-color-success-strong)
                   "
                 >
                   <%= icon('check', class: 'size-3') %> Ready
@@ -89,8 +89,8 @@
 
     <div
       class="
-        flex flex-wrap items-center justify-between gap-4 rounded-b-[var(--pvc-radius-panel)] border-t
-        border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] p-4 sm:px-6
+        flex flex-wrap items-center justify-between gap-4 rounded-b-(--pvc-radius-panel) border-t
+        border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-4 sm:px-6
       "
     >
       <%= render Pathogen::Button.new(tone: :danger, emphasis: :ghost, text: 'Delete specimen') %>

@@ -14,13 +14,13 @@ module Pathogen
     test 'emits semantic text color utility' do
       render_inline(Pathogen::Link.new(href: '/samples')) { 'Samples' }
 
-      assert_selector "a[class*='text-[var(--pvc-color-text)]']"
+      assert_selector "a[class*='text-(--pvc-color-text)']"
     end
 
     test 'emits design-contract focus outline classes' do
       render_inline(Pathogen::Link.new(href: '/samples')) { 'Samples' }
 
-      assert_selector "a[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
+      assert_selector "a[class*='focus-visible:outline-(--pvc-color-focus)']"
       assert_no_selector "a[class*='focus-visible:outline-black']"
       assert_no_selector "a[class*='dark:focus-visible:outline-white']"
     end

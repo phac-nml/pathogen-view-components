@@ -64,7 +64,7 @@ Host apps theme accent through `--color-primary-*`. Shared components should not
 ### 3. Typography
 
 Sizes are role tokens (`--type-*`) consumed through Tailwind arbitrary-length utilities such as
-`text-[length:var(--type-body)]`. Components and these docs share one scale.
+`text-(length:--type-body)`. Components and these docs share one scale.
 
 | Role | Token | Size | Use |
 |------|-------|------|-----|
@@ -78,7 +78,7 @@ Sizes are role tokens (`--type-*`) consumed through Tailwind arbitrary-length ut
 
 14px and 16px carry most product work. Larger type should mark real hierarchy, not create display moments.
 
-- Labels for settings and rows: `text-[length:var(--type-control)] font-semibold`.
+- Labels for settings and rows: `text-(length:--type-control) font-semibold`.
 - Muted copy: `--pvc-color-text-muted` or typography `muted`.
 - `Supporting` defaults to control scale for captions and labels. Pass `size: :meta` for timestamps and footnotes; `HeadingGroup` metadata uses meta scale by default.
 - Body weight stays normal. Heading weight steps deliberately: `Heading` levels 1–6 map to
@@ -89,7 +89,7 @@ Sizes are role tokens (`--type-*`) consumed through Tailwind arbitrary-length ut
   asymmetric placement — not centring or decorative uppercase. There is no uppercase display label
   component; use `Supporting` for metadata labels.
 
-Prefer `text-[length:var(--type-control)]` in new code. Existing `text-sm` is fine where it matches the role.
+Prefer `text-(length:--type-control)` in new code. Existing `text-sm` is fine where it matches the role.
 
 #### Migration from pre-token typography
 
@@ -98,7 +98,7 @@ Prefer `text-[length:var(--type-control)]` in new code. Existing `text-sm` is fi
 | `Pathogen::Typography::Eyebrow` / `pathogen_eyebrow` | `Supporting` with `variant: :muted` and `size: :meta` |
 | `HeadingGroup#with_eyebrow` | `with_metadata` or `Supporting` above the heading |
 | `responsive:` on typography components | Removed (was a no-op); use role tokens via components |
-| `text-base` … `text-5xl` in the Pathogen CSS bundle | `text-[length:var(--type-*)]` or host-app Tailwind scale |
+| `text-base` … `text-5xl` in the Pathogen CSS bundle | `text-(length:--type-*)` or host-app Tailwind scale |
 
 ### 4. Spacing
 
@@ -248,7 +248,7 @@ Hover, focus, selected, disabled, and active states must remain visually distinc
 
 Focus must show in light, dark, high-contrast, and forced-colours modes. It also needs to remain distinct from accent colour.
 
-**Target pattern:** `focus-visible:outline-2 outline-[var(--pvc-color-focus)] outline-offset-2`
+**Target pattern:** `focus-visible:outline-2 outline-(--pvc-color-focus) outline-offset-2`
 
 `--pvc-color-focus` resolves to `primary-500` in both modes so focus stays distinct from accent colour.
 

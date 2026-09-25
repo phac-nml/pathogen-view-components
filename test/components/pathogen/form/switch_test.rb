@@ -29,8 +29,8 @@ module Pathogen
                         label: 'Dark mode'
                       ))
 
-        assert_selector "label[class*='peer-focus-visible:outline-[var(--pvc-color-focus)]']"
-        assert_selector "span.pathogen-switch-track[class*='bg-[var(--pvc-color-surface-muted)]']"
+        assert_selector "label[class*='peer-focus-visible:outline-(--pvc-color-focus)']"
+        assert_selector "span.pathogen-switch-track[class*='bg-(--pvc-color-surface-muted)']"
         assert_no_selector "label[class*='peer-focus-visible:outline-black']"
       end
 

@@ -13,10 +13,10 @@ module Pathogen
     TOOLTIP_CLASSES = %w[
       fixed z-50 inline-block max-w-xs min-w-0 px-3 py-2
       bg-neutral-950 text-white font-sans text-sm font-medium
-      rounded-(--pvc-radius-panel) shadow-[var(--pvc-shadow-overlay)]
+      rounded-(--pvc-radius-panel) shadow-(--pvc-shadow-overlay)
       opacity-0 scale-90 pointer-events-none
-      transition-[opacity,transform] duration-[var(--pvc-duration-overlay)] ease-out
-      origin-[var(--pvc-tooltip-origin,center)]
+      transition-[opacity,transform] duration-(--pvc-duration-overlay) ease-out
+      origin-(--pvc-tooltip-origin,center)
       data-[state=open]:opacity-100 data-[state=open]:scale-100 data-[state=open]:pointer-events-auto
     ].join(' ').freeze
 

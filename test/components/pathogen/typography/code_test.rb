@@ -44,7 +44,7 @@ module Pathogen
       test 'emits semantic radius token' do
         render_inline(Code.new) { 'test' }
 
-        assert_selector 'code[class*="rounded-[var(--pvc-radius-control)]"]'
+        assert_selector 'code[class*="rounded-(--pvc-radius-control)"]'
       end
     end
   end

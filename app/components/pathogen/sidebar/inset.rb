@@ -7,7 +7,7 @@ module Pathogen
       BASE_CLASSES = %w[
         pathogen-sidebar-inset
         relative min-w-0 flex-1
-        bg-[var(--pvc-color-surface)]
+        bg-(--pvc-color-surface)
       ].join(' ').freeze
     end
   end
