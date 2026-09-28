@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Accessible radio button component for Rails forms with WCAG AAA compliance.
+# Radio button component for Rails forms with associated labels and descriptions.
 #
 # This ViewComponent renders a fully accessible radio button input with proper
 # label association, ARIA attributes, and TailwindCSS styling. It supports
@@ -79,7 +79,7 @@ module Pathogen
       # @return [ActiveSupport::SafeBuffer] the rendered HTML
       def render_component
         if @label.blank?
-          radio_button_input_html
+          radio_button_control_html + help_text_html + error_text_html
         else
           render_labeled_layout
         end
@@ -107,12 +107,16 @@ module Pathogen
       # @return [ActiveSupport::SafeBuffer] the labeled radio button HTML
       def render_labeled_layout
         tag.div(class: radio_button_container_classes) do
-          tag.div(class: radio_button_input_container_classes) do
-            radio_button_input_html + label_html
-          end +
+          radio_button_control_html +
             tag.div(class: radio_button_help_container_classes) do
-              help_text_html
+              help_text_html + error_text_html
             end
+        end
+      end
+
+      def radio_button_control_html
+        tag.label(for: input_id, class: class_names(radio_button_input_container_classes, target_size_classes)) do
+          radio_button_input_html + label_html
         end
       end
 
@@ -120,21 +124,20 @@ module Pathogen
       #
       # @return [ActiveSupport::SafeBuffer] the radio button input HTML
       def radio_button_input_html
-        radio_button_tag(
-          input_name,
-          @value,
-          @checked,
-          form_attributes.merge(@html_options || {})
-        )
+        attributes = form_attributes
+        return radio_button_tag(input_name, @value, @checked, attributes) unless @form
+
+        attributes.delete(:checked) unless @checked_provided
+        helpers.radio_button(@form.object_name, @attribute, @value, attributes.merge(object: @form.object))
       end
 
-      # Renders the label element if label text is present.
+      # Renders visible text inside the control's wrapping label.
       #
       # @return [ActiveSupport::SafeBuffer, nil] the label HTML or nil
       def label_html
-        return if @label.blank?
+        return ''.html_safe if @label.blank?
 
-        tag.label(@label, for: input_id, class: label_classes)
+        tag.span(@label, class: label_classes)
       end
 
       # Renders help text if present.

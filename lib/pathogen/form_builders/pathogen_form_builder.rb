@@ -50,7 +50,6 @@ module Pathogen
           attribute: attribute_name,
           value: value,
           label: options.delete(:label),
-          checked: options.delete(:checked) { false },
           disabled: options.delete(:disabled) { false },
           required: options.delete(:required) { false },
           # described_by and controls must be provided via nested :aria
