@@ -19,8 +19,8 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Checkbox fieldset" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Prefer <%= render(Pathogen::Typography::Code.new) { "PathogenFormBuilder" } %> for labelled checkboxes.
-      Pair each control with a label and optional help text using semantic text roles.
+      Prefer <%= render(Pathogen::Typography::Code.new) { "PathogenFormBuilder" } %> for labelled checkboxes. Pair each
+      control with a label and optional help text using semantic text roles.
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
@@ -54,8 +54,8 @@
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
       Checkboxes and radios share the same semantic surface, border, accent, and
-      <%= render(Pathogen::Typography::Code.new) { "--pvc-color-focus" } %> ring. Disabled controls keep
-      reduced opacity without <%= render(Pathogen::Typography::Code.new) { "neutral-950" } %> backgrounds.
+      <%= render(Pathogen::Typography::Code.new) { "--pvc-color-focus" } %> ring. Disabled controls keep reduced opacity
+      without <%= render(Pathogen::Typography::Code.new) { "neutral-950" } %> backgrounds.
     <% end %>
 
     <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
@@ -142,8 +142,8 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Table row selection" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Pass <%= render(Pathogen::Typography::Code.new) { "data: { table: true }" } %> to compact checkbox
-      styling in dense grids.
+      Pass <%= render(Pathogen::Typography::Code.new) { "data: { table: true }" } %> to compact checkbox styling in
+      dense grids.
     <% end %>
 
     <div class="overflow-x-auto rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]">
@@ -189,8 +189,8 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Radio group" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Use <%= render(Pathogen::Typography::Code.new) { "Pathogen::Form::RadioButton" } %> for mutually
-      exclusive choices. Help text stays muted and associated through the component label stack.
+      Use <%= render(Pathogen::Typography::Code.new) { "Pathogen::Form::RadioButton" } %> for mutually exclusive
+      choices. Help text stays muted and associated through the component label stack.
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
@@ -223,9 +223,8 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Switches" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Switches use <%= render(Pathogen::Typography::Code.new) { "role=\"switch\"" } %> with visible On/Off
-      state text. Checked tracks use
-      <%= render(Pathogen::Typography::Code.new) { "--pvc-color-accent-solid" } %>.
+      Switches use <%= render(Pathogen::Typography::Code.new) { "role=\"switch\"" } %> with visible On/Off state text.
+      Checked tracks use <%= render(Pathogen::Typography::Code.new) { "--pvc-color-accent-solid" } %>.
     <% end %>
 
     <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
@@ -279,8 +278,8 @@
     <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Required fields" } %>
 
     <%= render Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4") do %>
-      Mark required inputs with an <%= render(Pathogen::Typography::Code.new) { "<abbr class=\"req\">" } %>
-      asterisk beside the label. Keep the marker in the tab order only when needed for comprehension.
+      Mark required inputs with an <%= render(Pathogen::Typography::Code.new) { "<abbr class=\"req\">" } %> asterisk
+      beside the label. Keep the marker in the tab order only when needed for comprehension.
     <% end %>
 
     <div
