@@ -23,6 +23,7 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/disclosure_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/sidebar_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/sidebar_controller/flyout.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/navigation.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/scroll.js": FULL_COVERAGE,
 };
