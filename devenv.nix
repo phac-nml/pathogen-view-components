@@ -23,10 +23,6 @@ lib.mkMerge [
       corepack.enable = true;
     };
 
-    # Install ruby-lsp in the shell so the Ruby LSP extension works
-    enterShell = ''
-      gem install ruby-lsp
-    '';
   }
   (lib.mkIf pkgs.stdenv.isLinux {
     enterShell = ''
