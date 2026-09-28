@@ -68,6 +68,7 @@ module Pathogen
         return unless aria.is_a?(Hash)
 
         aria = aria.transform_keys(&:to_sym)
+        @aria_options = aria
         @aria_label = aria[:label]
         @aria_labelledby = aria[:labelledby]
         @aria_describedby = aria[:describedby]
