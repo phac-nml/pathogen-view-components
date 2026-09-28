@@ -2,8 +2,11 @@
   <%= render Pathogen::Sidebar::Provider.new(id: 'overview-sidebar', class: 'h-[600px] !min-h-[600px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]') do %>
     <%= render Pathogen::Sidebar.new(id: 'overview-sidebar', label: 'Primary navigation') do %>
       <%= render Pathogen::Sidebar::Header.new do %>
+        <%= render Pathogen::Sidebar::Brand.new(label: 'Pathogen', href: '#run-overview') do |brand| %>
+          <% brand.with_mark { icon('dna', class: 'size-5') } %>
+        <% end %>
+
         <%= render Pathogen::Sidebar::Trigger.new %>
-        <span data-pathogen-sidebar-label="true" class="text-[length:var(--type-control)] font-semibold">Pathogen</span>
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
@@ -32,6 +35,20 @@
             <% end %>
           <% end %>
         <% end %>
+
+        <%= render Pathogen::Sidebar::Group.new(label: 'Analysis') do %>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Reports', href: '#reports', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('file-text', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Exports', href: '#exports', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('download-simple', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Audit log', href: '#audit-log', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('list-dashes', class: 'size-4') } %>
+          <% end %>
+        <% end %>
       <% end %>
 
       <%= render Pathogen::Sidebar::Footer.new do %>
@@ -57,6 +74,9 @@
         <%= pathogen_heading(level: 3, id: 'quality-control') { 'Quality control' } %>
         <%= pathogen_heading(level: 3, id: 'workflow-rules') { 'Workflow rules' } %>
         <%= pathogen_heading(level: 3, id: 'access-control') { 'Access control' } %>
+        <%= pathogen_heading(level: 3, id: 'reports') { 'Reports' } %>
+        <%= pathogen_heading(level: 3, id: 'exports') { 'Exports' } %>
+        <%= pathogen_heading(level: 3, id: 'audit-log') { 'Audit log' } %>
 
         <%= pathogen_supporting do %>
           Sequencing run RUN-2026-0812 is processing 48 samples. Twelve samples have completed quality control.

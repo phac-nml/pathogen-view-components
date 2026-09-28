@@ -81,6 +81,16 @@ module Pathogen
       end
     end
 
+    test 'brand keeps its mark visible and labels the home link' do
+      render_inline(Pathogen::Sidebar::Brand.new(label: 'Pathogen', href: '/')) do |brand|
+        brand.with_mark { '<span>Mark</span>'.html_safe }
+      end
+
+      assert_selector 'a.pathogen-sidebar-brand[href="/"][aria-label="Pathogen home"]'
+      assert_selector 'span.pathogen-sidebar-brand__mark[aria-hidden="true"]', text: 'Mark'
+      assert_selector 'span.pathogen-sidebar-brand__label', text: 'Pathogen'
+    end
+
     test 'sidebar shell passes axe structural checks' do
       sidebar = render_inline(Pathogen::Sidebar.new(id: 'lab-sidebar', label: 'Primary navigation')) do
         '<a href="/runs">Runs</a>'.html_safe
