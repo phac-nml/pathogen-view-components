@@ -41,6 +41,7 @@ export default class SidebarController extends Controller {
 
     this.restoreDesktopPreference();
     this.applyState({ shouldPersist: false });
+    this.element.dataset.pathogenSidebarReady = "true";
 
     this.dialogTarget.addEventListener("close", this.onDialogClose);
     document.addEventListener(MODAL_OPEN_EVENT, this.onModalOpen);

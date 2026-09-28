@@ -229,6 +229,7 @@ describe("sidebar_controller", () => {
 
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
     expect(provider.dataset.pathogenSidebarOpen).toBe("true");
+    expect(provider.dataset.pathogenSidebarReady).toBe("true");
     expect(trigger.getAttribute("aria-expanded")).toBe("true");
     expect(trigger.getAttribute("aria-label")).toBe("Collapse sidebar");
     expect(

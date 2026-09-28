@@ -41,6 +41,11 @@
   transition: margin-inline-start var(--pvc-duration-default) ease;
 }
 
+.pathogen-sidebar-provider[data-pathogen-sidebar-ready="false"] .pathogen-sidebar-panel,
+.pathogen-sidebar-provider[data-pathogen-sidebar-ready="false"] .pathogen-sidebar-inset {
+  transition: none;
+}
+
 .pathogen-sidebar-group {
   display: flex;
   flex-direction: column;
