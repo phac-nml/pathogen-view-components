@@ -20,4 +20,5 @@ group :development, :test do
   gem 'rubocop-performance'
   gem 'rubocop-rails'
   gem 'rubocop-rails-accessibility', '~> 1.0'
+  gem 'simplecov', '~> 0.22', require: false
 end

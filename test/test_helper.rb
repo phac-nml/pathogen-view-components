@@ -3,6 +3,14 @@
 ENV['RAILS_ENV'] ||= 'test'
 
 require 'bundler/setup'
+require 'simplecov'
+
+SimpleCov.start 'rails' do
+  coverage_dir 'coverage/ruby'
+  enable_coverage :branch
+  add_filter '/test/'
+end
+
 require 'active_support/all'
 require 'rails'
 require 'action_controller/railtie'
