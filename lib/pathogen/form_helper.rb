@@ -35,6 +35,8 @@
 module Pathogen
   # Generic form helper methods that can be used across form components
   module FormHelper
+    include Pathogen::Form::FormFieldAttributes
+
     # Generates a unique ID for help text elements
     # @return [String] The help text ID
     def help_text_id
@@ -44,25 +46,15 @@ module Pathogen
     # Generates the input name based on form builder or direct attribute
     # @return [String] The input name
     def input_name
-      return @input_name if @input_name.present?
-
-      return "#{@form.object_name}[#{@attribute}]" if @form && @form.object_name.present?
-
-      @attribute.to_s
+      shared_input_name(form: @form, attribute: @attribute, input_name: @input_name)
     end
 
     # Generates the ID for the input element
     # If an explicit id was provided, it takes precedence; otherwise it's computed from the name and value.
     # @return [String] The input ID
     def input_id
-      return @id if @id.present?
-
-      base = if @form && @form.object_name.present?
-               "#{@form.object_name}_#{@attribute}_#{@value}"
-             else
-               "#{input_name}_#{@value}"
-             end
-      base.gsub(/[\[\]]+/, '_').chomp('_')
+      shared_input_id(form: @form, attribute: @attribute, value: @value,
+                      input_name: @input_name, id: @id)
     end
 
     # Generates form attributes including ARIA and classes

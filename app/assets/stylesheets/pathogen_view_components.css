@@ -1208,9 +1208,6 @@
   .text-red-900 {
     color: var(--color-red-900);
   }
-  .text-slate-900 {
-    color: var(--color-slate-900);
-  }
   .text-white {
     color: var(--color-white);
   }
@@ -1537,9 +1534,6 @@
   }
   .dark\:text-red-100:where(.dark, .dark *) {
     color: var(--color-red-100);
-  }
-  .dark\:text-white:where(.dark, .dark *) {
-    color: var(--color-white);
   }
   @media (hover: hover) {
     .interactive-hover\:border-\[var\(--pvc-color-accent-solid-hover\)\]:hover:not(:disabled):not(
