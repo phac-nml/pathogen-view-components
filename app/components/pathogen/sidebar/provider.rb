@@ -89,6 +89,7 @@ module Pathogen
           .merge(
             'controller' => merged_controllers(incoming),
             'pathogen-sidebar-id' => @id,
+            'pathogen-sidebar-ready' => 'false',
             # Seed the first-paint mode so the sidebar renders in its resting
             # state before the boot script and controller take over. Assumes the
             # desktop breakpoint; the client corrects for viewport and storage.
