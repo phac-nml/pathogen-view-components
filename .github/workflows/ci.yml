@@ -74,7 +74,7 @@ jobs:
 
   # Isolated so the pull-requests:write token is never exposed to build/test steps.
   coverage-comment:
-    needs: javascript
+    needs: [javascript, test]
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
     permissions:
@@ -82,15 +82,21 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Comment JavaScript coverage on PR
+      - name: Comment coverage on PR
         continue-on-error: true
         uses: actions/github-script@v9
         env:
-          COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
+          JAVASCRIPT_COVERAGE_TABLE: ${{ needs.javascript.outputs.coverage-table }}
+          RUBY_COVERAGE_TABLE: ${{ needs.test.outputs.coverage-table }}
         with:
           script: |
-            const marker = "<!-- pvc-javascript-coverage -->";
-            const body = [marker, process.env.COVERAGE_TABLE].join("\n");
+            const marker = "<!-- pvc-coverage -->";
+            const legacyMarker = "<!-- pvc-javascript-coverage -->";
+            const body = [
+              marker,
+              process.env.JAVASCRIPT_COVERAGE_TABLE,
+              process.env.RUBY_COVERAGE_TABLE,
+            ].filter(Boolean).join("\n\n");
 
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
@@ -102,7 +108,8 @@ jobs:
             });
 
             const existing = comments.data.find((comment) =>
-              comment.user?.type === "Bot" && comment.body?.includes(marker),
+              comment.user?.type === "Bot" &&
+                (comment.body?.includes(marker) || comment.body?.includes(legacyMarker)),
             );
 
             if (existing) {
@@ -142,6 +149,8 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    outputs:
+      coverage-table: ${{ steps.coverage.outputs.table }}
 
     steps:
       - name: Checkout
@@ -167,6 +176,30 @@ jobs:
 
       - name: Test
         run: bin/test
+
+      - name: Capture Ruby coverage table
+        id: coverage
+        run: |
+          ruby <<'RUBY' >> "$GITHUB_OUTPUT"
+          require "json"
+
+          summary = JSON.parse(File.read("coverage/ruby/.last_run.json")).fetch("result")
+          table = [
+            "### Ruby Coverage",
+            "",
+            "| Metric | Coverage |",
+            "| --- | ---: |",
+            "| Lines | #{format("%.2f", summary.fetch("line"))}% |",
+            "| Branches | #{format("%.2f", summary.fetch("branch"))}% |",
+          ].join("\n")
+
+          puts "table<<PVC_COVERAGE_EOF"
+          puts table
+          puts "PVC_COVERAGE_EOF"
+          RUBY
+
+      - name: Publish Ruby coverage summary
+        run: echo "${{ steps.coverage.outputs.table }}" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload Ruby coverage artifact
         uses: actions/upload-artifact@v7
