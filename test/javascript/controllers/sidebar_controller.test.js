@@ -217,6 +217,7 @@ describe("sidebar_controller", () => {
   afterEach(async () => {
     application?.stop();
     document.body.innerHTML = "";
+    document.documentElement.removeAttribute("dir");
     vi.unstubAllGlobals();
     await waitForController();
   });
@@ -549,6 +550,44 @@ describe("sidebar_controller", () => {
     expect(document.activeElement).toBe(flyout.querySelector("a[href='#profile']"));
   });
 
+  it("positions, reflows, and closes rail flyouts using RTL keyboard directions", async () => {
+    setupMatchMedia({ matches: true });
+    document.documentElement.dir = "rtl";
+    Object.defineProperties(window, {
+      innerHeight: { configurable: true, value: 200 },
+      innerWidth: { configurable: true, value: 300 },
+    });
+    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    vi.spyOn(flyoutTrigger, "getBoundingClientRect").mockReturnValue({ left: 12, right: 36, top: 190 });
+    vi.spyOn(flyout, "getBoundingClientRect").mockReturnValue({ height: 80 });
+    await waitForController();
+
+    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    await waitForController();
+
+    expect(flyout.style.right).toBe("296px");
+    expect(flyout.style.left).toBe("");
+    expect(flyout.style.top).toBe("112px");
+    expect(flyout.style.maxHeight).toBe("80px");
+
+    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    await waitForController();
+    expect(flyout.hidden).toBe(true);
+
+    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    await waitForController();
+    window.dispatchEvent(new Event("resize"));
+    await waitForController();
+    expect(flyout.hidden).toBe(false);
+
+    provider.dataset.pathogenSidebarMode = "offcanvas";
+    window.dispatchEvent(new Event("resize"));
+    await waitForController();
+
+    expect(flyout.hidden).toBe(true);
+    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
   it("closes an open rail flyout on Escape and restores focus to the trigger", async () => {
     setupMatchMedia({ matches: true });
     const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
@@ -578,6 +617,76 @@ describe("sidebar_controller", () => {
 
     expect(flyout.hidden).toBe(true);
     expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("ignores in-flyout events and covers flyout guard paths", async () => {
+    setupMatchMedia({ matches: true });
+    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
+    await waitForController();
+
+    const controller = getController(provider);
+    const sidebarFlyout = controller.flyout;
+    const ignoredEvent = { currentTarget: null, preventDefault: vi.fn() };
+    sidebarFlyout.toggle(ignoredEvent);
+    expect(ignoredEvent.preventDefault).toHaveBeenCalledOnce();
+    sidebarFlyout.focusFirstItem();
+
+    provider.dataset.pathogenSidebarMode = "expanded";
+    sidebarFlyout.toggle({ currentTarget: flyoutTrigger, preventDefault: vi.fn() });
+    sidebarFlyout.handleTriggerKeydown({ key: "ArrowRight", preventDefault: vi.fn() });
+    expect(flyout.hidden).toBe(true);
+
+    provider.dataset.pathogenSidebarMode = "rail";
+    sidebarFlyout.handleTriggerKeydown({ key: "Escape", preventDefault: vi.fn() });
+    sidebarFlyout.handleTriggerKeydown({ key: "Tab", preventDefault: vi.fn() });
+    flyoutTrigger.click();
+    await waitForController();
+    flyout.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    flyoutTrigger.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    expect(flyout.hidden).toBe(false);
+
+    const escapeEvent = { key: "Escape", preventDefault: vi.fn() };
+    sidebarFlyout.handleTriggerKeydown(escapeEvent);
+    expect(flyout.hidden).toBe(true);
+    expect(escapeEvent.preventDefault).toHaveBeenCalledOnce();
+
+    flyoutTrigger.click();
+    await waitForController();
+    flyoutTrigger.click();
+    await waitForController();
+    expect(flyout.hidden).toBe(true);
+
+    sidebarFlyout.populate(document.createElement("div"));
+    flyout.replaceChildren(
+      Object.assign(document.createElement("ul"), { className: "pathogen-sidebar-item__children" }),
+    );
+    sidebarFlyout.populate(flyout);
+    expect(flyout.querySelector("ul").children).toHaveLength(0);
+  });
+
+  it("keeps plain cloned flyout children free of server-only attributes", async () => {
+    setupMatchMedia({ matches: true });
+    const { flyout, flyoutTrigger } = appendSidebarWithClonedFlyout();
+    flyout
+      .closest(".pathogen-sidebar-item")
+      .querySelector(".pathogen-sidebar-item__expanded")
+      .querySelectorAll("[id], [data-controller]")
+      .forEach((node) => {
+        node.removeAttribute("id");
+        node.removeAttribute("data-controller");
+      });
+    const nestedId = document.createElement("span");
+    nestedId.id = "source-child-id";
+    const sourceChild = flyout.closest(".pathogen-sidebar-item").querySelector(".pathogen-sidebar-item__expanded li");
+    sourceChild.setAttribute("data-controller", "pathogen--tooltip");
+    sourceChild.append(nestedId);
+    await waitForController();
+
+    flyoutTrigger.click();
+    await waitForController();
+
+    expect(flyout.querySelectorAll(".pathogen-sidebar-item__children > li")).toHaveLength(2);
+    expect(flyout.querySelector("#source-child-id")).toBeNull();
   });
 
   it("closes rail flyouts when leaving rail mode", async () => {
