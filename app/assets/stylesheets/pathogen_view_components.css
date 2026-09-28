@@ -964,6 +964,9 @@
   .p-2 {
     padding: calc(var(--spacing) * 2);
   }
+  .p-3 {
+    padding: calc(var(--spacing) * 3);
+  }
   .p-4 {
     padding: calc(var(--spacing) * 4);
   }
@@ -2145,6 +2148,31 @@ input[role="switch"]:disabled ~ label {
 .pathogen-sidebar {
   width: 100%;
 }
+.pathogen-sidebar-brand {
+  flex: 1 1 auto;
+  overflow: hidden;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pathogen-sidebar-brand__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  color: var(--pvc-color-accent-strong);
+}
+.pathogen-sidebar-brand__mark svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.pathogen-sidebar-brand__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .pathogen-sidebar-inset {
   transition: margin-inline-start var(--pvc-duration-default) ease;
 }
@@ -2156,6 +2184,9 @@ input[role="switch"]:disabled ~ label {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
+}
+.pathogen-sidebar-content > .pathogen-sidebar-group + .pathogen-sidebar-group {
+  margin-block-start: 0.5rem;
 }
 .pathogen-sidebar-group__heading {
   margin: 0;
@@ -2191,7 +2222,7 @@ input[role="switch"]:disabled ~ label {
   width: 100%;
   min-height: 2.75rem;
   gap: 0.5rem;
-  padding-inline: 0.5rem;
+  padding-inline: 0.75rem;
   border-radius: var(--pvc-radius-action);
   border: 1px solid transparent;
   color: var(--pvc-color-text);
@@ -2205,6 +2236,10 @@ input[role="switch"]:disabled ~ label {
 .pathogen-sidebar-item__action:focus-visible {
   background: var(--pvc-color-surface-muted);
 }
+.pathogen-sidebar-item__action:hover .pathogen-sidebar-item__icon,
+.pathogen-sidebar-item__action:focus-visible .pathogen-sidebar-item__icon {
+  color: var(--pvc-color-text);
+}
 .pathogen-sidebar-item__action:focus-visible {
   outline: 2px solid var(--pvc-color-focus);
   outline-offset: 2px;
@@ -2216,14 +2251,21 @@ input[role="switch"]:disabled ~ label {
     background: color-mix(in oklab, var(--pvc-color-accent) 14%, var(--pvc-color-surface));
   }
 }
+.pathogen-sidebar-item__action[aria-current="page"] .pathogen-sidebar-item__icon {
+  color: var(--pvc-color-accent-strong);
+}
 .pathogen-sidebar-item__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
   flex: none;
   color: var(--pvc-color-text-muted);
+}
+.pathogen-sidebar-item__icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 .pathogen-sidebar-item__label {
   min-width: 0;
@@ -2234,7 +2276,7 @@ input[role="switch"]:disabled ~ label {
 }
 .pathogen-sidebar-item__expanded .pathogen-disclosure__trigger {
   min-height: 2.75rem;
-  padding-inline: 0.5rem;
+  padding-inline: 0.75rem;
 }
 .pathogen-sidebar-item__expanded-panel {
   padding: 0.125rem 0 0.25rem 1.5rem;
@@ -2356,11 +2398,39 @@ input[role="switch"]:disabled ~ label {
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-header {
   justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
   padding-inline: 0.25rem;
+}
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-brand {
+  flex: none;
+  width: 2.75rem;
+  justify-content: center;
+}
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-brand__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-content,
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-footer {
   padding-inline: 0.25rem;
+}
+.pathogen-sidebar-provider[data-pathogen-sidebar-mode="expanded"] .pathogen-sidebar-item__action[aria-current="page"] {
+  border-color: var(--pvc-color-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    border-color: color-mix(in oklab, var(--pvc-color-accent) 45%, var(--pvc-color-border));
+  }
+  background: var(--pvc-color-accent);
+  @supports (color: color-mix(in lab, red, red)) {
+    background: color-mix(in oklab, var(--pvc-color-accent) 18%, var(--pvc-color-surface));
+  }
 }
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
