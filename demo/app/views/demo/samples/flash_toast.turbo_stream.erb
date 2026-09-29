@@ -1,0 +1,5 @@
+<%= turbo_stream.append 'flashes' do %>
+  <% flash.each do |type, message| %>
+    <%= render Pathogen::Toast.new(type: type, message: message) %>
+  <% end %>
+<% end %>
