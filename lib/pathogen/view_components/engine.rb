@@ -5,6 +5,7 @@ require 'view_component'
 require 'view_component/version'
 require_relative '../button_to_helper'
 require_relative '../view_helper'
+require_relative '../form_field_attributes'
 require_relative '../form_helper'
 require_relative '../form_tag_helper'
 
