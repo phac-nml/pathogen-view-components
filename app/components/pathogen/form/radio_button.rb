@@ -83,9 +83,7 @@ module Pathogen
           if @label.blank?
             safe_join([control_html, support_html])
           else
-            tag.div(class: radio_button_container_classes) do
-              control_html + tag.div(support_html, class: radio_button_help_container_classes)
-            end
+            control_html + tag.div(support_html, class: radio_button_help_container_classes)
           end
         end
       end
