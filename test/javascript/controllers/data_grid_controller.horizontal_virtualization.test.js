@@ -153,9 +153,11 @@ describe("data_grid_controller horizontal virtualization", () => {
   afterEach(() => {
     application?.stop();
     document.body.innerHTML = "";
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
   });
 
-  const mountGrid = async ({ columnOverscan = 0 } = {}) => {
+  const mountGrid = async ({ columnOverscan = 0, horizontalSticky = true } = {}) => {
     document.body.innerHTML = virtualLaneGridHTML(30, {
       columnWidths: [120, 160, 160, 160],
       pinnedCount: 1,
@@ -163,6 +165,7 @@ describe("data_grid_controller horizontal virtualization", () => {
     });
 
     const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", horizontalSticky ? "1" : "0");
     Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 200 });
     Object.defineProperty(scrollContainer, "clientWidth", { configurable: true, value: 320 });
     Object.defineProperty(scrollContainer, "scrollTop", { configurable: true, writable: true, value: 0 });
@@ -183,6 +186,71 @@ describe("data_grid_controller horizontal virtualization", () => {
       bodyCenterLane: firstBodyRow.querySelector('[data-pvc-data-grid-lane="center"]'),
     };
   };
+
+  it("uses the full viewport for unpinned columns and scrolls back to a formerly pinned cell", async () => {
+    const { scrollContainer, bodyPinnedLane, bodyCenterLane, headerCenterLane } = await mountGrid({
+      horizontalSticky: false,
+    });
+    const firstCell = bodyPinnedLane.querySelector('[role="gridcell"]');
+    firstCell.focus();
+    firstCell.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "End" }));
+    expect(document.activeElement.textContent.trim()).toBe("R1-C3");
+    expect(scrollContainer.scrollLeft).toBe(280);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([2, 3]);
+
+    document.activeElement.dispatchEvent(
+      new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Home" }),
+    );
+    expect(document.activeElement).toBe(firstCell);
+    expect(scrollContainer.scrollLeft).toBe(0);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([1, 2]);
+    expect(visibleCenterColumns(headerCenterLane)).toEqual([1, 2]);
+    expect(bodyCenterLane.firstElementChild.style.gridColumn).toBe("1");
+  });
+
+  it("updates horizontal geometry on container resize and disconnects its observer before a Turbo snapshot", async () => {
+    vi.useFakeTimers();
+    let resized;
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback) {
+          resized = callback;
+        }
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
+    const { scrollContainer, bodyPinnedLane, bodyCenterLane, headerCenterLane } = await mountGrid();
+    expect(observe).toHaveBeenCalledWith(scrollContainer);
+    scrollContainer.scrollLeft = 160;
+    scrollContainer.dispatchEvent(new Event("scroll"));
+    await vi.advanceTimersByTimeAsync(20);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([2, 3]);
+
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", "0");
+    resized();
+    await vi.advanceTimersByTimeAsync(160);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([1, 2, 3]);
+    expect(visibleCenterColumns(headerCenterLane)).toEqual([1, 2, 3]);
+    expect(Array.from(bodyCenterLane.children).map((cell) => cell.style.gridColumn)).toEqual(["1", "2", "3"]);
+    expect(bodyPinnedLane.children).toHaveLength(1);
+
+    scrollContainer.style.setProperty("--pvc-data-grid-horizontal-sticky", "1");
+    resized();
+    await vi.advanceTimersByTimeAsync(160);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([2, 3]);
+    expect(visibleCenterColumns(headerCenterLane)).toEqual([2, 3]);
+
+    resized();
+    document.dispatchEvent(new Event("turbo:before-cache"));
+    expect(disconnect).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(160);
+    expect(document.querySelectorAll('[role="row"]')).toHaveLength(31);
+    expect(visibleCenterColumns(bodyCenterLane)).toEqual([1, 2, 3]);
+  });
 
   it("restores all rows and columns after disconnect and reconnect", async () => {
     await mountGrid();

@@ -1,6 +1,7 @@
 import { columnIndexOf, rowIndexOf } from "pathogen_view_components/data_grid_controller/navigation";
 import { cachedVirtualCells, paginationContract } from "pathogen_view_components/data_grid_controller/pagination_mode";
 import { PaginatedVirtualRows } from "pathogen_view_components/data_grid_controller/paginated_virtual_rows";
+import { horizontalStickyEnabled } from "pathogen_view_components/data_grid_controller/scroll";
 import { CenterColumnWindow } from "pathogen_view_components/data_grid_controller/virtual_columns";
 import {
   ensureVirtualCellVisible,
@@ -24,8 +25,11 @@ export class VirtualViewport {
   #onError;
   #syncScrollAffordance;
   #paginationOptions;
+  #onPositionChanged;
   #pagination = null;
   #rows = null;
+  #initialCursorRows = null;
+  #knownTotal = null;
   #rowSource = null;
   #cells = null;
   #rowHeight = 40;
@@ -36,6 +40,7 @@ export class VirtualViewport {
   #frame = null;
   #fetchAfterRender = false;
   #resizeTimer = null;
+  #resizeObserver = null;
 
   constructor({
     element,
@@ -50,7 +55,9 @@ export class VirtualViewport {
     setBusy,
     onPageError,
     onPageSuccess,
+    onPositionChanged = () => {},
   }) {
+    this.#onPositionChanged = onPositionChanged;
     this.#element = element;
     this.#grid = grid;
     this.#viewport = viewport;
@@ -68,11 +75,27 @@ export class VirtualViewport {
     return this.#rowHeight;
   }
   get pinnedWidth() {
-    return this.#columns.pinnedWidth;
+    return horizontalStickyEnabled(this.#scroll) ? this.#columns.pinnedWidth : 0;
   }
   get totalRows() {
     return this.#rowSource?.totalRows ?? 0;
   }
+  get totalCount() {
+    return this.hasMore ? this.#knownTotal : this.totalRows;
+  }
+  get cursorMode() {
+    return this.#pagination?.cursorMode === true;
+  }
+  get hasMore() {
+    return this.#pagination?.hasMore === true;
+  }
+  loadNext() {
+    return this.#pagination.loadNext();
+  }
+  retry() {
+    return this.#pagination?.retry();
+  }
+
   get lastColumnIndex() {
     return this.#columns.widths.length - 1;
   }
@@ -97,11 +120,13 @@ export class VirtualViewport {
   connect() {
     const rows = Array.from(this.#viewport.querySelectorAll('[role="row"]'));
     const config = paginationContract(this.#grid, 20);
+    this.#knownTotal = config.knownTotal;
     this.#cells = Array.from(this.#grid.querySelectorAll(this.#cellSelector));
+    if (config.mode === "cursor") this.#initialCursorRows = rows.map((row) => row.cloneNode(true));
     this.#readColumns();
     this.#rowHeight = measureRowHeight(this.#viewport) || this.#rowHeight;
 
-    if (config.totalRows > 0 && config.rowsUrl) {
+    if (config.rowsUrl && (config.mode === "cursor" || config.totalRows > 0)) {
       this.#pagination = new PaginatedVirtualRows({
         rows,
         contract: config,
@@ -115,6 +140,8 @@ export class VirtualViewport {
         },
         onCacheChanged: () => this.#invalidateCells(),
         onRowsChanged: ({ hasPageErrors }) => {
+          this.#resizeSpacer();
+          this.#updateRowCount();
           this.#paginationOptions.onPageSuccess(hasPageErrors);
           this.#focus.restorePendingFocus();
         },
@@ -136,9 +163,14 @@ export class VirtualViewport {
     }
 
     this.#resizeSpacer();
+    this.#updateRowCount();
     this.#onCellsChanged();
     rows.forEach((row) => row.remove());
     this.render();
+    if (this.#scroll instanceof Element && typeof ResizeObserver !== "undefined") {
+      this.#resizeObserver = new ResizeObserver(() => this.handleResize());
+      this.#resizeObserver.observe(this.#scroll);
+    }
   }
 
   fetchVisiblePages() {
@@ -176,16 +208,17 @@ export class VirtualViewport {
   }
 
   ensureVisible(rowIndex, columnIndex) {
+    const pinnedWidth = this.pinnedWidth;
     ensureVirtualCellVisible({
       rowIndex,
       columnIndex,
       rowHeight: this.#rowHeight,
       scrollContainer: this.#scroll,
       visibleRange: { startIndex: this.#range.rowStart, endIndex: this.#range.rowEnd },
-      pinnedCount: this.#columns.pinnedCount,
+      pinnedCount: pinnedWidth > 0 ? this.#columns.pinnedCount : 0,
       columnWidths: this.#columns.widths,
       columnOffsets: this.#columns.offsets,
-      pinnedWidth: this.#columns.pinnedWidth,
+      pinnedWidth,
       isColumnRendered: (index) =>
         index === null ||
         index < this.#columns.pinnedCount ||
@@ -218,6 +251,7 @@ export class VirtualViewport {
       ...this.#focus,
     });
     this.#focus.restorePendingFocus();
+    this.#updatePosition();
     if (this.#fetchAfterRender) {
       this.#fetchAfterRender = false;
       this.fetchVisiblePages();
@@ -225,13 +259,25 @@ export class VirtualViewport {
   }
 
   disconnect() {
+    this.#resizeObserver?.disconnect();
+    this.#resizeObserver = null;
     this.#cancelFrame();
     this.#fetchAfterRender = false;
     if (this.#resizeTimer) clearTimeout(this.#resizeTimer);
     this.#resizeTimer = null;
     this.#pagination?.disconnect();
 
-    let rows = this.#pagination ? this.#pagination.getCachedRows() : this.#rows;
+    // Turbo snapshots restart from the server-rendered seed. A partial cache
+    // cannot seed a fresh cursor session because it may contain disjoint ranges.
+    let rows = this.#initialCursorRows || (this.#pagination ? this.#pagination.getCachedRows() : this.#rows);
+    if (this.#initialCursorRows) {
+      if (this.#scroll) this.#scroll.scrollTop = 0;
+      this.#grid.dataset.pvcDataGridLoadedCount = String(rows.length);
+      const total = this.#grid.dataset.pvcDataGridNextCursor ? this.#knownTotal : rows.length;
+      this.#grid.setAttribute("aria-rowcount", total === null ? "-1" : String(total + 1));
+      const spacer = this.#viewport.querySelector(".pvc-data-grid__spacer");
+      if (spacer) spacer.style.height = `${rows.length * this.#rowHeight}px`;
+    }
     if (!rows) return;
     if (rows.length === 0 && this.#pagination) rows = Array.from(this.#viewport.querySelectorAll('[role="row"]'));
     this.#columnWindow.restore(this.#headerRow());
@@ -268,6 +314,26 @@ export class VirtualViewport {
     });
   }
 
+  #updateRowCount() {
+    if (this.cursorMode) {
+      this.#grid.setAttribute("aria-rowcount", this.totalCount === null ? "-1" : String(this.totalCount + 1));
+      this.#grid.dataset.pvcDataGridLoadedCount = String(this.totalRows);
+    }
+  }
+
+  #updatePosition() {
+    const start = Math.min(this.totalRows, Math.floor((this.#scroll?.scrollTop || 0) / this.#rowHeight) + 1);
+    const height = this.#scroll?.clientHeight || window.innerHeight;
+    const headerHeight = this.#headerRow()?.offsetHeight || 0;
+    const end = Math.max(start, Math.ceil(((this.#scroll?.scrollTop || 0) + height - headerHeight) / this.#rowHeight));
+    this.#onPositionChanged({
+      start,
+      end: Math.min(this.totalRows, end),
+      count: this.totalRows,
+      total: this.totalCount,
+    });
+  }
+
   #resizeSpacer() {
     const spacer = this.#viewport.querySelector(".pvc-data-grid__spacer");
     if (spacer) spacer.style.height = `${this.totalRows * this.#rowHeight}px`;
@@ -278,7 +344,7 @@ export class VirtualViewport {
   }
 
   #columnRange() {
-    const { widths, offsets, pinnedCount, pinnedWidth, overscan } = this.#columns;
+    const { widths, offsets, pinnedCount, overscan } = this.#columns;
     if (!this.#scroll || widths.length === 0 || pinnedCount >= widths.length) return null;
     return computeVisibleColumnRange({
       scrollLeft: this.#scroll.scrollLeft,
@@ -286,7 +352,7 @@ export class VirtualViewport {
       columnWidths: widths,
       columnOffsets: offsets,
       pinnedCount,
-      pinnedWidth,
+      pinnedWidth: this.pinnedWidth,
       overscan,
     });
   }

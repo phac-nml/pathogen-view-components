@@ -804,7 +804,7 @@ module Pathogen
       assert_selector(
         '.pvc-data-grid__virtual-status' \
         '[data-loading-more-text="Loading more rows…"]' \
-        '[data-fetch-error-text="Unable to load more rows. Scroll to try again."]'
+        '[data-fetch-error-text="Unable to load more rows. Try again."]'
       )
     end
 
@@ -932,7 +932,7 @@ module Pathogen
         assert_selector(
           '.pvc-data-grid__virtual-status' \
           '[data-loading-more-text="Chargement de lignes supplémentaires…"]' \
-          '[data-fetch-error-text="Impossible de charger d’autres lignes. Faites défiler pour réessayer."]'
+          '[data-fetch-error-text="Impossible de charger d’autres lignes. Réessayez."]'
         )
       end
     end
