@@ -155,6 +155,17 @@ module Pathogen
         assert_not_includes html, '<abbr'
       end
 
+      test 'required label formatter appends an indicator to captured content' do
+        view = ActionView::Base.empty
+        builder = PathogenFormBuilder.new(:sample, nil, view, {})
+
+        html = builder.send(:build_enhanced_label_content, :name, nil) { 'Full name' }
+
+        assert_includes html, 'Full name'
+        assert_includes html, '<abbr'
+        assert_includes html, 'class="req"'
+      end
+
       test 'label accepts options as the content argument' do
         view = ActionView::Base.empty
         builder = PathogenFormBuilder.new(:sample, nil, view, {})
