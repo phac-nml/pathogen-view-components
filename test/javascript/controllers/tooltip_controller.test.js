@@ -192,6 +192,30 @@ describe("tooltip_controller", () => {
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
 
+  it("does not open when disabled and hides when toggled disabled", async () => {
+    const { container, tooltip } = appendTooltip();
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+
+    container.setAttribute("data-pathogen--tooltip-disabled-value", "true");
+    await waitForController();
+    controller.show();
+
+    expect(tooltip.dataset.state).toBe("closed");
+    expect(tooltip.getAttribute("aria-hidden")).toBe("true");
+
+    container.setAttribute("data-pathogen--tooltip-disabled-value", "false");
+    await waitForController();
+    controller.show();
+    expect(tooltip.dataset.state).toBe("open");
+
+    container.setAttribute("data-pathogen--tooltip-disabled-value", "true");
+    await waitForController();
+    expect(tooltip.dataset.state).toBe("closed");
+    expect(tooltip.getAttribute("aria-hidden")).toBe("true");
+  });
+
   it("reconnects hover listeners after a Turbo-style disconnect and reconnect", async () => {
     const { container, trigger, tooltip } = appendTooltip();
     await waitForController();

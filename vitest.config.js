@@ -23,6 +23,7 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/widget_mode.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/disclosure_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/sidebar_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/sidebar_controller/flyout.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/navigation.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/scroll.js": FULL_COVERAGE,
 };
@@ -37,6 +38,7 @@ export default defineConfig({
         "data_grid_controller/virtual_viewport.js",
       ),
       "pathogen_view_components/data_grid_controller/cell_index": resolve(jsRoot, "data_grid_controller/cell_index.js"),
+      "pathogen_view_components/sidebar_controller/flyout": resolve(jsRoot, "sidebar_controller/flyout.js"),
       "pathogen_view_components/data_grid_controller/navigation": resolve(jsRoot, "data_grid_controller/navigation.js"),
       "pathogen_view_components/data_grid_controller/scroll": resolve(jsRoot, "data_grid_controller/scroll.js"),
       "pathogen_view_components/data_grid_controller/widget_mode": resolve(
