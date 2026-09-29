@@ -118,6 +118,8 @@ module Pathogen
     end
 
     def resolve_tone_and_emphasis(tone, emphasis)
+      # Keep existing hosts working while they migrate to the soft treatment.
+      emphasis = :soft if emphasis == :outline
       resolved_tone = tone.nil? ? DEFAULT_TONE : fetch_or_fallback(TONE_OPTIONS, tone, DEFAULT_TONE)
       resolved_emphasis = if emphasis.nil?
                             DEFAULT_EMPHASIS
