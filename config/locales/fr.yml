@@ -1,6 +1,10 @@
 ---
 fr:
   pathogen:
+    copyable_value:
+      copied: Copié dans le presse-papiers
+      copy_aria_label: Copier %{value} dans le presse-papiers
+      copy_failed: Impossible de copier dans le presse-papiers
     data_grid:
       empty_state:
         default: Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser

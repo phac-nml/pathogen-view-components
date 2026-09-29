@@ -11,10 +11,12 @@ module Pathogen
         assert_selector 'code', text: 'variable_name'
       end
 
-      test 'applies inline code Tailwind classes' do
+      test 'applies inline code surface and type scale tokens' do
         render_inline(Code.new) { 'Test' }
 
-        assert_selector 'code.inline-flex.items-center.font-mono[class*="--type-control"]'
+        assert_selector 'code.inline-flex.items-center.font-mono'
+        assert_selector "code[class*='bg-[var(--pvc-color-surface-muted)]']"
+        assert_selector "code[class*='text-[length:var(--type-control)]']"
       end
 
       test 'merges custom classes' do
@@ -33,12 +35,6 @@ module Pathogen
         render_inline(Code.new) { '<script>alert("test")</script>' }
 
         assert_selector 'code', text: '<script>alert("test")</script>'
-      end
-
-      test 'emits token-based background utility' do
-        render_inline(Code.new) { 'test' }
-
-        assert_selector "code[class*='--pvc-color-surface-muted']"
       end
 
       test 'emits semantic radius token' do
