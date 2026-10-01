@@ -141,6 +141,17 @@ describe("dialog_controller", () => {
     expect(document.activeElement).toBe(controller.titleTarget);
   });
 
+  it("allows a caller-selected static heading with a programmatic tab stop", () => {
+    const heading = document.createElement("h3");
+    heading.id = "first-section";
+    heading.tabIndex = -1;
+    heading.textContent = "Review these changes";
+    controller.contentTarget.append(heading);
+    controller.initialFocusValue = "#first-section";
+    controller.open();
+    expect(document.activeElement).toBe(heading);
+  });
+
   it("uses the document return-focus fallback after the opener is removed", () => {
     const trigger = document.getElementById("first-trigger");
     controller.returnFocusValue = "#fallback";
@@ -148,6 +159,173 @@ describe("dialog_controller", () => {
     trigger.remove();
     controller.close();
     expect(document.activeElement.id).toBe("fallback");
+  });
+
+  it("allows focus inside a modal beneath an inert host, but rejects hidden hosts and inert descendants", () => {
+    controller.initialFocusValue = "#first-safe";
+    controller.element.setAttribute("inert", "");
+    controller.open();
+    expect(document.activeElement.id).toBe("first-safe");
+    controller.close();
+
+    controller.element.removeAttribute("inert");
+    controller.element.hidden = true;
+    controller.open();
+    expect(document.activeElement).toBe(controller.titleTarget);
+    controller.close();
+
+    controller.element.hidden = false;
+    controller.contentTarget.setAttribute("inert", "");
+    controller.open();
+    expect(document.activeElement).toBe(controller.titleTarget);
+  });
+
+  it.each(["disabled", "visibility", "no rendered box"])(
+    "rejects an initial focus target with %s and focuses the title",
+    (condition) => {
+      const target = document.getElementById("first-safe");
+      controller.initialFocusValue = "#first-safe";
+      if (condition === "disabled") target.disabled = true;
+      if (condition === "visibility") target.style.visibility = "hidden";
+      if (condition === "no rendered box") vi.spyOn(target, "getClientRects").mockReturnValue([]);
+      controller.open();
+      expect(document.activeElement).toBe(controller.titleTarget);
+    },
+  );
+
+  it("does not restore focus to a disabled opener or unavailable fallback", () => {
+    const trigger = document.getElementById("first-trigger");
+    const fallback = document.getElementById("fallback");
+    controller.returnFocusValue = "#fallback";
+    controller.open({ trigger });
+    trigger.disabled = true;
+    controller.close();
+    expect(document.activeElement).toBe(fallback);
+
+    controller.open({ trigger });
+    fallback.hidden = true;
+    const focused = document.activeElement;
+    controller.close();
+    expect(document.activeElement).toBe(focused);
+    expect(controller.trigger).toBeNull();
+  });
+
+  it("opens and closes when the declarative open value changes after connection", async () => {
+    const trigger = document.getElementById("first-trigger");
+    trigger.focus();
+    controller.openValue = true;
+    await settle();
+    expect(controller.dialogTarget.open).toBe(true);
+    expect(document.activeElement).toBe(controller.titleTarget);
+
+    controller.openValue = false;
+    await settle();
+    expect(controller.dialogTarget.open).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("observes replacement content and footer targets and recalculates their open layout", async () => {
+    controller.open();
+    Object.defineProperty(controller.bodyTarget, "scrollHeight", { configurable: true, value: 800 });
+    Object.defineProperty(controller.bodyTarget, "clientHeight", { configurable: true, value: 300 });
+    const content = controller.contentTarget.cloneNode(true);
+    const footer = controller.footerTarget.cloneNode(true);
+    controller.contentTarget.replaceWith(content);
+    controller.footerTarget.replaceWith(footer);
+    await settle();
+
+    expect(observers[0].observe).toHaveBeenCalledWith(content);
+    expect(observers[0].observe).toHaveBeenCalledWith(footer);
+    expect(controller.bodyTarget.getAttribute("aria-labelledby")).toBe("first-title");
+    expect(controller.bodyTarget.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("responds to viewport and content resizing, then removes those listeners on disconnect", async () => {
+    const viewport = new EventTarget();
+    viewport.height = 600;
+    viewport.offsetTop = 0;
+    vi.stubGlobal("visualViewport", viewport);
+    document.body.insertAdjacentHTML("beforeend", markup("viewport"));
+    await settle();
+    const mounted = application.getControllerForElementAndIdentifier(
+      document.getElementById("viewport").parentElement,
+      "pathogen--dialog",
+    );
+    mounted.open();
+    expect(mounted.panelTarget.dataset.scrollMode).toBe("body");
+
+    viewport.height = 150;
+    viewport.dispatchEvent(new Event("resize"));
+    expect(mounted.panelTarget.dataset.scrollMode).toBe("panel");
+    viewport.offsetTop = 40;
+    viewport.dispatchEvent(new Event("scroll"));
+    expect(mounted.dialogTarget.style.getPropertyValue("--pvc-dialog-top")).toBe("93px");
+
+    viewport.height = 600;
+    observers[2].callback();
+    expect(mounted.panelTarget.dataset.scrollMode).toBe("body");
+
+    const removeViewportListener = vi.spyOn(viewport, "removeEventListener");
+    const removeDialogListener = vi.spyOn(mounted.dialogTarget, "removeEventListener");
+    mounted.element.remove();
+    await settle();
+    expect(removeViewportListener).toHaveBeenCalledWith("resize", mounted.updateLayout);
+    expect(removeViewportListener).toHaveBeenCalledWith("scroll", mounted.updateLayout);
+    expect(removeDialogListener).toHaveBeenCalledWith("cancel", mounted.onCancel);
+    expect(removeDialogListener).toHaveBeenCalledWith("close", mounted.onNativeClose);
+    expect(observers[2].disconnect).toHaveBeenCalledOnce();
+    viewport.dispatchEvent(new Event("resize"));
+    viewport.dispatchEvent(new Event("scroll"));
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("uses the dismissal reason supplied by a close control's Stimulus parameters", () => {
+    const beforeClose = vi.fn();
+    const closed = vi.fn();
+    controller.element.addEventListener("pathogen--dialog:before-close", beforeClose);
+    controller.element.addEventListener("pathogen--dialog:closed", closed);
+    const closeButton = controller.headerTarget.querySelector("button");
+    closeButton.setAttribute("data-pathogen--dialog-reason-param", "cancel");
+    controller.open();
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    closeButton.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(beforeClose.mock.calls[0][0].detail.reason).toBe("cancel");
+    expect(closed.mock.calls[0][0].detail.reason).toBe("cancel");
+    expect(controller.dialogTarget.open).toBe(false);
+  });
+
+  it("ignores a dismissal request while closed without emitting lifecycle events", () => {
+    const beforeClose = vi.fn();
+    const closed = vi.fn();
+    controller.element.addEventListener("pathogen--dialog:before-close", beforeClose);
+    controller.element.addEventListener("pathogen--dialog:closed", closed);
+    const event = new Event("click", { cancelable: true });
+    controller.requestClose(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(beforeClose).not.toHaveBeenCalled();
+    expect(closed).not.toHaveBeenCalled();
+    expect(controller.dialogTarget.close).not.toHaveBeenCalled();
+  });
+
+  it("finishes cleanup when the native dialog closed before its queued close event arrives", () => {
+    const closed = vi.fn();
+    controller.element.addEventListener("pathogen--dialog:closed", closed);
+    const trigger = document.getElementById("first-trigger");
+    controller.open({ trigger });
+    controller.dialogTarget.open = false;
+    controller.close({ reason: "completed" });
+    controller.dialogTarget.dispatchEvent(new Event("close"));
+
+    expect(controller.dialogTarget.close).not.toHaveBeenCalled();
+    expect(closed).toHaveBeenCalledOnce();
+    expect(closed.mock.calls[0][0].detail.reason).toBe("completed");
+    expect(controller.openValue).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("keeps scrolling locked for a parent and another modal owner", () => {
