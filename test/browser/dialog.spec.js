@@ -261,6 +261,38 @@ test("200% text sizing keeps close, body and footer usable", async ({ page, brow
   await expect(dialog(page)).not.toBeVisible();
 });
 
+test("400% zoom reflow keeps close, footer and focused controls visible", async ({ page }) => {
+  // A 400% zoomed desktop viewport has roughly the CSS dimensions of a
+  // 320px-wide, short viewport. Enlarged text exercises that state together
+  // with the layout's visualViewport-based scrolling fallback.
+  await page.setViewportSize({ width: 320, height: 200 });
+  await openDialog(page);
+  await page.addStyleTag({ content: '* { font-family: "DejaVu Sans", sans-serif !important; }' });
+  await page.evaluate(() => {
+    const sizes = [...document.querySelectorAll("body *")].map((element) => [
+      element,
+      parseFloat(getComputedStyle(element).fontSize),
+    ]);
+    for (const [element, size] of sizes) element.style.setProperty("font-size", `${size * 2}px`, "important");
+  });
+
+  const panel = target(page, "panel");
+  const footer = target(page, "footer");
+  const close = dialog(page).getByRole("button", { name: "Close dialog", exact: true });
+  await expect(panel).toHaveAttribute("data-scroll-mode", "panel");
+  const scroller = (await panel.getAttribute("data-scroll-mode")) === "panel" ? panel : target(page, "body");
+
+  await close.focus();
+  await fullyVisible(close, panel);
+  await page.locator("#save-project").focus();
+  await fullyVisible(page.locator("#save-project"), scroller);
+  await fullyVisible(footer, panel);
+  await page.locator("#last-body-action").focus();
+  await fullyVisible(page.locator("#last-body-action"), scroller);
+  await close.focus();
+  await fullyVisible(close, panel);
+});
+
 for (const scheme of ["light", "dark"]) {
   test(`${scheme} mode has no automated AA violations and a measured close focus indicator`, async ({
     page,

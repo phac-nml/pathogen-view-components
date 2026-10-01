@@ -7,26 +7,26 @@ module Pathogen
     test 'renders a closed named native dialog with default heading and controller targets' do
       render_inline(Pathogen::Dialog.new(id: 'edit-sample', title: 'Edit sample')) { 'Sample details' }
 
-      assert_selector '.pathogen-dialog-root[data-controller="pathogen--dialog"]' \
+      assert_selector '[data-controller="pathogen--dialog"]' \
                       '[data-pathogen--dialog-open-value="false"]'
-      assert_selector 'dialog#edit-sample.pathogen-dialog[data-size="medium"]' \
+      assert_selector 'dialog#edit-sample[data-pathogen--dialog-target="dialog"][data-size="medium"]' \
                       '[aria-labelledby="edit-sample-title"]:not([open]):not([tabindex])', visible: :all
       assert_selector 'dialog h2#edit-sample-title[tabindex="-1"][data-pathogen--dialog-target="title"]',
                       text: 'Edit sample', visible: :all
       %w[dialog panel header body content].each do |target|
         assert_selector "[data-pathogen--dialog-target='#{target}']", count: 1, visible: :all
       end
-      assert_selector '.pathogen-dialog__body[data-pathogen-dialog-body] > .pathogen-dialog__content',
+      assert_selector '[data-pathogen--dialog-part="body"] > [data-pathogen--dialog-part="content"]',
                       text: 'Sample details', visible: :all
-      assert_selector '.pathogen-dialog__heading > h2.font-bold', visible: :all
-      assert_no_selector '.pathogen-dialog__footer', visible: :all
+      assert_selector '[data-pathogen--dialog-part="heading"] > h2.font-bold', visible: :all
+      assert_no_selector '[data-pathogen--dialog-part="footer"]', visible: :all
       assert_no_selector 'dialog[aria-describedby], dialog[aria-label], dialog[role]', visible: :all
     end
 
     test 'open requests modal opening through the controller without setting the native open attribute' do
       render_inline(Pathogen::Dialog.new(title: 'Mounted dialog', open: true)) { 'Content' }
 
-      assert_selector '.pathogen-dialog-root[data-pathogen--dialog-open-value="true"]'
+      assert_selector '[data-controller="pathogen--dialog"][data-pathogen--dialog-open-value="true"]'
       assert_selector 'dialog:not([open])', visible: :all
     end
 
@@ -47,15 +47,15 @@ module Pathogen
       end
 
       assert_selector 'dialog#confirm[aria-describedby="confirm-description"]', visible: :all
-      assert_selector '.pathogen-dialog__header p#confirm-description', text: 'Review before saving.', visible: :all
-      assert_no_selector '.pathogen-dialog__body[aria-describedby]', visible: :all
+      assert_selector '[data-pathogen--dialog-part="header"] p#confirm-description', text: 'Review before saving.', visible: :all
+      assert_no_selector '[data-pathogen--dialog-part="body"][aria-describedby]', visible: :all
     end
 
     test 'omits blank descriptions and allows a configurable heading level' do
       render_inline(Pathogen::Dialog.new(title: 'Nested task', description: ' ', heading_level: 3)) { 'Content' }
 
-      assert_selector 'dialog h3.pathogen-dialog__title', text: 'Nested task', visible: :all
-      assert_no_selector 'dialog[aria-describedby], .pathogen-dialog__description', visible: :all
+      assert_selector 'dialog h3[data-pathogen--dialog-part="title"]', text: 'Nested task', visible: :all
+      assert_no_selector 'dialog[aria-describedby], [data-pathogen--dialog-part="description"]', visible: :all
     end
 
     test 'renders every documented size' do
@@ -70,7 +70,7 @@ module Pathogen
         'Content'
       end
 
-      assert_selector '.pathogen-dialog-root[data-pathogen--dialog-initial-focus-value="#cancel"]' \
+      assert_selector '[data-controller="pathogen--dialog"][data-pathogen--dialog-initial-focus-value="#cancel"]' \
                       '[data-pathogen--dialog-return-focus-value="#new-opener"]'
     end
 
@@ -101,7 +101,7 @@ module Pathogen
         'Content'
       end
 
-      assert_selector 'footer.pathogen-dialog__footer[data-pathogen--dialog-target="footer"] > button',
+      assert_selector 'footer[data-pathogen--dialog-part="footer"][data-pathogen--dialog-target="footer"] > button',
                       text: 'Save changes', visible: :all
     end
 
@@ -112,7 +112,7 @@ module Pathogen
         'Content'
       end
 
-      assert_selector '.pathogen-dialog-root > button.host-trigger[type="button"][aria-controls="triggered"]' \
+      assert_selector '[data-controller="pathogen--dialog"] > button.host-trigger[type="button"][aria-controls="triggered"]' \
                       '[aria-haspopup="dialog"][data-controller="analytics"]' \
                       '[data-action="click->analytics#track click->pathogen--dialog#openFromTrigger"]',
                       text: 'Open dialog'
@@ -128,10 +128,10 @@ module Pathogen
         'Content'
       end
 
-      assert_selector '.pathogen-dialog-root > button[type="button"][aria-controls="owned-trigger"]' \
+      assert_selector '[data-controller="pathogen--dialog"] > button[type="button"][aria-controls="owned-trigger"]' \
                       '[aria-haspopup="dialog"]:not([href])' \
                       '[data-action="click->analytics#track click->pathogen--dialog#openFromTrigger"]', text: 'Open'
-      assert_no_selector '.pathogen-dialog-root > a'
+      assert_no_selector '[data-controller="pathogen--dialog"] > a'
     end
 
     test 'protects the dialog controller and targets from typed trigger attributes' do
@@ -143,8 +143,8 @@ module Pathogen
         'Content'
       end
 
-      assert_selector '.pathogen-dialog-root > button[data-controller="analytics"]', text: 'Open'
-      assert_no_selector '.pathogen-dialog-root > button[data-pathogen--dialog-target]'
+      assert_selector '[data-controller="pathogen--dialog"] > button[data-controller="analytics"]', text: 'Open'
+      assert_no_selector '[data-controller="pathogen--dialog"] > button[data-pathogen--dialog-target]'
       assert_selector '[data-controller~="pathogen--dialog"]', count: 1, visible: :all
       assert_selector '[data-pathogen--dialog-target="dialog"]', count: 1, visible: :all
     end
