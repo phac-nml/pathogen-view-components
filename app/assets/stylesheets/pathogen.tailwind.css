@@ -61,6 +61,7 @@
     --pvc-color-surface: var(--color-white);
     --pvc-color-surface-muted: var(--color-neutral-50);
     --pvc-color-surface-raised: var(--color-white);
+    --pvc-color-backdrop: rgb(0 0 0 / 0.35);
     --pvc-color-border: var(--color-neutral-200);
     --pvc-color-border-strong: var(--color-neutral-300);
     --pvc-color-control-border: var(--color-neutral-500);
@@ -160,3 +161,4 @@
 @import "./pathogen_form_switch_layer.css";
 @import "./pathogen_disclosure_layer.css";
 @import "./pathogen_sidebar_layer.css";
+@import "./pathogen_dialog_layer.css";

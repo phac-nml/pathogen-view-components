@@ -192,6 +192,25 @@ describe("tooltip_controller", () => {
     expect(tooltip.getAttribute("aria-hidden")).toBe("true");
   });
 
+  it("consumes Escape inside an open native dialog before modal dismissal", async () => {
+    const { container, tooltip } = appendTooltip();
+    container.closest("dialog").open = true;
+    await waitForController();
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--tooltip");
+    controller.show();
+    const event = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Escape" });
+    container.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(tooltip.dataset.state).toBe("closed");
+
+    const next = new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Escape" });
+    container.dispatchEvent(next);
+    expect(next.defaultPrevented).toBe(false);
+    controller.show();
+    controller.handleEscape();
+    expect(tooltip.dataset.state).toBe("closed");
+  });
+
   it("reconnects hover listeners after a Turbo-style disconnect and reconnect", async () => {
     const { container, trigger, tooltip } = appendTooltip();
     await waitForController();

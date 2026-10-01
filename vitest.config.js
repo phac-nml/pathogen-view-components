@@ -30,6 +30,10 @@ const RATCHET_ALLOWLIST = {
 export default defineConfig({
   resolve: {
     alias: {
+      "pathogen_view_components/scroll_lock": resolve(jsRoot, "scroll_lock.js"),
+      "pathogen_view_components/modal_stack": resolve(jsRoot, "modal_stack.js"),
+      "pathogen_view_components/dialog_controller/layout": resolve(jsRoot, "dialog_controller/layout.js"),
+      "pathogen_view_components/dialog_controller": resolve(jsRoot, "dialog_controller.js"),
       application: resolve(demoJsRoot, "application.js"),
       "lookbook_mocks/tabs_lazy_load": resolve(demoJsRoot, "lookbook_mocks/tabs_lazy_load.js"),
       "pathogen_view_components/data_grid_controller/virtual_viewport": resolve(

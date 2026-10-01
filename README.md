@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, data grids, and toolbars.
+- **Stimulus-ready**: Built-in controllers for dialogs, tabs, tooltips, disclosures, data grids, and toolbars.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -100,6 +100,30 @@ Navigation that looks like a button should use `tag: :a` with an `href`:
 ```erb
 <%= render Pathogen::Button.new(tag: :a, href: samples_path, tone: :primary, emphasis: :solid) { "View samples" } %>
 ```
+
+#### Dialog
+
+```erb
+<%= render Pathogen::Dialog.new(id: "export-dialog", title: "Export samples") do |dialog| %>
+  <% dialog.with_trigger(text: "Configure export", tone: :primary, emphasis: :solid) %>
+  <p>Choose the export contents for the selected samples.</p>
+  <% dialog.with_footer do %>
+    <%= render Pathogen::Button.new(text: "Cancel", tone: :neutral, emphasis: :outline,
+      type: :button, data: { action: "click->pathogen--dialog#requestClose" }) %>
+  <% end %>
+<% end %>
+```
+
+The component uses native `showModal()` with a required visible title, a close control,
+and a scrollable body. Header/footer stay visible until a short-height fallback makes the
+whole inner panel scroll. Escape and explicit close/cancel dismiss; backdrop clicks keep it open.
+Sizes are `:small`, `:medium` (default), `:large`, and `:extra_large`.
+Use `initial_focus:` for a dialog-local selector and `return_focus:` for a document fallback
+when the opener is removed. Stacked dialogs and Turbo cleanup are supported.
+
+See the [Dialog guide](docs/lookbook/dialog.md.erb) for the trigger/footer slots, controller API,
+cancelable dismissal events, form integration, and accessibility acceptance requirements.
+Host content and browser/screen-reader testing remain part of WCAG 2.2 AA validation.
 
 #### DataGrid
 
@@ -375,6 +399,7 @@ If your application already starts Stimulus, reuse that instance and add only th
 
 ### Available Controllers
 
+- `pathogen--dialog`: Native modal opening, dismissal events, focus return, scrollable content, and Turbo cleanup
 - `pathogen--tabs`: WAI-ARIA compliant tabs with keyboard navigation and URL hash syncing
 - `pathogen--tooltip`: Accessible tooltip with Floating UI positioning and semantic state attributes
 - `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
