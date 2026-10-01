@@ -12,6 +12,8 @@ devenv.local.yaml
 # Node dependencies
 node_modules/
 coverage/
+playwright-report/
+test-results/
 
 # Demo app runtime artifacts
 demo/tmp/
