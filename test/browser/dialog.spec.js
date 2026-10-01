@@ -217,7 +217,7 @@ test("320px reflow and WCAG text spacing preserve content and actions", async ({
   await openDialog(page);
   await page.addStyleTag({
     content:
-      "* { line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } p { margin-bottom: 2em !important; }",
+      '* { font-family: "DejaVu Sans", sans-serif !important; line-height: 1.5 !important; letter-spacing: .12em !important; word-spacing: .16em !important; } p { margin-bottom: 2em !important; }',
   });
   await test.info().attach("dialog-narrow.png", { body: await page.screenshot(), contentType: "image/png" });
   expect(await dialog(page).evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
@@ -227,8 +227,11 @@ test("320px reflow and WCAG text spacing preserve content and actions", async ({
   await fullyVisible(page.locator("#last-body-action"), target(page, "body"));
 });
 
-test("200% text sizing keeps close, body and footer usable", async ({ page }) => {
+test("200% text sizing keeps close, body and footer usable", async ({ page, browserName }, testInfo) => {
   await openDialog(page);
+  // A broad fallback font exercises the wrapping that differed between local
+  // Noto Sans and the CI runner's default font.
+  await page.addStyleTag({ content: '* { font-family: "DejaVu Sans", sans-serif !important; }' });
   await page.evaluate(() => {
     const sizes = [...document.querySelectorAll("body *")].map((element) => [
       element,
@@ -236,11 +239,25 @@ test("200% text sizing keeps close, body and footer usable", async ({ page }) =>
     ]);
     for (const [element, size] of sizes) element.style.setProperty("font-size", `${size * 2}px`, "important");
   });
+  if (browserName === "webkit" && testInfo.project.use.isMobile) {
+    await expect(target(page, "panel")).toHaveAttribute("data-scroll-mode", "panel");
+  }
+  const scroller =
+    (await target(page, "panel").getAttribute("data-scroll-mode")) === "panel"
+      ? target(page, "panel")
+      : target(page, "body");
+  const close = dialog(page).getByRole("button", { name: "Close dialog", exact: true });
+  await close.focus();
+  await fullyVisible(close);
+  await page.locator("#save-project").focus();
   await fullyVisible(page.locator("#save-project"));
   expect(await dialog(page).evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
+  expect(await scroller.evaluate((element) => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
   await page.locator("#last-body-action").focus();
-  await fullyVisible(page.locator("#last-body-action"), target(page, "body"));
-  await dialog(page).getByRole("button", { name: "Close dialog", exact: true }).click();
+  await fullyVisible(page.locator("#last-body-action"), scroller);
+  await close.focus();
+  await fullyVisible(close);
+  await close.click();
   await expect(dialog(page)).not.toBeVisible();
 });
 

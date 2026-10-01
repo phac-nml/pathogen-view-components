@@ -59,7 +59,9 @@ The built-in close label is supplied by Pathogen's English/French locales.
 
 The body scrolls while the title/close control and footer remain visible. When the available
 panel height minus header/footer height and spacing leaves less than **6rem** for the body,
-the whole inner panel scrolls instead. This is a layout threshold, not a WCAG requirement.
+the whole inner panel scrolls instead. This minimum grows when body text is enlarged independently
+of the root font, so enlarged controls retain enough scrolling space. This is a layout threshold,
+not a WCAG requirement.
 There is one active vertical scrolling region, with a named keyboard tab stop when it overflows.
 
 Focus enters the dialog on opening. `Tab` and `Shift+Tab` stay out of background page content;

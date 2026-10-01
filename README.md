@@ -116,7 +116,8 @@ Navigation that looks like a button should use `tag: :a` with an `href`:
 
 The component uses native `showModal()` with a required visible title, a close control,
 and a scrollable body. Header/footer stay visible until a short-height fallback makes the
-whole inner panel scroll. Escape and explicit close/cancel dismiss; backdrop clicks keep it open.
+whole inner panel scroll. The minimum body space grows with enlarged text.
+Escape and explicit close/cancel dismiss; backdrop clicks keep it open.
 Sizes are `:small`, `:medium` (default), `:large`, and `:extra_large`.
 Use `initial_focus:` for a dialog-local selector and `return_focus:` for a document fallback
 when the opener is removed. Stacked dialogs and Turbo cleanup are supported.
