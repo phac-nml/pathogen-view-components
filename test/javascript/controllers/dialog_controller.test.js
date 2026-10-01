@@ -207,7 +207,7 @@ describe("dialog_controller", () => {
     const focused = document.activeElement;
     controller.close();
     expect(document.activeElement).toBe(focused);
-    expect(controller.trigger).toBeNull();
+    expect(controller.session).toBeNull();
   });
 
   it("opens and closes when the declarative open value changes after connection", async () => {
@@ -309,6 +309,19 @@ describe("dialog_controller", () => {
     expect(beforeClose).not.toHaveBeenCalled();
     expect(closed).not.toHaveBeenCalled();
     expect(controller.dialogTarget.close).not.toHaveBeenCalled();
+  });
+
+  it("closes an externally opened native dialog without a session", () => {
+    controller.dialogTarget.open = true;
+
+    controller.close({ reason: "external" });
+
+    expect(controller.dialogTarget.close).toHaveBeenCalledOnce();
+    expect(controller.dialogTarget.open).toBe(false);
+    expect(controller.session).toBeNull();
+
+    controller.handleSessionClose({}, { reason: "stale", restoreFocus: true, trigger: null });
+    expect(controller.session).toBeNull();
   });
 
   it("finishes cleanup when the native dialog closed before its queued close event arrives", () => {
