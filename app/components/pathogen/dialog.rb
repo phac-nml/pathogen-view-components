@@ -46,7 +46,6 @@ module Pathogen
 
     def root_attributes
       {
-        class: 'pathogen-dialog-root',
         data: {
           controller: 'pathogen--dialog',
           'pathogen--dialog-open-value' => @open,
@@ -60,7 +59,7 @@ module Pathogen
       attributes = @system_arguments.except(*PROTECTED_ATTRIBUTES, :classes, :aria, :data)
       attributes.merge(
         id: id,
-        class: class_names('pathogen-dialog', @system_arguments[:classes]),
+        class: @system_arguments[:classes],
         aria: dialog_aria,
         data: dialog_data(@system_arguments[:data]).merge(
           'size' => @size,

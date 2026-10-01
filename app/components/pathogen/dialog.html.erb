@@ -2,20 +2,23 @@
   <%= trigger if trigger? %>
 
   <%= tag.dialog(**dialog_attributes) do %>
-    <div class="pathogen-dialog__panel" data-pathogen--dialog-target="panel">
-      <header class="pathogen-dialog__header" data-pathogen--dialog-target="header">
-        <div class="pathogen-dialog__heading min-w-0 flex-1">
+    <div data-pathogen--dialog-part="panel" data-pathogen--dialog-target="panel">
+      <header data-pathogen--dialog-part="header" data-pathogen--dialog-target="header">
+        <div data-pathogen--dialog-part="heading" class="min-w-0 flex-1">
           <%= render Pathogen::Typography::Heading.new(
             level: heading_level,
             id: title_id,
-            class: "pathogen-dialog__title",
+            data: {
+              "pathogen--dialog-part" => "title",
+              "pathogen--dialog-target" => "title"
+            },
             tabindex: -1,
-            data: { "pathogen--dialog-target" => "title" }) do %>
+          ) do %>
             <%= title %>
           <% end %>
 
           <% if description.present? %>
-            <%= tag.p(description, id: description_id, class: "pathogen-dialog__description") %>
+            <%= tag.p(description, id: description_id, data: { "pathogen--dialog-part" => "description" }) %>
           <% end %>
         </div>
 
@@ -26,8 +29,10 @@
           size: :medium,
           icon_only: true,
           text: t(".close_label"),
-          class: "pathogen-dialog__close",
-          data: { action: "click->pathogen--dialog#requestClose" }
+          data: {
+            action: "click->pathogen--dialog#requestClose",
+            "pathogen--dialog-part" => "close"
+          }
         ) do |button| %>
           <% button.with_leading_visual do %>
             <svg
@@ -44,12 +49,12 @@
         <% end %>
       </header>
 
-      <div class="pathogen-dialog__body" data-pathogen--dialog-target="body" data-pathogen-dialog-body>
-        <div class="pathogen-dialog__content" data-pathogen--dialog-target="content"><%= content %></div>
+      <div data-pathogen--dialog-part="body" data-pathogen--dialog-target="body">
+        <div data-pathogen--dialog-part="content" data-pathogen--dialog-target="content"><%= content %></div>
       </div>
 
       <% if footer? %>
-        <footer class="pathogen-dialog__footer" data-pathogen--dialog-target="footer"><%= footer %></footer>
+        <footer data-pathogen--dialog-part="footer" data-pathogen--dialog-target="footer"><%= footer %></footer>
       <% end %>
     </div>
   <% end %>

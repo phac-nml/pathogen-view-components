@@ -106,7 +106,7 @@ puts <<~HTML
       <style>
         body { margin: 0; background: var(--pvc-color-surface); color: var(--pvc-color-text); font-family: sans-serif; }
         main { padding: 24px; min-height: 1600px; }
-        main > button, main > .pathogen-dialog-root { margin-block: 12px; }
+        main > button, main > [data-controller~="pathogen--dialog"] { margin-block: 12px; }
         form { display: grid; gap: 8px; }
         input, textarea, #child-action, #last-body-action, #return-focus, #background-action {
           min-height: 44px; padding: 8px; border: 1px solid var(--pvc-color-border);

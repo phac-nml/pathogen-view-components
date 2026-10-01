@@ -1,7 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
-import { acquireScrollLock, releaseScrollLock } from "pathogen_view_components/scroll_lock";
-import { registerModal, unregisterModal } from "pathogen_view_components/modal_stack";
 import { updateDialogLayout } from "pathogen_view_components/dialog_controller/layout";
+import { DialogSession } from "pathogen_view_components/dialog_controller/session";
 
 function selectorTarget(scope, selector) {
   if (!selector) return null;
@@ -33,10 +32,7 @@ export default class DialogController extends Controller {
 
   initialize() {
     this.connected = false;
-    this.trigger = null;
-    this.closeReason = "programmatic";
-    this.restoreOnClose = true;
-    this.modalActive = false;
+    this.session = null;
     this.updateLayout = () => updateDialogLayout(this);
     this.onCancel = this.onCancel.bind(this);
     this.onNativeClose = this.onNativeClose.bind(this);
@@ -68,7 +64,6 @@ export default class DialogController extends Controller {
     window.visualViewport?.removeEventListener("resize", this.updateLayout);
     window.visualViewport?.removeEventListener("scroll", this.updateLayout);
     this.resizeObserver?.disconnect();
-    releaseScrollLock(this);
   }
 
   contentTargetConnected(target) {
@@ -94,18 +89,21 @@ export default class DialogController extends Controller {
 
   open({ trigger = document.activeElement } = {}) {
     if (this.dialogTarget.open) return;
-    this.trigger = trigger;
-    this.dialogTarget.showModal();
-    registerModal(this.dialogTarget);
-    this.modalActive = true;
+
+    const session = new DialogSession({
+      dialog: this.dialogTarget,
+      trigger,
+      onClose: (details) => this.handleSessionClose(session, details),
+    });
+    this.session = session;
+    session.open();
     this.openValue = true;
-    acquireScrollLock(this);
     this.updateLayout();
     const selected = selectorTarget(this.dialogTarget, this.initialFocusValue);
     const target = canFocus(selected) ? selected : this.titleTarget;
     target.focus({ preventScroll: true });
     this.updateLayout();
-    this.dispatch("opened", { detail: { trigger: this.trigger } });
+    this.dispatch("opened", { detail: { trigger } });
   }
 
   requestClose(event = null, { reason = "close-button" } = {}) {
@@ -124,36 +122,30 @@ export default class DialogController extends Controller {
   }
 
   close({ restoreFocus = true, reason = "programmatic" } = {}) {
-    if (!this.modalActive && !this.dialogTarget.open) return;
-    this.restoreOnClose = restoreFocus;
-    this.closeReason = reason;
-    if (this.dialogTarget.open) this.dialogTarget.close();
-    // Finalize synchronously so locks are released during Turbo removal. The
-    // browser's queued close event becomes harmless after this completion.
-    this.finishClose();
+    if (this.session) {
+      this.session.close({ restoreFocus, reason });
+    } else if (this.dialogTarget.open) {
+      this.dialogTarget.close();
+    }
   }
 
   onNativeClose() {
     // Ignore an old queued close event if the same dialog already reopened.
-    if (!this.dialogTarget.open) this.finishClose();
+    this.session?.nativeClose();
   }
 
-  finishClose() {
-    if (!this.modalActive) return;
-    this.modalActive = false;
+  handleSessionClose(session, { reason, restoreFocus, trigger }) {
+    if (this.session !== session) return;
+
+    this.session = null;
     this.openValue = false;
-    unregisterModal(this.dialogTarget);
-    releaseScrollLock(this);
-    if (this.restoreOnClose) this.restoreFocus();
-    this.dispatch("closed", { detail: { reason: this.closeReason } });
-    this.closeReason = "programmatic";
-    this.restoreOnClose = true;
+    if (restoreFocus) this.restoreFocus(trigger);
+    this.dispatch("closed", { detail: { reason } });
   }
 
-  restoreFocus() {
-    const target = canFocus(this.trigger) ? this.trigger : selectorTarget(document, this.returnFocusValue);
+  restoreFocus(trigger) {
+    const target = canFocus(trigger) ? trigger : selectorTarget(document, this.returnFocusValue);
     if (canFocus(target)) target.focus();
-    this.trigger = null;
   }
 
   onBeforeCache() {
