@@ -192,6 +192,22 @@ describe("dialog_controller", () => {
     expect(controller.bodyTarget.getAttribute("aria-labelledby")).toBe("first-title");
   });
 
+  it("increases the minimum body space when its text is enlarged independently of the root", () => {
+    const height = window.innerHeight;
+    window.innerHeight = 260;
+    controller.bodyTarget.style.fontSize = "32px";
+    try {
+      controller.open();
+      expect(controller.panelTarget.dataset.scrollMode).toBe("panel");
+
+      controller.bodyTarget.style.fontSize = "16px";
+      window.dispatchEvent(new Event("resize"));
+      expect(controller.panelTarget.dataset.scrollMode).toBe("body");
+    } finally {
+      window.innerHeight = height;
+    }
+  });
+
   it("synchronizes native closure and ignores an old close event after reopening", () => {
     controller.open();
     controller.dialogTarget.open = false;

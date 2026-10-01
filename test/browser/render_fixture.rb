@@ -112,6 +112,7 @@ puts <<~HTML
           min-height: 44px; padding: 8px; border: 1px solid var(--pvc-color-border);
           background: var(--pvc-color-surface); color: var(--pvc-color-text); border-radius: var(--pvc-radius-control);
         }
+        input, textarea { min-width: 0; width: 100%; }
         input:focus-visible, textarea:focus-visible, #child-action:focus-visible, #last-body-action:focus-visible,
         #return-focus:focus-visible, #background-action:focus-visible {
           outline: 2px solid var(--pvc-color-focus); outline-offset: 2px;

@@ -33,7 +33,9 @@ export function updateDialogLayout(controller) {
   const chrome =
     controller.headerTarget.getBoundingClientRect().height +
     (controller.hasFooterTarget ? controller.footerTarget.getBoundingClientRect().height : 0);
-  const mode = available - chrome - 2 < 6 * fontSize ? "panel" : "body";
+  const bodyFontSize = parseFloat(getComputedStyle(body).fontSize) || fontSize;
+  const minimumBodyHeight = 6 * Math.max(fontSize, bodyFontSize);
+  const mode = available - chrome - 2 < minimumBodyHeight ? "panel" : "body";
   panel.dataset.scrollMode = mode;
   configureScroller(body, mode === "body", controller.titleTarget.id);
   configureScroller(panel, mode === "panel", controller.titleTarget.id);
