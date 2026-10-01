@@ -18,6 +18,8 @@ en:
         pagination:
           fetch_error: Unable to load more rows. Scroll to try again.
           loading_more: Loading more rows…
+    dialog:
+      close_label: Close dialog
     form:
       switch:
         'off': 'Off'

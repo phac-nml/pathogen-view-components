@@ -1,0 +1,35 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Review sample handling instructions" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    Open the dialog, then Tab to the named content region. Use the arrow keys or Page Down to reach the final section.
+    The body deliberately contains no links or controls.
+  <% end %>
+
+  <%= render Pathogen::Dialog.new(id: "handling-instructions", title: "Sample handling instructions", size: :large) do |dialog| %>
+    <% dialog.with_trigger(text: "Read handling instructions", tone: :primary, emphasis: :solid) %>
+
+    <div class="space-y-6">
+      <% ["Before collection", "Labelling", "Transport", "Receipt", "Storage", "Extraction", "Quality review", "Result review", "Retention", "Final checks"].each_with_index do |section, index| %>
+        <section>
+          <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "#{index + 1}. #{section}" } %>
+
+          <%= render Pathogen::Typography::Text.new do %>
+            Check the sample identifier against the accompanying request. Record the handling conditions and any
+            deviations before moving to the next step. Keep the original record available for review.
+          <% end %>
+
+          <ul class="mt-2 list-disc space-y-1 pl-5">
+            <li>Confirm the sample and project identifiers.</li>
+            <li>Record who completed this step and when.</li>
+            <li>Flag missing information for the responsible laboratory team.</li>
+          </ul>
+        </section>
+      <% end %>
+    </div>
+
+    <% dialog.with_footer do %>
+      <%= render Pathogen::Button.new(text: "Close instructions", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose" }) %>
+    <% end %>
+  <% end %>
+</div>

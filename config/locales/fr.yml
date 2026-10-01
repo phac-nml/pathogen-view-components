@@ -21,6 +21,8 @@ fr:
           fetch_error: Impossible de charger d’autres lignes. Faites défiler pour
             réessayer.
           loading_more: Chargement de lignes supplémentaires…
+    dialog:
+      close_label: Fermer la fenêtre de dialogue
     form:
       switch:
         'off': Désactivé

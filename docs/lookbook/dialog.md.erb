@@ -1,0 +1,146 @@
+---
+title: Dialog
+---
+
+# Dialog
+
+`Pathogen::Dialog` is a named modal for a focused task. It uses native `<dialog>` and
+`showModal()` for the top layer, background inertness, and keyboard focus containment.
+Pathogen supplies the title, close control, scrolling layout, and focus/lifecycle integration.
+
+Use a dialog when the user must finish or dismiss a task before returning to the page.
+Prefer an ordinary page or disclosure for long work that does not need that interruption.
+
+## Basic usage
+
+```erb
+<%%= render Pathogen::Dialog.new(id: "export-dialog", title: "Export samples") do |dialog| %>
+  <%% dialog.with_trigger(text: "Configure export", tone: :primary, emphasis: :solid) %>
+
+  <p>Choose the export contents for the selected samples.</p>
+
+  <%% dialog.with_footer do %>
+    <%%= render Pathogen::Button.new(
+      text: "Cancel", tone: :neutral, emphasis: :outline, type: :button,
+      data: { action: "click->pathogen--dialog#requestClose",
+              "pathogen--dialog-reason-param": "cancel" }
+    ) %>
+  <%% end %>
+<%% end %>
+```
+
+`with_trigger` creates a complete `Pathogen::Button`. Pass its options or a text block;
+do not render another button or link inside it. Its native button type and dialog association
+are component-owned. The body is the render block. `with_footer` accepts host-composed actions.
+The title and built-in close control remain present without a footer or trigger.
+
+## Options
+
+- `title:` is required and must be nonblank. It supplies the visible heading and accessible name.
+- `id:` identifies the native dialog. Supply a stable, unique ID for external triggers or Turbo replacements;
+  otherwise one is generated. The heading ID is `#{id}-title`.
+- `description:` is optional short plain text, associated through `aria-describedby`.
+  Keep structured lists, tables, and long explanations in the body instead.
+- `size:` accepts `:small`, `:medium` (default), `:large`, or `:extra_large`. Width remains viewport constrained.
+- `open: true` requests modal opening when Stimulus connects. It does not emit a non-modal `open` attribute.
+- `heading_level:` accepts `1..6` and defaults to `2`. Match the surrounding document structure.
+- `initial_focus:` is a CSS selector inside the dialog. Its target must be visible and focusable;
+  invalid, missing, or unavailable targets fall back to the title. Use an input for a short form or Cancel
+  for a destructive confirmation. The title is the default for reading structured content.
+- `return_focus:` is a document CSS selector used when the original opener is no longer available.
+  Provide a logical, focusable fallback when a successful action removes its trigger.
+- Additional HTML attributes apply to the native dialog. Use `classes:` for additional classes.
+  Naming, role, modal state, IDs, targets, and trigger wiring are component-owned.
+
+Translate caller-provided titles, descriptions, trigger labels, and action labels in the host.
+The built-in close label is supplied by Pathogen's English/French locales.
+
+## Scrolling and keyboard behavior
+
+The body scrolls while the title/close control and footer remain visible. When the available
+panel height minus header/footer height and spacing leaves less than **6rem** for the body,
+the whole inner panel scrolls instead. This is a layout threshold, not a WCAG requirement.
+There is one active vertical scrolling region, with a named keyboard tab stop when it overflows.
+
+Focus enters the dialog on opening. `Tab` and `Shift+Tab` stay out of background page content;
+browser chrome remains accessible. To scroll static content, Tab into the named content region
+and use the browser's scrolling keys. Focus containment uses native dialog behavior.
+
+Escape and the close/cancel controls request dismissal. Clicking the backdrop keeps the dialog open.
+The close control remains available during asynchronous work. Hosts must keep an exit available;
+do not use a busy state to lock dismissal.
+
+Closing returns focus to the captured opener when it remains usable. Stacked dialogs are supported:
+the topmost modal owns interaction and closing it returns focus to its opener inside the parent.
+Pathogen also marks older modal elements inert while a child is active, restoring their prior
+attributes afterward, to keep focus containment consistent across supported browsers.
+Sibling component roots are preferable when host event listeners manage several dialogs.
+
+## Controller and events
+
+Register the library controllers once through `registerPathogenControllers(application)`.
+The wrapper owns `pathogen--dialog`; the supplied `id` belongs to its native dialog target.
+A host controller can locate it for an external trigger:
+
+```javascript
+const dialog = document.getElementById("export-dialog");
+const root = dialog.closest('[data-controller~="pathogen--dialog"]');
+const controller = application.getControllerForElementAndIdentifier(root, "pathogen--dialog");
+
+controller.open({ trigger: document.getElementById("open-export") });
+```
+
+- `open({ trigger })` opens idempotently and captures the supplied opener.
+- `openFromTrigger(event)` opens from the typed trigger's Stimulus action.
+- `requestClose(event, { reason })` requests dismissal. The default reason is `close-button`;
+  `event.params.reason` supplies a reason from a Stimulus action parameter. Escape supplies `escape`.
+- `close({ restoreFocus: true })` commits a programmatic close, bypassing the dismissal guard.
+  Use it after a successful host action. Lifecycle cleanup skips Pathogen’s explicit focus restoration.
+
+The wrapper dispatches these bubbling events. Attach lifecycle listeners to that wrapper or an ancestor:
+
+- `pathogen--dialog:opened`: `detail.trigger` is the captured opener.
+- `pathogen--dialog:before-close`: cancelable; `detail.reason` identifies the request.
+  A host may prevent it to offer an unsaved-changes choice, while preserving an explicit cancel/close exit.
+- `pathogen--dialog:closed`: `detail.reason` identifies the completed close (`programmatic` for `close()`).
+
+For DOM-nested dialogs, a parent listener should check `event.target` so it does not handle
+a child's bubbling lifecycle event as its own. Dialog removal releases document scroll locking
+and observers; Turbo cache cleanup closes the modal and releases its scroll lock without requesting
+an additional focus move.
+Hosts own loading content, submission, validation, authorization, and the logical focus destination
+after content replacement.
+
+## Forms and confirmations
+
+Use a native form in the body. A footer submit button can associate with that form through `form:`;
+keep Cancel `type: :button` so it does not submit or run required-field validation.
+On validation failure, retain the dialog and make the errors perceivable; close after confirmed success.
+Do not wrap the entire component in a form when its content includes another form.
+`method="dialog"` is useful for a local completion flow: successful native submission closes
+the modal directly and bypasses `before-close`, while Pathogen still synchronizes close state.
+It sends no HTTP request. Use the host's normal form submission for persisted work.
+
+For a destructive confirmation, explain the affected data and consequence, label the action specifically,
+and set `initial_focus:` to Cancel. This component retains ordinary native dialog semantics;
+it does not expose a separate alert-dialog variant. The host owns the actual destructive operation.
+
+## Accessibility acceptance
+
+Pathogen targets WCAG 2.2 A and AA, plus the design contract's enhanced target and focus policy.
+Native behavior and automated checks do not establish full conformance. WCAG conformance covers
+complete pages and processes; host content and integration require their own validation.
+
+Check the Basic, Long static content, Form, Destructive confirmation, Stacked dialogs, and Accessibility
+previews with keyboard, light/dark themes, forced colors, 200% text resizing, 400% zoom/320 CSS-pixel
+reflow, text-spacing overrides, and a mobile software keyboard. Test reading and scrolling static
+content as well as forms. Record NVDA, VoiceOver, TalkBack, and supported desktop/mobile browser
+versions separately; leave combinations that have not been tested pending.
+
+The component uses semantic surface, text, border, focus, radius, and overlay tokens. Hosts supply
+translated content and compose actions from Pathogen primitives. Adoption in IRIDA Next is a separate migration.
+
+References: [W3C native dialog technique](https://www.w3.org/WAI/WCAG22/Techniques/html/H102),
+[APG modal dialog pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/),
+[WCAG conformance requirements](https://www.w3.org/TR/WCAG22/#conformance-reqs),
+[keyboard-accessible scrollers](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/overflow#accessibility).
