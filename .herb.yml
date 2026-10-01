@@ -19,6 +19,8 @@ files:
     - "demo/public/**/*"
     - "node_modules/**/*"
     - "vendor/**/*"
+    - "test-results/**/*"
+    - "playwright-report/**/*"
 
 engine:
   validators:
