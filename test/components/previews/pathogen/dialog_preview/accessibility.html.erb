@@ -1,0 +1,41 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Keyboard and enlarged-content checks" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    Test this dialog at 400% zoom, with increased text spacing, and in a short viewport. If the header and footer leave
+    less than 6rem for the body, the whole inner panel scrolls. This threshold is a layout choice, not a WCAG value.
+  <% end %>
+
+  <%= render Pathogen::Dialog.new(id: "accessible-review", title: "Review sample handling and retention requirements for run RUN-1042 before accepting the final report", size: :medium) do |dialog| %>
+    <% dialog.with_trigger(text: "Open accessibility example", tone: :neutral, emphasis: :outline) %>
+
+    <div class="space-y-4">
+      <%= render Pathogen::Typography::Text.new do %>
+        Focus starts at the title. Tab into the scrollable region, then use the keyboard to read all checks. Focus
+        should remain visible when moving between the body and footer.
+      <% end %>
+
+      <% 12.times do |index| %>
+        <section>
+          <%= render(Pathogen::Typography::Heading.new(level: 3, class: "mb-2")) { "Handling check #{index + 1}" } %>
+
+          <%= render Pathogen::Typography::Text.new do %>
+            Record the sample identifier, storage condition, and review outcome. Resolve any missing information with
+            the laboratory team before accepting the final report.
+          <% end %>
+        </section>
+      <% end %>
+    </div>
+
+    <% dialog.with_footer do %>
+      <%= render Pathogen::Button.new(text: "Cancel review and return to the sample list", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose", "pathogen--dialog-reason-param": "cancel" }) %>
+    <% end %>
+  <% end %>
+
+  <ul class="list-disc space-y-1 pl-5">
+    <li>Every item and action remains reachable at 320 CSS pixels wide.</li>
+    <li>Escape and the close control remain available; clicking the backdrop keeps the dialog open.</li>
+    <li>Background controls cannot receive keyboard or screen-reader focus while the dialog is open.</li>
+    <li>Closing returns focus to the trigger.</li>
+  </ul>
+</div>

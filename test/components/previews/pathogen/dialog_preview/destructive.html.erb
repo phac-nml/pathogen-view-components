@@ -1,0 +1,20 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Delete a saved export" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    Cancel receives initial focus. The preview closes on confirmation; it does not delete data.
+  <% end %>
+
+  <%= render Pathogen::Dialog.new(id: "delete-export", title: "Delete export EXP-204?", description: "This removes the saved export. The original samples are retained.", size: :small, initial_focus: "#delete-export-cancel") do |dialog| %>
+    <% dialog.with_trigger(text: "Delete saved export", tone: :danger, emphasis: :outline) %>
+
+    <%= render Pathogen::Typography::Text.new do %>
+      You will need to create a new export to download these results again.
+    <% end %>
+
+    <% dialog.with_footer do %>
+      <%= render Pathogen::Button.new(id: "delete-export-cancel", text: "Cancel", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose", "pathogen--dialog-reason-param": "cancel" }) %>
+      <%= render Pathogen::Button.new(text: "Delete export", tone: :danger, emphasis: :solid, type: :button, data: { action: "click->pathogen--dialog#requestClose", "pathogen--dialog-reason-param": "confirm" }) %>
+    <% end %>
+  <% end %>
+</div>
