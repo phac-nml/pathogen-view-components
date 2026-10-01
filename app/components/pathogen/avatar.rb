@@ -41,12 +41,21 @@ module Pathogen
       focus-visible:outline-offset-2
     ].join(' ').freeze
 
-    IMAGE_CLASSES = %w[size-full object-cover object-center].join(' ').freeze
+    RESERVED_ARGUMENTS = {
+      class: '`class` is an invalid argument. Use `classes` instead.',
+      href: '`href` is an invalid argument. Use `url` instead.',
+      role: '`role` is controlled by Avatar. Use `url` to render a native link.'
+    }.freeze
+    CONTROLLED_ARIA_ARGUMENTS = %i[aria-label aria-labelledby aria-hidden].freeze
 
-    # rubocop:disable-next Metrics/ParameterLists, Metrics/MethodLength, Metrics/AbcSize
+    # Image failures reveal initials (or the decorative silhouette) when the
+    # host registers Pathogen's Stimulus controllers. Without JavaScript, the
+    # image and the root accessible name still render normally.
+    # Use label/decorative for accessibility; aria-describedby remains available.
+    # rubocop:disable-next Metrics/ParameterLists, Metrics/AbcSize
     def initialize(label: nil, initials: nil, colour_seed: nil, color_seed: nil, src: nil, alt: nil, url: nil,
                    size: DEFAULT_SIZE, shape: DEFAULT_SHAPE, decorative: false, **system_arguments)
-      @label = label&.to_s&.strip
+      @label = label.to_s.strip
       @src = src
       @url = url
       @decorative = decorative
@@ -54,30 +63,16 @@ module Pathogen
       @shape = fetch_or_fallback(SHAPE_OPTIONS, shape, DEFAULT_SHAPE)
 
       validate_arguments!
+      system_arguments = system_arguments.transform_keys { |key| key.to_s.downcase.to_sym }
+      validate_system_arguments!(system_arguments)
 
       @fallback_text = normalize_initials(initials)
 
       fallback_seed = colour_seed.presence || color_seed.presence || @label.presence || 'avatar'
-      tone = tone_for(fallback_seed)
-
-      validate_system_arguments!(system_arguments)
-
-      custom_classes = system_arguments.delete(:classes)
-
-      @root_arguments = add_test_selector(system_arguments)
-      @root_arguments[:href] = @url if @url.present?
-      @root_arguments[:class] = class_names(
-        BASE_CLASSES,
-        SIZE_MAPPINGS.fetch(@size),
-        SHAPE_MAPPINGS.fetch(@shape),
-        soft_tone_classes(tone),
-        custom_classes
-      )
-
+      @root_arguments = build_root_arguments(system_arguments, tone_for(fallback_seed))
       apply_accessibility_arguments!
-
-      @image_alt = image_alt_for(alt)
-      @image_arguments = build_image_arguments
+      @image_alt = @decorative ? '' : alt.to_s
+      @image_size = SIZE_PIXELS.fetch(@size)
     end
 
     private
@@ -90,8 +85,34 @@ module Pathogen
     end
 
     def validate_system_arguments!(system_arguments)
-      raise ArgumentError, '`class` is an invalid argument. Use `classes` instead.' if system_arguments.key?(:class)
-      raise ArgumentError, '`href` is an invalid argument. Use `url` instead.' if system_arguments.key?(:href)
+      RESERVED_ARGUMENTS.each do |key, message|
+        raise ArgumentError, message if system_arguments.key?(key)
+      end
+
+      keys = system_arguments.keys + Hash(system_arguments[:aria]).keys.map { |key| :"aria-#{key.to_s.downcase}" }
+      override = CONTROLLED_ARIA_ARGUMENTS.find { |key| keys.include?(key) }
+      return unless override
+
+      raise ArgumentError, "`#{override}` is controlled by Avatar. Use `label` and `decorative` instead."
+    end
+
+    def build_root_arguments(system_arguments, tone)
+      custom_classes = system_arguments.delete(:classes)
+      arguments = add_test_selector(system_arguments)
+      arguments[:href] = @url if interactive?
+      arguments[:class] = class_names(
+        BASE_CLASSES, SIZE_MAPPINGS.fetch(@size), SHAPE_MAPPINGS.fetch(@shape),
+        soft_tone_classes(tone), custom_classes
+      )
+      attach_image_controller(arguments) if @src.present?
+      arguments
+    end
+
+    def attach_image_controller(arguments)
+      data = (arguments[:data] || {}).stringify_keys
+      controllers = [arguments.delete(:'data-controller'), data['controller'], 'pathogen--avatar']
+      data['controller'] = controllers.compact.join(' ').split.uniq.join(' ')
+      arguments[:data] = data
     end
 
     def interactive?
@@ -111,8 +132,7 @@ module Pathogen
     end
 
     def tone_for(seed)
-      index = seed.to_s.sum % TONE_OPTIONS.length
-      TONE_OPTIONS[index]
+      TONE_OPTIONS[seed.to_s.sum % TONE_OPTIONS.length]
     end
 
     def validate_url!
@@ -126,39 +146,15 @@ module Pathogen
     end
 
     def apply_accessibility_arguments!
+      aria = Hash(@root_arguments[:aria]).dup
       if @decorative
-        @root_arguments[:aria] = merge_aria_arguments(hidden: true)
+        aria[:hidden] = true
+        @root_arguments[:inert] = true
       else
-        @root_arguments[:aria] = merge_aria_arguments(label: @label)
+        aria[:label] = @label
         @root_arguments[:role] = :img unless interactive?
       end
-    end
-
-    def merge_aria_arguments(additions)
-      existing_aria = @root_arguments[:aria]
-      merged_aria = existing_aria.is_a?(Hash) ? existing_aria.dup : {}
-
-      additions.each { |key, value| merged_aria[key] = value }
-      merged_aria
-    end
-
-    def image_alt_for(alt)
-      return '' if @decorative
-
-      alt.to_s
-    end
-
-    def build_image_arguments
-      return if @src.blank?
-
-      {
-        src: @src,
-        class: IMAGE_CLASSES,
-        width: SIZE_PIXELS.fetch(@size),
-        height: SIZE_PIXELS.fetch(@size),
-        loading: :lazy,
-        decoding: :async
-      }
+      @root_arguments[:aria] = aria
     end
   end
 end

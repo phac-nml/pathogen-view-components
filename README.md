@@ -101,6 +101,30 @@ Navigation that looks like a button should use `tag: :a` with an `href`:
 <%= render Pathogen::Button.new(tag: :a, href: samples_path, tone: :primary, emphasis: :solid) { "View samples" } %>
 ```
 
+#### Avatar
+
+```erb
+<%= render Pathogen::Avatar.new(label: "Jane Doe", src: "/portraits/jane.png", shape: :rounded) %>
+<%= render Pathogen::Avatar.new(label: "Open Jane Doe profile", initials: "JD", url: "/users/jane") %>
+```
+
+Avatars default to `size: :medium` (48px) and `shape: :circle`. Choose `xs` (24px)
+or `small` (32px) explicitly for compact layouts; hosts must leave at least 8px
+between adjacent compact links. `large` is 64px. Fallback tones are deterministic
+from `colour_seed:` (`color_seed:` is an alias) or the label.
+
+Use `decorative: true` when adjacent text already names the person or entity.
+Decorative avatars are hidden from assistive technology and inert. Linked avatars
+require a label and cannot be decorative. Use `label:`, `decorative:`, and `url:`
+for the accessible name, visibility, and native link semantics; overriding `role`,
+`aria-label`, `aria-labelledby`, `aria-hidden`, or `href` raises. Descriptions via
+`aria-describedby` and host `data-*` attributes remain supported. Use `classes:`
+for custom classes.
+
+With Pathogen controllers registered, failed images reveal initials or the
+decorative silhouette, including images that failed before Stimulus connected.
+Without JavaScript, the image and root accessible name still render normally.
+
 #### DataGrid
 
 ```erb
@@ -380,6 +404,7 @@ If your application already starts Stimulus, reuse that instance and add only th
 - `pathogen--disclosure`: APG disclosure with `aria-expanded` / `aria-controls` and programmatic open state
 - `pathogen--data-grid`: ARIA grid keyboard navigation with roving tabindex and interactive-cell focus delegation
 - `pathogen--toolbar`: Horizontal toolbar roving focus, disabled-action interception, and text-entry-safe key handling
+- `pathogen--avatar`: Image failure recovery to initials or a decorative silhouette
 
 ## Development
 
