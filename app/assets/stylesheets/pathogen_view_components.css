@@ -355,6 +355,9 @@
   .sticky {
     position: sticky;
   }
+  .inset-0 {
+    inset: 0px;
+  }
   .top-0 {
     top: 0px;
   }
