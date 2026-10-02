@@ -47,7 +47,8 @@ module Pathogen
       end
 
       assert_selector 'dialog#confirm[aria-describedby="confirm-description"]', visible: :all
-      assert_selector '[data-pathogen--dialog-part="header"] p#confirm-description', text: 'Review before saving.', visible: :all
+      assert_selector '[data-pathogen--dialog-part="header"] p#confirm-description',
+                      text: 'Review before saving.', visible: :all
       assert_no_selector '[data-pathogen--dialog-part="body"][aria-describedby]', visible: :all
     end
 
@@ -112,7 +113,8 @@ module Pathogen
         'Content'
       end
 
-      assert_selector '[data-controller="pathogen--dialog"] > button.host-trigger[type="button"][aria-controls="triggered"]' \
+      assert_selector '[data-controller="pathogen--dialog"] > button.host-trigger[type="button"]' \
+                      '[aria-controls="triggered"]' \
                       '[aria-haspopup="dialog"][data-controller="analytics"]' \
                       '[data-action="click->analytics#track click->pathogen--dialog#openFromTrigger"]',
                       text: 'Open dialog'
