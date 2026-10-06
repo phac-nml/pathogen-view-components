@@ -93,6 +93,8 @@ module Pathogen
     end
 
     def normalize_attributes(arguments)
+      # Accepts both nested (aria:/data:) and flat (aria-*/data-*) keys so hosts
+      # can pass server-rendered HTML attributes verbatim; siblings take nested only.
       attributes = arguments.deep_dup.symbolize_keys
       %i[aria data].each do |prefix|
         nested = (attributes.delete(prefix) || {}).deep_stringify_keys
