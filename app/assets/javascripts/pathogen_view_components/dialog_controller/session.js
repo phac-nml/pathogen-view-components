@@ -7,8 +7,6 @@ export class DialogSession {
     this.trigger = trigger;
     this.onClose = onClose;
     this.active = false;
-    this.restoreFocus = true;
-    this.reason = "programmatic";
   }
 
   open() {
@@ -24,10 +22,8 @@ export class DialogSession {
   close({ restoreFocus = true, reason = "programmatic" } = {}) {
     if (!this.active && !this.dialog.open) return false;
 
-    this.restoreFocus = restoreFocus;
-    this.reason = reason;
     if (this.dialog.open) this.dialog.close();
-    this.finish();
+    this.finish(reason, restoreFocus);
     return true;
   }
 
@@ -35,16 +31,12 @@ export class DialogSession {
     if (!this.dialog.open) this.finish();
   }
 
-  finish() {
+  finish(reason = "programmatic", restoreFocus = true) {
     if (!this.active) return;
 
     this.active = false;
     unregisterModal(this.dialog);
     releaseScrollLock(this);
-    this.onClose({
-      reason: this.reason,
-      restoreFocus: this.restoreFocus,
-      trigger: this.trigger,
-    });
+    this.onClose({ reason, restoreFocus, trigger: this.trigger });
   }
 }
