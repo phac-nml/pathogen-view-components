@@ -1,6 +1,6 @@
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { spawn } from "node:child_process";
 import { format, resolveConfig } from "prettier";
 
@@ -48,7 +48,9 @@ async function main() {
       throw error;
     }
 
-    tempDir = await mkdtemp(resolve(tmpdir(), "pathogen-css-check-"));
+    // Build beside the shipped artifact so Tailwind resolves sources exactly as it
+    // does during a normal build; temp locations can produce divergent output.
+    tempDir = await mkdtemp(resolve(dirname(outputPath), ".pathogen-css-check-"));
     buildOutputPath = resolve(tempDir, "pathogen_view_components.css");
   }
 
