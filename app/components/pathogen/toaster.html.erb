@@ -37,23 +37,12 @@
     <%= more_label.sub('%{count}', '0') %>
   </button>
 
-  <div
-    class="sr-only"
-    data-pathogen--toaster-target="polite"
-    role="status"
-    aria-live="polite"
-    aria-atomic="true"
-  ></div>
+  <div class="sr-only" data-pathogen--toaster-target="polite" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <%#
     Primed assertive region: no role="alert" / aria-label — those make AT announce
     the container name instead of injected text.
   %>
 
-  <div
-    class="sr-only"
-    data-pathogen--toaster-target="assertive"
-    aria-live="assertive"
-    aria-atomic="true"
-  ></div>
+  <div class="sr-only" data-pathogen--toaster-target="assertive" aria-live="assertive" aria-atomic="true"></div>
 <% end %>
