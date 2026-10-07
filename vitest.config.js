@@ -32,6 +32,7 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/toolbar_controller/roving_focus.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/toolbar_controller/text_entry.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/toolbar_controller/visibility.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/announcement_text.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/toast_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/toaster_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/toast_settings_controller.js": FULL_COVERAGE,
@@ -94,6 +95,7 @@ export default defineConfig({
       "pathogen_view_components/avatar_controller": resolve(jsRoot, "avatar_controller.js"),
       // Subpath aliases must precede their base controller alias so Vite matches
       // the more specific path first (base matches any importee with a trailing slash).
+      "pathogen_view_components/announcement_text": resolve(jsRoot, "announcement_text.js"),
       "pathogen_view_components/toast_duration_preference": resolve(jsRoot, "toast_duration_preference.js"),
       "pathogen_view_components/toaster_controller/live_region_announcer": resolve(
         jsRoot,
