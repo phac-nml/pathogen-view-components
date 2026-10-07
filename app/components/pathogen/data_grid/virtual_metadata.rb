@@ -5,16 +5,15 @@ module Pathogen
     # Computes virtual grid metadata attributes and ARIA rowcount from normalized pagination state.
     class VirtualMetadata
       def initialize(layout:, pagination:, rows_count:)
-        @layout = layout.dup
+        @layout = layout.dup.freeze
         @pagination = pagination
         @rows_count = rows_count
       end
 
       def attributes
-        base = @layout.dup
-        return base unless pagination?
+        return @layout unless pagination?
 
-        base.merge(pagination_attributes)
+        @layout.merge(pagination_attributes)
       end
 
       def rowcount
