@@ -62,10 +62,8 @@ export default class extends Controller {
     this.#pauseTimer();
     clearTimeout(this.#dismissTimerId);
     this.#dismissTimerId = null;
-    if (this.#entryFrame) {
-      cancelAnimationFrame(this.#entryFrame);
-      this.#entryFrame = null;
-    }
+    cancelAnimationFrame(this.#entryFrame ?? 0);
+    this.#entryFrame = null;
     this.#abortController?.abort();
     this.#abortController = null;
   }
@@ -292,12 +290,7 @@ export default class extends Controller {
   #clearEntryState() {
     if (!this.element.hasAttribute("data-entering")) return;
 
-    if (this.#prefersReducedMotion()) {
-      this.element.removeAttribute("data-entering");
-      return;
-    }
-
-    if (this.#entryFrame) cancelAnimationFrame(this.#entryFrame);
+    cancelAnimationFrame(this.#entryFrame ?? 0);
     this.#entryFrame = requestAnimationFrame(() => {
       this.#entryFrame = null;
       if (!this.#connected || this.#state !== "open") return;
