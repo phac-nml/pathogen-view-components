@@ -146,6 +146,7 @@ Use borders and surface steps before shadow. Product UI stays mostly flat; float
 | `--pvc-duration-overlay` | 200ms | Tooltips, popovers, menus |
 
 Animate colour, border, background, and opacity before position. Respect `prefers-reduced-motion`.
+When movement helps orientation, keep travel short and purposeful (for example toast arrival settle), and pair it with opacity so state remains clear.
 
 ## Surfaces
 
@@ -244,7 +245,7 @@ Host apps mount a persistent `Pathogen::Toaster` (for example `#flashes`) and st
 
 - **Interrupt** — errors are dialogs and rely on guarded focus by default. Pass `interrupt: true` only for true emergencies: the error is then announced through the **assertive** live region (interrupting the screen reader) and does **not** move focus, so a system- or stream-triggered alert reaches everyone without hijacking the current task.
 - **Dismiss** — dialogs use `Pathogen::Button` `small` + `neutral` + `ghost`, icon-only. Three or more dialogs show “Dismiss all”.
-- **Motion** — fade on dismiss; stack transform at `--pvc-duration-overlay`; honour `prefers-reduced-motion`.
+- **Motion** — fade on dismiss; stack transform at `--pvc-duration-overlay`; honour `prefers-reduced-motion`. Arrival uses a subtle shell settle (short translate + opacity) and never bounce or overshoot.
 
 ## Forms
 

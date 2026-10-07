@@ -99,7 +99,7 @@ module Pathogen
     # present) is associated via aria-describedby.
     def dialog_attributes
       attributes = {
-        class: 'focus-visible:outline-2 focus-visible:outline-offset-2 ' \
+        class: 'pvc-toast__shell focus-visible:outline-2 focus-visible:outline-offset-2 ' \
                'focus-visible:outline-[var(--pvc-color-focus)]',
         'data-pathogen--toast-target': 'dialog',
         'data-dialog-labelledby': "#{type_label_dom_id} #{message_dom_id}"

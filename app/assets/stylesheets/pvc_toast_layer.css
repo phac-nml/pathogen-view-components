@@ -3,6 +3,8 @@
 .pvc-toaster {
   --pvc-toast-gap: 0.875rem; /* 14px — matches TOAST_GAP_PX in toaster_controller.js */
   --pvc-toast-scale-step: 0.05;
+  --pvc-toast-enter-distance: 0.25rem;
+  --pvc-toast-enter-sign: -1;
   /* Anchor-derived values so one rule serves both the top and bottom decks. */
   --toast-anchor-sign: 1;
   --toast-anchor-origin: top;
@@ -12,9 +14,21 @@
 
 .pvc-toaster[data-anchor="bottom"] {
   --toast-anchor-sign: -1;
+  --pvc-toast-enter-sign: 1;
   --toast-anchor-origin: bottom;
   --toast-anchor-top: auto;
   --toast-anchor-bottom: 0;
+}
+
+.pvc-toast__shell {
+  transition:
+    opacity var(--pvc-duration-default) ease-out,
+    transform var(--pvc-duration-overlay) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-pathogen--toaster-target~="toast"][data-entering="true"] .pvc-toast__shell {
+  opacity: 0;
+  transform: translateY(calc(var(--pvc-toast-enter-distance) * var(--pvc-toast-enter-sign)));
 }
 
 .pvc-toaster__list {
@@ -159,6 +173,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pvc-toast__shell {
+    transform: none;
+  }
+
   .pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]),
   .pvc-toaster[data-stack="peek"] [data-pathogen--toaster-target~="toast"]:not([hidden]) > * {
     transition: opacity var(--pvc-duration-default) ease-out;
