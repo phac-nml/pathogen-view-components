@@ -237,6 +237,13 @@ export default class extends Controller {
       },
     );
 
+    this.#applyHostState(plan);
+    this.#applyToastEntries(plan);
+    this.#applyListMetrics(plan);
+    this.#applyControls(plan);
+  }
+
+  #applyHostState(plan) {
     this.element.dataset.stack = plan.peek ? "peek" : "flat";
     this.element.dataset.expanded = String(this.#expanded);
     this.element.dataset.anchor = this.#anchorEdge();
@@ -244,6 +251,14 @@ export default class extends Controller {
     if (plan.metricsReady) this.element.dataset.stackReady = "true";
     else delete this.element.dataset.stackReady;
 
+    if (plan.peek && plan.frontWidth > 0) {
+      this.element.style.setProperty("--front-width", `${plan.frontWidth}px`);
+    } else {
+      this.element.style.removeProperty("--front-width");
+    }
+  }
+
+  #applyToastEntries(plan) {
     plan.entries.forEach(({ toast, hidden, behind, inert, index, height, offset }) => {
       toast.hidden = hidden;
       toast.toggleAttribute("inert", inert);
@@ -266,26 +281,24 @@ export default class extends Controller {
         toast.style.removeProperty(property),
       );
     });
+  }
 
-    if (plan.peek && plan.frontWidth > 0) {
-      this.element.style.setProperty("--front-width", `${plan.frontWidth}px`);
-    } else {
-      this.element.style.removeProperty("--front-width");
-    }
-
+  #applyListMetrics(plan) {
     const list = this.#listElement();
-    if (list) {
-      const metrics = {
-        "--front-height": plan.metricsReady ? `${plan.frontHeight}px` : null,
-        "--peek-count": plan.metricsReady ? String(plan.peekCount) : null,
-        "--stack-height": plan.metricsReady && this.#expanded ? `${plan.stackHeight}px` : null,
-      };
-      Object.entries(metrics).forEach(([property, value]) => {
-        if (value === null) list.style.removeProperty(property);
-        else list.style.setProperty(property, value);
-      });
-    }
+    if (!list) return;
 
+    const metrics = {
+      "--front-height": plan.metricsReady ? `${plan.frontHeight}px` : null,
+      "--peek-count": plan.metricsReady ? String(plan.peekCount) : null,
+      "--stack-height": plan.metricsReady && this.#expanded ? `${plan.stackHeight}px` : null,
+    };
+    Object.entries(metrics).forEach(([property, value]) => {
+      if (value === null) list.style.removeProperty(property);
+      else list.style.setProperty(property, value);
+    });
+  }
+
+  #applyControls(plan) {
     if (this.hasMoreTarget) {
       // Focus can expand the stack before click/Enter. Keep the same control
       // visible through that change so the user's focus stays anchored.

@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 
+import { joinAsSentences } from "pathogen_view_components/announcement_text";
 import {
   QUEUED_DURATION_PREFERENCE_ATTRIBUTE,
   parseDurationPreference,
@@ -160,9 +161,8 @@ export default class extends Controller {
     this.element.addEventListener(
       "focusin",
       (event) => {
-        const previous = event.relatedTarget;
-        if (previous instanceof HTMLElement && !this.element.contains(previous) && previous !== document.body) {
-          this.#restoreFocusElement = previous;
+        if (this.#isExternalElement(event.relatedTarget)) {
+          this.#restoreFocusElement = event.relatedTarget;
         }
         this.#pauseTimer();
       },
@@ -193,9 +193,15 @@ export default class extends Controller {
 
   #captureRestoreFocus() {
     const active = document.activeElement;
-    if (active instanceof HTMLElement && !this.element.contains(active) && active !== document.body) {
+    if (this.#isExternalElement(active)) {
       this.#restoreFocusElement = active;
     }
+  }
+
+  // An element outside this toast (and not the body) that could receive focus
+  // when the toast is dismissed.
+  #isExternalElement(element) {
+    return element instanceof HTMLElement && !this.element.contains(element) && element !== document.body;
   }
 
   #focusDialog() {
@@ -304,9 +310,7 @@ export default class extends Controller {
       if (text) bodyParts.push(text);
     }
 
-    const content = bodyParts
-      .map((part, index) => (index < bodyParts.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part))
-      .join(" ");
+    const content = joinAsSentences(bodyParts);
 
     const typeLabel = this.typeLabelValue?.trim();
     if (!typeLabel) return content || null;

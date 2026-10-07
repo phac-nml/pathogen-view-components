@@ -1,5 +1,8 @@
 const TOAST_GAP_PX = 14;
 
+// Classifies a toast from its DOM data attributes rather than its Stimulus
+// controller, so callers can stack and dismiss toasts correctly even before
+// that controller has connected.
 function describeToast(toast) {
   const dialog = toast.getAttribute("data-pathogen--toast-mode-value") === "dialog";
   const timeoutValue = toast.getAttribute("data-pathogen--toast-timeout-value");
