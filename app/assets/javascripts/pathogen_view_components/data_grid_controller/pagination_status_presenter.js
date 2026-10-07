@@ -72,6 +72,8 @@ export class PaginationStatusPresenter {
     });
   }
 
+  // Fills %{token} placeholders the server left in the template. The token names
+  // are the contract shared with PaginationStatusComponent#message (Ruby side).
   message(key, values = {}) {
     const template = this.#status?.dataset[key] || "";
     return template.replace(/%\{(\w+)\}/g, (_, name) => String(values[name] ?? ""));
