@@ -1,0 +1,23 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Run details" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    Choose a width for the task. Each dialog has a visible title, a close control, and an optional action footer.
+  <% end %>
+
+  <div class="flex flex-wrap gap-4">
+    <% %i[small medium large extra_large].each do |size| %>
+      <%= render Pathogen::Dialog.new(id: "run-details-#{size}", title: "Run RUN-1042", size: size) do |dialog| %>
+        <% dialog.with_trigger(text: "Open #{size.to_s.humanize.downcase} dialog", tone: :neutral, emphasis: :outline) %>
+
+        <%= render Pathogen::Typography::Text.new do %>
+          RUN-1042 contains 24 samples. Quality checks are complete and the results are ready for review.
+        <% end %>
+
+        <% dialog.with_footer do %>
+          <%= render Pathogen::Button.new(text: "Close", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose" }) %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>

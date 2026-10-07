@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Additions
+
+- `Pathogen::Dialog` provides native modal behavior, a required title and close control, a scrollable body, optional trigger/footer slots, and four widths. It supports initial/fallback focus, stacked dialogs, dismissal events, and Turbo cleanup. Header/footer yield to a scrolling panel when height is limited. See the [Dialog guide](docs/lookbook/dialog.md.erb) for usage and accessibility acceptance requirements.
+
 ### Upgrade notes
 
 - Host applications require Ruby 3.3 or newer and Rails 8.1 or newer. Rails dependency metadata now enforces this baseline.

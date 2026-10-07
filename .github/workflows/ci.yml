@@ -72,6 +72,54 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
+  # This job runs the Dialog tests in real browsers (Chromium, Firefox, and WebKit).
+  # We need this because the Dialog uses the native HTML <dialog> element, and stuff
+  # like modal focus trapping, the Escape key, the backdrop, and scroll locking is
+  # done by the browser itself. Our other tests use jsdom, which does not actually
+  # do any of that, so they can't catch it. The browsers (especially WebKit/Safari)
+  # sometimes behave differently, so we check all three here to make sure the Dialog
+  # really works for users. We also run axe in here to check accessibility.
+  browser:
+    name: Dialog browser acceptance
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Set up pnpm and install dependencies
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24.14.1
+          cache: true
+
+      - name: Install browser engines and system dependencies
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+
+      - name: Verify shipped CSS artifact
+        run: pnpm build:css:check
+
+      - name: Run dialog browser acceptance
+        run: pnpm test:browser
+
+      - name: Retain browser report, axe results and failure evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dialog-browser-acceptance
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: warn
+          retention-days: 14
+
   # Isolated so the pull-requests:write token is never exposed to build/test steps.
   coverage-comment:
     needs: [javascript, test]

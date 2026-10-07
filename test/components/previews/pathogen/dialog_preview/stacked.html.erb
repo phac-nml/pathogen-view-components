@@ -1,0 +1,33 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Review a run and its protocol" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    Open the run, then its protocol. Escape closes the top dialog and returns focus to its trigger in the run dialog.
+  <% end %>
+
+  <%= render Pathogen::Dialog.new(id: "stacked-run", title: "Review run RUN-1042", size: :large) do |dialog| %>
+    <% dialog.with_trigger(text: "Review run", tone: :primary, emphasis: :solid) %>
+
+    <div class="space-y-4">
+      <%= render Pathogen::Typography::Text.new do %>
+        Review the quality checks for 24 samples. Open the protocol for the handling requirements used by this run.
+      <% end %>
+
+      <%= render Pathogen::Dialog.new(id: "stacked-protocol", title: "Protocol P-17", size: :medium, heading_level: 3) do |protocol| %>
+        <% protocol.with_trigger(text: "View protocol P-17", tone: :neutral, emphasis: :outline) %>
+
+        <%= render Pathogen::Typography::Text.new do %>
+          Confirm sample identifiers, handling conditions, and extraction controls before accepting the run results.
+        <% end %>
+
+        <% protocol.with_footer do %>
+          <%= render Pathogen::Button.new(text: "Return to run", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose" }) %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <% dialog.with_footer do %>
+      <%= render Pathogen::Button.new(text: "Close run review", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose" }) %>
+    <% end %>
+  <% end %>
+</div>

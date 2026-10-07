@@ -279,8 +279,14 @@ export default class extends Controller {
   /**
    * Handles Escape key dismissal (called by registry).
    */
-  handleEscape() {
+  handleEscape(event) {
     if (!this.#tooltipElement || !this.#isVisible()) return;
+
+    // A tooltip inside a native modal consumes this Escape before the browser
+    // requests closure of the modal. Other tooltip dismissal stays unchanged.
+    const modal = this.#tooltipElement.closest("dialog[open]");
+    const eventModal = event?.target?.closest?.("dialog[open]");
+    if (modal && modal === eventModal) event.preventDefault();
 
     this.#escapeDismissed = true;
     this.hide();
