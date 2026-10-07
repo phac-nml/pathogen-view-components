@@ -229,6 +229,25 @@ describe("toast_controller", () => {
     expect(document.activeElement).toBe(dialog);
   });
 
+  it("marks toasts as entering until first presentation completes", async () => {
+    const { toast } = buildToast({ timeout: 0, mode: "status" });
+
+    await waitForController();
+    expect(toast.dataset.entering).toBe("true");
+
+    await waitForAnimationFrames();
+    expect(toast.hasAttribute("data-entering")).toBe(false);
+  });
+
+  it("skips entering state when reduced motion is enabled", async () => {
+    stubReducedMotion(true);
+    const { toast } = buildToast({ timeout: 0, mode: "status" });
+
+    await waitForController();
+    await waitForAnimationFrames();
+    expect(toast.hasAttribute("data-entering")).toBe(false);
+  });
+
   it("emits a polite announcement for status toasts", async () => {
     buildToast({ timeout: 0, type: "success", mode: "status", message: "Saved" });
     const listener = vi.fn();
