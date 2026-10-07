@@ -60,7 +60,7 @@ export class PaginatedVirtualRows {
   }
 
   get hasMore() {
-    return this.#cursorMode && this.#source.hasMore;
+    return this.#source.hasMore;
   }
 
   loadNext() {

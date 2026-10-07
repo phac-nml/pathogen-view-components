@@ -1,5 +1,5 @@
 import { PageCache } from "pathogen_view_components/data_grid_controller/page_cache";
-import { parseRows } from "pathogen_view_components/data_grid_controller/page_source";
+import { buildRowsUrl, parseRows, trackInFlight } from "pathogen_view_components/data_grid_controller/page_source";
 
 // Checkpoints keep only a cursor and range, never all the row content. Their
 // logical indexes describe the UI; they are not sent as database offsets.
@@ -80,24 +80,17 @@ export class CursorRowSource {
     // Serve only known checkpoints or the current frontier page while a cursor
     // continuation exists. Ignore requests that skip ahead or ask past exhaustion.
     if (!checkpoint && (page !== this.nextPage || !this.hasMore)) return Promise.resolve({ aborted: false });
-    const request = this.#request(checkpoint, signal).finally(() => this.#inFlight.delete(page));
-    this.#inFlight.set(page, request);
-    return request;
+    return trackInFlight(this.#inFlight, page, () => this.#request(checkpoint, signal));
   }
 
   async #request(checkpoint, signal) {
     const cursor = checkpoint ? checkpoint.cursor : this.#nextCursor;
     const start = checkpoint ? checkpoint.start : this.totalRows;
-    const url = new URL(this.#options.url, window.location.origin);
-    const params = new URLSearchParams(this.#options.searchParams || "");
-    new Set(params.keys()).forEach((key) => {
-      url.searchParams.delete(key);
-      params.getAll(key).forEach((value) => url.searchParams.append(key, value));
+    const url = buildRowsUrl({
+      url: this.#options.url,
+      searchParams: this.#options.searchParams,
+      params: { page: null, cursor, limit: this.pageSize },
     });
-    url.searchParams.delete("page");
-    url.searchParams.delete("cursor");
-    if (cursor !== null) url.searchParams.set("cursor", cursor);
-    url.searchParams.set("limit", String(this.pageSize));
     const response = await fetch(url.toString(), { headers: { Accept: "application/json" }, signal });
     if (!response.ok) {
       const error = new Error(`Failed to fetch virtual grid rows (status ${response.status})`);
