@@ -12,7 +12,7 @@
             ['D', 'Dashboard', '#run-overview'],
             ['S', 'Samples', '#samples'],
             ['C', 'Settings', '#settings']
-          ].each do |icon, label, href| %>
+          ].each do |icon, label_text, href| %>
             <li>
               <a
                 href="<%= href %>"
@@ -24,7 +24,7 @@
                 "
               >
                 <span class="inline-flex size-4 shrink-0 items-center justify-center" aria-hidden="true"><%= icon %></span>
-                <span data-pathogen-sidebar-label="true" class="ml-2"><%= label %></span>
+                <span data-pathogen-sidebar-label="true" class="ml-2"><%= label_text %></span>
               </a>
             </li>
           <% end %>
