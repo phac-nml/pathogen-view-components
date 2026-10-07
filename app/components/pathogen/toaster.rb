@@ -7,7 +7,7 @@ module Pathogen
 
     DEFAULT_POSITION = :top_center
     DEFAULT_STRATEGY = :fixed
-    DEFAULT_DURATION_STORAGE_KEY = 'pathogen.toast.durationMs'
+    DEFAULT_DURATION_STORAGE_KEY = Pathogen::Toast::DURATION_STORAGE_KEY
     # nil = read pathogen.toast.durationMs from localStorage in the Stimulus controller.
     # Integer ms overrides status-toast timeouts. 0 means forever (promote to dialog).
     DEFAULT_DURATION_PREFERENCE = nil

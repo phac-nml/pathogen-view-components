@@ -12,7 +12,7 @@ module Pathogen
   class ToastSettings < Pathogen::Component
     include Pathogen::DataAttributesHelper
 
-    STORAGE_KEY = 'pathogen.toast.durationMs'
+    STORAGE_KEY = Pathogen::Toast::DURATION_STORAGE_KEY
 
     # Ordered option keys → the value written to storage.
     # `default` clears the preference (falls back to the component default, 6s);
