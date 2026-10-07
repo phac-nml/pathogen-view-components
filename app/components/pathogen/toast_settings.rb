@@ -62,6 +62,14 @@ module Pathogen
       key == @selected
     end
 
+    # Rendered <option> markup passed as the select's content, so the template
+    # does not iterate inside an output tag.
+    def options_markup
+      safe_join(
+        options.map { |key| tag.option(option_label(key), value: option_value(key), selected: selected?(key)) }
+      )
+    end
+
     def select_attributes
       {
         id: select_id,
