@@ -1,3 +1,5 @@
+import { joinAsSentences } from "pathogen_view_components/announcement_text";
+
 const ANNOUNCE_DEBOUNCE_MS = 75;
 
 class LiveRegionAnnouncer {
@@ -63,9 +65,7 @@ class LiveRegionAnnouncer {
     const target = politeness === "assertive" ? this.#resolveAssertiveTarget?.() : this.#resolvePoliteTarget?.();
     if (!target || messages.length === 0) return;
 
-    const text = messages
-      .map((part, index) => (index < messages.length - 1 && !/[.!?]$/.test(part) ? `${part}.` : part))
-      .join(" ");
+    const text = joinAsSentences(messages);
 
     this.#write(target, text);
   }
