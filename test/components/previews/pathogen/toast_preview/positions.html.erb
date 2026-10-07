@@ -14,14 +14,14 @@
       top_right: 'Top right',
       bottom_center: 'Bottom center',
       bottom_right: 'Bottom right'
-    }.each do |position, label| %>
+    }.each do |position, label_text| %>
       <div
         class="
           relative min-h-56 overflow-hidden rounded-(--pvc-radius-panel) border
           border-(--pvc-color-border) bg-(--pvc-color-surface) p-4
         "
       >
-        <%= render(Pathogen::Typography::Heading.new(level: 4, class: "mb-1")) { label } %>
+        <%= render(Pathogen::Typography::Heading.new(level: 4, class: "mb-1")) { label_text } %>
         <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-3")) do %>
           <%= render(Pathogen::Typography::Code.new) { "position: :#{position}" } %>
         <% end %>
@@ -35,7 +35,7 @@
         ) do %>
           <%= render Pathogen::Toast.new(
             type: :success,
-            message: "#{label} anchor",
+            message: "#{label_text} anchor",
             description: 'Dismissible so the specimen stays inspectable.',
             dismissible: true
           ) %>
