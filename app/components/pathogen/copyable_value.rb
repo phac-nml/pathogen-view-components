@@ -98,6 +98,8 @@ module Pathogen
       {
         "#{controller_name}-copied-message-value" => copied_message,
         "#{controller_name}-copy-failed-message-value" => copy_failed_message,
+        "#{controller_name}-copy-tooltip-message-value" => copy_tooltip_message,
+        "#{controller_name}-copied-tooltip-message-value" => copied_tooltip_message,
         "#{controller_name}-reset-delay-value" => @reset_delay
       }
     end
@@ -116,6 +118,14 @@ module Pathogen
 
     def copy_failed_message
       I18n.t('pathogen.copyable_value.copy_failed')
+    end
+
+    def copy_tooltip_message
+      I18n.t('pathogen.copyable_value.copy_tooltip')
+    end
+
+    def copied_tooltip_message
+      I18n.t('pathogen.copyable_value.copied_tooltip')
     end
 
     def aria_label

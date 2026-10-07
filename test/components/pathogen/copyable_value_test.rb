@@ -25,6 +25,7 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'ABC123'))
 
       assert_selector 'button[type="button"][aria-label="Copy ABC123 to clipboard"]'
+      assert_selector 'button[data-pathogen--copyable-value-target="button"][title="Copy identifier"]'
     end
 
     test 'copy button meets small icon-only touch target and ghost-lane hover styles' do
@@ -65,6 +66,12 @@ module Pathogen
 
       assert_selector(
         'span[data-pathogen--copyable-value-copied-message-value="Copied to clipboard"]'
+      )
+      assert_selector(
+        'span[data-pathogen--copyable-value-copy-tooltip-message-value="Copy identifier"]'
+      )
+      assert_selector(
+        'span[data-pathogen--copyable-value-copied-tooltip-message-value="Copied"]'
       )
     end
 

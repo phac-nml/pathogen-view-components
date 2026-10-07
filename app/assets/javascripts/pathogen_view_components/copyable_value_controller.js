@@ -42,11 +42,13 @@ async function writeTextToClipboard(text, fallbackElement) {
  * feedback via semantic `data-state`, icon swap CSS, and an aria-live region.
  */
 export default class extends Controller {
-  static targets = ["text", "announcement"];
+  static targets = ["text", "button", "announcement"];
 
   static values = {
     copiedMessage: { type: String, default: "Copied to clipboard" },
     copyFailedMessage: { type: String, default: "Unable to copy to clipboard" },
+    copyTooltipMessage: { type: String, default: "Copy identifier" },
+    copiedTooltipMessage: { type: String, default: "Copied" },
     resetDelay: { type: Number, default: 2000 },
   };
 
@@ -85,11 +87,14 @@ export default class extends Controller {
     this.#setState(state);
     this.announcementTarget.textContent =
       state === COPY_STATES.success ? this.copiedMessageValue : this.copyFailedMessageValue;
+    this.buttonTarget.title =
+      state === COPY_STATES.success ? this.copiedTooltipMessageValue : this.copyFailedMessageValue;
     this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
 
   #reset() {
     this.#setState(COPY_STATES.idle);
+    this.buttonTarget.title = this.copyTooltipMessageValue;
     this.announcementTarget.textContent = "";
     this.#resetTimeout = null;
   }

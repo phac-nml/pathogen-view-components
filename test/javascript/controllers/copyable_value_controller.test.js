@@ -10,6 +10,8 @@ const appendCopyableValue = () => {
   container.setAttribute("data-controller", "pathogen--copyable-value");
   container.setAttribute("data-pathogen--copyable-value-copied-message-value", "Copied to clipboard");
   container.setAttribute("data-pathogen--copyable-value-copy-failed-message-value", "Unable to copy to clipboard");
+  container.setAttribute("data-pathogen--copyable-value-copy-tooltip-message-value", "Copy identifier");
+  container.setAttribute("data-pathogen--copyable-value-copied-tooltip-message-value", "Copied");
   container.setAttribute("data-pathogen--copyable-value-reset-delay-value", "2000");
   container.dataset.state = "idle";
 
@@ -20,6 +22,7 @@ const appendCopyableValue = () => {
   const button = document.createElement("button");
   button.type = "button";
   button.setAttribute("data-action", "click->pathogen--copyable-value#copy");
+  button.setAttribute("data-pathogen--copyable-value-target", "button");
 
   const icon = document.createElement("span");
   icon.setAttribute("data-pathogen--copyable-value-target", "icon");
@@ -79,6 +82,7 @@ describe("copyable_value_controller", () => {
 
     expect(container.dataset.state).toBe("idle");
     expect(container.dataset.controllerConnected).toBe("true");
+    expect(container.querySelector("button")?.title).toBe("Copy identifier");
   });
 
   it("copies exact text and shows success feedback", async () => {
@@ -101,11 +105,13 @@ describe("copyable_value_controller", () => {
     expect(writeText).toHaveBeenCalledWith("  INXT_PRJ_A2G6VVJNCN  ");
     expect(container.dataset.state).toBe("success");
     expect(announcement.textContent).toBe("Copied to clipboard");
+    expect(container.querySelector("button")?.title).toBe("Copied");
 
     vi.advanceTimersByTime(2000);
 
     expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
+    expect(container.querySelector("button")?.title).toBe("Copy identifier");
   });
 
   it("announces failure when clipboard API and fallback copy are unavailable", async () => {
@@ -130,11 +136,13 @@ describe("copyable_value_controller", () => {
 
     expect(container.dataset.state).toBe("error");
     expect(announcement.textContent).toBe("Unable to copy to clipboard");
+    expect(container.querySelector("button")?.title).toBe("Unable to copy to clipboard");
 
     vi.advanceTimersByTime(2000);
 
     expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
+    expect(container.querySelector("button")?.title).toBe("Copy identifier");
   });
 
   it("clears pending reset timer on disconnect", async () => {
