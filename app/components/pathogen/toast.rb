@@ -21,6 +21,9 @@ module Pathogen
 
     DEFAULT_TIMEOUT = 6000
     DISMISS_DURATION_MS = 160
+    # Canonical localStorage key for the status-toast duration preference, shared
+    # with Pathogen::Toaster, Pathogen::ToastSettings, and the Stimulus controllers.
+    DURATION_STORAGE_KEY = 'pathogen.toast.durationMs'
     PERSISTENT_TYPES = %i[warning error].freeze
     ICON_PATHS = {
       success:
@@ -58,7 +61,7 @@ module Pathogen
       @requested_dismissible = dismissible
       @interrupt = interrupt
       @requested_timeout = [timeout.to_i, 0].max
-      @dom_id_base = "pvc-toast-#{SecureRandom.hex(4)}"
+      @dom_id_base = self.class.generate_id(base_name: 'pvc-toast')
       @message_dom_id = "#{@dom_id_base}-msg"
 
       @system_arguments = system_arguments
