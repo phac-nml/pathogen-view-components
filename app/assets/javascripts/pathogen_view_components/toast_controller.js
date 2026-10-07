@@ -29,6 +29,7 @@ export default class extends Controller {
   #connected = false;
   #initialDialogIntent = false;
   #presented = false;
+  #entryFrame = null;
 
   initialize() {
     this.#initialDialogIntent = this.dialogMode;
@@ -43,6 +44,11 @@ export default class extends Controller {
 
     this.#connected = true;
     this.#bindEvents();
+    if (!this.#presented && this.#state === "open" && !this.#prefersReducedMotion()) {
+      this.element.dataset.entering = "true";
+    } else {
+      this.element.removeAttribute("data-entering");
+    }
     this.#applyQueuedDurationPreference();
     this.#resumeTimer();
 
@@ -56,6 +62,10 @@ export default class extends Controller {
     this.#pauseTimer();
     clearTimeout(this.#dismissTimerId);
     this.#dismissTimerId = null;
+    if (this.#entryFrame) {
+      cancelAnimationFrame(this.#entryFrame);
+      this.#entryFrame = null;
+    }
     this.#abortController?.abort();
     this.#abortController = null;
   }
@@ -77,6 +87,7 @@ export default class extends Controller {
     if (!this.awaitingPresentation) return;
 
     this.#presented = true;
+    this.#clearEntryState();
     if (focus && this.dialogMode) {
       this.#captureRestoreFocus();
       this.#focusDialog();
@@ -274,9 +285,28 @@ export default class extends Controller {
   }
 
   #dismissDuration() {
-    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-    if (reducedMotion) return 0;
+    if (this.#prefersReducedMotion()) return 0;
     return this.dismissDurationValue > 0 ? this.dismissDurationValue : 160;
+  }
+
+  #clearEntryState() {
+    if (!this.element.hasAttribute("data-entering")) return;
+
+    if (this.#prefersReducedMotion()) {
+      this.element.removeAttribute("data-entering");
+      return;
+    }
+
+    if (this.#entryFrame) cancelAnimationFrame(this.#entryFrame);
+    this.#entryFrame = requestAnimationFrame(() => {
+      this.#entryFrame = null;
+      if (!this.#connected || this.#state !== "open") return;
+      this.element.removeAttribute("data-entering");
+    });
+  }
+
+  #prefersReducedMotion() {
+    return Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches);
   }
 
   #resolveRestoreFocusTarget() {
