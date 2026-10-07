@@ -802,8 +802,8 @@ module Pathogen
       )
       assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="0"][aria-rowindex="2"]'
       assert_selector(
-        '.pvc-data-grid__virtual-status' \
-        '[data-loading-more-text="Loading more rows…"]' \
+        '[data-pathogen--data-grid-target="paginationStatus"]' \
+        '[data-loading-text="Loading more rows…"]' \
         '[data-fetch-error-text="Unable to load more rows. Try again."]'
       )
     end
@@ -930,8 +930,8 @@ module Pathogen
         end
 
         assert_selector(
-          '.pvc-data-grid__virtual-status' \
-          '[data-loading-more-text="Chargement de lignes supplémentaires…"]' \
+          '[data-pathogen--data-grid-target="paginationStatus"]' \
+          '[data-loading-text="Chargement de lignes supplémentaires…"]' \
           '[data-fetch-error-text="Impossible de charger d’autres lignes. Réessayez."]'
         )
       end

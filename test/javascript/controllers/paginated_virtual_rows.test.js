@@ -100,8 +100,7 @@ describe("paginated virtual rows", () => {
           <div role="grid" data-pathogen--data-grid-target="grid"
             data-pvc-data-grid-total-count="200" data-pvc-data-grid-page-size="20"
             data-pvc-data-grid-rows-url="/samples/rows.json">
-            <div role="status" data-pathogen--data-grid-target="virtualStatus"
-              data-loaded-text="Rows loaded." data-fetch-error-text="Unable to load more rows."></div>
+            <div role="status" data-pathogen--data-grid-target="virtualStatus" data-loaded-text="Rows loaded."></div>
             <div role="row" class="pvc-data-grid__row--header" aria-rowindex="1">
               <div role="columnheader" tabindex="-1" data-pathogen--data-grid-target="cell"
                 data-pathogen--data-grid-row-index="0" data-pathogen--data-grid-column-index="0">Sample</div>
@@ -114,6 +113,13 @@ describe("paginated virtual rows", () => {
             </div>
           </div>
         </div>
+        <p role="status" data-pathogen--data-grid-target="paginationStatus"
+          data-loading-text="Loading more rows." data-loaded-text="%{count} rows loaded."
+          data-end-text="All %{count} rows loaded." data-fetch-error-text="Unable to load more rows."
+          data-mismatch-text="Refresh results" data-range-text="Rows %{start}–%{end} · %{count} loaded"
+          data-range-total-text="Rows %{start}–%{end} of %{total}"></p>
+        <button hidden data-pathogen--data-grid-target="paginationRetry"
+          data-action="click->pathogen--data-grid#retryRows">Retry</button>
       </div>`;
     const scrollContainer = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
     Object.defineProperty(scrollContainer, "clientHeight", { configurable: true, value: 200 });
@@ -130,18 +136,18 @@ describe("paginated virtual rows", () => {
     scrollContainer.dispatchEvent(new Event("scrollend"));
     await vi.waitFor(() => expect(requests.has(6)).toBe(true));
     requests.get(4).resolve({ ok: false, status: 500 });
-    const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
-    await vi.waitFor(() => expect(errorState.hidden).toBe(false));
+    const retry = document.querySelector('[data-pathogen--data-grid-target="paginationRetry"]');
+    await vi.waitFor(() => expect(retry.hidden).toBe(false));
 
     completePage(requests, 5);
     completePage(requests, 6);
     await settle();
-    expect(errorState.hidden).toBe(false);
+    expect(retry.hidden).toBe(false);
     expect(document.querySelector('[data-pvc-data-grid-global-row-index="60"]').getAttribute("aria-busy")).toBe("true");
 
     scrollContainer.dispatchEvent(new Event("scrollend"));
     completePage(requests, 4);
-    await vi.waitFor(() => expect(errorState.hidden).toBe(true));
+    await vi.waitFor(() => expect(retry.hidden).toBe(true));
     await vi.waitFor(() => {
       expect(document.querySelector('[data-pvc-data-grid-global-row-index="60"]').textContent).toContain("Sample 61");
     });

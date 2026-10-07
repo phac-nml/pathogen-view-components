@@ -17,25 +17,6 @@ export function paginationContract(grid, defaultPageSize) {
   };
 }
 
-export function setPaginationBusy({ grid, status, loadingMoreText, loadedText }, isBusy) {
-  if (!grid) return;
-
-  if (isBusy) {
-    grid.setAttribute("aria-busy", "true");
-    if (status && loadingMoreText) {
-      status.textContent = loadingMoreText;
-      status.hidden = false;
-    }
-    return;
-  }
-
-  grid.setAttribute("aria-busy", "false");
-  if (status && loadedText) {
-    status.textContent = loadedText;
-    status.hidden = true;
-  }
-}
-
 export function cachedVirtualCells({ grid, rows, cellSelector, allCellsForRow }) {
   if (!grid) return [];
 

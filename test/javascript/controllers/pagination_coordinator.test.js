@@ -18,17 +18,10 @@ function makeCell({ row = 4, column = 0 } = {}) {
   return cell;
 }
 
-function buildCoordinator({
-  withPaginationStatus = true,
-  withRefresh = true,
-  includeFetchErrorText = true,
-  viewport = null,
-} = {}) {
+function buildCoordinator({ withPaginationStatus = true, withRefresh = true, viewport = null } = {}) {
   const grid = document.createElement("div");
   const virtualStatus = document.createElement("p");
-  virtualStatus.dataset.loadingMoreText = "Loading more rows";
   virtualStatus.dataset.loadedText = "Rows ready";
-  if (includeFetchErrorText) virtualStatus.dataset.fetchErrorText = "Try again";
 
   const paginationStatus = withPaginationStatus ? document.createElement("p") : null;
   if (paginationStatus) {
@@ -61,12 +54,9 @@ function buildCoordinator({
 
   const focusCell = vi.fn();
   const cellByCoordinate = vi.fn();
-  const showErrorState = vi.fn();
-  const reportError = vi.fn();
 
   const coordinator = new PaginationCoordinator({
     grid,
-    virtualStatus,
     paginationStatus,
     paginationPosition,
     paginationRetry,
@@ -79,8 +69,6 @@ function buildCoordinator({
     pageSize: () => 4,
     focusCell,
     cellByCoordinate,
-    showErrorState,
-    reportError,
   });
 
   return {
@@ -94,8 +82,6 @@ function buildCoordinator({
     viewport: virtualViewport,
     focusCell,
     cellByCoordinate,
-    showErrorState,
-    reportError,
   };
 }
 
@@ -197,40 +183,6 @@ describe("PaginationCoordinator", () => {
     expect(ctx.paginationStatus.textContent).toBe("All 4 rows loaded");
     expect(ctx.paginationRetry.hidden).toBe(true);
     expect(ctx.paginationRefresh.hidden).toBe(true);
-  });
-
-  it("falls back to virtual status text when presenter status is unavailable", () => {
-    const ctx = buildCoordinator({ withPaginationStatus: false });
-
-    ctx.coordinator.setBusy(true);
-    expect(ctx.grid.getAttribute("aria-busy")).toBe("true");
-    expect(ctx.virtualStatus.textContent).toBe("Loading more rows");
-    expect(ctx.virtualStatus.hidden).toBe(false);
-
-    ctx.coordinator.setBusy(false);
-    expect(ctx.grid.getAttribute("aria-busy")).toBe("false");
-    expect(ctx.virtualStatus.textContent).toBe("Rows ready");
-    expect(ctx.virtualStatus.hidden).toBe(true);
-  });
-
-  it("shows shared error state when presenter is unavailable but fallback message exists", () => {
-    const ctx = buildCoordinator({ withPaginationStatus: false });
-    const error = new Error("offline");
-
-    ctx.coordinator.handleError(error);
-
-    expect(ctx.showErrorState).toHaveBeenCalledWith("Try again");
-    expect(ctx.reportError).not.toHaveBeenCalled();
-  });
-
-  it("reports pagination errors when no presenter and no fallback message exist", () => {
-    const ctx = buildCoordinator({ withPaginationStatus: false, includeFetchErrorText: false });
-    const error = new Error("offline");
-
-    ctx.coordinator.handleError(error);
-
-    expect(ctx.showErrorState).not.toHaveBeenCalled();
-    expect(ctx.reportError).toHaveBeenCalledWith(error);
   });
 
   it("resets internal state so stale mismatch messaging does not persist", () => {

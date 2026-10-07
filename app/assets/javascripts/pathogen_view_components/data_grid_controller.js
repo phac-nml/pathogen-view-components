@@ -559,7 +559,6 @@ export default class extends Controller {
     this.#paginationCoordinator = new PaginationCoordinator({
       /* v8 ignore next -- defensive: virtual mode only initializes when the grid target exists */
       grid: this.hasGridTarget ? this.gridTarget : null,
-      virtualStatus: this.hasVirtualStatusTarget ? this.virtualStatusTarget : null,
       paginationStatus: this.hasPaginationStatusTarget ? this.paginationStatusTarget : null,
       paginationPosition: this.hasPaginationPositionTarget ? this.paginationPositionTarget : null,
       paginationRetry: this.hasPaginationRetryTarget ? this.paginationRetryTarget : null,
@@ -569,8 +568,6 @@ export default class extends Controller {
       pageSize: () => this.#pageSize(),
       focusCell: (cell) => this.#focusCell(cell),
       cellByCoordinate: (row, column) => this.#cellByCoordinate(row, column),
-      showErrorState: (message) => this.#showErrorState(message),
-      reportError: (error) => this.#reportError(error),
     });
 
     this.#virtualViewport = new VirtualViewport({

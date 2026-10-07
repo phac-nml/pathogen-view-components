@@ -199,8 +199,6 @@ module Pathogen
     DEFAULT_VIRTUAL_COLUMN_OVERSCAN = 2
     DEFAULT_VIRTUAL_COLUMN_WIDTH = 120
     DEFAULT_VIRTUAL_PAGE_SIZE = 20
-    DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE = 'Loading more rows…'
-    DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE = 'Unable to load more rows. Try again.'
     VirtualPagination = DataGrid::VirtualPaginationConfig::Config
 
     attr_reader :rows, :keyboard_help_id, :virtual_pagination
@@ -372,20 +370,6 @@ module Pathogen
 
     def virtual_loaded_text
       t('pathogen.data_grid.virtual.loaded', default: DEFAULT_VIRTUAL_LOADED_MESSAGE)
-    end
-
-    def virtual_pagination_loading_more_text
-      t(
-        'pathogen.data_grid.virtual.pagination.loading_more',
-        default: DEFAULT_VIRTUAL_PAGINATION_LOADING_MORE_MESSAGE
-      )
-    end
-
-    def virtual_pagination_fetch_error_text
-      t(
-        'pathogen.data_grid.virtual.pagination.fetch_error',
-        default: DEFAULT_VIRTUAL_PAGINATION_FETCH_ERROR_MESSAGE
-      )
     end
 
     def body_cell_payload(column:, row:, column_index:, active:)

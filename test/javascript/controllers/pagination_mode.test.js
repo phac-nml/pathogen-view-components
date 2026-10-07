@@ -1,10 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  cachedVirtualCells,
-  paginationContract,
-  setPaginationBusy,
-} from "pathogen_view_components/data_grid_controller/pagination_mode";
+import { cachedVirtualCells, paginationContract } from "pathogen_view_components/data_grid_controller/pagination_mode";
 
 const CELL_SELECTOR = '[data-pathogen--data-grid-target~="cell"]';
 
@@ -86,115 +82,6 @@ describe("data_grid_controller/pagination_mode", () => {
       expect(paginationContract(grid, 20).knownTotal).toBe(0);
       grid.dataset.pvcDataGridTotalCount = "-1";
       expect(paginationContract(grid, 20).knownTotal).toBeNull();
-    });
-  });
-
-  describe("setPaginationBusy", () => {
-    it("returns early when grid is missing", () => {
-      expect(() =>
-        setPaginationBusy(
-          {
-            grid: null,
-            status: null,
-            loadingMoreText: "Loading…",
-            loadedText: "Loaded",
-          },
-          true,
-        ),
-      ).not.toThrow();
-    });
-
-    it("sets busy state and status text while loading", () => {
-      const grid = document.createElement("div");
-      const status = document.createElement("p");
-      status.hidden = true;
-
-      setPaginationBusy(
-        {
-          grid,
-          status,
-          loadingMoreText: "Loading more rows",
-          loadedText: "Loaded rows",
-        },
-        true,
-      );
-
-      expect(grid.getAttribute("aria-busy")).toBe("true");
-      expect(status.textContent).toBe("Loading more rows");
-      expect(status.hidden).toBe(false);
-    });
-
-    it("sets busy state when status element is missing", () => {
-      const grid = document.createElement("div");
-
-      setPaginationBusy(
-        {
-          grid,
-          status: null,
-          loadingMoreText: "Loading more rows",
-          loadedText: "Loaded rows",
-        },
-        true,
-      );
-
-      expect(grid.getAttribute("aria-busy")).toBe("true");
-    });
-
-    it("keeps status untouched while busy when loading text is unavailable", () => {
-      const grid = document.createElement("div");
-      const status = document.createElement("p");
-      status.textContent = "Original";
-      status.hidden = true;
-
-      setPaginationBusy(
-        {
-          grid,
-          status,
-          loadingMoreText: "",
-          loadedText: "Loaded rows",
-        },
-        true,
-      );
-
-      expect(grid.getAttribute("aria-busy")).toBe("true");
-      expect(status.textContent).toBe("Original");
-      expect(status.hidden).toBe(true);
-    });
-
-    it("clears busy state and updates status text after loading", () => {
-      const grid = document.createElement("div");
-      const status = document.createElement("p");
-      status.hidden = false;
-
-      setPaginationBusy(
-        {
-          grid,
-          status,
-          loadingMoreText: "Loading more rows",
-          loadedText: "Rows loaded",
-        },
-        false,
-      );
-
-      expect(grid.getAttribute("aria-busy")).toBe("false");
-      expect(status.textContent).toBe("Rows loaded");
-      expect(status.hidden).toBe(true);
-    });
-
-    it("still clears busy state when status element is missing", () => {
-      const grid = document.createElement("div");
-
-      setPaginationBusy(
-        {
-          grid,
-          status: null,
-          loadingMoreText: "Loading more rows",
-          loadedText: "Rows loaded",
-        },
-        false,
-      );
-
-      expect(grid.getAttribute("aria-busy")).toBe("false");
     });
   });
 

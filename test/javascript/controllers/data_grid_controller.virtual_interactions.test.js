@@ -111,12 +111,17 @@ describe("data_grid_controller paginated status and errors", () => {
             data-pvc-data-grid-column-widths="100" data-pvc-data-grid-row-overscan="0"
             data-pvc-data-grid-total-count="200" data-pvc-data-grid-page-size="2"
             data-pvc-data-grid-rows-url="/samples/rows.json">
-            <p role="status" data-pathogen--data-grid-target="virtualStatus"
-              data-loading-more-text="Loading more rows." data-loaded-text="Rows loaded."
-              data-fetch-error-text="Unable to load more rows."></p>
+            <p role="status" data-pathogen--data-grid-target="virtualStatus" data-loaded-text="Rows loaded."></p>
             <div data-pathogen--data-grid-target="viewport"><div class="pvc-data-grid__spacer"></div>${seed}</div>
           </div>
         </div>
+        <p role="status" data-pathogen--data-grid-target="paginationStatus"
+          data-loading-text="Loading more rows." data-loaded-text="%{count} rows loaded."
+          data-end-text="All %{count} rows loaded." data-fetch-error-text="Unable to load more rows."
+          data-mismatch-text="Refresh results" data-range-text="Rows %{start}–%{end} · %{count} loaded"
+          data-range-total-text="Rows %{start}–%{end} of %{total}"></p>
+        <button hidden data-pathogen--data-grid-target="paginationRetry"
+          data-action="click->pathogen--data-grid#retryRows">Retry</button>
         <div data-pathogen--data-grid-target="errorState"
           data-default-message="Something went wrong while rendering this grid." hidden>
           <p data-pathogen--data-grid-target="errorMessage"></p>
@@ -140,7 +145,7 @@ describe("data_grid_controller paginated status and errors", () => {
   it("announces loading and loaded status while fetching pages", async () => {
     const pending = deferred();
     await startPaginated(() => pending.promise);
-    const status = document.querySelector('[data-pathogen--data-grid-target="virtualStatus"]');
+    const status = document.querySelector('[data-pathogen--data-grid-target="paginationStatus"]');
 
     expect(status.textContent).toContain("Loading more rows.");
 
@@ -168,53 +173,8 @@ describe("data_grid_controller paginated status and errors", () => {
     await settle();
     await settle();
 
-    const errorState = document.querySelector('[data-pathogen--data-grid-target="errorState"]');
-    expect(errorState.hidden).toBe(false);
-    expect(document.querySelector('[data-pathogen--data-grid-target="errorMessage"]').textContent).toContain(
-      "Unable to load more rows.",
-    );
-  });
-
-  it("reports the raw error when no fetch-error message is configured", async () => {
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    const pending = deferred();
-    vi.spyOn(globalThis, "fetch").mockImplementation(() => pending.promise);
-    document.body.innerHTML = paginatedMarkup().replace(' data-fetch-error-text="Unable to load more rows."', "");
-    const scroll = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
-    Object.defineProperties(scroll, {
-      clientHeight: { configurable: true, value: 80 },
-      clientWidth: { configurable: true, value: 100 },
-    });
-    application = Application.start();
-    application.register("pathogen--data-grid", DataGridController);
-    await flush();
-
-    pending.reject(new Error("network down"));
-    await settle();
-    await settle();
-
-    expect(consoleError).toHaveBeenCalled();
-  });
-
-  it("toggles busy state without a status target present", async () => {
-    const pending = deferred();
-    vi.spyOn(globalThis, "fetch").mockImplementation(() => pending.promise);
-    document.body.innerHTML = paginatedMarkup().replace(/<p role="status"[\s\S]*?<\/p>/, "");
-    const scroll = document.querySelector('[data-pathogen--data-grid-target="scrollContainer"]');
-    Object.defineProperties(scroll, {
-      clientHeight: { configurable: true, value: 80 },
-      clientWidth: { configurable: true, value: 100 },
-    });
-    application = Application.start();
-    application.register("pathogen--data-grid", DataGridController);
-    await flush();
-
-    expect(document.querySelector('[data-pathogen--data-grid-target="grid"]').getAttribute("aria-busy")).toBe("true");
-
-    pending.resolve({ ok: true, json: async () => ({ rows: [{ index: 2, html: rowMarkup(2, 1) }] }) });
-    await settle();
-    await settle();
-
-    expect(document.querySelector('[data-pathogen--data-grid-target="grid"]').getAttribute("aria-busy")).toBe("false");
+    const status = document.querySelector('[data-pathogen--data-grid-target="paginationStatus"]');
+    expect(status.textContent).toContain("Unable to load more rows.");
+    expect(document.querySelector('[data-pathogen--data-grid-target="paginationRetry"]').hidden).toBe(false);
   });
 });
