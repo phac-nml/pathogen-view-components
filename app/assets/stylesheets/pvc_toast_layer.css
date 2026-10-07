@@ -3,6 +3,18 @@
 .pvc-toaster {
   --pvc-toast-gap: 0.875rem; /* 14px — matches TOAST_GAP_PX in toaster_controller.js */
   --pvc-toast-scale-step: 0.05;
+  /* Anchor-derived values so one rule serves both the top and bottom decks. */
+  --toast-anchor-sign: 1;
+  --toast-anchor-origin: top;
+  --toast-anchor-top: 0;
+  --toast-anchor-bottom: auto;
+}
+
+.pvc-toaster[data-anchor="bottom"] {
+  --toast-anchor-sign: -1;
+  --toast-anchor-origin: bottom;
+  --toast-anchor-top: auto;
+  --toast-anchor-bottom: 0;
 }
 
 .pvc-toaster__list {
@@ -78,6 +90,9 @@
   right: 0;
   margin-inline: auto;
   width: 100%;
+  top: var(--toast-anchor-top);
+  bottom: var(--toast-anchor-bottom);
+  transform-origin: center var(--toast-anchor-origin);
   z-index: calc(100 - var(--toast-index, 0));
   transition:
     transform var(--pvc-duration-overlay) cubic-bezier(0.22, 1, 0.36, 1),
@@ -92,24 +107,6 @@
   [data-pathogen--toaster-target~="toast"]:not([hidden])
   > * {
   transition: opacity var(--pvc-duration-overlay) ease-out;
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="top"][data-has-peek="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]),
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="top"][data-expanded="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  top: 0;
-  bottom: auto;
-  transform-origin: center top;
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="bottom"][data-has-peek="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]),
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-anchor="bottom"][data-expanded="true"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  top: auto;
-  bottom: 0;
-  transform-origin: center bottom;
 }
 
 /* Collapsed front: full size at the anchor. */
@@ -135,17 +132,7 @@
   max-height: var(--front-height, none);
   overflow: hidden;
   pointer-events: none;
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="top"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
-  transform: translateY(calc(var(--toast-index, 1) * var(--pvc-toast-gap)))
-    scale(calc(1 - (var(--toast-index, 1) * var(--pvc-toast-scale-step))));
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="false"][data-has-peek="true"][data-anchor="bottom"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden])[data-behind="true"] {
-  transform: translateY(calc(var(--toast-index, 1) * var(--pvc-toast-gap) * -1))
+  transform: translateY(calc(var(--toast-index, 1) * var(--pvc-toast-gap) * var(--toast-anchor-sign)))
     scale(calc(1 - (var(--toast-index, 1) * var(--pvc-toast-scale-step))));
 }
 
@@ -162,16 +149,7 @@
   max-height: none;
   overflow: visible;
   pointer-events: auto;
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="top"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  transform: translateY(var(--toast-offset, 0px)) scale(1);
-}
-
-.pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"][data-anchor="bottom"]
-  [data-pathogen--toaster-target~="toast"]:not([hidden]) {
-  transform: translateY(calc(var(--toast-offset, 0px) * -1)) scale(1);
+  transform: translateY(calc(var(--toast-offset, 0px) * var(--toast-anchor-sign))) scale(1);
 }
 
 .pvc-toaster[data-stack="peek"][data-stack-ready][data-expanded="true"]
