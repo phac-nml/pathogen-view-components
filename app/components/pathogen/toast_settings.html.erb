@@ -1,15 +1,11 @@
 <%= tag.div(**@system_arguments) do %>
   <%= tag.label(label, for: select_id,
-                       class: 'text-[length:var(--type-control)] font-semibold text-[var(--pvc-color-text)]') %>
+                       class: 'text-(length:--type-control) font-semibold text-(--pvc-color-text)') %>
 
   <% if description.present? %>
     <%= tag.p(description, id: description_id,
-                          class: 'text-[length:var(--type-meta)] text-[var(--pvc-color-text-muted)]') %>
+                          class: 'text-(length:--type-meta) text-(--pvc-color-text-muted)') %>
   <% end %>
 
-  <%= tag.select(**select_attributes) do %>
-    <% options.each do |key| %>
-      <%= tag.option(option_label(key), value: option_value(key), selected: selected?(key)) %>
-    <% end %>
-  <% end %>
+  <%= tag.select(options_markup, **select_attributes) %>
 <% end %>
