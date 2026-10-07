@@ -107,14 +107,16 @@ module Pathogen
           },
           'data-controller': 'analytics',
           'data-action': 'focusin->analytics#record',
-          'data-pathogen--toaster-target': 'other-target'
+          'data-pathogen--toaster-target': 'other-target',
+          'data-qa-label': 'toast-preview'
         )
       )
 
       assert_selector 'li[data-controller="host-controller analytics pathogen--toast"]' \
                       '[data-action="click->host#record focusin->analytics#record"]' \
                       '[data-pathogen--toaster-target="host-target other-target toast"]' \
-                      '[data-qa-hook="notification"]'
+                      '[data-qa-hook="notification"]' \
+                      '[data-qa-label="toast-preview"]'
       root_markup = rendered_content[/<li\b[^>]*>/]
       assert_equal 1, root_markup.scan('data-controller=').length
       assert_equal 1, root_markup.scan('data-action=').length
