@@ -5,6 +5,22 @@ require 'test_helper'
 module Pathogen
   module Form
     class RadioButtonTest < ViewComponent::TestCase
+      test 'uses the model value when checked is omitted' do
+        form = ActionView::Helpers::FormBuilder.new('user', Struct.new(:theme).new('dark'), ActionView::Base.empty, {})
+
+        render_inline(RadioButton.new(form: form, attribute: :theme, value: 'dark', label: 'Dark'))
+
+        assert_selector 'input[name="user[theme]"][value="dark"][checked]'
+      end
+
+      test 'explicit checked false overrides the model value' do
+        form = ActionView::Helpers::FormBuilder.new('user', Struct.new(:theme).new('dark'), ActionView::Base.empty, {})
+
+        render_inline(RadioButton.new(form: form, attribute: :theme, value: 'dark', checked: false))
+
+        assert_selector 'input[value="dark"]:not([checked])'
+      end
+
       test 'renders radio input with control styling' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,
@@ -23,7 +39,7 @@ module Pathogen
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'label.block.text-sm.font-semibold'
+        assert_selector 'label span.block.text-sm.font-semibold'
         assert_text 'Dark Theme'
       end
 
@@ -47,7 +63,7 @@ module Pathogen
                       ))
 
         assert_selector 'div.flex.flex-col'
-        assert_selector 'div.flex.items-center.gap-3'
+        assert_selector 'label.inline-flex.items-center.gap-3 input[type="radio"]'
       end
 
       test 'input and label are associated via for attribute' do
@@ -101,7 +117,7 @@ module Pathogen
                         label: 'Dark Theme'
                       ))
 
-        assert_selector 'label.text-sm.font-semibold'
+        assert_selector 'label span.text-sm.font-semibold'
       end
     end
   end

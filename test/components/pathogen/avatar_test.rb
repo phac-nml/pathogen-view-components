@@ -107,6 +107,17 @@ module Pathogen
       assert_equal first_classes, second_classes
     end
 
+    test 'uses a strong foreground on the success soft fill' do
+      classes = render_inline(
+        Pathogen::Avatar.new(label: 'Ada Lovelace', colour_seed: 'Ada')
+      ).css('span[role="img"]').first['class'].split
+
+      assert_includes classes, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]'
+      assert_includes classes, 'text-[var(--pvc-color-success-strong)]'
+      assert_not_includes classes, 'text-[var(--pvc-color-success)]'
+      assert_not_includes classes, 'text-[var(--pvc-color-text)]'
+    end
+
     test 'uses equivalent deterministic fallback palette classes for color_seed alias' do
       colour_seed_classes = render_inline(
         Pathogen::Avatar.new(label: 'John Doe', colour_seed: 'stable-seed-b')

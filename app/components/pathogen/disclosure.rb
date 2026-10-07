@@ -37,8 +37,8 @@ module Pathogen
 
     DEFAULT_SIZE = :medium
     SIZE_MAPPINGS = {
-      small: 'text-xs px-2 py-1 min-h-6',
-      medium: 'text-sm px-3 py-2 min-h-11'
+      small: 'text-xs px-2 py-1 min-h-6 min-w-6',
+      medium: 'text-sm px-3 py-2 min-h-11 min-w-11'
     }.freeze
     SIZE_OPTIONS = SIZE_MAPPINGS.keys.freeze
 

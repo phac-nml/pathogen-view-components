@@ -6,6 +6,10 @@ gemspec
 
 gem 'rails', '>= 8.1.1'
 
+group :development do
+  gem 'ruby-lsp', require: false
+end
+
 # development dependencies
 group :development, :test do
   gem 'annotate'
@@ -16,4 +20,5 @@ group :development, :test do
   gem 'rubocop-performance'
   gem 'rubocop-rails'
   gem 'rubocop-rails-accessibility', '~> 1.0'
+  gem 'simplecov', '~> 1.3', require: false
 end

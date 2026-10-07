@@ -25,11 +25,12 @@ module Pathogen
       #
       # @return [Hash] basic ARIA attributes
       def build_basic_aria_attributes
-        aria = {}
+        aria = (@aria_options || {}).dup
         aria[:label] = @aria_label if @aria_label.present?
         aria[:labelledby] = @aria_labelledby if @aria_labelledby.present?
         aria[:live] = @aria_live if @aria_live.present?
         aria[:controls] = @controls if @controls.present?
+        aria[:invalid] = true if @error_text.present?
         aria
       end
 
@@ -57,8 +58,8 @@ module Pathogen
         [
           @aria_describedby,
           help_text_describedby,
-          controls_describedby
-        ].compact
+          (error_text_id if @error_text.present?)
+        ].compact.flat_map { |part| part.to_s.split }.uniq
       end
 
       # Returns help text describedby ID if help text is present.
@@ -66,13 +67,6 @@ module Pathogen
       # @return [String, nil] help text ID or nil
       def help_text_describedby
         help_text_id if @help_text.present?
-      end
-
-      # Returns controls describedby ID if controls are present.
-      #
-      # @return [String, nil] controls description ID or nil
-      def controls_describedby
-        "#{input_id}_description" if @controls.present?
       end
     end
   end
