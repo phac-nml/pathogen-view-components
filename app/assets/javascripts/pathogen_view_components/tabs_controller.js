@@ -144,9 +144,7 @@ export default class extends Controller {
       // Select the initial tab
       // Only update URL if the selected tab isn't already the current tab
       const validatedIndex = this.#validateDefaultIndex(initialIndex);
-      this.#applyTabSelection(validatedIndex, shouldUpdateUrl, history.replaceState, {
-        deferPanels: true,
-      });
+      this.#applyTabSelection(validatedIndex, shouldUpdateUrl, history.replaceState);
     } catch (error) {
       console.error("[pathogen--tabs] Error during initialization:", error);
     }
@@ -490,25 +488,6 @@ export default class extends Controller {
   }
 
   /**
-   * Applies tab and panel selection state synchronously
-   *
-   * @private
-   * @param {number} index - The tab index to select
-   * @param {boolean} updateUrl - Whether to update the URL hash
-   * @param {Function} updateMethod - The history method to use
-   * @returns {void}
-   */
-  /* v8 ignore start -- unused synchronous fallback: every #applyTabSelection caller defers panel updates */
-  #syncPanelsAndUrl(index, updateUrl, updateMethod) {
-    this.#updatePanels(index);
-
-    if (this.syncUrlValue && updateUrl) {
-      this.#updateUrlHash(index, updateMethod);
-    }
-  }
-  /* v8 ignore stop */
-
-  /**
    * Defers panel visibility and optional URL updates
    *
    * @private
@@ -540,17 +519,15 @@ export default class extends Controller {
   }
 
   /**
-   * Applies tab selection and optionally defers panel visibility
+   * Applies tab selection and defers panel visibility updates
    *
    * @private
    * @param {number} index - The tab index to select
    * @param {boolean} updateUrl - Whether to update the URL hash
    * @param {Function} updateMethod - The history method to use
-   * @param {Object} options - Additional options
-   * @param {boolean} options.deferPanels - Defer panel visibility updates
    * @returns {void}
    */
-  #applyTabSelection(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = false } = {}) {
+  #applyTabSelection(index, updateUrl = true, updateMethod = history.pushState) {
     /* v8 ignore next 3 -- defensive: every caller resolves an in-range index before applying selection */
     if (!this.#canSelectIndex(index)) {
       return;
@@ -558,13 +535,7 @@ export default class extends Controller {
 
     if (this.#selectedIndex === index && this.#isTabSelectionSynced(index)) {
       if (!this.#arePanelsSynced(index)) {
-        /* v8 ignore start -- deferPanels is always true for every caller; the synchronous fallback is unused */
-        if (deferPanels) {
-          this.#deferPanelUpdate(index, updateUrl, updateMethod);
-        } else {
-          this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
-        }
-        /* v8 ignore stop */
+        this.#deferPanelUpdate(index, updateUrl, updateMethod);
       } else if (this.syncUrlValue && updateUrl) {
         this.#updateUrlHash(index, updateMethod);
       }
@@ -575,13 +546,7 @@ export default class extends Controller {
     this.#selectedIndex = index;
     this.#updateTabs(index);
 
-    /* v8 ignore start -- deferPanels is always true for every caller; the synchronous fallback is unused */
-    if (deferPanels) {
-      this.#deferPanelUpdate(index, updateUrl, updateMethod);
-    } else {
-      this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
-    }
-    /* v8 ignore stop */
+    this.#deferPanelUpdate(index, updateUrl, updateMethod);
   }
 
   /**
@@ -591,11 +556,9 @@ export default class extends Controller {
    * @param {number} index - The tab index to select
    * @param {boolean} updateUrl - Whether to update the URL hash (default: true)
    * @param {Function} updateMethod - The history method to use (default: history.pushState)
-   * @param {Object} options - Additional options
-   * @param {boolean} options.deferPanels - Defer panel visibility updates
    * @returns {void}
    */
-  #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = true } = {}) {
+  #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState) {
     /* v8 ignore next 3 -- defensive: selectTab and hashchange resolve an in-range index first */
     if (!this.#canSelectIndex(index)) {
       return;
@@ -606,7 +569,7 @@ export default class extends Controller {
       return;
     }
 
-    this.#applyTabSelection(index, updateUrl, updateMethod, { deferPanels });
+    this.#applyTabSelection(index, updateUrl, updateMethod);
   }
 
   /**
@@ -701,7 +664,7 @@ export default class extends Controller {
     // Apply selection before focus so the focus announcement includes the final
     // selected state. aria-controls is stripped during the attribute batch so NVDA
     // does not also announce aria-selected changes separately.
-    this.#applyTabSelection(index, true, history.pushState, { deferPanels: true });
+    this.#applyTabSelection(index, true, history.pushState);
 
     /* v8 ignore next 3 -- defensive: navigation always targets a tab that is not already focused */
     if (document.activeElement !== tab) {
