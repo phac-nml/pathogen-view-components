@@ -5,7 +5,6 @@ require_relative '../../lib/pathogen/fetch_or_fallback_helper'
 
 module Pathogen
   # @private
-  # :nocov:
   class Component < ViewComponent::Base
     include Pathogen::FetchOrFallbackHelper
     include Pathogen::TestSelectorHelper
