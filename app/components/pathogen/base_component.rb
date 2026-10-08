@@ -2,7 +2,7 @@
 
 module Pathogen
   # @private
-  # :nocov:
+  # simplecov:disable
   class BaseComponent < Pathogen::Component
     SELF_CLOSING_TAGS = %i[area base br col embed hr img input link meta param source track
                            wbr].freeze
@@ -30,4 +30,5 @@ module Pathogen
       end
     end
   end
+  # simplecov:enable
 end

@@ -2,7 +2,7 @@
 
 module Pathogen
   # @private
-  # :nocov:
+  # simplecov:disable
   module FetchOrFallbackHelper
     mattr_accessor :fallback_raises, default: true
 
@@ -43,4 +43,5 @@ module Pathogen
       fallback
     end
   end
+  # simplecov:enable
 end
