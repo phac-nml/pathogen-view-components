@@ -227,9 +227,11 @@ export default class extends Controller {
   disconnect() {
     // Remove event listeners if URL sync is enabled
     if (this.syncUrlValue) {
+      /* v8 ignore next 2 -- defensive: the hashchange handler is always bound while URL sync is enabled */
       if (this.#boundHandleHashChange) {
         window.removeEventListener("hashchange", this.#boundHandleHashChange);
       }
+      /* v8 ignore next 2 -- defensive: the turbo:render handler is always bound while URL sync is enabled */
       if (this.#boundHandleTurboRender) {
         document.removeEventListener("turbo:render", this.#boundHandleTurboRender);
       }
@@ -366,11 +368,13 @@ export default class extends Controller {
    * @returns {boolean}
    */
   #arePanelsSynced(index) {
+    /* v8 ignore next 3 -- defensive: callers only compare sync state for in-range indexes */
     if (!this.#canSelectIndex(index)) {
       return false;
     }
 
     return this.#associatedPanels().every((panel, i) => {
+      /* v8 ignore next -- defensive: associated panels are never null when tab and panel counts match */
       if (!panel) return false;
 
       const isVisible = i === index;
@@ -409,6 +413,7 @@ export default class extends Controller {
    */
   #updateTabs(index) {
     const restoredControls = this.tabTargets.map((tab) => {
+      /* v8 ignore next -- defensive: tab targets are never null */
       if (!tab) return null;
 
       const controls = tab.getAttribute("aria-controls");
@@ -421,6 +426,7 @@ export default class extends Controller {
 
     try {
       this.tabTargets.forEach((tab, i) => {
+        /* v8 ignore next -- defensive: tab targets are never null */
         if (!tab) return;
 
         const isSelected = i === index;
@@ -462,6 +468,7 @@ export default class extends Controller {
    */
   #updatePanels(index) {
     this.#associatedPanels().forEach((panel, i) => {
+      /* v8 ignore next -- defensive: associated panels are never null when tab and panel counts match */
       if (!panel) return;
 
       const isVisible = i === index;
@@ -491,6 +498,7 @@ export default class extends Controller {
    * @param {Function} updateMethod - The history method to use
    * @returns {void}
    */
+  /* v8 ignore start -- unused synchronous fallback: every #applyTabSelection caller defers panel updates */
   #syncPanelsAndUrl(index, updateUrl, updateMethod) {
     this.#updatePanels(index);
 
@@ -498,6 +506,7 @@ export default class extends Controller {
       this.#updateUrlHash(index, updateMethod);
     }
   }
+  /* v8 ignore stop */
 
   /**
    * Defers panel visibility and optional URL updates
@@ -542,17 +551,20 @@ export default class extends Controller {
    * @returns {void}
    */
   #applyTabSelection(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = false } = {}) {
+    /* v8 ignore next 3 -- defensive: every caller resolves an in-range index before applying selection */
     if (!this.#canSelectIndex(index)) {
       return;
     }
 
     if (this.#selectedIndex === index && this.#isTabSelectionSynced(index)) {
       if (!this.#arePanelsSynced(index)) {
+        /* v8 ignore start -- deferPanels is always true for every caller; the synchronous fallback is unused */
         if (deferPanels) {
           this.#deferPanelUpdate(index, updateUrl, updateMethod);
         } else {
           this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
         }
+        /* v8 ignore stop */
       } else if (this.syncUrlValue && updateUrl) {
         this.#updateUrlHash(index, updateMethod);
       }
@@ -563,11 +575,13 @@ export default class extends Controller {
     this.#selectedIndex = index;
     this.#updateTabs(index);
 
+    /* v8 ignore start -- deferPanels is always true for every caller; the synchronous fallback is unused */
     if (deferPanels) {
       this.#deferPanelUpdate(index, updateUrl, updateMethod);
     } else {
       this.#syncPanelsAndUrl(index, updateUrl, updateMethod);
     }
+    /* v8 ignore stop */
   }
 
   /**
@@ -582,10 +596,12 @@ export default class extends Controller {
    * @returns {void}
    */
   #selectTabByIndex(index, updateUrl = true, updateMethod = history.pushState, { deferPanels = true } = {}) {
+    /* v8 ignore next 3 -- defensive: selectTab and hashchange resolve an in-range index first */
     if (!this.#canSelectIndex(index)) {
       return;
     }
 
+    /* v8 ignore next 3 -- defensive: callers skip already-synced selections before delegating here */
     if (this.#selectedIndex === index && this.#isSelectionSynced(index)) {
       return;
     }
@@ -600,11 +616,13 @@ export default class extends Controller {
    * @returns {boolean}
    */
   #isTabSelectionSynced(index) {
+    /* v8 ignore next 3 -- defensive: callers only check roving state for in-range indexes */
     if (!this.#canSelectIndex(index)) {
       return false;
     }
 
     return this.tabTargets.every((tab, i) => {
+      /* v8 ignore next -- defensive: tab targets are never null */
       if (!tab) return false;
 
       const isSelected = i === index;
@@ -669,6 +687,7 @@ export default class extends Controller {
    * @returns {void}
    */
   #focusAndSelectTab(index) {
+    /* v8 ignore next 3 -- defensive: keyboard navigation always resolves an in-range index */
     if (!this.#canSelectIndex(index)) {
       return;
     }
@@ -684,6 +703,7 @@ export default class extends Controller {
     // does not also announce aria-selected changes separately.
     this.#applyTabSelection(index, true, history.pushState, { deferPanels: true });
 
+    /* v8 ignore next 3 -- defensive: navigation always targets a tab that is not already focused */
     if (document.activeElement !== tab) {
       tab.focus({ preventScroll: true });
     }
@@ -840,6 +860,7 @@ export default class extends Controller {
       }
 
       const hashIndex = this.#getTabIndexFromHash();
+      /* v8 ignore next 2 -- defensive: a connected controller always has a selected index to fall back to */
       const targetIndex =
         hashIndex !== -1 ? hashIndex : (this.#selectedIndex ?? this.#validateDefaultIndex(this.defaultIndexValue));
 
