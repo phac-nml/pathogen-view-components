@@ -21,6 +21,17 @@ module Demo
       end
     end
 
+    def cursor_rows
+      limit = clamp_limit(params.fetch(:limit, DEFAULT_LIMIT).to_i)
+      @cursor_page = Demo::SampleCursorPage.new(limit:, cursor: params[:cursor], query: params[:name_cont])
+      @grid = Demo::SamplesGrid.build_cursor(rows: [], next_cursor: nil)
+      respond_to do |format|
+        format.json
+      end
+    rescue Demo::SampleCursorPage::CursorMismatch
+      render json: { error: 'cursor_mismatch' }, status: :conflict
+    end
+
     private
 
     def clamp_limit(limit)

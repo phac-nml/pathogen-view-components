@@ -1,6 +1,7 @@
 /* Data grid: layout/focus/sticky (--pvc-* are internal layout tokens, not app theme hooks). */
 
 .pvc-data-grid {
+  container-name: pvc-data-grid;
   --pvc-data-grid-border-color: var(--pvc-color-border);
   --pvc-data-grid-row-border: color-mix(in oklab, var(--pvc-color-border) 55%, transparent);
   --pvc-data-grid-text-color: var(--pvc-color-text);
@@ -28,6 +29,10 @@
   --pvc-data-grid-scroll-cue-color: color-mix(in oklab, var(--pvc-color-text) 20%, transparent);
 }
 
+.pvc-data-grid__scroll {
+  --pvc-data-grid-horizontal-sticky: 1;
+}
+
 .dark .pvc-data-grid {
   --pvc-data-grid-border-color: var(--pvc-color-border);
   --pvc-data-grid-row-border: var(--pvc-color-border);
@@ -41,7 +46,7 @@
 .pvc-data-grid.pvc-data-grid--dense {
   --pvc-data-grid-cell-padding-y: 0.5rem;
   --pvc-data-grid-cell-padding-x: 0.75rem;
-  --pvc-data-grid-font-size: 0.8125rem;
+  --pvc-data-grid-font-size: var(--type-control);
 }
 
 .pvc-data-grid[data-pvc-data-grid-state="error"] .pvc-data-grid__state {
@@ -137,6 +142,23 @@
   background-color: var(--pvc-data-grid-header-bg);
 }
 
+/* A sole opt-in virtual header action owns the cell's padding and complete hit area. */
+.pvc-data-grid__cell--virtual-header:has(> button.pvc-data-grid__header-action:only-child) {
+  padding: 0;
+}
+
+.pvc-data-grid__cell--virtual-header > button.pvc-data-grid__header-action:only-child {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  justify-content: flex-start;
+  border-radius: 0;
+  padding-block: calc(var(--pvc-data-grid-cell-padding-y) + 0.25rem);
+  padding-inline: var(--pvc-data-grid-cell-padding-x);
+  text-align: left;
+}
+
 /* Row hover: cells inherit the row hover background */
 .pvc-data-grid__row:hover [data-pathogen--data-grid-target~="cell"]:not([role="columnheader"]),
 .pvc-data-grid__row:focus-within [data-pathogen--data-grid-target~="cell"]:not([role="columnheader"]) {
@@ -194,6 +216,24 @@
   pointer-events: none;
 }
 
+/* Release horizontal pinning when the grid's available width is narrow.
+ * Keep header top offsets so vertical scrolling still retains column labels. */
+@container pvc-data-grid (width < 48rem) {
+  .pvc-data-grid__scroll {
+    --pvc-data-grid-horizontal-sticky: 0;
+  }
+
+  .pvc-data-grid [data-sticky-cell] {
+    left: auto;
+  }
+
+  .pvc-data-grid [role="gridcell"][data-sticky-cell],
+  .pvc-data-grid .pvc-data-grid__lane--pinned {
+    position: relative;
+    left: auto;
+  }
+}
+
 [data-pathogen--data-grid-target~="cell"]:focus,
 [data-pathogen--data-grid-target="grid"]:focus-within
   [data-pathogen--data-grid-target~="cell"][data-pathogen--data-grid-active="true"]:not(
@@ -213,9 +253,14 @@
 }
 
 [data-pathogen--data-grid-target~="cell"] :is(a, button, input, select, textarea):focus-visible {
-  outline: 1px solid var(--pvc-data-grid-focus-ring);
-  outline-offset: 0;
+  outline: 2px solid var(--pvc-data-grid-focus-ring);
+  outline-offset: 2px;
   border-radius: var(--pvc-radius-action);
+}
+
+.pvc-data-grid__cell--virtual-header > button.pvc-data-grid__header-action:only-child:focus-visible {
+  outline-offset: -2px;
+  border-radius: 0;
 }
 
 @media (forced-colors: active) {

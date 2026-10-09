@@ -302,6 +302,9 @@ describe("page_cache", () => {
     grid.dataset.pvcDataGridRowOffset = "40";
 
     expect(paginationContract(grid, 20)).toEqual({
+      mode: "offset",
+      nextCursor: null,
+      knownTotal: 5000,
       totalRows: 5000,
       rowsUrl: "/rows.json",
       searchParams: null,
