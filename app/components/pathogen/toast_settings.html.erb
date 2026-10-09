@@ -1,0 +1,11 @@
+<%= tag.div(**@system_arguments) do %>
+  <%= tag.label(label, for: select_id,
+                       class: 'text-(length:--type-control) font-semibold text-(--pvc-color-text)') %>
+
+  <% if description.present? %>
+    <%= tag.p(description, id: description_id,
+                          class: 'text-(length:--type-meta) text-(--pvc-color-text-muted)') %>
+  <% end %>
+
+  <%= tag.select(options_markup, **select_attributes) %>
+<% end %>
