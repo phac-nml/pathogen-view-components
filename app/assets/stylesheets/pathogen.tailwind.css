@@ -156,6 +156,71 @@
 }
 
 @import "./pathogen/components/toolbar.css";
+
+/* CopyableValue icon crossfade */
+@keyframes pathogen-copyable-value-success-pop {
+  0% {
+    transform: scale(0.86);
+  }
+  60% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 1;
+  pointer-events: none;
+  transition: opacity var(--pvc-duration-fast) ease-out;
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 0;
+}
+
+[data-controller~="pathogen--copyable-value"]:is([data-state="success"], [data-state="error"])
+  [data-pathogen--copyable-value-target="icon"] {
+  opacity: 0;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="success"]
+  [data-pathogen--copyable-value-target="successIcon"],
+[data-controller~="pathogen--copyable-value"][data-state="error"] [data-pathogen--copyable-value-target="errorIcon"] {
+  opacity: 1;
+}
+
+[data-controller~="pathogen--copyable-value"][data-state="success"]
+  [data-pathogen--copyable-value-target="successIcon"] {
+  transform-origin: center;
+  animation: pathogen-copyable-value-success-pop var(--pvc-duration-default) ease-out;
+}
+
+[data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+  color: var(--pvc-color-danger);
+}
+
+@media (forced-colors: active) {
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+    forced-color-adjust: none;
+    color: CanvasText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="icon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="successIcon"],
+  [data-controller~="pathogen--copyable-value"] [data-pathogen--copyable-value-target="errorIcon"] {
+    transition: none;
+    animation: none;
+  }
+}
+
 @import "./pvc_datagrid_layer.css";
 @import "./pathogen_form_switch_layer.css";
 @import "./pathogen_disclosure_layer.css";
