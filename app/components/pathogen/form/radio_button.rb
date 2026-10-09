@@ -78,10 +78,13 @@ module Pathogen
       #
       # @return [ActiveSupport::SafeBuffer] the rendered HTML
       def render_component
-        if @label.blank?
-          radio_button_control_html + help_text_html + error_text_html
-        else
-          render_labeled_layout
+        wrapper_class = @label.present? ? radio_button_container_classes : nil
+        render_form_layout(radio_button_control_html, wrapper_class:) do |control_html, support_html|
+          if @label.blank?
+            safe_join([control_html, support_html])
+          else
+            control_html + tag.div(support_html, class: radio_button_help_container_classes)
+          end
         end
       end
 
@@ -101,18 +104,6 @@ module Pathogen
       end
 
       private
-
-      # Renders layout for radio buttons with visible labels.
-      #
-      # @return [ActiveSupport::SafeBuffer] the labeled radio button HTML
-      def render_labeled_layout
-        tag.div(class: radio_button_container_classes) do
-          radio_button_control_html +
-            tag.div(class: radio_button_help_container_classes) do
-              help_text_html + error_text_html
-            end
-        end
-      end
 
       def radio_button_control_html
         tag.label(for: input_id, class: class_names(radio_button_input_container_classes, target_size_classes)) do
