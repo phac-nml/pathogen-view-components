@@ -8,7 +8,7 @@ require 'simplecov'
 SimpleCov.start 'rails' do
   coverage_dir 'coverage/ruby'
   enable_coverage :branch
-  add_filter '/test/'
+  skip '/test/'
 end
 
 require 'active_support/all'
