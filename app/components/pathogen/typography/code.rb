@@ -9,9 +9,9 @@ module Pathogen
       DEFAULT_TAG = :code
 
       CODE_CLASSES = %w[
-        inline-flex items-center gap-1 font-mono text-[length:var(--type-control)]
-        text-[var(--pvc-color-text)] bg-[var(--pvc-color-surface-muted)]
-        border border-[var(--pvc-color-border)] rounded-[var(--pvc-radius-control)] px-1.5 py-0.5
+        inline-flex items-center gap-1 font-mono text-(length:--type-control)
+        text-(--pvc-color-text) bg-(--pvc-color-surface-muted)
+        border border-(--pvc-color-border) rounded-(--pvc-radius-control) px-1.5 py-0.5
         whitespace-nowrap align-middle
       ].join(' ').freeze
 

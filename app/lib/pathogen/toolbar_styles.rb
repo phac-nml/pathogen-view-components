@@ -8,11 +8,11 @@ module Pathogen
     ].freeze
 
     CHIP_VARIANT = %w[
-      inline-flex items-center gap-2 rounded-[var(--pvc-radius-action)]
-      border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-muted)] px-1 py-1
+      inline-flex items-center gap-2 rounded-(--pvc-radius-action)
+      border border-(--pvc-color-border) bg-(--pvc-color-surface-muted) px-1 py-1
     ].freeze
 
-    SEPARATOR = 'mx-1 h-5 w-px shrink-0 bg-[var(--pvc-color-border-strong)]'
+    SEPARATOR = 'mx-1 h-5 w-px shrink-0 bg-(--pvc-color-border-strong)'
 
     VARIANTS = {
       table: TABLE_VARIANT,

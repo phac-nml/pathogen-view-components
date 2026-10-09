@@ -5,29 +5,29 @@ module Pathogen
     COLUMN_CELL_BASE = %w[
       box-border min-h-10 whitespace-nowrap align-middle font-normal
       border-b transition-colors
-      text-[length:var(--pvc-data-grid-font-size)]
-      leading-[var(--pvc-data-grid-line-height)]
-      text-[var(--pvc-data-grid-text-color)]
-      border-[var(--pvc-data-grid-row-border)]
-      py-[var(--pvc-data-grid-cell-padding-y)]
-      px-[var(--pvc-data-grid-cell-padding-x)]
-      w-[var(--pvc-data-grid-col-width,auto)]
-      min-w-[var(--pvc-data-grid-col-width,auto)]
+      text-(length:--pvc-data-grid-font-size)
+      leading-(--pvc-data-grid-line-height)
+      text-(--pvc-data-grid-text-color)
+      border-(--pvc-data-grid-row-border)
+      py-(--pvc-data-grid-cell-padding-y)
+      px-(--pvc-data-grid-cell-padding-x)
+      w-(--pvc-data-grid-col-width,auto)
+      min-w-(--pvc-data-grid-col-width,auto)
     ].freeze
 
     COLUMN_HEADER_ROW = %w[
-      sticky top-0 border-b border-[var(--pvc-data-grid-border-color)]
-      bg-[var(--pvc-data-grid-header-bg)] text-left align-bottom
+      sticky top-0 border-b border-(--pvc-data-grid-border-color)
+      bg-(--pvc-data-grid-header-bg) text-left align-bottom
     ].freeze
 
     COLUMN_STICKY_TD = %w[
       sticky z-[2] shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
-      left-[var(--pvc-data-grid-sticky-left,0px)]
+      left-(--pvc-data-grid-sticky-left,0px)
     ].freeze
 
     COLUMN_STICKY_TH = %w[
       sticky shadow-[1px_0_0_var(--pvc-data-grid-border-color)]
-      left-[var(--pvc-data-grid-sticky-left,0px)]
+      left-(--pvc-data-grid-sticky-left,0px)
       z-[calc(var(--pvc-data-grid-header-z)+1)]
     ].freeze
 
