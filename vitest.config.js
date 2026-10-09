@@ -25,6 +25,12 @@ const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/sidebar_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/navigation.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/scroll.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/tabs_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toolbar_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toolbar_controller/constants.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toolbar_controller/roving_focus.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toolbar_controller/text_entry.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/toolbar_controller/visibility.js": FULL_COVERAGE,
 };
 
 export default defineConfig({
