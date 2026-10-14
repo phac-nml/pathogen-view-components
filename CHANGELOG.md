@@ -10,6 +10,7 @@
 - Radio inputs now sit inside their associated label. Check host styles or scripts that rely on the previous input/label structure.
 - Bound radio buttons use the model value unless `checked:` is supplied. Remove workarounds that were only needed for the old unchecked default.
 - `error_text:` now renders and describes the input. It also sets `aria-invalid`. Caller-provided nested ARIA attributes are retained.
+- Avatars own their role, accessible name, and visibility. Use `label:`, `url:`, and `decorative:` instead of overriding `role`, `aria-label`, `aria-labelledby`, or `aria-hidden`. Reserved attributes are checked for string keys and mixed case too.
 
 ### Fixes
 
@@ -17,6 +18,8 @@
 - Tooltips remain visible while focused or hovered. Escape dismisses them without moving keyboard focus.
 - Switch tracks and thumbs use contrasting semantic colours in both themes. Checked thumbs use the correct foreground in forced-colours mode.
 - Form help and error descriptions render with externally named controls. `aria-controls` no longer invents a description ID.
+- Decorative avatars are inert so caller-supplied focus attributes cannot create hidden keyboard stops.
+- Avatars recover from failed images with initials or a decorative silhouette when Pathogen controllers are registered, including cached failures and fragment replacements.
 
 ### Development
 
