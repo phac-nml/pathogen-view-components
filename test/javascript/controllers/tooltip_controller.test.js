@@ -47,6 +47,7 @@ const appendTooltip = (placement = "top") => {
 
   // Wrap in dialog so controller skips portal-to-body logic (avoids jsdom teardown issues).
   const dialog = document.createElement("dialog");
+  dialog.setAttribute("open", "");
   dialog.appendChild(container);
   document.body.appendChild(dialog);
 
