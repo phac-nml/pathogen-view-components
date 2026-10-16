@@ -158,7 +158,7 @@ module Pathogen
 
       assert_no_selector '[class*="bg-[var(--pvc-color-success)]"]'
       assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].font-semibold', text: 'Sync running'
-      assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].text-\\[var\\(--pvc-color-text-muted\\)\\]',
+      assert_selector 'p.text-\\[length\\:var\\(--type-control\\)\\].text-\\[var\\(--pvc-color-text\\)\\]',
                       text: 'Metadata updates in the background.'
       assert_selector 'div.text-\\[var\\(--pvc-color-text-muted\\)\\]'
       assert_selector 'button[aria-label="Dismiss notification"][class*="aspect-square"]'

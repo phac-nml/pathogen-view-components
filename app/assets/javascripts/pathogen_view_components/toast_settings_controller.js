@@ -1,11 +1,14 @@
 import { Controller } from "@hotwired/stimulus";
-import { DURATION_STORAGE_KEY } from "pathogen_view_components/toast_duration_preference";
+import {
+  DURATION_STORAGE_KEY,
+  readStoredDurationPreference,
+  writeDurationPreference,
+} from "pathogen_view_components/toast_duration_preference";
 
 const DEFAULT_STORAGE_KEY = DURATION_STORAGE_KEY;
 
-// Persists the user's status-toast duration preference to localStorage, which
-// Pathogen::Toaster / Pathogen::Toast read. This is the user-facing mechanism
-// behind WCAG 2.2.1 (Timing Adjustable) for status toasts.
+// Preferences survive blocked browser storage for this page session.
+// Hosts expose this control before showing time-limited notifications.
 export default class extends Controller {
   static targets = ["select"];
   static values = {
@@ -22,16 +25,7 @@ export default class extends Controller {
     if (!this.hasSelectTarget) return;
 
     const value = this.selectTarget.value;
-    try {
-      if (value === "" || value === null || value === undefined) {
-        window.localStorage?.removeItem(this.#storageKey());
-      } else {
-        window.localStorage?.setItem(this.#storageKey(), value);
-      }
-    } catch {
-      // Storage may be unavailable (private mode, disabled). Fail quietly; the
-      // select still reflects the user's choice for the current session.
-    }
+    writeDurationPreference(value, this.#storageKey());
 
     this.dispatch("change", {
       prefix: "pathogen:toast-settings",
@@ -42,15 +36,10 @@ export default class extends Controller {
   #reflectStoredPreference() {
     if (!this.hasSelectTarget) return;
 
-    let stored = null;
-    try {
-      stored = window.localStorage?.getItem(this.#storageKey());
-    } catch {
-      stored = null;
-    }
+    const stored = readStoredDurationPreference(this.#storageKey());
 
     // No stored preference: keep the server-rendered default selection.
-    if (stored === null || stored === undefined) return;
+    if (stored === null) return;
 
     const match = Array.from(this.selectTarget.options).some((option) => option.value === stored);
     if (match) this.selectTarget.value = stored;

@@ -9,7 +9,8 @@
       <%= render(Pathogen::Typography::Code.new) { "WCAG 2.2.1" } %>. This control writes
       <%= render(Pathogen::Typography::Code.new) { "localStorage['pathogen.toast.durationMs']" } %>, which the toaster reads:
       <%= render(Pathogen::Typography::Code.new) { "20000" } %> extends the timer and <%= render(Pathogen::Typography::Code.new) { "forever" } %> promotes status
-      toasts to dismissible dialogs.
+      toasts to dismissible dialogs. Changes affect new notifications. If browser storage is blocked, the preference
+      still works until the page reloads.
     <% end %>
 
     <div

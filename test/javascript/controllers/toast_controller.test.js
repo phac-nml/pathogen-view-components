@@ -393,6 +393,24 @@ describe("toast_controller", () => {
     expect(toast.contains(document.activeElement)).toBe(false);
   });
 
+  it("preserves focus moved outside during the dismissal animation", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    const previous = document.createElement("button");
+    const field = document.createElement("input");
+    document.body.append(previous, field);
+    previous.focus();
+    const { toast } = buildToast({ timeout: 0, mode: "dialog", dismissible: true });
+    await waitForController();
+    await waitForAnimationFrames();
+
+    toast.querySelector("button").click();
+    field.focus();
+    await vi.advanceTimersByTimeAsync(160);
+
+    expect(toast.isConnected).toBe(false);
+    expect(document.activeElement).toBe(field);
+  });
+
   it("restores focus to the prior element when dismissed via the close button", async () => {
     const previous = document.createElement("button");
     previous.textContent = "previous";

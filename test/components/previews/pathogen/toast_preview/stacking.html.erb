@@ -6,7 +6,7 @@
 
     <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) do %>
       Status toasts only — peek collapse requires every toast to be status mode. Hover, focus, or “+N more” expands.
-      Peek-behind cards are <%= render(Pathogen::Typography::Code.new) { "inert" } %>.
+      Expanded cards stay in reading order and scroll within the available space. Peek-behind cards are <%= render(Pathogen::Typography::Code.new) { "inert" } %>.
     <% end %>
 
     <div
@@ -69,7 +69,7 @@
 
     <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) do %>
       Any warning, error, or <%= render(Pathogen::Typography::Code.new) { "dismissible: true" } %> toast forces
-      <%= render(Pathogen::Typography::Code.new) { 'data-stack="flat"' } %> so dialogs stay fully visible and focusable.
+      <%= render(Pathogen::Typography::Code.new) { 'data-stack="flat"' } %> so every dialog remains reachable by scrolling and keyboard navigation.
     <% end %>
 
     <div

@@ -9,12 +9,12 @@ import {
   ANNOUNCE_DEBOUNCE_MS,
   LiveRegionAnnouncer,
 } from "pathogen_view_components/toaster_controller/live_region_announcer";
-import { createStackPlan, describeToast, TOAST_GAP_PX } from "pathogen_view_components/toaster_controller/stack_plan";
+import { createStackPlan, describeToast } from "pathogen_view_components/toaster_controller/stack_plan";
 
 const DISMISS_ALL_THRESHOLD = 3;
 
 export default class extends Controller {
-  static targets = ["polite", "assertive", "toast", "more", "dismissAll"];
+  static targets = ["polite", "assertive", "toast", "more", "dismissAll", "viewport"];
   static values = {
     maxVisible: { type: Number, default: 3 },
     position: { type: String, default: "top_center" },
@@ -24,7 +24,8 @@ export default class extends Controller {
 
   #expanded = false;
   #announcer = null;
-  #resizeObserver = null;
+  #returnFocusElement = null;
+  #collapseFrame = null;
   #motionQuery = null;
   #onMotionChange = null;
   #stackFrame = null;
@@ -42,10 +43,8 @@ export default class extends Controller {
       assertiveTarget: () => (this.hasAssertiveTarget ? this.assertiveTarget : null),
     });
 
-    this.#resizeObserver = new ResizeObserver(() => this.#scheduleApplyStack());
     this.toastTargets.forEach((toast) => {
       this.#applyDurationPreference(toast);
-      this.#resizeObserver.observe(toast);
       const controller = this.application.getControllerForElementAndIdentifier(toast, "pathogen--toast");
       if (controller) this.#queuePresentation(controller);
     });
@@ -66,32 +65,29 @@ export default class extends Controller {
     }
     this.#arrivals.clear();
     this.#motionQuery.removeEventListener("change", this.#onMotionChange);
-    this.#resizeObserver?.disconnect();
-    this.#resizeObserver = null;
+    cancelAnimationFrame(this.#collapseFrame ?? 0);
+    this.#collapseFrame = null;
   }
 
   toastTargetConnected(toast) {
     this.#applyDurationPreference(toast);
-    this.#resizeObserver?.observe(toast);
     this.#scheduleApplyStack();
   }
 
-  toastTargetDisconnected(toast) {
-    this.#resizeObserver?.unobserve(toast);
+  toastTargetDisconnected() {
     this.#scheduleApplyStack();
   }
 
-  expand() {
+  expand(event) {
+    if (event?.type === "focusin") this.#rememberReturnFocus(event.relatedTarget);
     this.#expanded = true;
     this.#applyStack();
   }
 
-  expandFromControl() {
-    this.expand();
-  }
-
   collapseIfIdle() {
-    requestAnimationFrame(() => {
+    cancelAnimationFrame(this.#collapseFrame ?? 0);
+    this.#collapseFrame = requestAnimationFrame(() => {
+      this.#collapseFrame = null;
       if (!this.element.isConnected) return;
       if (this.element.matches(":hover")) return;
       if (this.element.contains(document.activeElement)) return;
@@ -131,6 +127,7 @@ export default class extends Controller {
       arrivals.forEach((arrival) => {
         if (!arrival.awaitingPresentation || !this.element.contains(arrival.element)) return;
 
+        this.#rememberReturnFocus(document.activeElement);
         const focus =
           !focusClaimed &&
           arrival.initialDialogIntent &&
@@ -155,6 +152,7 @@ export default class extends Controller {
   }
 
   dismissAll() {
+    if (this.element.contains(document.activeElement)) this.#restoreFocus();
     const dialogs = this.toastTargets.filter((toast) => describeToast(toast).dialog && toast.isConnected);
     dialogs.forEach((toast) => {
       const controller = this.application?.getControllerForElementAndIdentifier(toast, "pathogen--toast");
@@ -204,8 +202,16 @@ export default class extends Controller {
     });
   }
 
-  #listElement() {
-    return this.element.querySelector("ol.pvc-toaster__list") || this.element.querySelector("ol");
+  #rememberReturnFocus(element) {
+    if (element instanceof HTMLElement && element !== document.body && !this.element.contains(element)) {
+      this.#returnFocusElement = element;
+    }
+  }
+
+  #restoreFocus() {
+    const target = this.#returnFocusElement;
+    if (target?.isConnected) target.focus();
+    if (this.element.contains(document.activeElement)) this.viewportTarget.focus();
   }
 
   #prefersReducedMotion() {
@@ -227,75 +233,29 @@ export default class extends Controller {
   }
 
   #applyStack() {
-    const plan = createStackPlan(
-      this.toastTargets.filter((toast) => toast.isConnected),
-      {
-        expanded: this.#expanded,
-        maxVisible: Math.max(1, this.maxVisibleValue),
-        reducedMotion: this.#prefersReducedMotion(),
-        measureToast: (toast) => this.#naturalSize(toast),
-      },
-    );
+    const plan = createStackPlan(this.toastTargets, {
+      expanded: this.#expanded,
+      maxVisible: Math.max(1, this.maxVisibleValue),
+      reducedMotion: this.#prefersReducedMotion(),
+    });
 
-    this.#applyHostState(plan);
-    this.#applyToastEntries(plan);
-    this.#applyListMetrics(plan);
-    this.#applyControls(plan);
-  }
-
-  #applyHostState(plan) {
     this.element.dataset.stack = plan.peek ? "peek" : "flat";
     this.element.dataset.expanded = String(this.#expanded);
     this.element.dataset.anchor = this.#anchorEdge();
-    this.element.dataset.hasPeek = String(plan.peek && plan.peekCount > 0);
-    if (plan.metricsReady) this.element.dataset.stackReady = "true";
-    else delete this.element.dataset.stackReady;
+    this.element.dataset.hasPeek = String(plan.peekCount > 0);
+    this.element.style.setProperty("--peek-count", String(plan.peekCount));
 
-    if (plan.peek && plan.frontWidth > 0) {
-      this.element.style.setProperty("--front-width", `${plan.frontWidth}px`);
-    } else {
-      this.element.style.removeProperty("--front-width");
-    }
-  }
-
-  #applyToastEntries(plan) {
-    plan.entries.forEach(({ toast, hidden, behind, inert, index, height, offset }) => {
+    for (const { toast, hidden, behind, index } of plan.entries) {
       toast.hidden = hidden;
-      toast.toggleAttribute("inert", inert);
-      toast.setAttribute("aria-hidden", String(inert));
-      if (behind) toast.tabIndex = -1;
-      else toast.removeAttribute("tabindex");
-
-      if (plan.peek && !hidden) {
-        toast.dataset.behind = String(behind);
-        toast.style.setProperty("--toast-index", String(index));
-        toast.style.setProperty("--toast-height", `${height}px`);
-        toast.style.setProperty("--toast-offset", `${offset}px`);
-      } else {
-        toast.removeAttribute("data-behind");
-        ["--toast-index", "--toast-height", "--toast-offset"].forEach((property) =>
-          toast.style.removeProperty(property),
-        );
-      }
-      ["max-height", "height", "overflow", "position", "top", "bottom"].forEach((property) =>
-        toast.style.removeProperty(property),
-      );
-    });
-  }
-
-  #applyListMetrics(plan) {
-    const list = this.#listElement();
-    if (!list) return;
-
-    const metrics = {
-      "--front-height": plan.metricsReady ? `${plan.frontHeight}px` : null,
-      "--peek-count": plan.metricsReady ? String(plan.peekCount) : null,
-      "--stack-height": plan.metricsReady && this.#expanded ? `${plan.stackHeight}px` : null,
-    };
-    Object.entries(metrics).forEach(([property, value]) => {
-      if (value === null) list.style.removeProperty(property);
-      else list.style.setProperty(property, value);
-    });
+      toast.toggleAttribute("inert", hidden || behind);
+      toast.setAttribute("aria-hidden", String(hidden || behind));
+      toast.dataset.behind = String(behind);
+      toast.style.setProperty("--toast-index", String(index));
+    }
+    if (this.hasViewportTarget) {
+      this.viewportTarget.tabIndex = plan.entries.length > 0 && (!plan.peek || this.#expanded) ? 0 : -1;
+    }
+    this.#applyControls(plan);
   }
 
   #applyControls(plan) {
@@ -307,7 +267,9 @@ export default class extends Controller {
       this.moreTarget.textContent = this.#moreLabel(plan.moreCount);
     }
     if (this.hasDismissAllTarget) {
-      this.dismissAllTarget.hidden = plan.dialogCount < DISMISS_ALL_THRESHOLD;
+      const hidden = plan.dialogCount < DISMISS_ALL_THRESHOLD;
+      if (hidden && document.activeElement === this.dismissAllTarget) this.#restoreFocus();
+      this.dismissAllTarget.hidden = hidden;
     }
   }
 
@@ -315,48 +277,6 @@ export default class extends Controller {
     const template = this.moreTarget.dataset.template;
     return template ? template.replace("%{count}", String(count)) : `+${count} more`;
   }
-
-  #naturalSize(toast) {
-    const hidden = toast.hidden;
-    const previous = {
-      height: toast.style.height,
-      maxHeight: toast.style.maxHeight,
-      overflow: toast.style.overflow,
-      width: toast.style.width,
-      position: toast.style.position,
-      left: toast.style.left,
-      right: toast.style.right,
-      top: toast.style.top,
-      bottom: toast.style.bottom,
-      transform: toast.style.transform,
-    };
-
-    const columnWidth = Math.ceil(this.#listElement()?.clientWidth ?? 0);
-
-    toast.hidden = false;
-    toast.style.position = "static";
-    toast.style.height = "auto";
-    toast.style.maxHeight = "none";
-    toast.style.overflow = "visible";
-    toast.style.left = "auto";
-    toast.style.right = "auto";
-    toast.style.top = "auto";
-    toast.style.bottom = "auto";
-    toast.style.transform = "none";
-    toast.style.width = columnWidth > 0 ? `${columnWidth}px` : "max-content";
-
-    const width = Math.ceil(toast.getBoundingClientRect().width);
-    if (columnWidth <= 0 && width > 0) toast.style.width = `${width}px`;
-    const height = Math.ceil(toast.getBoundingClientRect().height);
-    const size = { height, width: columnWidth > 0 ? columnWidth : width };
-
-    Object.entries(previous).forEach(([key, value]) => {
-      toast.style[key] = value;
-    });
-    toast.hidden = hidden;
-
-    return size;
-  }
 }
 
-export { ANNOUNCE_DEBOUNCE_MS, TOAST_GAP_PX, DURATION_STORAGE_KEY, DISMISS_ALL_THRESHOLD };
+export { ANNOUNCE_DEBOUNCE_MS, DURATION_STORAGE_KEY, DISMISS_ALL_THRESHOLD };

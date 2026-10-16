@@ -102,23 +102,28 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   const more = document.createElement("button");
   more.type = "button";
   more.setAttribute("data-pathogen--toaster-target", "more");
-  more.setAttribute("data-action", "click->pathogen--toaster#expandFromControl");
+  more.setAttribute("data-action", "click->pathogen--toaster#expand");
   more.setAttribute("aria-controls", "flashes");
   more.setAttribute("aria-expanded", "false");
   more.dataset.template = "+%{count} more";
   more.hidden = true;
-  section.appendChild(more);
 
   const dismissAll = document.createElement("button");
   dismissAll.type = "button";
   dismissAll.setAttribute("data-pathogen--toaster-target", "dismissAll");
+  dismissAll.setAttribute("data-action", "click->pathogen--toaster#dismissAll");
   dismissAll.hidden = true;
   section.appendChild(dismissAll);
 
   const list = document.createElement("ol");
   list.id = "flashes";
   list.className = "pvc-toaster__list";
-  section.appendChild(list);
+  const viewport = document.createElement("div");
+  viewport.setAttribute("data-pathogen--toaster-target", "viewport");
+  viewport.tabIndex = -1;
+  viewport.appendChild(list);
+  section.appendChild(viewport);
+  section.appendChild(more);
 
   const polite = document.createElement("div");
   polite.setAttribute("data-pathogen--toaster-target", "polite");
@@ -137,7 +142,7 @@ const buildToaster = ({ maxVisible = 3, count = 4, position = "top_center" } = {
   }
 
   document.body.appendChild(section);
-  return { section, list, polite, assertive, more, dismissAll };
+  return { section, list, polite, assertive, more, dismissAll, viewport };
 };
 
 const mockReducedMotion = (matches) => {

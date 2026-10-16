@@ -1,48 +1,41 @@
 <%= tag.section(**@system_arguments) do %>
-  <button
-    type="button"
-    class="
-      pointer-events-auto mb-2 inline-flex min-h-6 items-center self-end rounded-[var(--pvc-radius-control)] border
-      border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-meta)]
-      font-medium text-[var(--pvc-color-text)] focus-visible:outline-2 focus-visible:outline-offset-2
-      focus-visible:outline-[var(--pvc-color-focus)]
-    "
-    data-pathogen--toaster-target="dismissAll"
-    data-action="click->pathogen--toaster#dismissAll"
-    hidden
-  >
-    <%= dismiss_all_label %>
-  </button>
+  <%= render Pathogen::Button.new(
+    text: dismiss_all_label,
+    tone: :neutral,
+    emphasis: :outline,
+    class: 'pointer-events-auto mb-2 shrink-0 self-end bg-[var(--pvc-color-surface-raised)]',
+    hidden: true,
+    'data-pathogen--toaster-target': 'dismissAll',
+    'data-action': 'click->pathogen--toaster#dismissAll'
+  ) %>
 
-  <ol id="<%= list_id %>" class="pvc-toaster__list w-full" aria-label="<%= region_label %>">
-    <%= content %>
-  </ol>
-
-  <button
-    type="button"
-    class="
-      pvc-toaster__more pointer-events-auto mt-1 inline-flex min-h-6 items-center self-center
-      rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-meta)] font-medium
-      text-[var(--pvc-color-text)] shadow-[var(--pvc-shadow-overlay)] focus-visible:outline-2
-      focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
-    "
-    data-pathogen--toaster-target="more"
-    data-action="click->pathogen--toaster#expandFromControl"
-    data-template="<%= more_label %>"
-    aria-controls="<%= list_id %>"
-    aria-expanded="false"
-    hidden
+  <div
+    class="pvc-toaster__viewport"
+    data-pathogen--toaster-target="viewport"
+    role="region"
+    aria-label="<%= region_label %>"
+    tabindex="-1"
   >
-    <%= more_label.sub('%{count}', '0') %>
-  </button>
+    <ol id="<%= list_id %>" class="pvc-toaster__list">
+      <%= content %>
+    </ol>
+  </div>
+
+  <%= render Pathogen::Button.new(
+    text: more_label.sub('%{count}', '0'),
+    tone: :neutral,
+    emphasis: :outline,
+    class: 'pvc-toaster__more pointer-events-auto mt-2 shrink-0 self-center bg-[var(--pvc-color-surface-raised)]',
+    hidden: true,
+    'data-pathogen--toaster-target': 'more',
+    'data-action': 'click->pathogen--toaster#expand',
+    'data-template': more_label,
+    'aria-controls': list_id,
+    'aria-expanded': 'false'
+  ) %>
 
   <div class="sr-only" data-pathogen--toaster-target="polite" role="status" aria-live="polite" aria-atomic="true"></div>
 
-  <%#
-    Primed assertive region: no role="alert" / aria-label — those make AT announce
-    the container name instead of injected text.
-  %>
-
+  <%# Keep the assertive region primed and unnamed so AT announces its message. %>
   <div class="sr-only" data-pathogen--toaster-target="assertive" aria-live="assertive" aria-atomic="true"></div>
 <% end %>

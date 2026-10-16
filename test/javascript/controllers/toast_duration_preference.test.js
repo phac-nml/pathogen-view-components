@@ -6,9 +6,13 @@ import {
   parseDurationPreference,
   readDurationPreferenceFromStorage,
   resolveDurationPreference,
+  writeDurationPreference,
 } from "../../../app/assets/javascripts/pathogen_view_components/toast_duration_preference";
 
 afterEach(() => {
+  vi.restoreAllMocks();
+  writeDurationPreference("");
+  writeDurationPreference("", "custom.key");
   window.localStorage?.clear();
 });
 
@@ -60,6 +64,38 @@ describe("toast_duration_preference", () => {
 
       expect(readDurationPreferenceFromStorage()).toBeNull();
       expect(getItem).toHaveBeenCalled();
+    });
+  });
+
+  describe("writeDurationPreference", () => {
+    it("retains the preference in memory when browser storage is unavailable", () => {
+      vi.spyOn(window, "localStorage", "get").mockReturnValue(undefined);
+      writeDurationPreference("forever");
+      expect(resolveDurationPreference()).toBe(0);
+    });
+
+    it("can reset a stale stored preference when removal fails", () => {
+      window.localStorage.setItem(DURATION_STORAGE_KEY, "forever");
+      vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+        throw new Error("storage blocked");
+      });
+      writeDurationPreference("");
+      expect(resolveDurationPreference()).toBeNull();
+    });
+
+    it("isolates failed writes by key and returns to storage after recovery", () => {
+      const setItem = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new Error("storage blocked");
+      });
+      writeDurationPreference("forever", "custom.key");
+      expect(resolveDurationPreference()).toBeNull();
+      expect(resolveDurationPreference({ storageKey: "custom.key" })).toBe(0);
+      setItem.mockRestore();
+
+      writeDurationPreference("20000", "custom.key");
+      expect(window.localStorage.getItem("custom.key")).toBe("20000");
+      window.localStorage.setItem("custom.key", "30000");
+      expect(resolveDurationPreference({ storageKey: "custom.key" })).toBe(30000);
     });
   });
 
