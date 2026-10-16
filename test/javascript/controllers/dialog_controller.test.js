@@ -170,8 +170,12 @@ describe("dialog_controller", () => {
 
     controller.element.removeAttribute("inert");
     controller.element.hidden = true;
+    const titleFocus = vi.spyOn(controller.titleTarget, "focus");
+    const selectedFocus = vi.spyOn(document.getElementById("first-safe"), "focus");
     controller.open();
-    expect(document.activeElement).toBe(controller.titleTarget);
+    // jsdom cannot focus the title beneath a hidden ancestor; verify the fallback request.
+    expect(titleFocus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(selectedFocus).not.toHaveBeenCalled();
     controller.close();
 
     controller.element.hidden = false;
