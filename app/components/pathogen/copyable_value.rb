@@ -26,7 +26,7 @@ module Pathogen
       %w[
         inline-flex items-center align-middle
         rounded-[var(--pvc-radius-action)]
-        min-h-6 pl-2
+        min-h-6 max-w-full pl-2
         font-mono text-[length:var(--type-meta)] leading-4 font-normal
       ]
     ].flatten.join(' ').freeze
@@ -46,7 +46,7 @@ module Pathogen
       transition-[color,background-color] duration-[var(--pvc-duration-fast)] ease-out
     ].join(' ').freeze
 
-    VALUE_CLASSES = 'pr-1 select-all [font-variant-numeric:tabular-nums]'
+    VALUE_CLASSES = 'min-w-0 pr-1 wrap-anywhere select-all [font-variant-numeric:tabular-nums]'
 
     ICON_SLOT_CLASSES = 'relative inline-flex size-3.5 shrink-0'
 
