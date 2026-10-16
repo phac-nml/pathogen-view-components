@@ -17,7 +17,7 @@ function canFocus(element) {
   const blocked = blocker && (!modal || modal.contains(blocker) || blocker.hasAttribute("hidden"));
   return (
     element?.isConnected &&
-    !element.disabled &&
+    !element.matches(":disabled") &&
     !blocked &&
     element.getClientRects().length > 0 &&
     getComputedStyle(element).visibility !== "hidden" &&
@@ -33,7 +33,9 @@ export default class DialogController extends Controller {
   initialize() {
     this.connected = false;
     this.session = null;
-    this.updateLayout = () => updateDialogLayout(this);
+    this.updateLayout = () => {
+      if (this.hasDialogTarget) updateDialogLayout(this);
+    };
     this.onCancel = this.onCancel.bind(this);
     this.onNativeClose = this.onNativeClose.bind(this);
     this.onBeforeCache = this.onBeforeCache.bind(this);
@@ -41,29 +43,42 @@ export default class DialogController extends Controller {
 
   connect() {
     this.connected = true;
-    this.dialogTarget.addEventListener("cancel", this.onCancel);
-    this.dialogTarget.addEventListener("close", this.onNativeClose);
     document.addEventListener("turbo:before-cache", this.onBeforeCache);
     window.addEventListener("resize", this.updateLayout);
     window.visualViewport?.addEventListener("resize", this.updateLayout);
     window.visualViewport?.addEventListener("scroll", this.updateLayout);
     this.resizeObserver = new ResizeObserver(this.updateLayout);
-    [this.panelTarget, this.headerTarget, this.contentTarget, ...this.footerTargets].forEach((target) => {
-      this.resizeObserver.observe(target);
-    });
+    this.observeLayout();
     if (this.openValue) this.open();
   }
 
   disconnect() {
     this.connected = false;
     this.close({ restoreFocus: false, reason: "disconnect" });
-    this.dialogTarget.removeEventListener("cancel", this.onCancel);
-    this.dialogTarget.removeEventListener("close", this.onNativeClose);
     document.removeEventListener("turbo:before-cache", this.onBeforeCache);
     window.removeEventListener("resize", this.updateLayout);
     window.visualViewport?.removeEventListener("resize", this.updateLayout);
     window.visualViewport?.removeEventListener("scroll", this.updateLayout);
     this.resizeObserver?.disconnect();
+  }
+
+  dialogTargetConnected(target) {
+    target.addEventListener("cancel", this.onCancel);
+    target.addEventListener("close", this.onNativeClose);
+    if (this.connected) this.observeLayout();
+  }
+
+  dialogTargetDisconnected(target) {
+    target.removeEventListener("cancel", this.onCancel);
+    target.removeEventListener("close", this.onNativeClose);
+    if (this.session?.dialog === target) this.close({ restoreFocus: false, reason: "disconnect" });
+    if (this.connected) this.resizeObserver.disconnect();
+  }
+
+  observeLayout() {
+    [...this.panelTargets, ...this.headerTargets, ...this.contentTargets, ...this.footerTargets].forEach((target) => {
+      this.resizeObserver.observe(target);
+    });
   }
 
   contentTargetConnected(target) {
@@ -88,7 +103,12 @@ export default class DialogController extends Controller {
   }
 
   open({ trigger = document.activeElement } = {}) {
-    if (this.dialogTarget.open) return;
+    if (!this.hasDialogTarget || this.dialogTarget.open) return;
+
+    // Native close events are queued; release their session before reopening.
+    this.session?.close({ restoreFocus: false });
+    // A host's closed-event listener may already have opened or removed the dialog.
+    if (!this.hasDialogTarget || this.dialogTarget.open) return;
 
     const session = new DialogSession({
       dialog: this.dialogTarget,
@@ -108,7 +128,7 @@ export default class DialogController extends Controller {
 
   requestClose(event = null, { reason = "close-button" } = {}) {
     event?.preventDefault();
-    if (!this.dialogTarget.open) return;
+    if (!this.hasDialogTarget || !this.dialogTarget.open) return;
     const requestedReason = event?.params?.reason ?? reason;
     const request = this.dispatch("before-close", { cancelable: true, detail: { reason: requestedReason } });
     if (!request.defaultPrevented) this.close({ reason: requestedReason });
@@ -124,7 +144,7 @@ export default class DialogController extends Controller {
   close({ restoreFocus = true, reason = "programmatic" } = {}) {
     if (this.session) {
       this.session.close({ restoreFocus, reason });
-    } else if (this.dialogTarget.open) {
+    } else if (this.hasDialogTarget && this.dialogTarget.open) {
       this.dialogTarget.close();
     }
   }

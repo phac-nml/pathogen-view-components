@@ -161,6 +161,33 @@ describe("dialog_controller", () => {
     expect(document.activeElement.id).toBe("fallback");
   });
 
+  it("uses return-focus when the opener's fieldset becomes disabled", () => {
+    const trigger = document.getElementById("first-trigger");
+    const fieldset = document.createElement("fieldset");
+    trigger.before(fieldset);
+    fieldset.append(trigger);
+    controller.returnFocusValue = "#fallback";
+    controller.open({ trigger });
+    fieldset.disabled = true;
+
+    controller.close();
+
+    expect(document.activeElement.id).toBe("fallback");
+  });
+
+  it("uses title focus when the selected input belongs to a disabled fieldset", () => {
+    const input = document.getElementById("first-field");
+    const fieldset = document.createElement("fieldset");
+    input.before(fieldset);
+    fieldset.append(input);
+    fieldset.disabled = true;
+    controller.initialFocusValue = "#first-field";
+
+    controller.open();
+
+    expect(document.activeElement).toBe(controller.titleTarget);
+  });
+
   it("allows focus inside a modal beneath an inert host, but rejects hidden hosts and inert descendants", () => {
     controller.initialFocusValue = "#first-safe";
     controller.element.setAttribute("inert", "");
@@ -243,6 +270,38 @@ describe("dialog_controller", () => {
     expect(observers[0].observe).toHaveBeenCalledWith(footer);
     expect(controller.bodyTarget.getAttribute("aria-labelledby")).toBe("first-title");
     expect(controller.bodyTarget.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("releases an open removed dialog and can connect a replacement target", async () => {
+    controller.open();
+    const removed = controller.dialogTarget;
+    const replacement = removed.cloneNode(true);
+    replacement.removeAttribute("open");
+    removed.remove();
+    await settle();
+
+    expect(controller.session).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+    expect(document.documentElement.style.overflow).toBe("");
+    expect(observers[0].disconnect).toHaveBeenCalledOnce();
+    expect(() => controller.open()).not.toThrow();
+    expect(() => controller.requestClose()).not.toThrow();
+    expect(() => controller.close()).not.toThrow();
+    expect(() => controller.updateLayout()).not.toThrow();
+
+    controller.element.append(replacement);
+    await settle();
+    expect(observers[0].observe).toHaveBeenCalledWith(controller.panelTarget);
+    controller.open();
+    const staleCancel = new Event("cancel", { cancelable: true });
+    removed.dispatchEvent(staleCancel);
+    expect(staleCancel.defaultPrevented).toBe(false);
+    expect(replacement.open).toBe(true);
+    const cancel = new Event("cancel", { cancelable: true });
+    replacement.dispatchEvent(cancel);
+    expect(cancel.defaultPrevented).toBe(true);
+    expect(replacement.open).toBe(false);
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("responds to viewport and content resizing, then removes those listeners on disconnect", async () => {
@@ -412,6 +471,45 @@ describe("dialog_controller", () => {
     controller.dialogTarget.dispatchEvent(new Event("close"));
     expect(controller.openValue).toBe(true);
     expect(document.body.style.overflow).toBe("hidden");
+  });
+
+  it("releases the previous session when reopened before the native close event", () => {
+    controller.open();
+    controller.dialogTarget.close();
+    controller.open();
+    controller.dialogTarget.dispatchEvent(new Event("close"));
+    expect(controller.dialogTarget.open).toBe(true);
+
+    controller.close();
+
+    expect(controller.session).toBeNull();
+    expect(document.body.style.overflow).toBe("");
+    expect(document.documentElement.style.overflow).toBe("");
+  });
+
+  it("retains a session opened by a host's closed-event listener", () => {
+    controller.open();
+    controller.element.addEventListener("pathogen--dialog:closed", () => controller.open(), { once: true });
+    controller.dialogTarget.close();
+    controller.open();
+
+    expect(controller.dialogTarget.open).toBe(true);
+    controller.close();
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("does not reopen a dialog removed by a host's closed-event listener", async () => {
+    controller.open();
+    controller.element.addEventListener("pathogen--dialog:closed", () => controller.dialogTarget.remove(), {
+      once: true,
+    });
+    controller.dialogTarget.close();
+    controller.open();
+    await settle();
+
+    expect(controller.hasDialogTarget).toBe(false);
+    expect(controller.session).toBeNull();
+    expect(document.body.style.overflow).toBe("");
   });
 
   it("cleans up on Turbo caching and disconnect, and does not reopen on reconnect", async () => {

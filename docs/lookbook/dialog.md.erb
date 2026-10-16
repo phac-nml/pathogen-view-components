@@ -37,7 +37,7 @@ The title and built-in close control remain present without a footer or trigger.
 ## Options
 
 - `title:` is required and must be nonblank. It supplies the visible heading and accessible name.
-- `id:` identifies the native dialog. Supply a stable, unique ID for external triggers or Turbo replacements;
+- `id:` identifies the native dialog. Supply a stable, unique ID for external triggers;
   otherwise one is generated. The heading ID is `#{id}-title`.
 - `description:` is optional short plain text, associated through `aria-describedby`.
   Keep structured lists, tables, and long explanations in the body instead.
@@ -112,6 +112,11 @@ and observers; Turbo cache cleanup closes the modal and releases its scroll lock
 an additional focus move.
 Hosts own loading content, submission, validation, authorization, and the logical focus destination
 after content replacement.
+
+For Turbo replacement of a complete component, target a host-owned container around the render call.
+This replaces the controller wrapper and typed trigger together with the native dialog. The supplied
+`id:` identifies only the native dialog. Removing or replacing that element releases its active session;
+a replacement native dialog within the same wrapper reconnects its dismissal handlers and layout observation.
 
 ## Forms and confirmations
 

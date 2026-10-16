@@ -132,6 +132,48 @@ test("stacked dialogs contain focus and Escape closes only the top dialog", asyn
   await expect(page.locator("#main-trigger")).toBeFocused();
 });
 
+test("nested dialogs keep independent body and panel scrolling modes", async ({ page }) => {
+  await page.setViewportSize({ width: 800, height: 600 });
+  await openDialog(page);
+  await target(page, "header").evaluate((element) => {
+    element.style.height = "480px";
+  });
+  await page.locator('#child-dialog [data-pathogen--dialog-target="content"]').evaluate((element) => {
+    element.insertAdjacentHTML(
+      "beforeend",
+      "<p>Additional protocol guidance.</p>".repeat(100) + '<button id="child-last">Last protocol action</button>',
+    );
+  });
+  await expect(target(page, "panel")).toHaveAttribute("data-scroll-mode", "panel");
+  await page.locator("#child-trigger").click();
+  const child = page.locator("#child-dialog");
+  const body = child.locator('[data-pathogen--dialog-target="body"]');
+  await expect(child.locator('[data-pathogen--dialog-target="panel"]')).toHaveAttribute("data-scroll-mode", "body");
+  await expect(body).toHaveAttribute("tabindex", "0");
+  await body.focus();
+  await page.keyboard.press("End");
+  await expect.poll(() => body.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
+  await page.locator("#child-last").focus();
+  await fullyVisible(page.locator("#child-last"), body);
+  await fullyVisible(page.locator("#child-last"));
+});
+
+test("disabled opener fieldsets use the configured return focus", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#fallback-trigger").evaluate((trigger) => {
+    const fieldset = document.createElement("fieldset");
+    fieldset.id = "opener-fieldset";
+    trigger.before(fieldset);
+    fieldset.append(trigger);
+  });
+  await page.locator("#fallback-trigger").click();
+  await page.locator("#opener-fieldset").evaluate((element) => {
+    element.disabled = true;
+  });
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#return-focus")).toBeFocused();
+});
+
 test("explicit initial and return focus work when the opener has been removed", async ({ page }) => {
   await page.goto("/");
   await page.locator("#fallback-trigger").click();
@@ -496,6 +538,46 @@ test("native close, removal and Turbo cache release document scrolling", async (
   await expect.poll(locked).toBe(false);
   await page.locator("#background-action").focus();
   await expect(page.locator("#background-action")).toBeFocused();
+});
+
+test("native close followed immediately by reopening releases both sessions", async ({ page }) => {
+  await openDialog(page);
+  await dialog(page).evaluate((element) => {
+    const controller = window.pathogenBrowser.application.getControllerForElementAndIdentifier(
+      element.parentElement,
+      "pathogen--dialog",
+    );
+    element.close();
+    controller.open();
+  });
+  await expect(dialog(page)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog(page)).not.toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe("");
+});
+
+test("replacing an open native dialog releases the removed session", async ({ page }) => {
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await openDialog(page);
+  await dialog(page).evaluate((element) => {
+    const replacement = element.parentElement.cloneNode(true);
+    replacement.setAttribute("data-pathogen--dialog-open-value", "false");
+    replacement.querySelector("dialog").removeAttribute("open");
+    element.replaceWith(replacement);
+  });
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+  await dialog(page).evaluate((element) => {
+    window.pathogenBrowser.application
+      .getControllerForElementAndIdentifier(element.parentElement, "pathogen--dialog")
+      .open();
+  });
+  await expect(dialog(page)).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.overflow)).toBe("");
+  expect(errors).toEqual([]);
 });
 
 for (const first of ["sidebar", "dialog"]) {

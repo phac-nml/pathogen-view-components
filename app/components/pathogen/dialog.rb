@@ -3,7 +3,8 @@
 module Pathogen
   # A named native modal with a scrollable body and host-composed actions.
   #
-  # Use a stable id: for external triggers and server-rendered replacements.
+  # Use a stable id: for external triggers. Replace a host-owned container when
+  # server-rendering the complete component, including its wrapper and trigger.
   # initial_focus: is a selector within the dialog; return_focus: is a document
   # selector used when the original opener is no longer available.
   class Dialog < Pathogen::Component
