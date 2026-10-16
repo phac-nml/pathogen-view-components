@@ -6,6 +6,9 @@ import DataGridController from "pathogen_view_components/data_grid_controller";
 import SidebarController from "pathogen_view_components/sidebar_controller";
 import ToolbarController from "pathogen_view_components/toolbar_controller";
 import AvatarController from "pathogen_view_components/avatar_controller";
+import ToastController from "pathogen_view_components/toast_controller";
+import ToasterController from "pathogen_view_components/toaster_controller";
+import ToastSettingsController from "pathogen_view_components/toast_settings_controller";
 
 function registerPathogenControllers(application) {
   if (!application || typeof application.register !== "function") {
@@ -20,10 +23,13 @@ function registerPathogenControllers(application) {
   application.register("pathogen--sidebar", SidebarController);
   application.register("pathogen--toolbar", ToolbarController);
   application.register("pathogen--avatar", AvatarController);
+  application.register("pathogen--toast", ToastController);
+  application.register("pathogen--toaster", ToasterController);
+  application.register("pathogen--toast-settings", ToastSettingsController);
 
   if (import.meta.env?.DEV) {
     // eslint-disable-next-line no-console
-    console.debug("[pathogen] Registered 7 Stimulus controllers");
+    console.debug("[pathogen] Registered 9 Stimulus controllers");
   }
 }
 
@@ -35,5 +41,8 @@ export {
   SidebarController,
   ToolbarController,
   AvatarController,
+  ToastController,
+  ToasterController,
+  ToastSettingsController,
   registerPathogenControllers,
 };
