@@ -44,6 +44,17 @@
   </section>
 
   <section>
+    <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Long identifiers" } %>
+
+    <%= pathogen_supporting(variant: :muted, class: "mb-4") do %>
+      Long identifiers wrap within the available width while keeping the copy button visible. Copying preserves the
+      complete value without adding line breaks.
+    <% end %>
+
+    <%= render Pathogen::CopyableValue.new(value: "0123456789abcdef" * 4) %>
+  </section>
+
+  <section>
     <%= pathogen_heading(level: 5, class: "mb-2 font-semibold") { "Manual selection fallback" } %>
 
     <div class="mb-4 flex flex-wrap items-baseline gap-x-1 gap-y-2">

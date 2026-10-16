@@ -10,7 +10,7 @@ const COPY_STATES = {
  * Copies text via the Clipboard API with a selection-based fallback.
  *
  * @param {string} text - Text to copy
- * @param {HTMLElement} fallbackElement - Element used for execCommand fallback selection
+ * @param {HTMLElement} fallbackElement - Element beside which to insert the temporary copy field
  * @returns {Promise<void>}
  */
 async function writeTextToClipboard(text, fallbackElement) {
@@ -19,19 +19,24 @@ async function writeTextToClipboard(text, fallbackElement) {
     return;
   }
 
-  const selection = window.getSelection();
-  const range = document.createRange();
+  const activeElement = document.activeElement;
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.readOnly = true;
+  textarea.tabIndex = -1;
+  textarea.style.cssText = "position: fixed; top: 0; left: 0; opacity: 0;";
+  fallbackElement.after(textarea);
 
-  range.selectNodeContents(fallbackElement);
-  selection?.removeAllRanges();
-  selection?.addRange(range);
-
-  const copied = typeof document.execCommand === "function" && document.execCommand("copy");
-
-  selection?.removeAllRanges();
-
-  if (!copied) {
-    throw new Error("Clipboard API unavailable and fallback copy failed");
+  try {
+    textarea.focus({ preventScroll: true });
+    textarea.select();
+    const copied = typeof document.execCommand === "function" && document.execCommand("copy");
+    if (!copied) {
+      throw new Error("Clipboard API unavailable and fallback copy failed");
+    }
+  } finally {
+    textarea.remove();
+    activeElement.focus({ preventScroll: true });
   }
 }
 
