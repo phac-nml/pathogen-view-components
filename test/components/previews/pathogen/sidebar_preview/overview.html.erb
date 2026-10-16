@@ -2,33 +2,53 @@
   <%= render Pathogen::Sidebar::Provider.new(id: 'overview-sidebar', class: 'h-[600px] !min-h-[600px] rounded-[var(--pvc-radius-panel)] border border-[color:var(--pvc-color-border)]') do %>
     <%= render Pathogen::Sidebar.new(id: 'overview-sidebar', label: 'Primary navigation') do %>
       <%= render Pathogen::Sidebar::Header.new do %>
+        <%= render Pathogen::Sidebar::Brand.new(label: 'Pathogen', href: '#run-overview') do |brand| %>
+          <% brand.with_mark { icon('dna', class: 'size-5') } %>
+        <% end %>
+
         <%= render Pathogen::Sidebar::Trigger.new %>
-        <span data-pathogen-sidebar-label="true" class="text-[length:var(--type-control)] font-semibold">Pathogen</span>
       <% end %>
 
       <%= render Pathogen::Sidebar::Content.new do %>
-        <ul class="m-0 flex list-none flex-col gap-1 p-0">
-          <% [
-            ['D', 'Dashboard', '#run-overview'],
-            ['S', 'Samples', '#samples'],
-            ['C', 'Settings', '#settings']
-          ].each do |icon, label, href| %>
-            <li>
-              <a
-                href="<%= href %>"
-                class="
-                  interactive-hover:bg-[var(--pvc-color-surface-muted)] inline-flex min-h-11 w-full items-center
-                  rounded-[var(--pvc-radius-action)] px-2 text-[length:var(--type-control)] font-semibold
-                  text-[color:var(--pvc-color-text)] no-underline focus-visible:outline focus-visible:outline-2
-                  focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
-                "
-              >
-                <span class="inline-flex size-4 shrink-0 items-center justify-center" aria-hidden="true"><%= icon %></span>
-                <span data-pathogen-sidebar-label="true" class="ml-2"><%= label %></span>
-              </a>
-            </li>
+        <%= render Pathogen::Sidebar::Group.new(label: 'Run navigation') do %>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Run overview', href: '#run-overview', current: true, tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('chart-bar', class: 'size-4') } %>
           <% end %>
-        </ul>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Samples', href: '#samples', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('flask', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Quality control', href: '#quality-control', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('check-circle', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Settings', open: true, tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('gear', class: 'size-4') } %>
+
+            <%= render Pathogen::Sidebar::Item.new(label: 'Workflow rules', href: '#workflow-rules') do |child| %>
+              <% child.with_leading_visual { icon('sliders', class: 'size-4') } %>
+            <% end %>
+
+            <%= render Pathogen::Sidebar::Item.new(label: 'Access control', href: '#access-control') do |child| %>
+              <% child.with_leading_visual { icon('lock-key', class: 'size-4') } %>
+            <% end %>
+          <% end %>
+        <% end %>
+
+        <%= render Pathogen::Sidebar::Group.new(label: 'Analysis') do %>
+          <%= render Pathogen::Sidebar::Item.new(label: 'Reports', href: '#reports', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('file-text', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Exports', href: '#exports', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('download-simple', class: 'size-4') } %>
+          <% end %>
+
+          <%= render Pathogen::Sidebar::Item.new(label: 'Audit log', href: '#audit-log', tooltip: true) do |item| %>
+            <% item.with_leading_visual { icon('list-dashes', class: 'size-4') } %>
+          <% end %>
+        <% end %>
       <% end %>
 
       <%= render Pathogen::Sidebar::Footer.new do %>
@@ -49,6 +69,14 @@
 
       <main class="space-y-2 p-4">
         <%= pathogen_heading(level: 2, id: 'run-overview') { 'Run overview' } %>
+
+        <%= pathogen_heading(level: 3, id: 'samples') { 'Samples' } %>
+        <%= pathogen_heading(level: 3, id: 'quality-control') { 'Quality control' } %>
+        <%= pathogen_heading(level: 3, id: 'workflow-rules') { 'Workflow rules' } %>
+        <%= pathogen_heading(level: 3, id: 'access-control') { 'Access control' } %>
+        <%= pathogen_heading(level: 3, id: 'reports') { 'Reports' } %>
+        <%= pathogen_heading(level: 3, id: 'exports') { 'Exports' } %>
+        <%= pathogen_heading(level: 3, id: 'audit-log') { 'Audit log' } %>
 
         <%= pathogen_supporting do %>
           Sequencing run RUN-2026-0812 is processing 48 samples. Twelve samples have completed quality control.
