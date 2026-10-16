@@ -4,7 +4,7 @@
 
   <% if description.present? %>
     <%= tag.p(description, id: description_id,
-                          class: 'text-(length:--type-meta) text-(--pvc-color-text-muted)') %>
+                          class: 'text-(length:--type-meta) text-(--pvc-color-text)') %>
   <% end %>
 
   <%= tag.select(options_markup, **select_attributes) %>

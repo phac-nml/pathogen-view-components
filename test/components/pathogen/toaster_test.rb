@@ -14,8 +14,8 @@ module Pathogen
       assert_selector 'section.pointer-events-none.top-6.left-1\\/2.-translate-x-1\\/2'
       assert_selector 'section[data-pathogen--toaster-position-value="top_center"]' \
                       '[data-stack="peek"][data-anchor="top"]'
-      assert_selector 'ol#flashes.pvc-toaster__list[aria-label="Notifications"]'
-      assert_no_selector 'ol#flashes[data-pathogen--toaster-target]'
+      assert_selector 'ol#flashes.pvc-toaster__list'
+      assert_selector '.pvc-toaster__viewport[role="region"][aria-label="Notifications"][tabindex="-1"]'
       assert_no_selector 'ol#flashes[aria-live]'
       assert_selector 'div[data-pathogen--toaster-target="polite"][role="status"][aria-live="polite"]',
                       visible: :all

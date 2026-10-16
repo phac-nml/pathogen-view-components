@@ -2,6 +2,10 @@ import { Application } from "@hotwired/stimulus";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import ToastSettingsController from "../../../app/assets/javascripts/pathogen_view_components/toast_settings_controller";
+import {
+  resolveDurationPreference,
+  writeDurationPreference,
+} from "../../../app/assets/javascripts/pathogen_view_components/toast_duration_preference";
 
 const STORAGE_KEY = "pathogen.toast.durationMs";
 
@@ -45,6 +49,9 @@ describe("toast_settings_controller", () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
+    writeDurationPreference("");
+    writeDurationPreference("", "app.toastDuration");
     application?.stop();
     document.body.innerHTML = "";
     window.localStorage?.removeItem(STORAGE_KEY);
@@ -64,6 +71,21 @@ describe("toast_settings_controller", () => {
     await waitForController();
 
     expect(select.value).toBe("20000");
+  });
+
+  it("keeps the timing choice effective when browser storage is blocked", async () => {
+    const { select } = buildSettings();
+    await waitForController();
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("blocked");
+    });
+    select.value = "forever";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+
+    expect(resolveDurationPreference()).toBe(0);
+    const second = buildSettings();
+    await waitForController();
+    expect(second.select.value).toBe("forever");
   });
 
   it("writes the chosen value to storage on change", async () => {

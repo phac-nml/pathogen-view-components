@@ -19,13 +19,6 @@ describe("toaster_controller lifecycle, focus, and dismissal", () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     mockReducedMotion(false);
-    global.ResizeObserver = class {
-      observe() {}
-
-      unobserve() {}
-
-      disconnect() {}
-    };
     application = Application.start();
     application.register("pathogen--toaster", ToasterController);
     application.register("pathogen--toast", ToastController);
@@ -48,28 +41,6 @@ describe("toaster_controller lifecycle, focus, and dismissal", () => {
     const [, handler] = query.addEventListener.mock.calls.find(([event]) => event === "change");
 
     handler();
-    await waitForAnimationFrame();
-
-    expect(section.dataset.stack).toBeDefined();
-  });
-
-  it("reflows the stack when a toast is resized", async () => {
-    let resizeCallback;
-    global.ResizeObserver = class {
-      constructor(callback) {
-        resizeCallback = callback;
-      }
-
-      observe() {}
-
-      unobserve() {}
-
-      disconnect() {}
-    };
-    const { section } = buildToaster({ maxVisible: 2, count: 3 });
-    await waitForController();
-
-    resizeCallback();
     await waitForAnimationFrame();
 
     expect(section.dataset.stack).toBeDefined();
@@ -239,6 +210,81 @@ describe("toaster_controller lifecycle, focus, and dismissal", () => {
     expect(document.activeElement).toBe(textarea);
   });
 
+  it("returns to the work field after dismissing dialogs that arrived during typing", async () => {
+    const field = document.createElement("input");
+    document.body.appendChild(field);
+    field.focus();
+    const { section, list, dismissAll } = buildToaster({ count: 0 });
+    list.append(
+      ...["One", "Two", "Three"].map((message) => buildConnectedToast({ message, mode: "dialog", timeout: 0 })),
+    );
+    await waitForController();
+    await waitForAnimationFrame();
+    expect(document.activeElement).toBe(field);
+
+    dismissAll.focus();
+    application.getControllerForElementAndIdentifier(section, "pathogen--toaster").dismissAll();
+    await vi.advanceTimersByTimeAsync(160);
+    await waitForAnimationFrame();
+
+    expect(list.children).toHaveLength(0);
+    expect(dismissAll.hidden).toBe(true);
+    expect(document.activeElement).toBe(field);
+  });
+
+  it("returns focus before an individually removed dialog hides Dismiss all", async () => {
+    const field = document.createElement("input");
+    document.body.appendChild(field);
+    field.focus();
+    const { list, dismissAll } = buildToaster({ count: 0 });
+    list.append(...Array.from({ length: 3 }, () => buildConnectedToast({ mode: "dialog", timeout: 0 })));
+    await waitForController();
+    await waitForAnimationFrame();
+    dismissAll.focus();
+    list.firstElementChild.remove();
+    await waitForController();
+    await waitForAnimationFrame();
+
+    expect(dismissAll.hidden).toBe(true);
+    expect(document.activeElement).toBe(field);
+  });
+
+  it("keeps focus in the notification region when the original field was removed", async () => {
+    const field = document.createElement("input");
+    document.body.appendChild(field);
+    field.focus();
+    const { section, list, dismissAll, viewport } = buildToaster({ count: 0 });
+    list.append(...Array.from({ length: 3 }, () => buildConnectedToast({ mode: "dialog", timeout: 0 })));
+    await waitForController();
+    await waitForAnimationFrame();
+    dismissAll.focus();
+    field.remove();
+    dismissAll.click();
+    await vi.advanceTimersByTimeAsync(160);
+    await waitForAnimationFrame();
+
+    expect(document.activeElement).toBe(viewport);
+    expect(section.contains(document.activeElement)).toBe(true);
+    expect(list.children).toHaveLength(0);
+  });
+
+  it("does not replace the focus return target with the pointer's previous element", async () => {
+    const field = document.createElement("input");
+    const background = document.createElement("div");
+    document.body.append(field, background);
+    field.focus();
+    const { section, list, dismissAll } = buildToaster({ count: 0 });
+    list.append(...Array.from({ length: 3 }, () => buildConnectedToast({ mode: "dialog", timeout: 0 })));
+    await waitForController();
+    await waitForAnimationFrame();
+    dismissAll.focus();
+    section.dispatchEvent(new MouseEvent("mouseenter", { relatedTarget: background }));
+    dismissAll.click();
+    await vi.advanceTimersByTimeAsync(160);
+
+    expect(document.activeElement).toBe(field);
+  });
+
   it("dismisses open dialogs through their toast controllers", async () => {
     const { section, list } = buildToaster({ count: 0 });
     const first = buildConnectedToast({
@@ -314,72 +360,5 @@ describe("toaster_controller lifecycle, focus, and dismissal", () => {
 
     expect(section.dataset.stack).toBe("peek");
     expect(more.textContent).toMatch(/^\+\d+ more$/);
-  });
-
-  it("uses the measured column width for peek metrics when available", async () => {
-    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
-    Object.defineProperty(list, "clientWidth", { configurable: true, value: 300 });
-    ["older", "middle", "front"].forEach((text) => {
-      const toast = buildToast({ text });
-      Object.defineProperty(toast, "getBoundingClientRect", {
-        configurable: true,
-        value: () => ({
-          width: 280,
-          height: 72,
-          top: 0,
-          left: 0,
-          bottom: 72,
-          right: 280,
-          x: 0,
-          y: 0,
-          toJSON: () => ({}),
-        }),
-      });
-      list.appendChild(toast);
-    });
-    await waitForController();
-    await waitForAnimationFrame();
-
-    expect(section.style.getPropertyValue("--front-width")).toBe("300px");
-  });
-
-  it("defaults the column width to zero when the list width is unavailable", async () => {
-    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
-    Object.defineProperty(list, "clientWidth", { configurable: true, value: undefined });
-    ["older", "middle", "front"].forEach((text) => {
-      const toast = buildToast({ text });
-      Object.defineProperty(toast, "getBoundingClientRect", {
-        configurable: true,
-        value: () => ({
-          width: 280,
-          height: 72,
-          top: 0,
-          left: 0,
-          bottom: 72,
-          right: 280,
-          x: 0,
-          y: 0,
-          toJSON: () => ({}),
-        }),
-      });
-      list.appendChild(toast);
-    });
-    await waitForController();
-    await waitForAnimationFrame();
-
-    expect(section.dataset.stack).toBe("peek");
-  });
-
-  it("skips list metrics when no list element is present", async () => {
-    const { section, list } = buildToaster({ maxVisible: 3, count: 0 });
-    ["older", "middle", "front"].forEach((text) => {
-      section.appendChild(buildToast({ text }));
-    });
-    list.remove();
-    await waitForController();
-    await waitForAnimationFrame();
-
-    expect(section.dataset.stack).toBeDefined();
-    expect(section.querySelector("ol")).toBeNull();
   });
 });

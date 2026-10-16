@@ -7,10 +7,9 @@ import {
 } from "pathogen_view_components/toast_duration_preference";
 
 export default class extends Controller {
-  static targets = ["message", "description", "dismiss", "action", "dialog"];
+  static targets = ["message", "description", "dismiss", "dialog"];
   static values = {
     timeout: Number,
-    type: String,
     typeLabel: { type: String, default: "" },
     dismissDuration: { type: Number, default: 160 },
     dismissible: { type: Boolean, default: false },
@@ -215,7 +214,7 @@ export default class extends Controller {
 
   #focusDialog() {
     if (!this.#connected || this.#state !== "open") return;
-    this.dialogTarget.focus({ preventScroll: true });
+    this.dialogTarget.focus();
   }
 
   #startTimer() {
@@ -274,10 +273,11 @@ export default class extends Controller {
           detail: { reason },
         });
       }
+      const ownsFocus = this.element.contains(document.activeElement);
       this.element.remove();
 
-      if (restoreTarget?.isConnected) {
-        restoreTarget.focus({ preventScroll: true });
+      if (ownsFocus && restoreTarget?.isConnected) {
+        restoreTarget.focus();
       }
     }, duration);
   }

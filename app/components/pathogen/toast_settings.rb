@@ -74,7 +74,7 @@ module Pathogen
       {
         id: select_id,
         class: class_names(
-          'mt-1 inline-flex min-h-6 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]',
+          'mt-1 inline-flex min-h-11 rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border)]',
           'bg-[var(--pvc-color-surface-raised)] px-2 py-1 text-[length:var(--type-control)]',
           'text-[var(--pvc-color-text)] focus-visible:outline-2 focus-visible:outline-offset-2',
           'focus-visible:outline-[var(--pvc-color-focus)]'

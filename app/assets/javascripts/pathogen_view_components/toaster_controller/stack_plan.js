@@ -1,8 +1,3 @@
-const TOAST_GAP_PX = 14;
-
-// Classifies a toast from its DOM data attributes rather than its Stimulus
-// controller, so callers can stack and dismiss toasts correctly even before
-// that controller has connected.
 function describeToast(toast) {
   const dialog = toast.getAttribute("data-pathogen--toast-mode-value") === "dialog";
   const timeoutValue = toast.getAttribute("data-pathogen--toast-timeout-value");
@@ -14,52 +9,31 @@ function describeToast(toast) {
   return { toast, dialog, persistent };
 }
 
-function createStackPlan(toasts, { expanded, maxVisible, reducedMotion, measureToast }) {
+// Layout belongs to CSS. This plan owns only visibility and interaction state.
+function createStackPlan(toasts, { expanded, maxVisible, reducedMotion }) {
   const records = toasts.map(describeToast);
   const dialogCount = records.filter((record) => record.dialog).length;
   const peek = !reducedMotion && dialogCount === 0;
   const overflowCount = Math.max(0, records.filter((record) => !record.persistent).length - maxVisible);
-  let nonPersistentIndex = 0;
+  let statusIndex = 0;
   const entries = records.map((record) => {
-    const overflow = !record.persistent && nonPersistentIndex < overflowCount;
-    if (!record.persistent) nonPersistentIndex += 1;
-    return { ...record, hidden: !expanded && overflow };
+    const overflow = !record.persistent && statusIndex++ < overflowCount;
+    return { ...record, hidden: !expanded && overflow, behind: false, index: 0 };
   });
-  const frontFirst = entries.filter((entry) => !entry.hidden).reverse();
-  const sizes = peek ? frontFirst.map(({ toast }) => measureToast(toast)) : [];
-  const frontHeight = Math.ceil(sizes[0]?.height ?? 0);
-  const frontWidth = Math.ceil(sizes[0]?.width ?? 0);
-  const peekCount = Math.max(0, frontFirst.length - 1);
-  const metricsReady = peek && frontFirst.length > 0 && (expanded || peekCount === 0 || frontHeight > 0);
-  let offset = 0;
-
-  frontFirst.forEach((entry, index) => {
-    entry.index = index;
-    entry.height = Math.ceil(sizes[index]?.height ?? 0);
-    entry.offset = expanded ? offset : 0;
-    entry.behind = peek && metricsReady && !expanded && index > 0;
-    offset += entry.height + TOAST_GAP_PX;
+  const visible = entries.filter((entry) => !entry.hidden);
+  visible.forEach((entry, index) => {
+    entry.index = visible.length - index - 1;
+    entry.behind = peek && !expanded && entry.index > 0;
   });
-
-  entries.forEach((entry) => {
-    entry.inert = entry.hidden || Boolean(entry.behind);
-  });
-
-  // Count what the collapsed stack would conceal, so expansion keeps its
-  // initiating control present and focused.
-  const moreCount = peek && metricsReady ? Math.max(0, records.length - 1) : overflowCount;
 
   return {
     entries,
     peek,
-    metricsReady,
-    peekCount,
-    frontHeight,
-    frontWidth,
-    stackHeight: Math.max(0, offset - TOAST_GAP_PX),
-    moreCount,
+    peekCount: peek && !expanded ? Math.max(0, visible.length - 1) : 0,
+    // Keep the expansion control present while the user is interacting with it.
+    moreCount: peek ? Math.max(0, records.length - 1) : overflowCount,
     dialogCount,
   };
 }
 
-export { createStackPlan, describeToast, TOAST_GAP_PX };
+export { createStackPlan, describeToast };
