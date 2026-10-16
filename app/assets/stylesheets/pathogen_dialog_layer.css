@@ -102,7 +102,7 @@
   scroll-padding: 0.5rem;
 }
 
-[data-pathogen--dialog-part="panel"][data-scroll-mode="panel"] [data-pathogen--dialog-part="body"] {
+[data-pathogen--dialog-part="panel"][data-scroll-mode="panel"] > [data-pathogen--dialog-part="body"] {
   flex: none;
   overflow: visible;
 }
