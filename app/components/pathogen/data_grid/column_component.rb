@@ -70,9 +70,11 @@ module Pathogen
 
       def interactive? = @interactive
 
-      def header_cell_attributes(column_index:, aria_column_index: column_index + 1, virtual_column_index: nil)
+      def header_cell_attributes(column_index:, aria_column_index: column_index + 1, virtual_column_index: nil,
+                                 interactive: false)
         attributes_for(
           header: true,
+          interactive: interactive,
           row_index: 0,
           column_index: column_index,
           aria_column_index: aria_column_index,
