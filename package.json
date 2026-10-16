@@ -49,7 +49,7 @@
   "dependencies": {
     "@floating-ui/dom": "^1.8.0",
     "@hotwired/stimulus": "^3.0.0",
-    "uuid": "^14.0.2"
+    "uuid": "^14.0.3"
   },
   "peerDependencies": {
     "@hotwired/turbo-rails": "^8.0.0"
