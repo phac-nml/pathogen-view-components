@@ -147,7 +147,8 @@ export class VirtualViewport {
         },
         onVisibleRowsChanged: () => {
           this.#range = EMPTY_RANGE;
-          this.#scheduleRender();
+          // Small cursor batches may still leave the viewport too short to scroll.
+          this.#scheduleRender(this.cursorMode);
         },
         setBusy: this.#paginationOptions.setBusy,
         handleError: this.#paginationOptions.handleError,

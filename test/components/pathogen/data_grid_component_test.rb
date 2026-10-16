@@ -779,6 +779,22 @@ module Pathogen
       assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 200.0px;"]'
     end
 
+    [{ mode: :offset, total_count: 100 }, { mode: :cursor, next_cursor: 'next' }].each do |pagination|
+      test "regular grid ignores #{pagination[:mode]} pagination when announcing its row count" do
+        render_inline(Pathogen::DataGridComponent.new(
+                        virtual: false,
+                        virtual_pagination: pagination.merge(rows_url: '/rows'),
+                        rows: [{ id: 'S-001' }, { id: 'S-002' }]
+                      )) do |grid|
+          grid.with_column('ID', key: :id)
+        end
+
+        assert_selector 'table[role="grid"][aria-rowcount="3"]'
+        assert_no_selector '[data-pvc-data-grid-pagination-mode]'
+        assert_no_selector '[data-pathogen--data-grid-target="paginationStatus"]'
+      end
+    end
+
     test 'virtual pagination exposes metadata attributes and total aria-rowcount' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,

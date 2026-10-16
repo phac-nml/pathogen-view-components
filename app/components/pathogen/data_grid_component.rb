@@ -503,7 +503,7 @@ module Pathogen
           'data-pvc-data-grid-pinned-count' => virtual_pinned_count,
           'data-pvc-data-grid-column-widths' => virtual_column_widths
         },
-        pagination: @virtual_pagination,
+        pagination: virtual_pagination? ? @virtual_pagination : nil,
         rows_count: @rows.size
       )
     end

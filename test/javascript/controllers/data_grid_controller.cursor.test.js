@@ -19,7 +19,7 @@ const response = (start, count, next = null) => ({
     next_cursor: next,
   }),
 });
-async function start({ count = 4, cursor = "next", footer = true, position = true, total = null } = {}) {
+async function start({ count = 4, cursor = "next", footer = true, position = true, total = null, height = 80 } = {}) {
   document.body.innerHTML = `<button id="before">Before</button><div data-controller="pathogen--data-grid">
     <div data-pathogen--data-grid-target="scrollContainer"><div role="grid" aria-rowcount="-1" data-pathogen--data-grid-target="grid"
       data-pvc-data-grid-pagination-mode="cursor" data-pvc-data-grid-next-cursor="${cursor}" data-pvc-data-grid-page-size="4"
@@ -36,7 +36,7 @@ async function start({ count = 4, cursor = "next", footer = true, position = tru
     }
     </div><button id="after">After</button>`;
   Object.defineProperties(target("scrollContainer"), {
-    clientHeight: { value: 80 },
+    clientHeight: { value: height },
     clientWidth: { value: 100 },
     scrollHeight: { value: 160 },
   });
@@ -62,6 +62,65 @@ afterEach(async () => {
 });
 
 describe("cursor grid interactions", () => {
+  it("loads successive batches without scrolling until a tall viewport is filled", async () => {
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(response(4, 4, "eight"))
+      .mockResolvedValueOnce(response(8, 4, "twelve"))
+      .mockResolvedValueOnce(response(12, 4, "sixteen"));
+    await start({ height: 600 });
+    document.querySelector("#after").focus();
+
+    await vi.waitFor(() => expect(target("grid").dataset.pvcDataGridLoadedCount).toBe("16"));
+    await settle();
+
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch.mock.calls.map(([url]) => new URL(url).searchParams.get("cursor"))).toEqual([
+      "next",
+      "eight",
+      "twelve",
+    ]);
+    expect(target("paginationPosition").textContent).toBe("Rows 1–15 · 16 loaded");
+    expect(document.activeElement).toBe(document.querySelector("#after"));
+  });
+
+  it("stops filling an underfilled viewport when the cursor is exhausted", async () => {
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(response(4, 4, "eight"))
+      .mockResolvedValueOnce(response(8, 2));
+    await start({ height: 600 });
+
+    await vi.waitFor(() => expect(target("grid").getAttribute("aria-rowcount")).toBe("11"));
+    await settle();
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(target("paginationStatus").textContent).toBe("All 10 rows loaded");
+  });
+
+  it("pauses automatic filling after an error and resumes only after retry", async () => {
+    const fetch = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(response(4, 4, "eight"))
+      .mockRejectedValueOnce(new Error("offline"));
+    await start({ height: 600 });
+
+    await vi.waitFor(() => expect(target("paginationRetry").hidden).toBe(false));
+    target("scrollContainer").dispatchEvent(new Event("scrollend"));
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(target("grid").dataset.pvcDataGridLoadedCount).toBe("8");
+    expect(target("paginationStatus").textContent).toBe("Try again");
+
+    fetch.mockResolvedValueOnce(response(8, 4, "twelve")).mockResolvedValueOnce(response(12, 4, "sixteen"));
+    target("paginationRetry").click();
+
+    await vi.waitFor(() => expect(target("grid").dataset.pvcDataGridLoadedCount).toBe("16"));
+    await settle();
+    expect(fetch).toHaveBeenCalledTimes(4);
+    expect(target("paginationRetry").hidden).toBe(true);
+  });
+
   it("shows a supplied full total without expanding loaded navigation and discovers the final count", async () => {
     const fetch = vi.spyOn(globalThis, "fetch").mockResolvedValue(response(4, 2));
     await start({ total: 1000 });
