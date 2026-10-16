@@ -114,36 +114,75 @@ describe("copyable_value_controller", () => {
     expect(container.querySelector("button")?.title).toBe("Copy identifier");
   });
 
-  it("announces failure when clipboard API and fallback copy are unavailable", async () => {
-    const { container, announcement } = appendCopyableValue();
+  it("preserves exact text and restores focus when using the clipboard fallback", async () => {
+    const { container, text, announcement } = appendCopyableValue();
+    text.textContent = "  A  B\nC\tD  ";
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined });
 
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: undefined,
-    });
-
-    Object.defineProperty(document, "execCommand", {
-      configurable: true,
-      writable: true,
-      value: vi.fn(() => false),
+    let copiedText;
+    document.execCommand = vi.fn(() => {
+      const selected = document.activeElement;
+      copiedText = selected.value?.slice(selected.selectionStart, selected.selectionEnd);
+      return true;
     });
 
     await waitForController();
-    vi.useFakeTimers();
-
+    const button = container.querySelector("button");
+    button.focus();
     const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
     await controller.copy();
 
-    expect(container.dataset.state).toBe("error");
-    expect(announcement.textContent).toBe("Unable to copy to clipboard");
-    expect(container.querySelector("button")?.title).toBe("Unable to copy to clipboard");
-
-    vi.advanceTimersByTime(2000);
-
-    expect(container.dataset.state).toBe("idle");
-    expect(announcement.textContent).toBe("");
-    expect(container.querySelector("button")?.title).toBe("Copy identifier");
+    expect(document.execCommand).toHaveBeenCalledWith("copy");
+    expect(copiedText).toBe(text.textContent);
+    expect(document.activeElement).toBe(button);
+    expect(document.querySelector("textarea")).toBeNull();
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
   });
+
+  it.each(["unavailable", "false", "throws"])(
+    "cleans up and announces failure when fallback copy %s",
+    async (outcome) => {
+      const { container, announcement } = appendCopyableValue();
+
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: undefined,
+      });
+
+      Object.defineProperty(document, "execCommand", {
+        configurable: true,
+        writable: true,
+        value:
+          outcome === "unavailable"
+            ? undefined
+            : vi.fn(() => {
+                if (outcome === "throws") throw new Error("Copy failed");
+                return false;
+              }),
+      });
+
+      await waitForController();
+      vi.useFakeTimers();
+
+      const button = container.querySelector("button");
+      button.focus();
+      const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+      await controller.copy();
+
+      expect(document.activeElement).toBe(button);
+      expect(document.querySelector("textarea")).toBeNull();
+      expect(container.dataset.state).toBe("error");
+      expect(announcement.textContent).toBe("Unable to copy to clipboard");
+      expect(container.querySelector("button")?.title).toBe("Unable to copy to clipboard");
+
+      vi.advanceTimersByTime(2000);
+
+      expect(container.dataset.state).toBe("idle");
+      expect(announcement.textContent).toBe("");
+      expect(container.querySelector("button")?.title).toBe("Copy identifier");
+    },
+  );
 
   it("clears pending reset timer on disconnect", async () => {
     const { container, announcement } = appendCopyableValue();
