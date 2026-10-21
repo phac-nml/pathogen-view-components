@@ -1,0 +1,19 @@
+{
+  "name": "pathogen-static-catalog-spike",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "export": "node prepare.mjs",
+    "dev": "node prepare.mjs && astro dev --ignore-lock",
+    "build": "node prepare.mjs && astro build",
+    "preview": "astro preview --ignore-lock",
+    "test": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.6",
+    "astro": "7.4.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}
