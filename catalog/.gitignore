@@ -1,0 +1,7 @@
+.astro/
+dist/
+test-results/
+playwright-report/
+public/
+src/content/docs/components/
+src/content/docs/design-system/
