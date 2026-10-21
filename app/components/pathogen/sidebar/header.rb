@@ -6,9 +6,9 @@ module Pathogen
     class Header < Region
       BASE_CLASSES = %w[
         pathogen-sidebar-header
-        flex items-center gap-2
+        flex items-center justify-between gap-2
         border-b border-[color:var(--pvc-color-border)]
-        p-2
+        p-3
       ].join(' ').freeze
     end
   end
