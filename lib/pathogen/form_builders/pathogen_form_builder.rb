@@ -218,8 +218,7 @@ module Pathogen
           'mb-2',            # Margin bottom for spacing
           'text-sm',         # Small text size
           'font-semibold',   # Semibold font weight
-          'text-slate-900',  # Text color for light mode
-          'dark:text-white'  # Text color for dark mode
+          'text-[var(--pvc-color-text)]' # Semantic text color
         ]
 
         # Merge custom classes with label classes
