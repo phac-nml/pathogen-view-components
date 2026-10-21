@@ -477,6 +477,47 @@ bin/dev
 
 Open `http://localhost:3001/lookbook`. Design-system guidance lives in the Lookbook Pages section from `docs/lookbook/`. Component previews live in `test/components/previews/pathogen/` and are shared between the test suite and Lookbook.
 
+## Deploying the catalog to GitHub Pages
+
+The static catalog in `catalog/` uses Astro Starlight and renders real Pathogen
+components during the build. GitHub Pages serves the generated HTML, CSS, and
+JavaScript; it does not need a Rails server.
+
+### Preview locally
+
+From the repository root, with the development requirements installed:
+
+```bash
+bin/bundle install
+pnpm install --frozen-lockfile
+pnpm --dir catalog install --frozen-lockfile
+pnpm --dir catalog build
+pnpm --dir catalog preview
+```
+
+Open `http://localhost:4321/pathogen-view-components/`. See the
+[catalog README](catalog/README.md) for editing and browser validation instructions.
+
+### Publish
+
+1. In the GitHub repository, open **Settings → Pages**. Under **Build and deployment**,
+   select **GitHub Actions** as the source.
+2. Merge the `catalog/` directory and the
+   [publishing workflow](.github/workflows/catalog-pages.yml) into `main`.
+3. In **Actions**, open **Publish component catalog** and check that both the `build`
+   and `deploy` jobs succeed. If the `github-pages` environment requires approval,
+   approve the pending deployment there.
+4. Open <https://phac-nml.github.io/pathogen-view-components/> after deployment succeeds.
+
+Every push to `main` rebuilds and publishes the catalog. To redeploy manually, open
+**Actions → Publish component catalog → Run workflow** and select `main`.
+
+The workflow installs Ruby and JavaScript dependencies, builds the catalog, and
+publishes `catalog/dist/`. Generated files stay out of Git; no `gh-pages` branch is
+needed. The site's URL and project subpath are configured in
+[`catalog/astro.config.mjs`](catalog/astro.config.mjs); the renderer uses the same
+subpath in [`catalog/render.rb`](catalog/render.rb).
+
 ## Contributing
 
 Bug reports and pull requests are welcome. Please include tests for behavioral changes and note any accessibility impacts.
