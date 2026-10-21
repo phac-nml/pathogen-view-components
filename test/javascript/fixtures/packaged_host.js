@@ -7,6 +7,7 @@ import {
   DisclosureController,
   DataGridController,
   AvatarController,
+  DialogController,
 } from "pathogen_view_components";
 
 const application = Application.start();
@@ -21,5 +22,12 @@ window.pathogenHost = {
   application,
   Controller,
   registrations,
-  controllerExports: { TabsController, TooltipController, DisclosureController, DataGridController, AvatarController },
+  controllerExports: {
+    TabsController,
+    TooltipController,
+    DisclosureController,
+    DataGridController,
+    AvatarController,
+    DialogController,
+  },
 };

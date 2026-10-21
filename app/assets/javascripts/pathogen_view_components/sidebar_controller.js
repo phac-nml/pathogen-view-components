@@ -1,4 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
+import { acquireScrollLock, releaseScrollLock } from "pathogen_view_components/scroll_lock";
+import { registerModal, unregisterModal } from "pathogen_view_components/modal_stack";
 
 const MODAL_OPEN_EVENT = "pathogen:sidebar:modal-open";
 
@@ -20,7 +22,6 @@ export default class SidebarController extends Controller {
     this.lastTrigger = null;
     this.matchMediaList = null;
     this.scrollLocked = false;
-    this.originalBodyOverflow = "";
     this.onBreakpointChange = this.onBreakpointChange.bind(this);
     this.onDialogClose = this.onDialogClose.bind(this);
     this.onModalOpen = this.onModalOpen.bind(this);
@@ -210,7 +211,10 @@ export default class SidebarController extends Controller {
 
     if (visibleOpen) {
       this.copyNavigationNameToDialog();
-      if (!this.dialogTarget.open) this.dialogTarget.showModal();
+      if (!this.dialogTarget.open) {
+        this.dialogTarget.showModal();
+        registerModal(this.dialogTarget);
+      }
       this.lockBodyScroll();
       return;
     }
@@ -221,16 +225,14 @@ export default class SidebarController extends Controller {
 
   lockBodyScroll() {
     if (this.scrollLocked) return;
-
-    this.originalBodyOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    acquireScrollLock(this);
     this.scrollLocked = true;
   }
 
   unlockBodyScroll() {
     if (!this.scrollLocked) return;
 
-    document.body.style.overflow = this.originalBodyOverflow;
+    releaseScrollLock(this);
     this.scrollLocked = false;
   }
 
@@ -262,6 +264,7 @@ export default class SidebarController extends Controller {
 
   closeDialog() {
     if (this.dialogTarget.open) this.dialogTarget.close();
+    unregisterModal(this.dialogTarget);
 
     this.dialogTarget.removeAttribute("aria-label");
     this.dialogTarget.removeAttribute("aria-labelledby");
