@@ -24,7 +24,7 @@ module Pathogen
 
       def field_set_tag(&)
         # Format the fieldset tag so it looks kick ass
-        @template.field_set_tag(class: 'grid grid-cols-1 gap-4', &)
+        @template.field_set_tag(nil, class: 'grid grid-cols-1 gap-4', &)
       end
 
       # Renders a radio button with consistent styling and accessibility features
