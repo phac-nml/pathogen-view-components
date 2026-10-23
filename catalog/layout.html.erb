@@ -16,16 +16,6 @@
       }
     </style>
     <script type="module" src="./application.js"></script>
-    <script type="module">
-      // Grow the embedding iframe with its content so narrow or zoomed previews never clip.
-      const frame = window.frameElement;
-      if (frame) {
-        new ResizeObserver(() => {
-          const border = frame.offsetHeight - frame.clientHeight;
-          frame.style.height = `${Math.ceil(document.body.getBoundingClientRect().height) + border}px`;
-        }).observe(document.body);
-      }
-    </script>
   </head>
   <body><%= rendered %></body>
 </html>

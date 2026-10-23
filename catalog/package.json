@@ -2,6 +2,7 @@
   "name": "pathogen-static-catalog-spike",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "export": "node prepare.mjs",
     "dev": "node prepare.mjs && astro dev --ignore-lock",
