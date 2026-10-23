@@ -8,7 +8,6 @@ From the repository root, in the normal development environment (Ruby from
 `.ruby-version`, Node 24, pnpm 11.22, and `bin/bundle check` passing):
 
 ```sh
-pnpm install --frozen-lockfile
 pnpm --dir catalog install --frozen-lockfile
 pnpm --dir catalog build
 pnpm --dir catalog preview
@@ -16,7 +15,9 @@ pnpm --dir catalog preview
 
 Open <http://localhost:4321/pathogen-view-components/>. The generated `catalog/dist/`
 can be served by any static HTTP server; Ruby is only needed for generation.
-The project subpath is intentional. Nothing is deployed by these commands.
+The project subpath is intentional and can be changed with `CATALOG_BASE` (see
+`base.mjs`). These commands deploy nothing; the `Component catalog` workflow builds and
+tests the catalog on pull requests and publishes it to GitHub Pages from `main`.
 
 For editing, `pnpm --dir catalog dev` exports examples and starts Astro. Markdown
 updates refresh through Astro. After ERB, Ruby, or component asset edits, run
@@ -35,7 +36,7 @@ Ruby watcher or arbitrary parameter controls.
 
 Only three examples and three existing prose documents are included. Other
 design-system links point to the repository source until those pages are migrated.
-No endpoint-backed examples, deployment workflow, automatic API reference,
+No endpoint-backed examples, automatic API reference,
 component index filters, styling customization, or complete accessibility audit.
 Starlight owns the documentation shell; component CSS is isolated in iframes.
 
@@ -52,6 +53,8 @@ links, and a 320px viewport. Light, dark, and narrow screenshots are saved under
 `catalog/test-results/`. They do not replace manual screen-reader testing.
 
 `render.rb` is a small build host using the root Ruby bundle. `prepare.mjs` copies
-the shipped CSS and bundles the existing demo entrypoint with the shared esbuild
-configuration. Generated pages, assets, and `dist/` are ignored. JavaScript
-dependencies and their lockfile are isolated here so the library build is unaffected.
+the shipped CSS and bundles `application.js` (Stimulus and the Pathogen controllers,
+without Turbo) with the shared esbuild configuration. Preview iframes grow to fit their
+content. Generated pages, assets, and `dist/` are ignored. JavaScript dependencies,
+including those the preview bundle needs, and their lockfile are isolated here, so the
+catalog does not need the root `pnpm install` and the library build is unaffected.

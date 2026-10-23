@@ -489,7 +489,6 @@ From the repository root, with the development requirements installed:
 
 ```bash
 bin/bundle install
-pnpm install --frozen-lockfile
 pnpm --dir catalog install --frozen-lockfile
 pnpm --dir catalog build
 pnpm --dir catalog preview
@@ -504,19 +503,21 @@ Open `http://localhost:4321/pathogen-view-components/`. See the
    select **GitHub Actions** as the source.
 2. Merge the `catalog/` directory and the
    [publishing workflow](.github/workflows/catalog-pages.yml) into `main`.
-3. In **Actions**, open **Publish component catalog** and check that both the `build`
+3. In **Actions**, open **Component catalog** and check that both the `build`
    and `deploy` jobs succeed. If the `github-pages` environment requires approval,
    approve the pending deployment there.
 4. Open <https://phac-nml.github.io/pathogen-view-components/> after deployment succeeds.
 
-Every push to `main` rebuilds and publishes the catalog. To redeploy manually, open
-**Actions → Publish component catalog → Run workflow** and select `main`.
+Every pull request builds the catalog and runs its browser tests. Every push to
+`main` also publishes it. To redeploy manually, open
+**Actions → Component catalog → Run workflow** and select `main`.
 
-The workflow installs Ruby and JavaScript dependencies, builds the catalog, and
-publishes `catalog/dist/`. Generated files stay out of Git; no `gh-pages` branch is
-needed. The site's URL and project subpath are configured in
-[`catalog/astro.config.mjs`](catalog/astro.config.mjs); the renderer uses the same
-subpath in [`catalog/render.rb`](catalog/render.rb).
+The workflow installs Ruby and the catalog's JavaScript dependencies, builds and tests
+the catalog, and publishes `catalog/dist/`. Generated files stay out of Git; no
+`gh-pages` branch is needed. When publishing, the site URL and subpath come from
+`actions/configure-pages`, so forks and custom domains work without edits. Locally,
+set `CATALOG_BASE` (for example `CATALOG_BASE=/` or `CATALOG_BASE=/docs`) to change the
+default `/pathogen-view-components` subpath; see [`catalog/base.mjs`](catalog/base.mjs).
 
 ## Contributing
 
