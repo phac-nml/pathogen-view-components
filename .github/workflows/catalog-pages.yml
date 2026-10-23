@@ -1,0 +1,91 @@
+name: Component catalog
+
+# Pull requests build and test the catalog so component changes that break it fail
+# before merge; only main is published.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Configure Pages
+        id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      # Pull requests keep the default subpath from catalog/base.mjs.
+      - name: Use the Pages URL
+        if: steps.pages.outcome == 'success'
+        run: |
+          echo "CATALOG_BASE=${{ steps.pages.outputs.base_path }}" >> "$GITHUB_ENV"
+          echo "CATALOG_SITE=${{ steps.pages.outputs.origin }}" >> "$GITHUB_ENV"
+
+      # The catalog declares all of its build dependencies, so the root install is not needed.
+      - name: Set up pnpm and install catalog dependencies
+        uses: pnpm/setup@v3
+        with:
+          runtime: node@24.14.1
+          working-directory: catalog
+          cache: true
+
+      - name: Build catalog
+        run: pnpm --dir catalog build
+
+      - name: Install Playwright browser
+        run: pnpm --dir catalog exec playwright install --with-deps chromium
+
+      - name: Test catalog
+        run: pnpm --dir catalog test
+
+      - name: Upload test screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: catalog-test-results
+          path: catalog/test-results
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: catalog/dist
+
+  deploy:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

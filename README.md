@@ -477,6 +477,48 @@ bin/dev
 
 Open `http://localhost:3001/lookbook`. Design-system guidance lives in the Lookbook Pages section from `docs/lookbook/`. Component previews live in `test/components/previews/pathogen/` and are shared between the test suite and Lookbook.
 
+## Deploying the catalog to GitHub Pages
+
+The static catalog in `catalog/` uses Astro Starlight and renders real Pathogen
+components during the build. GitHub Pages serves the generated HTML, CSS, and
+JavaScript; it does not need a Rails server.
+
+### Preview locally
+
+From the repository root, with the development requirements installed:
+
+```bash
+bin/bundle install
+pnpm --dir catalog install --frozen-lockfile
+pnpm --dir catalog build
+pnpm --dir catalog preview
+```
+
+Open `http://localhost:4321/pathogen-view-components/`. See the
+[catalog README](catalog/README.md) for editing and browser validation instructions.
+
+### Publish
+
+1. In the GitHub repository, open **Settings → Pages**. Under **Build and deployment**,
+   select **GitHub Actions** as the source.
+2. Merge the `catalog/` directory and the
+   [publishing workflow](.github/workflows/catalog-pages.yml) into `main`.
+3. In **Actions**, open **Component catalog** and check that both the `build`
+   and `deploy` jobs succeed. If the `github-pages` environment requires approval,
+   approve the pending deployment there.
+4. Open <https://phac-nml.github.io/pathogen-view-components/> after deployment succeeds.
+
+Every pull request builds the catalog and runs its browser tests. Every push to
+`main` also publishes it. To redeploy manually, open
+**Actions → Component catalog → Run workflow** and select `main`.
+
+The workflow installs Ruby and the catalog's JavaScript dependencies, builds and tests
+the catalog, and publishes `catalog/dist/`. Generated files stay out of Git; no
+`gh-pages` branch is needed. When publishing, the site URL and subpath come from
+`actions/configure-pages`, so forks and custom domains work without edits. Locally,
+set `CATALOG_BASE` (for example `CATALOG_BASE=/` or `CATALOG_BASE=/docs`) to change the
+default `/pathogen-view-components` subpath; see [`catalog/base.mjs`](catalog/base.mjs).
+
 ## Contributing
 
 Bug reports and pull requests are welcome. Please include tests for behavioral changes and note any accessibility impacts.
