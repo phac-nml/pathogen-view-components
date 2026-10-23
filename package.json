@@ -33,7 +33,7 @@
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/user-event": "^14.6.8",
     "axe-core": "^4.14.0",
-    "chokidar": "^5.0.0",
+    "chokidar": "^6.0.0",
     "esbuild": "^0.28.2",
     "eslint": "^10.12.0",
     "eslint-config-prettier": "^10.0.0",
