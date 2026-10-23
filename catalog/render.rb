@@ -11,7 +11,8 @@ require 'fileutils'
 
 ROOT = File.expand_path('..', __dir__)
 CATALOG = File.join(ROOT, 'catalog')
-BASE = '/pathogen-view-components'
+# Same CATALOG_BASE default as base.mjs, which Astro and Playwright read.
+BASE = ENV.fetch('CATALOG_BASE', '/pathogen-view-components').chomp('/')
 
 # Build-only Rails host for rendering the engine's components.
 class CatalogApplication < Rails::Application
@@ -37,7 +38,7 @@ FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG
     <<~MARKDOWN
       ## #{theme.capitalize} preview
 
-      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
+      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
 
       [Open #{theme} preview](#{BASE}/examples/#{filename})
     MARKDOWN
@@ -78,6 +79,8 @@ end
 # Keep the spike to prose docs; token swatches need their own isolated styling.
 exported_ids.each do |id|
   content = ERB.new(File.read(page_ids.fetch(id))).result(context.instance_eval { binding })
+  # Starlight renders the frontmatter title as the page H1, so drop the document's own.
+  content = content.sub(/\A(---\n.*?\n---\n)\s*# [^\n]*\n/m, '\\1')
   File.write("#{output}/design-system/#{id}.md", content)
 end
 

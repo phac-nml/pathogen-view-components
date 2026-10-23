@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { base } from "../base.mjs";
 
 test("static examples retain keyboard behaviour, styles, and working assets", async ({ page }) => {
   const failures = [];
@@ -30,13 +31,25 @@ test("static examples retain keyboard behaviour, styles, and working assets", as
     await page.goto("components/button/");
     const buttons = page.frameLocator(`iframe[title="Buttons — ${theme} preview"]`);
     await expect(buttons.getByRole("button", { name: "Export unavailable" })).toBeDisabled();
-    await expect(buttons.locator("html")).toHaveAttribute("data-theme", theme);
+    const root = buttons.locator("html");
+    await (theme === "dark" ? expect(root) : expect(root).not).toHaveClass(/\bdark\b/);
     await page.getByRole("combobox", { name: "Select theme" }).selectOption(theme);
     await page.screenshot({ path: `test-results/catalog-${theme}.png`, fullPage: true });
   }
 
   await page.setViewportSize({ width: 320, height: 800 });
   await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 320);
+  // Previews size to their content, so wrapped controls are never clipped inside the frame.
+  await page.goto("components/form/");
+  const narrow = page.locator('iframe[title="Form controls — light preview"]');
+  await narrow.scrollIntoViewIfNeeded();
+  const content = narrow.contentFrame().locator("body");
+  await expect(content.getByRole("switch")).toBeVisible();
+  await expect
+    .poll(
+      async () => (await narrow.evaluate((el) => el.clientHeight)) - (await content.evaluate((el) => el.scrollHeight)),
+    )
+    .toBeGreaterThanOrEqual(0);
   await page.screenshot({ path: "test-results/catalog-narrow.png", fullPage: true });
   expect(failures).toEqual([]);
 });
@@ -53,10 +66,8 @@ test("production search and exported documentation links work", async ({ page })
 
   await page.goto("design-system/design-system-overview/");
   const foundations = page.getByRole("link", { name: "Foundations", exact: true }).first();
-  await expect(foundations).toHaveAttribute(
-    "href",
-    "/pathogen-view-components/design-system/design-system-design-contract/",
-  );
+  await expect(foundations).toHaveAttribute("href", `${base}/design-system/design-system-design-contract/`);
   await foundations.click();
-  await expect(page.getByRole("heading", { name: "Foundations", exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+  await expect(page.getByRole("heading", { level: 1, name: "Foundations", exact: true })).toBeVisible();
 });

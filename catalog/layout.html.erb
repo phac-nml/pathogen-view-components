@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="<%= theme if theme == 'dark' %>" data-theme="<%= theme %>">
+<html lang="en"<% if theme == 'dark' %> class="dark"<% end %>>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,6 +16,16 @@
       }
     </style>
     <script type="module" src="./application.js"></script>
+    <script type="module">
+      // Grow the embedding iframe with its content so narrow or zoomed previews never clip.
+      const frame = window.frameElement;
+      if (frame) {
+        new ResizeObserver(() => {
+          const border = frame.offsetHeight - frame.clientHeight;
+          frame.style.height = `${Math.ceil(document.body.getBoundingClientRect().height) + border}px`;
+        }).observe(document.body);
+      }
+    </script>
   </head>
   <body><%= rendered %></body>
 </html>

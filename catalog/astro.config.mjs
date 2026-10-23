@@ -1,9 +1,10 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
+import { base, site } from "./base.mjs";
 
 export default defineConfig({
-  site: "https://phac-nml.github.io",
-  base: "/pathogen-view-components",
+  site,
+  base: base || "/",
   integrations: [
     starlight({
       title: "Pathogen",
