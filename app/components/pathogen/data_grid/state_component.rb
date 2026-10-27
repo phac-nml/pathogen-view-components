@@ -5,7 +5,7 @@ module Pathogen
     # Shared rendering helpers for virtual and regular data grid states.
     class StateComponent < Pathogen::Component
       HEADER_LABEL_CLASSES = %w[
-        inline-block text-[var(--pvc-data-grid-text-muted-color)]
+        inline-block text-(--pvc-data-grid-text-muted-color)
         font-semibold uppercase tracking-[0.05em] whitespace-nowrap
       ].freeze
 

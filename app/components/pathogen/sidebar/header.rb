@@ -7,7 +7,7 @@ module Pathogen
       BASE_CLASSES = %w[
         pathogen-sidebar-header
         flex items-center gap-2
-        border-b border-[color:var(--pvc-color-border)]
+        border-b border-(color:--pvc-color-border)
         p-2
       ].join(' ').freeze
     end

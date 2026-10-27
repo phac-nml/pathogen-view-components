@@ -9,10 +9,10 @@ module Pathogen
 
       assert_selector 'span[data-view-component]'
       assert_text 'Queued'
-      assert_includes root_class_list, 'bg-[var(--pvc-color-surface-muted)]'
+      assert_includes root_class_list, 'bg-(--pvc-color-surface-muted)'
       assert_includes root_class_list, 'whitespace-nowrap'
-      assert_includes root_class_list, 'rounded-[var(--pvc-radius-control)]'
-      assert_includes root_class_list, 'text-[length:var(--type-meta)]'
+      assert_includes root_class_list, 'rounded-(--pvc-radius-control)'
+      assert_includes root_class_list, 'text-(length:--type-meta)'
       assert_no_selector '[role="status"]'
     end
 
@@ -36,19 +36,19 @@ module Pathogen
     test 'success soft fill uses the strong foreground for AA contrast' do
       render_inline(Pathogen::Badge.new(text: 'Ready', tone: :success))
 
-      assert_includes root_class_list, 'text-[var(--pvc-color-success-strong)]'
+      assert_includes root_class_list, 'text-(--pvc-color-success-strong)'
       assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-success)_12%,var(--pvc-color-surface))]'
-      assert_not_includes root_class_list, 'text-[var(--pvc-color-success)]'
-      assert_not_includes root_class_list, 'text-[var(--pvc-color-text)]'
+      assert_not_includes root_class_list, 'text-(--pvc-color-success)'
+      assert_not_includes root_class_list, 'text-(--pvc-color-text)'
     end
 
     test 'warning soft fill uses the strong foreground for AA contrast' do
       render_inline(Pathogen::Badge.new(text: 'Needs review', tone: :warning))
 
-      assert_includes root_class_list, 'text-[var(--pvc-color-warning-strong)]'
+      assert_includes root_class_list, 'text-(--pvc-color-warning-strong)'
       assert_includes root_class_list, 'bg-[color-mix(in_oklab,var(--pvc-color-warning)_8%,var(--pvc-color-surface))]'
-      assert_not_includes root_class_list, 'text-[var(--pvc-color-warning)]'
-      assert_not_includes root_class_list, 'text-[var(--pvc-color-text)]'
+      assert_not_includes root_class_list, 'text-(--pvc-color-warning)'
+      assert_not_includes root_class_list, 'text-(--pvc-color-text)'
     end
 
     test 'strips surrounding whitespace from text' do
@@ -79,7 +79,7 @@ module Pathogen
       begin
         render_inline(Pathogen::Badge.new(text: 'Legacy', tone: :fuchsia))
 
-        assert_includes root_class_list, 'bg-[var(--pvc-color-surface-muted)]'
+        assert_includes root_class_list, 'bg-(--pvc-color-surface-muted)'
         assert_text 'Legacy'
       ensure
         Pathogen::FetchOrFallbackHelper.fallback_raises = original_fallback_raises

@@ -133,14 +133,14 @@ module Pathogen
     test 'uses medium Pathogen::Button sizing by default in toolbar context' do
       render_inline(Pathogen::Toolbar::Button.new) { 'Action' }
 
-      assert_selector 'button.min-h-11.min-w-11'
-      assert_selector "button[class*='bg-[var(--pvc-color-surface)]'][class*='border-[var(--pvc-color-border-strong)]']"
+      assert_selector "button[class*='min-h-(--pvc-control-size-medium)'][class*='min-w-(--pvc-control-size-medium)']"
+      assert_selector "button[class*='bg-(--pvc-color-surface-muted)'].border-transparent"
     end
 
     test 'supports an explicit compact toolbar button' do
       render_inline(Pathogen::Toolbar::Button.new(size: :small)) { 'Compact' }
 
-      assert_selector 'button.min-h-6.min-w-6'
+      assert_selector "button[class*='min-h-(--pvc-control-size-small)'][class*='min-w-(--pvc-control-size-small)']"
     end
 
     test 'renders aria-pressed with visible pressed styling' do
@@ -149,7 +149,7 @@ module Pathogen
       assert_selector(
         'button[aria-pressed="true"]' \
         '[class*="aria-pressed:bg-"]' \
-        '[class*="aria-pressed:border-[var(--pvc-color-accent)]"]',
+        '[class*="aria-pressed:border-(--pvc-color-accent)"]',
         text: 'Bold'
       )
     end
@@ -199,8 +199,8 @@ module Pathogen
       end
 
       assert_selector(
-        'div[role="toolbar"][class*="inline-flex"][class*="border-[var(--pvc-color-border)]"]' \
-        '[class*="bg-[var(--pvc-color-surface-muted)]"]'
+        'div[role="toolbar"][class*="inline-flex"][class*="border-(--pvc-color-border)"]' \
+        '[class*="bg-(--pvc-color-surface-muted)"]'
       )
     end
 
@@ -257,7 +257,7 @@ module Pathogen
 
       assert_selector 'div[role="separator"][aria-orientation="vertical"]'
       assert_no_selector 'div[role="separator"][aria-hidden]'
-      assert_selector 'div[role="separator"][class*="mx-1"][class*="bg-[var(--pvc-color-border-strong)]"]'
+      assert_selector 'div[role="separator"][class*="mx-1"][class*="bg-(--pvc-color-border-strong)"]'
       assert_no_selector 'div[role="separator"][data-pathogen--toolbar-target]'
     end
 

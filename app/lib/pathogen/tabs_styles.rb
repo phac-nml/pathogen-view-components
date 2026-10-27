@@ -5,78 +5,78 @@ module Pathogen
   module TabsStyles
     TAB_BASE = %w[
       appearance-none cursor-pointer bg-transparent font-sans
-      text-[length:var(--type-control)] font-medium
+      text-(length:--type-control) font-medium
       transition-[color,background-color,border-color]
-      duration-[var(--pvc-duration-fast)] ease-out
+      duration-(--pvc-duration-fast) ease-out
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:outline-(--pvc-color-focus) focus-visible:outline-offset-2
       focus-visible:z-10
     ].freeze
 
     TAB_INACTIVE = %w[
-      text-[var(--pvc-color-text-muted)] border-transparent bg-transparent
-      interactive-hover:bg-[var(--pvc-color-surface-muted)]
-      interactive-hover:text-[var(--pvc-color-text)]
+      text-(--pvc-color-text-muted) border-transparent bg-transparent
+      interactive-hover:bg-(--pvc-color-surface-muted)
+      interactive-hover:text-(--pvc-color-text)
     ].freeze
 
     TAB_ACTIVE_STATE_BASE = %w[
       aria-selected:font-semibold
       data-[state=active]:font-semibold
-      aria-selected:text-[var(--pvc-color-text)]
-      data-[state=active]:text-[var(--pvc-color-text)]
+      aria-selected:text-(--pvc-color-text)
+      data-[state=active]:text-(--pvc-color-text)
     ].freeze
 
     TAB_ACTIVE_STATE_HORIZONTAL = %w[
-      aria-selected:border-[var(--pvc-color-accent)]
-      data-[state=active]:border-[var(--pvc-color-accent)]
+      aria-selected:border-(--pvc-color-accent)
+      data-[state=active]:border-(--pvc-color-accent)
     ].freeze
 
     TAB_ACTIVE_STATE_VERTICAL = %w[
-      aria-selected:bg-[var(--pvc-color-surface-muted)]
-      aria-selected:border-[var(--pvc-color-accent)]
-      data-[state=active]:bg-[var(--pvc-color-surface-muted)]
-      data-[state=active]:border-[var(--pvc-color-accent)]
+      aria-selected:bg-(--pvc-color-surface-muted)
+      aria-selected:border-(--pvc-color-accent)
+      data-[state=active]:bg-(--pvc-color-surface-muted)
+      data-[state=active]:border-(--pvc-color-accent)
     ].freeze
 
     TAB_HORIZONTAL = %w[
-      -mb-px rounded-t-[var(--pvc-radius-action)] px-3 py-2 border-b-2 border-transparent
+      -mb-px rounded-t-(--pvc-radius-action) px-3 py-2 border-b-2 border-transparent
     ].freeze
 
     TAB_VERTICAL = %w[
-      mb-0 w-full truncate rounded-[var(--pvc-radius-action)] px-3 py-2 text-left
+      mb-0 w-full truncate rounded-(--pvc-radius-action) px-3 py-2 text-left
       border-l-2 border-transparent
     ].freeze
 
     TABLIST_HORIZONTAL = %w[
-      flex flex-wrap items-stretch gap-2 border-b border-[var(--pvc-color-border)]
+      flex flex-wrap items-stretch gap-2 border-b border-(--pvc-color-border)
     ].freeze
 
     TABLIST_VERTICAL = %w[
-      flex min-w-[11rem] flex-col items-stretch gap-2 border-r border-[var(--pvc-color-border)] pr-3
+      flex min-w-[11rem] flex-col items-stretch gap-2 border-r border-(--pvc-color-border) pr-3
     ].freeze
 
-    CONTAINER_HORIZONTAL = %w[block font-sans text-[var(--pvc-color-text)]].freeze
+    CONTAINER_HORIZONTAL = %w[block font-sans text-(--pvc-color-text)].freeze
 
     CONTAINER_VERTICAL = %w[
-      flex items-start gap-6 font-sans text-[var(--pvc-color-text)]
+      flex items-start gap-6 font-sans text-(--pvc-color-text)
     ].freeze
 
     PANEL_BASE = %w[
-      text-[length:var(--type-body)] text-[var(--pvc-color-text)] leading-[1.45]
-      focus-visible:rounded-[var(--pvc-radius-action)]
+      text-(length:--type-body) text-(--pvc-color-text) leading-[1.45]
+      focus-visible:rounded-(--pvc-radius-action)
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:outline-(--pvc-color-focus) focus-visible:outline-offset-2
       [&:is([hidden])]:hidden
     ].freeze
 
     LAZY_PANEL_SKELETON = %w[
       motion-reduce:animate-none animate-pulse
-      rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface-muted)] p-4
+      rounded-(--pvc-radius-panel) border border-(--pvc-color-border)
+      bg-(--pvc-color-surface-muted) p-4
     ].freeze
 
     LAZY_PANEL_SKELETON_BAR = %w[
-      rounded-[var(--pvc-radius-control)] bg-[color-mix(in_oklab,var(--pvc-color-text-muted)_35%,transparent)]
+      rounded-(--pvc-radius-control) bg-[color-mix(in_oklab,var(--pvc-color-text-muted)_35%,transparent)]
     ].freeze
 
     module_function
@@ -84,7 +84,11 @@ module Pathogen
     def tab_classes(orientation:, size: :medium)
       [
         TAB_BASE,
-        size == :small ? 'min-h-6 min-w-6' : 'min-h-11 min-w-11',
+        if size == :small
+          'min-h-(--pvc-control-size-small) min-w-(--pvc-control-size-small)'
+        else
+          'min-h-(--pvc-control-size-medium) min-w-(--pvc-control-size-medium)'
+        end,
         TAB_INACTIVE,
         TAB_ACTIVE_STATE_BASE,
         orientation == :vertical ? TAB_VERTICAL : TAB_HORIZONTAL,

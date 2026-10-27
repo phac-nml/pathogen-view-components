@@ -47,17 +47,17 @@ module Pathogen
     BASE_TRIGGER_CLASSES = %w[
       pathogen-disclosure__trigger
       inline-flex w-full cursor-pointer items-center justify-between gap-2
-      rounded-[var(--pvc-radius-control)]
-      text-left font-semibold text-[color:var(--pvc-color-text)]
+      rounded-(--pvc-radius-control)
+      text-left font-semibold text-(color:--pvc-color-text)
       bg-transparent
-      hover:bg-[var(--pvc-color-surface-muted)]
+      hover:bg-(--pvc-color-surface-muted)
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:outline-(--pvc-color-focus) focus-visible:outline-offset-2
     ].join(' ').freeze
 
     PANEL_CLASSES = %w[
       pathogen-disclosure__panel
-      px-3 pb-2 pt-1 text-sm text-[color:var(--pvc-color-text)]
+      px-3 pb-2 pt-1 text-sm text-(color:--pvc-color-text)
     ].join(' ').freeze
 
     HEADING_CLASSES = %w[
