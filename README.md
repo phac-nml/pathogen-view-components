@@ -44,7 +44,7 @@ JavaScript dependencies (installed by the host application):
 
 - `@hotwired/stimulus` **^3.0.0**
 - `@hotwired/turbo-rails` **^8.0.0** (peer dependency)
-- `uuid` **^14.0.2**
+- `uuid` **^14.0.3**
 - `@floating-ui/dom` **^1.8.0**
 
 ## Installation
@@ -316,7 +316,7 @@ Pathogen ships JavaScript source in the gem. Your application bundles it with es
 Install the JavaScript dependencies listed above with your application's package manager, and add esbuild as a build dependency. For example:
 
 ```bash
-pnpm add "@hotwired/stimulus@^3.0.0" "@hotwired/turbo-rails@^8.0.0" "@floating-ui/dom@^1.8.0" "uuid@^14.0.2"
+pnpm add "@hotwired/stimulus@^3.0.0" "@hotwired/turbo-rails@^8.0.0" "@floating-ui/dom@^1.8.0" "uuid@^14.0.3"
 pnpm add -D "esbuild@^0.28.1"
 ```
 
