@@ -5,7 +5,7 @@ module Pathogen
     # Renders the virtualized div-grid state for DataGridComponent.
     class VirtualStateComponent < StateComponent
       VIRTUAL_STATUS_CLASSES = %w[
-        hidden items-center gap-2
+        inline-flex items-center gap-2
         py-2.5 px-[var(--pvc-data-grid-cell-padding-x)]
         text-[var(--pvc-data-grid-text-muted-color)]
         text-[length:var(--pvc-data-grid-font-size)]

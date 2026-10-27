@@ -6,31 +6,15 @@ export function paginationContract(grid, defaultPageSize) {
   const rowOffset = Number.parseInt(grid.dataset.pvcDataGridRowOffset || "", 10);
 
   return {
+    mode: grid.dataset.pvcDataGridPaginationMode === "cursor" ? "cursor" : "offset",
+    nextCursor: grid.dataset.pvcDataGridNextCursor || null,
+    knownTotal: Number.isFinite(totalCount) && totalCount >= 0 ? totalCount : null,
     totalRows: Number.isFinite(totalCount) && totalCount > 0 ? totalCount : 0,
     rowsUrl,
     searchParams,
     rowOffset: Number.isFinite(rowOffset) && rowOffset >= 0 ? rowOffset : 0,
     pageSize: Number.isFinite(pageSize) && pageSize > 0 ? pageSize : defaultPageSize,
   };
-}
-
-export function setPaginationBusy({ grid, status, loadingMoreText, loadedText }, isBusy) {
-  if (!grid) return;
-
-  if (isBusy) {
-    grid.setAttribute("aria-busy", "true");
-    if (status && loadingMoreText) {
-      status.textContent = loadingMoreText;
-      status.hidden = false;
-    }
-    return;
-  }
-
-  grid.setAttribute("aria-busy", "false");
-  if (status && loadedText) {
-    status.textContent = loadedText;
-    status.hidden = true;
-  }
 }
 
 export function cachedVirtualCells({ grid, rows, cellSelector, allCellsForRow }) {

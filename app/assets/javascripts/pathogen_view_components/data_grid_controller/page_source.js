@@ -38,6 +38,30 @@ export function parseRows(payload) {
   return rows;
 }
 
+// Builds a rows request URL: caller search params are overlaid first, then
+// pagination params win (a null-valued param is deleted rather than set).
+export function buildRowsUrl({ url, origin = window.location.origin, searchParams, params }) {
+  const requestUrl = new URL(url, origin);
+  const base = searchParams instanceof URLSearchParams ? searchParams : new URLSearchParams(searchParams || undefined);
+  new Set(base.keys()).forEach((key) => {
+    requestUrl.searchParams.delete(key);
+    base.getAll(key).forEach((value) => requestUrl.searchParams.append(key, value));
+  });
+  for (const [key, value] of Object.entries(params)) {
+    requestUrl.searchParams.delete(key);
+    if (value !== null && value !== undefined) requestUrl.searchParams.set(key, String(value));
+  }
+  return requestUrl;
+}
+
+// Deduplicates concurrent requests for the same key, clearing the entry once settled.
+export function trackInFlight(map, key, start) {
+  if (map.has(key)) return map.get(key);
+  const request = start().finally(() => map.delete(key));
+  map.set(key, request);
+  return request;
+}
+
 export class PaginatedRowSource {
   #cache;
   #inFlight = new Map();
@@ -85,6 +109,10 @@ export class PaginatedRowSource {
 
   get isFetching() {
     return this.#inFlight.size > 0;
+  }
+
+  get hasMore() {
+    return false;
   }
 
   seedFromRows(rows) {
@@ -137,15 +165,8 @@ export class PaginatedRowSource {
       });
   }
 
-  async fetchPage(page, { signal } = {}) {
-    if (this.#inFlight.has(page)) return this.#inFlight.get(page);
-
-    const request = this.#requestPage(page, signal).finally(() => {
-      this.#inFlight.delete(page);
-    });
-
-    this.#inFlight.set(page, request);
-    return request;
+  fetchPage(page, { signal } = {}) {
+    return trackInFlight(this.#inFlight, page, () => this.#requestPage(page, signal));
   }
 
   #needsPage(page) {
@@ -154,25 +175,13 @@ export class PaginatedRowSource {
     return this.#cache.needsPage(page, this.#pageSize, this.#totalRows);
   }
 
-  #buildRequestUrl(page) {
-    const requestUrl = new URL(this.#url, this.#origin);
-
-    new Set(this.#searchParams.keys()).forEach((key) => {
-      requestUrl.searchParams.delete(key);
-      this.#searchParams.getAll(key).forEach((value) => {
-        requestUrl.searchParams.append(key, value);
-      });
-    });
-
-    // Pagination controls always win over caller-supplied duplicates.
-    requestUrl.searchParams.set("page", String(page));
-    requestUrl.searchParams.set("limit", String(this.#pageSize));
-
-    return requestUrl;
-  }
-
   async #requestPage(page, signal) {
-    const requestUrl = this.#buildRequestUrl(page);
+    const requestUrl = buildRowsUrl({
+      url: this.#url,
+      origin: this.#origin,
+      searchParams: this.#searchParams,
+      params: { page, limit: this.#pageSize },
+    });
 
     try {
       const response = await this.#fetchFn(requestUrl.toString(), {
