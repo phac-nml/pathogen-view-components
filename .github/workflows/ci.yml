@@ -266,6 +266,10 @@ jobs:
           runtime: node@24.14.1
           cache: true
 
+      - name: Sync Phosphor icons
+        working-directory: demo
+        run: bin/rails generate rails_icons:sync --library=phosphor
+
       - name: Precompile production assets
         working-directory: demo
         env:
