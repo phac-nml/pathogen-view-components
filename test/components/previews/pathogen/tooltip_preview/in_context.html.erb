@@ -75,9 +75,9 @@
             ["folder", "Projects", "/projects"],
             ["play", "Workflows", "/workflows"],
             ["gear", "Settings", "/settings"]
-          ].each do |icon_name, label, href| %>
-            <%= render Pathogen::Link.new(href:, aria: { label: label }) do |link| %>
-              <% link.with_tooltip(text: label, placement: :right, describe: false) %>
+          ].each do |icon_name, label_text, href| %>
+            <%= render Pathogen::Link.new(href:, aria: { label: label_text }) do |link| %>
+              <% link.with_tooltip(text: label_text, placement: :right, describe: false) %>
               <%= icon(icon_name, class: "size-4 text-[var(--pvc-color-text-muted)]") %>
             <% end %>
           <% end %>
