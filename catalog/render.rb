@@ -26,19 +26,23 @@ require_relative '../lib/pathogen/view_components'
 CatalogApplication.initialize!
 
 output = File.join(CATALOG, 'src/content/docs')
+# Fully generated output; clear stale pages (e.g. old per-scenario subdirectories) before regenerating.
+FileUtils.rm_rf(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 
-examples = [
-  { id: 'button', path: 'button', title: 'Buttons', source: File.join(CATALOG, 'examples/button.html.erb') },
-  { id: 'tabs', path: 'tabs', title: 'Tabs', source: File.join(CATALOG, 'examples/tabs.html.erb') },
-  { id: 'form', path: 'form', title: 'Form controls', source: File.join(CATALOG, 'examples/form.html.erb') },
+# Hand-curated, minimal usage snippets. These are the primary content for their component page;
+# auto-discovered scenarios below become collapsed "More examples" instead of separate pages.
+curated_examples = [
+  { id: 'button', title: 'Buttons', source: File.join(CATALOG, 'examples/button.html.erb') },
+  { id: 'tabs', title: 'Tabs', source: File.join(CATALOG, 'examples/tabs.html.erb') },
+  { id: 'form', title: 'Form controls', source: File.join(CATALOG, 'examples/form.html.erb') },
   {
     id: 'link',
-    path: 'link',
     title: 'Links',
     source: File.join(ROOT, 'test/components/previews/pathogen/link_preview/overview.html.erb')
   }
 ]
+curated_ids = curated_examples.map { |example| example.fetch(:id) }
 
 deferred_preview_templates = %w[
   button/accessibility
@@ -54,41 +58,75 @@ preview_templates = Dir[File.join(ROOT,
   component = File.basename(File.dirname(source)).delete_suffix('_preview')
   scenario = File.basename(source, '.html.erb')
   next if deferred_preview_templates.include?("#{component}/#{scenario}")
-  next if component == 'link' && scenario == 'overview'
+  # A curated example already covers this component; its "overview" scenario would duplicate it.
+  next if curated_ids.include?(component) && scenario == 'overview'
 
-  component_title = component.split('_').map(&:capitalize).join(' ')
-  scenario_title = scenario.tr('_', ' ').capitalize
   {
-    id: "#{component}-#{scenario.tr('_', '-')}",
-    path: "#{component}/#{scenario.tr('_', '-')}",
-    title: "#{component_title}: #{scenario_title}",
+    component:,
+    scenario:,
+    title: scenario.tr('_', ' ').capitalize,
     source:
   }
 end
+scenarios_by_component = preview_templates.group_by { |template| template.fetch(:component) }
 
-(examples + preview_templates).each do |example|
-  id = example.fetch(:id)
-  path = example.fetch(:path)
-  title = example.fetch(:title)
-  source = File.read(example.fetch(:source))
+# Render one iframe pair per theme and return the markdown that embeds them.
+render_frames = lambda do |frame_id, title, heading_level, source|
   rendered = ActionController::Base.renderer.render(inline: source, layout: false)
-  frames = %w[light dark].map do |theme|
-    filename = "#{id}-#{theme}.html"
+  heading = heading_level.positive? ? "#{'#' * heading_level} " : ''
+  %w[light dark].map do |theme|
+    filename = "#{frame_id}-#{theme}.html"
     html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result(binding)
     File.write(File.join(CATALOG, 'public/examples', filename), html)
     <<~MARKDOWN
-      ## #{theme.capitalize} preview
+      #{heading}#{theme.capitalize} preview
 
       <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
 
       [Open #{theme} preview](#{BASE}/examples/#{filename})
     MARKDOWN
   end.join("\n")
-  page = File.join(output, 'components', "#{path}.md")
-  FileUtils.mkdir_p(File.dirname(page))
+end
+
+component_ids = (curated_ids + scenarios_by_component.keys).uniq
+component_ids.each do |id|
+  curated = curated_examples.find { |example| example.fetch(:id) == id }
+  component_title = curated ? curated.fetch(:title) : id.split('_').map(&:capitalize).join(' ')
+  scenarios = (scenarios_by_component[id] || []).sort_by do |s|
+    [s.fetch(:scenario) == 'overview' ? 0 : 1, s.fetch(:scenario)]
+  end
+
+  if curated
+    primary_source = File.read(curated.fetch(:source))
+    extra_scenarios = scenarios
+  else
+    primary_scenario = scenarios.first
+    primary_source = File.read(primary_scenario.fetch(:source))
+    extra_scenarios = scenarios[1..] || []
+  end
+
+  frames = render_frames.call(id, component_title, 2, primary_source)
+  more_examples = extra_scenarios.map do |scenario|
+    scenario_source = File.read(scenario.fetch(:source))
+    scenario_frames = render_frames.call("#{id}-#{scenario.fetch(:scenario).tr('_', '-')}",
+                                         "#{component_title}: #{scenario.fetch(:title)}", 0, scenario_source)
+    <<~MARKDOWN
+      <details>
+      <summary>#{scenario.fetch(:title)}</summary>
+
+      #{scenario_frames}
+      ```erb
+      #{scenario_source.rstrip}
+      ```
+
+      </details>
+    MARKDOWN
+  end.join("\n")
+
+  page = File.join(output, 'components', "#{id}.md")
   File.write(page, <<~MARKDOWN)
     ---
-    title: "#{title}"
+    title: "#{component_title}"
     ---
 
     Rendered from the actual Ruby components. Try the controls with a keyboard.
@@ -98,8 +136,9 @@ end
     ## Usage
 
     ```erb
-    #{source.rstrip}
+    #{primary_source.rstrip}
     ```
+    #{"\n## More examples\n\n#{more_examples}" unless more_examples.empty?}
   MARKDOWN
 end
 
@@ -127,6 +166,6 @@ exported_ids.each do |id|
   File.write("#{output}/design-system/#{id}.md", content)
 end
 
-puts "Rendered #{examples.size + preview_templates.size} examples in light/dark
+puts "Rendered #{component_ids.size} component pages
 " \
   'and three design-system documents (without Lookbook).'

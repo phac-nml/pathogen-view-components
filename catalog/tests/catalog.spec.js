@@ -80,8 +80,9 @@ test("production search and exported documentation links work", async ({ page })
 });
 
 test("migrated preview scenarios retain their documented keyboard behavior", async ({ page }) => {
-  await page.goto("components/tabs/keyboard-and-accessibility/");
-  await expect(page.getByRole("heading", { level: 1, name: "Tabs: Keyboard and accessibility" })).toBeVisible();
+  await page.goto("components/tabs/");
+  await page.getByRole("heading", { level: 1, name: "Tabs" }).waitFor();
+  await page.getByText("Keyboard and accessibility", { exact: true }).click();
 
   const frame = page.frameLocator('iframe[title="Tabs: Keyboard and accessibility — light preview"]');
   const collection = frame.getByRole("tab", { name: "Collection" });
