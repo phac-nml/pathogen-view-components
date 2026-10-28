@@ -26,7 +26,7 @@ Ruby watcher or arbitrary parameter controls.
 
 ## What to evaluate
 
-- Button, tabs, and form pages show real components and the exact ERB used to render them.
+- Component pages render the existing ERB-backed preview scenarios that can run in the standalone catalog host.
 - Both light and dark previews work, including tab arrow keys and native form controls.
 - Search works in the production build (Pagefind is generated during build).
 - Documentation links and preview assets work under the GitHub Pages subpath.
@@ -34,11 +34,21 @@ Ruby watcher or arbitrary parameter controls.
 
 ## Deliberate limits
 
-Only three examples and three existing prose documents are included. Other
-design-system links point to the repository source until those pages are migrated.
-No endpoint-backed examples, automatic API reference,
-component index filters, styling customization, or complete accessibility audit.
-Starlight owns the documentation shell; component CSS is isolated in iframes.
+`render.rb` discovers ERB-backed scenarios from `test/components/previews/pathogen/`
+and renders each one in light and dark. Lookbook remains the fallback for scenarios
+that cannot yet run in the standalone host:
+
+- Avatar and Badge playgrounds, which depend on Lookbook parameter controls.
+- Button and Tooltip icon scenarios, which depend on the demo-only `rails_icons` helper.
+- Tabs lazy loading, which depends on the demo's browser mock.
+- Data Grid Ruby-method previews and server-backed infinite scroll, which need a
+	dedicated preview adapter and demo data source.
+
+Three existing hand-authored component pages and three existing prose documents remain
+alongside the migrated scenarios. Other design-system links point to the repository
+source until those pages are migrated. No automatic API reference, component index
+filters, styling customization, or complete accessibility audit exists yet. Starlight
+owns the documentation shell; component CSS is isolated in iframes.
 
 ## Validation
 

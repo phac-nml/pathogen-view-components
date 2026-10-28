@@ -28,11 +28,51 @@ CatalogApplication.initialize!
 output = File.join(CATALOG, 'src/content/docs')
 FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 
-{ 'button' => 'Buttons', 'tabs' => 'Tabs', 'form' => 'Form controls' }.each do |slug, title|
-  source = File.read(File.join(CATALOG, 'examples', "#{slug}.html.erb"))
+examples = [
+  { id: 'button', path: 'button', title: 'Buttons', source: File.join(CATALOG, 'examples/button.html.erb') },
+  { id: 'tabs', path: 'tabs', title: 'Tabs', source: File.join(CATALOG, 'examples/tabs.html.erb') },
+  { id: 'form', path: 'form', title: 'Form controls', source: File.join(CATALOG, 'examples/form.html.erb') },
+  {
+    id: 'link',
+    path: 'link',
+    title: 'Links',
+    source: File.join(ROOT, 'test/components/previews/pathogen/link_preview/overview.html.erb')
+  }
+]
+
+deferred_preview_templates = %w[
+  button/accessibility
+  button/overview
+  data_grid/virtual_infinite_scroll
+  tabs/turbo_frame_lazy_load
+  tooltip/in_context
+  tooltip/overview
+].freeze
+
+preview_templates = Dir[File.join(ROOT, 'test/components/previews/pathogen/*_preview/**/*.html.erb')].filter_map do |source|
+  component = File.basename(File.dirname(source)).delete_suffix('_preview')
+  scenario = File.basename(source, '.html.erb')
+  next if deferred_preview_templates.include?("#{component}/#{scenario}")
+  next if component == 'link' && scenario == 'overview'
+
+  component_title = component.split('_').map(&:capitalize).join(' ')
+  scenario_title = scenario.tr('_', ' ').capitalize
+  {
+    id: "#{component}-#{scenario.tr('_', '-')}",
+    path: "#{component}/#{scenario.tr('_', '-')}",
+    title: "#{component_title}: #{scenario_title}",
+    source:
+  }
+end
+
+(examples + preview_templates).each do |example|
+  id = example.fetch(:id)
+  path = example.fetch(:path)
+  title = example.fetch(:title)
+  source = File.read(example.fetch(:source))
   rendered = ActionController::Base.renderer.render(inline: source, layout: false)
   frames = %w[light dark].map do |theme|
-    filename = "#{slug}-#{theme}.html"
+    filename = "#{id}-#{theme}.html"
     html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result(binding)
     File.write(File.join(CATALOG, 'public/examples', filename), html)
     <<~MARKDOWN
@@ -43,9 +83,11 @@ FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG
       [Open #{theme} preview](#{BASE}/examples/#{filename})
     MARKDOWN
   end.join("\n")
-  File.write("#{output}/components/#{slug}.md", <<~MARKDOWN)
+  page = File.join(output, 'components', "#{path}.md")
+  FileUtils.mkdir_p(File.dirname(page))
+  File.write(page, <<~MARKDOWN)
     ---
-    title: #{title}
+    title: "#{title}"
     ---
 
     Rendered from the actual Ruby components. Try the controls with a keyboard.
@@ -84,4 +126,4 @@ exported_ids.each do |id|
   File.write("#{output}/design-system/#{id}.md", content)
 end
 
-puts 'Rendered three examples in light/dark and three design-system documents (without Lookbook).'
+puts "Rendered #{examples.size + preview_templates.size} examples in light/dark and three design-system documents (without Lookbook)."
