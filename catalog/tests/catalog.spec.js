@@ -35,6 +35,13 @@ test("static examples retain keyboard behaviour, styles, and working assets", as
     await (theme === "dark" ? expect(root) : expect(root).not).toHaveClass(/\bdark\b/);
     await page.getByRole("combobox", { name: "Select theme" }).selectOption(theme);
     await page.screenshot({ path: `test-results/catalog-${theme}.png`, fullPage: true });
+
+    await page.goto("components/link/");
+    const links = page.frameLocator(`iframe[title="Links — ${theme} preview"]`);
+    const focusExample = links.getByRole("link", { name: "Tab here to inspect focus ring" });
+    await expect(links.getByRole("heading", { name: "Inline navigation" })).toBeVisible();
+    await focusExample.focus();
+    await expect(focusExample).toBeFocused();
   }
 
   await page.setViewportSize({ width: 320, height: 800 });
@@ -70,4 +77,17 @@ test("production search and exported documentation links work", async ({ page })
   await foundations.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
   await expect(page.getByRole("heading", { level: 1, name: "Foundations", exact: true })).toBeVisible();
+});
+
+test("migrated preview scenarios retain their documented keyboard behavior", async ({ page }) => {
+  await page.goto("components/tabs/");
+  await page.getByRole("heading", { level: 1, name: "Tabs" }).waitFor();
+  await page.getByText("Keyboard and accessibility", { exact: true }).click();
+
+  const frame = page.frameLocator('iframe[title="Tabs: Keyboard and accessibility — light preview"]');
+  const collection = frame.getByRole("tab", { name: "Collection" });
+  await collection.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(frame.getByRole("tab", { name: "Lab results" })).toBeFocused();
+  await expect(frame.getByRole("tabpanel")).toContainText("Culture negative");
 });
