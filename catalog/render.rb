@@ -127,5 +127,6 @@ exported_ids.each do |id|
   File.write("#{output}/design-system/#{id}.md", content)
 end
 
-puts "Rendered #{examples.size + preview_templates.size} examples in light/dark " \
-     'and three design-system documents (without Lookbook).'
+puts "Rendered #{examples.size + preview_templates.size} examples in light/dark
+" \
+  'and three design-system documents (without Lookbook).'
