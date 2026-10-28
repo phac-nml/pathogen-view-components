@@ -71,25 +71,28 @@ end
 scenarios_by_component = preview_templates.group_by { |template| template.fetch(:component) }
 
 # Render one iframe pair per theme and return the markdown that embeds them.
-render_frames = lambda do |frame_id, title, heading_level, source|
+render_frame = lambda do |theme, frame_id, title, heading, source|
+  filename = "#{frame_id}-#{theme}.html"
   rendered = ActionController::Base.renderer.render(inline: source, layout: false)
-  heading = heading_level.positive? ? "#{'#' * heading_level} " : ''
-  %w[light dark].map do |theme|
-    filename = "#{frame_id}-#{theme}.html"
-    html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result(binding)
-    File.write(File.join(CATALOG, 'public/examples', filename), html)
-    <<~MARKDOWN
-      #{heading}#{theme.capitalize} preview
+  html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result_with_hash(
+    theme:, title:, rendered:
+  )
+  File.write(File.join(CATALOG, 'public/examples', filename), html)
+  <<~MARKDOWN
+    #{heading}#{theme.capitalize} preview
 
-      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
+    <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
 
-      [Open #{theme} preview](#{BASE}/examples/#{filename})
-    MARKDOWN
-  end.join("\n")
+    [Open #{theme} preview](#{BASE}/examples/#{filename})
+  MARKDOWN
 end
 
-component_ids = (curated_ids + scenarios_by_component.keys).uniq
-component_ids.each do |id|
+render_frames = lambda do |frame_id, title, heading_level, source|
+  heading = heading_level.positive? ? "#{'#' * heading_level} " : ''
+  %w[light dark].map { |theme| render_frame.call(theme, frame_id, title, heading, source) }.join("\n")
+end
+
+component_details = lambda do |id|
   curated = curated_examples.find { |example| example.fetch(:id) == id }
   component_title = curated ? curated.fetch(:title) : id.split('_').map(&:capitalize).join(' ')
   scenarios = (scenarios_by_component[id] || []).sort_by do |s|
@@ -104,6 +107,13 @@ component_ids.each do |id|
     primary_source = File.read(primary_scenario.fetch(:source))
     extra_scenarios = scenarios[1..] || []
   end
+
+  [component_title, primary_source, extra_scenarios]
+end
+
+component_ids = (curated_ids + scenarios_by_component.keys).uniq
+component_ids.each do |id|
+  component_title, primary_source, extra_scenarios = component_details.call(id)
 
   frames = render_frames.call(id, component_title, 2, primary_source)
   more_examples = extra_scenarios.map do |scenario|
