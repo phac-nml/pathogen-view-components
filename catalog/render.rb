@@ -49,7 +49,8 @@ deferred_preview_templates = %w[
   tooltip/overview
 ].freeze
 
-preview_templates = Dir[File.join(ROOT, 'test/components/previews/pathogen/*_preview/**/*.html.erb')].filter_map do |source|
+preview_templates = Dir[File.join(ROOT,
+                                  'test/components/previews/pathogen/*_preview/**/*.html.erb')].filter_map do |source|
   component = File.basename(File.dirname(source)).delete_suffix('_preview')
   scenario = File.basename(source, '.html.erb')
   next if deferred_preview_templates.include?("#{component}/#{scenario}")

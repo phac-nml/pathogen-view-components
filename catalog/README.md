@@ -42,7 +42,7 @@ that cannot yet run in the standalone host:
 - Button and Tooltip icon scenarios, which depend on the demo-only `rails_icons` helper.
 - Tabs lazy loading, which depends on the demo's browser mock.
 - Data Grid Ruby-method previews and server-backed infinite scroll, which need a
-	dedicated preview adapter and demo data source.
+  dedicated preview adapter and demo data source.
 
 Three existing hand-authored component pages and three existing prose documents remain
 alongside the migrated scenarios. Other design-system links point to the repository
