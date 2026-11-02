@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import TabsController from "../../../app/assets/javascripts/pathogen_view_components/tabs_controller";
 
-const waitForTabsUpdate = () => new Promise((resolve) => setTimeout(resolve, 80));
+// 200ms gives the controller's 20ms debounce timeout enough margin to fire
+// even when the full suite runs in parallel under heavy CPU contention.
+const waitForTabsUpdate = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 const dispatchKey = (target, key) => {
   const event = new KeyboardEvent("keydown", {
@@ -531,6 +533,17 @@ describe("tabs_controller", () => {
     const url = turboUpdate().mock.calls.at(-1)[1];
     expect(url.hash).toBe("#wr-b");
     expect(url.searchParams.get("tab")).toBeNull();
+  });
+
+  it("debounces URL updates during rapid tab changes", async () => {
+    renderSyncTabs({ prefix: "dh" });
+    await waitForTabsUpdate();
+
+    document.getElementById("dh-b").click();
+    document.getElementById("dh-a").click();
+    await waitForHashUpdate();
+
+    expect(turboUpdate().mock.calls.at(-1)[1].hash).toBe("#dh-a");
   });
 
   it("derives the hash from the panel id when the tab has no id", async () => {
