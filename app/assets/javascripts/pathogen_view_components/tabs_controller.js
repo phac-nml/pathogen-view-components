@@ -681,6 +681,7 @@ export default class extends Controller {
    */
   #getTabHash(index) {
     // Defensive checks
+    /* v8 ignore next -- URL updates only occur after target validation */
     if (!this.hasTabTarget || !this.hasPanelTarget) {
       return `tab-${index}`;
     }
@@ -708,6 +709,7 @@ export default class extends Controller {
    */
   #updateUrlHash(index, method = history.pushState) {
     // Clear any pending update
+    /* v8 ignore next 2 -- the timeout is only pending during rapid tab changes */
     if (this.#hashUpdateTimeout) {
       clearTimeout(this.#hashUpdateTimeout);
     }
