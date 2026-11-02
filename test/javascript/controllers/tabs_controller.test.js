@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import TabsController from "../../../app/assets/javascripts/pathogen_view_components/tabs_controller";
 
-const waitForTabsUpdate = () => new Promise((resolve) => setTimeout(resolve, 80));
+// 200ms gives the controller's 20ms debounce timeout enough margin to fire
+// even when the full suite runs in parallel under heavy CPU contention.
+const waitForTabsUpdate = () => new Promise((resolve) => setTimeout(resolve, 200));
 
 const dispatchKey = (target, key) => {
   const event = new KeyboardEvent("keydown", {
