@@ -535,6 +535,17 @@ describe("tabs_controller", () => {
     expect(url.searchParams.get("tab")).toBeNull();
   });
 
+  it("debounces URL updates during rapid tab changes", async () => {
+    renderSyncTabs({ prefix: "dh" });
+    await waitForTabsUpdate();
+
+    document.getElementById("dh-b").click();
+    document.getElementById("dh-a").click();
+    await waitForHashUpdate();
+
+    expect(turboUpdate().mock.calls.at(-1)[1].hash).toBe("#dh-a");
+  });
+
   it("derives the hash from the panel id when the tab has no id", async () => {
     document.body.innerHTML = `
       <div data-controller="pathogen--tabs" data-pathogen--tabs-sync-url-value="true">
