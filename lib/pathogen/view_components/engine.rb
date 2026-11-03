@@ -23,12 +23,6 @@ module Pathogen
         #{root}/app/lib
       ]
 
-      # Set options for ViewComponent
-      config.view_component.raise_on_invalid_options = false
-      config.view_component.silence_deprecations = false
-      config.view_component.validate_class_names = !Rails.env.production?
-      config.view_component.raise_on_invalid_aria = !Rails.env.production?
-
       initializer 'pathogen_view_components' do
         ActiveSupport.on_load(:action_view) do
           include Pathogen::ButtonToHelper
