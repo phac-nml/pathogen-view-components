@@ -6,11 +6,9 @@ description: A static catalog experiment using real Rails ViewComponents.
 Explore Ruby-rendered components with their actual stylesheet and Stimulus behaviour.
 Rails runs during generation; these pages and examples are served as static files.
 
-- [Buttons](./components/button/)
-- [Tabs](./components/tabs/)
-- [Form controls](./components/form/)
-- [Design system overview](./design-system/design-system-overview/)
+Browse components in the sidebar, or start with the
+[design system overview](./design-system/design-system-overview/).
 
-This experiment tests rendering, usage snippets, light and dark examples, static
-search, and GitHub Pages paths. It covers three examples, not the complete library.
+Each component page shows a light/dark preview and usage snippet. Additional scenarios,
+such as accessibility and keyboard behaviour, are collapsed below the main example.
 Form controls are interactive; no data is submitted or saved.
