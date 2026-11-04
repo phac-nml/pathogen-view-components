@@ -18,7 +18,7 @@ module Pathogen
     # Skip coverage here because only one branch will execute depending on what
     # Rails version you're running.
 
-    # :nocov:
+    # simplecov:disable
     def self.deprecation
       @deprecation ||=
         if Rails.application.respond_to?(:deprecators)
@@ -29,6 +29,6 @@ module Pathogen
           ActiveSupport::Deprecation.instance
         end
     end
-    # :nocov:
+    # simplecov:enable
   end
 end
