@@ -80,6 +80,18 @@ module Pathogen
         assert_includes input['aria-describedby'], '_help'
       end
 
+      test 'renders help-only support content with no visible name label' do
+        render_inline(Pathogen::Form::Switch.new(
+                        attribute: :enabled,
+                        help_text: 'Enable dark color scheme',
+                        aria: { label: 'Dark mode' }
+                      ))
+
+        assert_selector 'div.flex.flex-col.gap-2'
+        assert_selector 'div.mt-1 span#enabled_help', text: 'Enable dark color scheme'
+        assert_no_selector 'label.block.cursor-pointer.font-sans.text-sm.font-semibold'
+      end
+
       test 'renders aria-labelledby when passed' do
         render_inline(Pathogen::Form::Switch.new(
                         attribute: :enabled,
