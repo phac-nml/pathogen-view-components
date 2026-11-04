@@ -10,6 +10,7 @@ const demoJsRoot = resolve(fileURLToPath(new URL("demo/app/javascript", import.m
 const FULL_COVERAGE = { statements: 100, branches: 100, functions: 100, lines: 100 };
 const RATCHET_ALLOWLIST = {
   "app/assets/javascripts/pathogen_view_components/avatar_controller.js": FULL_COVERAGE,
+  "app/assets/javascripts/pathogen_view_components/copyable_value_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/cell_index.js": FULL_COVERAGE,
   "app/assets/javascripts/pathogen_view_components/data_grid_controller/page_cache.js": FULL_COVERAGE,
@@ -86,6 +87,7 @@ export default defineConfig({
       "pathogen_view_components/sidebar_controller": resolve(jsRoot, "sidebar_controller.js"),
       "pathogen_view_components/toolbar_controller": resolve(jsRoot, "toolbar_controller.js"),
       "pathogen_view_components/avatar_controller": resolve(jsRoot, "avatar_controller.js"),
+      "pathogen_view_components/copyable_value_controller": resolve(jsRoot, "copyable_value_controller.js"),
     },
   },
   test: {
