@@ -8,7 +8,7 @@ module Pathogen
       pathogen-sidebar
       relative flex min-h-full w-full self-stretch flex-col
       border-r border-[color:var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface)]
+      bg-[var(--pvc-color-surface-muted)]
       text-[color:var(--pvc-color-text)]
     ].join(' ').freeze
 

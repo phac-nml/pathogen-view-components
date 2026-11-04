@@ -7,7 +7,7 @@ module Pathogen
       BASE_CLASSES = %w[
         pathogen-sidebar-footer
         mt-auto border-t border-[color:var(--pvc-color-border)]
-        p-2
+        p-3
       ].join(' ').freeze
     end
   end
