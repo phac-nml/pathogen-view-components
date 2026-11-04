@@ -7,9 +7,9 @@ module Pathogen
     BASE_CLASSES = %w[
       pathogen-sidebar
       relative flex min-h-full w-full self-stretch flex-col
-      border-r border-[color:var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface)]
-      text-[color:var(--pvc-color-text)]
+      border-r border-(color:--pvc-color-border)
+      bg-(--pvc-color-surface)
+      text-(color:--pvc-color-text)
     ].join(' ').freeze
 
     DIALOG_CLASSES = 'pathogen-sidebar-dialog'

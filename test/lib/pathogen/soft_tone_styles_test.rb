@@ -20,9 +20,9 @@ module Pathogen
       %i[success warning].each do |tone|
         tokens = soft_tone_classes(tone).split
 
-        assert_includes tokens, "text-[var(--pvc-color-#{tone}-strong)]"
-        assert_not_includes tokens, "text-[var(--pvc-color-#{tone})]"
-        assert_not_includes tokens, 'text-[var(--pvc-color-text)]'
+        assert_includes tokens, "text-(--pvc-color-#{tone}-strong)"
+        assert_not_includes tokens, "text-(--pvc-color-#{tone})"
+        assert_not_includes tokens, 'text-(--pvc-color-text)'
       end
     end
 
