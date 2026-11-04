@@ -28,4 +28,9 @@
 #       enabled: "ON"
 
 en:
+  demo:
+    samples:
+      flash:
+        saved: "Samples saved from server response."
+        upload_failed: "Upload failed from server response."
   hello: "Hello world"

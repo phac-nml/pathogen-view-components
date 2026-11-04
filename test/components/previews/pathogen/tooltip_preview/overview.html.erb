@@ -33,7 +33,7 @@
             [:bottom, "Top navigation, breadcrumbs, and page chrome.", "Open run detail"],
             [:left, "Triggers near the right edge of a panel.", "Export submission"],
             [:right, "Collapsed sidebars and left-edge icon rails.", "Sequencing runs"]
-          ].each do |placement, guidance, label| %>
+          ].each do |placement, guidance, label_text| %>
             <tr>
               <td class="px-4 py-3 align-middle">
                 <%= render(Pathogen::Typography::Code.new(class: "text-xs")) { "placement: #{placement.inspect}" } %>
@@ -45,8 +45,8 @@
 
               <td class="px-4 py-3 align-middle">
                 <%= render Pathogen::Link.new(href: "#") do |link| %>
-                  <% link.with_tooltip(text: label, placement:) %>
-                  <%= label %>
+                  <% link.with_tooltip(text: label_text, placement:) %>
+                  <%= label_text %>
                 <% end %>
               </td>
             </tr>
