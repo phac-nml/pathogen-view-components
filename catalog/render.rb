@@ -28,7 +28,8 @@ CatalogApplication.initialize!
 output = File.join(CATALOG, 'src/content/docs')
 FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 
-{ 'button' => 'Buttons', 'tabs' => 'Tabs', 'form' => 'Form controls' }.each do |slug, title|
+{ 'button' => ['Buttons', 260], 'tabs' => ['Tabs', 260], 'form' => ['Form controls', 260],
+  'dialog' => ['Dialog', 550] }.each do |slug, (title, height)|
   source = File.read(File.join(CATALOG, 'examples', "#{slug}.html.erb"))
   rendered = ActionController::Base.renderer.render(inline: source, layout: false)
   frames = %w[light dark].map do |theme|
@@ -38,7 +39,7 @@ FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG
     <<~MARKDOWN
       ## #{theme.capitalize} preview
 
-      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
+      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:#{height}px;border:1px solid currentColor;border-radius:4px;"></iframe>
 
       [Open #{theme} preview](#{BASE}/examples/#{filename})
     MARKDOWN
@@ -84,4 +85,4 @@ exported_ids.each do |id|
   File.write("#{output}/design-system/#{id}.md", content)
 end
 
-puts 'Rendered three examples in light/dark and three design-system documents (without Lookbook).'
+puts 'Rendered four examples in light/dark and three design-system documents (without Lookbook).'

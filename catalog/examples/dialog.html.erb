@@ -1,0 +1,20 @@
+<%= render Pathogen::Dialog.new(id: "example-dialog", title: "Export samples") do |dialog| %>
+  <% dialog.with_trigger(text: "Open dialog", tone: :primary, emphasis: :solid) %>
+
+  <p>
+    Choose the export contents for the selected samples. This example demonstrates the basic Dialog component with a
+    trigger, body content, and footer actions.
+  </p>
+
+  <% dialog.with_footer do %>
+    <%= render Pathogen::Button.new(
+      text: "Cancel", tone: :neutral, emphasis: :outline, type: :button,
+      data: { action: "click->pathogen--dialog#requestClose", "pathogen--dialog-reason-param": "cancel" }
+    ) %>
+
+    <%= render Pathogen::Button.new(
+      text: "Export", tone: :primary, emphasis: :solid, type: :button,
+      data: { action: "click->pathogen--dialog#close" }
+    ) %>
+  <% end %>
+<% end %>
