@@ -8,7 +8,7 @@ This repository is the extracted, standalone home for the Pathogen UI layer. It 
 
 - **Accessible by default**: ARIA patterns, focus management, and SR-friendly utilities.
 - **Component-first API**: ViewComponents with slots and options that scale with your app.
-- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, data grids, and toolbars.
+- **Stimulus-ready**: Built-in controllers for tabs, tooltips, disclosures, data grids, toast notifications, and toolbars.
 - **Pre-built Tailwind CSS**: one compiled stylesheet (`pathogen_view_components.css`) with design tokens as CSS variables; host apps do not run Tailwind.
 - **Engine-powered**: Helpers, locales, and assets wired through the Rails engine.
 
@@ -152,6 +152,22 @@ Sticky columns:
 ```
 
 For server-backed virtual scrolling, see the [Data Grid pagination guide](docs/lookbook/data_grid.md.erb).
+
+#### Toast Notifications
+
+Status confirmations, warnings, and error dialogs. The toaster is a persistent container that renders once in your layout; toasts are brief messages or dialogs that you push into it via Turbo Stream or Rails helpers:
+
+```erb
+<%= render(Pathogen::Toast.new(message: "Saved successfully.", type: :success)) %>
+```
+
+For user-configurable timeouts (WCAG 2.2.1), include settings:
+
+```erb
+<%= render(Pathogen::ToastSettings.new) %>
+```
+
+For complete guidance on status toasts, notification dialogs, focus management, and live-region accessibility, see the [Toast Notifications guide](docs/lookbook/toast.md.erb).
 
 #### Tabs
 
