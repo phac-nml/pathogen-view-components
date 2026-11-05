@@ -1,0 +1,61 @@
+<%= tag.div(**root_attributes) do %>
+  <%= trigger if trigger? %>
+
+  <%= tag.dialog(**dialog_attributes) do %>
+    <div data-pathogen--dialog-part="panel" data-pathogen--dialog-target="panel">
+      <header data-pathogen--dialog-part="header" data-pathogen--dialog-target="header">
+        <div data-pathogen--dialog-part="heading" class="min-w-0 flex-1">
+          <%= render Pathogen::Typography::Heading.new(
+            level: heading_level,
+            id: title_id,
+            data: {
+              "pathogen--dialog-part" => "title",
+              "pathogen--dialog-target" => "title"
+            },
+            tabindex: -1,
+          ) do %>
+            <%= title %>
+          <% end %>
+
+          <% if description.present? %>
+            <%= tag.p(description, id: description_id, data: { "pathogen--dialog-part" => "description" }) %>
+          <% end %>
+        </div>
+
+        <%= render Pathogen::Button.new(
+          type: :button,
+          tone: :neutral,
+          emphasis: :ghost,
+          size: :medium,
+          icon_only: true,
+          text: t(".close_label"),
+          data: {
+            action: "click->pathogen--dialog#requestClose",
+            "pathogen--dialog-part" => "close"
+          }
+        ) do |button| %>
+          <% button.with_leading_visual do %>
+            <svg
+              class="size-5"
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" />
+            </svg>
+          <% end %>
+        <% end %>
+      </header>
+
+      <div data-pathogen--dialog-part="body" data-pathogen--dialog-target="body">
+        <div data-pathogen--dialog-part="content" data-pathogen--dialog-target="content"><%= content %></div>
+      </div>
+
+      <% if footer? %>
+        <footer data-pathogen--dialog-part="footer" data-pathogen--dialog-target="footer"><%= footer %></footer>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

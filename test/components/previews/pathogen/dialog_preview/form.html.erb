@@ -1,0 +1,47 @@
+<div class="flex max-w-3xl flex-col gap-4 p-4">
+  <%= render(Pathogen::Typography::Heading.new(level: 2)) { "Export settings" } %>
+
+  <%= render Pathogen::Typography::Supporting.new(variant: :muted) do %>
+    The filename receives initial focus. Preview submission uses a native dialog form: it validates required fields,
+    then closes without sending or saving data.
+  <% end %>
+
+  <%= render Pathogen::Dialog.new(id: "export-settings", title: "Export samples", description: "Choose the file name and export contents.", initial_focus: "#export-filename") do |dialog| %>
+    <% dialog.with_trigger(text: "Configure export", tone: :primary, emphasis: :solid) %>
+
+    <form id="export-preview-form" method="dialog" class="space-y-4">
+      <div>
+        <label for="export-filename" class="mb-2 block text-sm font-semibold">File name (required)</label>
+
+        <input
+          id="export-filename"
+          name="filename"
+          type="text"
+          autocomplete="off"
+          required
+          aria-describedby="export-filename-help"
+          class="
+            w-full rounded-[var(--pvc-radius-control)] border border-[var(--pvc-color-border-strong)]
+            bg-[var(--pvc-color-surface)] p-2 text-[length:var(--type-body)] text-[var(--pvc-color-text)]
+            focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--pvc-color-focus)]
+          "
+        >
+
+        <%= render Pathogen::Typography::Supporting.new(id: "export-filename-help", tag: :p, variant: :muted, class: "mt-2") do %>
+          Use a name that identifies this sample selection.
+        <% end %>
+      </div>
+
+      <fieldset class="space-y-2">
+        <legend class="mb-2 text-sm font-semibold">Export contents</legend>
+        <%= render Pathogen::Form::RadioButton.new(attribute: :export_contents, value: "metadata", label: "Metadata only", checked: true) %>
+        <%= render Pathogen::Form::RadioButton.new(attribute: :export_contents, value: "all", label: "Metadata and analysis results") %>
+      </fieldset>
+    </form>
+
+    <% dialog.with_footer do %>
+      <%= render Pathogen::Button.new(text: "Cancel", tone: :neutral, emphasis: :outline, type: :button, data: { action: "click->pathogen--dialog#requestClose", "pathogen--dialog-reason-param": "cancel" }) %>
+      <%= render Pathogen::Button.new(text: "Apply preview settings", tone: :primary, emphasis: :solid, type: :submit, form: "export-preview-form", value: "apply") %>
+    <% end %>
+  <% end %>
+</div>
