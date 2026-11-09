@@ -1,0 +1,201 @@
+---
+title: Toast Notifications
+---
+
+# Toast Notifications
+
+`Pathogen::Toast` and `Pathogen::Toaster` provide accessible status confirmations, notifications, and alerts. The toaster is a host element that anchors toasts to a viewport position; toasts are brief, auto-dismissing messages or persistent dialogs with close and action controls.
+
+## Status toasts vs. notification dialogs
+
+### Status toasts (default)
+- Transient, auto-dismiss after a configurable timeout (default 6 seconds).
+- Non-interactive (no close button).
+- Announced to screen readers via a live region without moving focus.
+- Best for successful operations, info, and notices.
+- Appear in a peek stack: all fit, but only the top 3 are visible; mouse/focus over the stack to expand and see all.
+
+### Notification dialogs
+- Persistent until dismissed or an action is taken.
+- Dismissible with a close button, or actionable with a custom button.
+- Focus moves into the dialog; announced when focused, not live-announced.
+- For warnings, errors, and tasks requiring user response.
+- Automatically promoted when dismissible, actionable, or a warning/error type.
+
+## The toaster
+
+The toaster is a persistent container that should render once in your layout, typically outside the main navigation and content. Use `Pathogen::Toaster` to create it:
+
+```erb
+<%= render(Pathogen::Toaster.new(position: :top_right, turbo_permanent: true)) %>
+```
+
+The toaster coordinates stack expansion, live announces, focus management, and toast dismissal.
+
+### Toaster options
+
+- `position`: `:top_right` (default), `:top_center`, `:bottom_right`, `:bottom_center`. Anchors toasts to a viewport corner or center edge.
+- `strategy`: `:fixed` (default) or `:absolute`. Use `:absolute` for fixed-height containers or when `position: fixed` conflicts with your layout.
+- `list_id`: Used to derive stable IDs for turbo-permanent preservation. Defaults to `'flashes'`.
+- `max_visible`: Maximum toasts shown in the stack before scrolling. Defaults to `3`.
+- `aria_label`: Screen-reader label for the toaster's live region. Defaults to a localized string.
+- `turbo_permanent`: Preserve the toaster across Turbo page navigations. Defaults to `true`.
+- `duration_preference`: Override the default timeout for all status toasts; see "Duration preferences" below.
+- `duration_storage_key`: localStorage key where the user's duration preference is stored (WCAG 2.2.1).
+
+## Rendering toasts
+
+### In views
+
+Push a toast into an existing toaster with Turbo Stream:
+
+```erb
+<%= turbo_stream.append(dom_id: "flashes", target: "pvc-toaster-toast") do %>
+  <%= render(Pathogen::Toast.new(
+    message: "Sample processed successfully.",
+    type: :success
+  )) %>
+<% end %>
+```
+
+Or use a Turbo Stream template from your controller (e.g., `flash_toast.turbo_stream.erb`):
+
+```ruby
+class SamplesController < ApplicationController
+  def create
+    @sample = Sample.create!(sample_params)
+    redirect_to samples_path, status: :see_other
+  rescue StandardError => e
+    render :turbo_stream, locals: { message: e.message, type: :error }
+  end
+end
+```
+
+### Toast options
+
+- `message` (required): Brief text displayed in the toast.
+- `description`: Optional longer text below the message (appears in dialogs only).
+- `type`: `:success`, `:info`, `:warning`, `:error`, `:notice`, `:alert`. Defaults to `:info`.
+  - `:notice` and `:alert` are Rails flash aliases for `:info` and `:error`.
+- `timeout`: Milliseconds before a status toast auto-dismisses. Defaults to 6000 (6 seconds). Ignored for warnings, errors, and dismissible toasts.
+- `dismissible`: Add a close button (promotes to dialog). Defaults to `false`.
+- `interrupt`: For errors only; set `aria-live: polite` (default) or `aria-live: assertive` for urgent announce.
+- `action`: Render a custom slot for an action button or link (promotes to dialog).
+
+### Examples
+
+**Minimal success toast:**
+```erb
+<%= render(Pathogen::Toast.new(message: "Saved.")) %>
+```
+
+**Warning dialog with custom timeout:**
+```erb
+<%= render(Pathogen::Toast.new(
+  message: "High confidence variant detected",
+  description: "Review the results before confirming.",
+  type: :warning,
+  timeout: 10000
+)) %>
+```
+
+**Error dialog with close button:**
+```erb
+<%= render(Pathogen::Toast.new(
+  message: "Processing failed",
+  description: "Check logs and retry.",
+  type: :error,
+  dismissible: true
+)) %>
+```
+
+**Error dialog with assertive announce:**
+```erb
+<%= render(Pathogen::Toast.new(
+  message: "Critical error",
+  type: :error,
+  dismissible: true,
+  interrupt: true
+)) %>
+```
+
+**Notification with action:**
+```erb
+<%= render(Pathogen::Toast.new(
+  message: "New sample ready",
+  type: :info
+)) do |action| %>
+  <% action.with_action do %>
+    <%= button_to "View", sample_path(@sample), method: :get %>
+  <% end %>
+<% end %>
+```
+
+## Duration preferences (WCAG 2.2.1)
+
+The toaster supports user-configurable status-toast timeouts to meet [WCAG 2.2.1 (Timing Adjustable)](https://www.w3.org/WAI/WCAG22/Understanding/timing-adjustable.html). Users can extend the default 6-second timeout to 60 seconds or make status toasts persistent.
+
+The preference is stored in localStorage under `pathogen.toast.durationMs` and is read by the toaster on page load. Provide a settings dialog with `Pathogen::ToastSettings` to let users configure this:
+
+```erb
+<%= render(Pathogen::ToastSettings.new) %>
+```
+
+The settings component is a disclosure button that opens a modal with radio options for 6, 30, 60 seconds, or forever. Users can open it anytime; the toaster updates live.
+
+## Live regions and screen readers
+
+Toasters create two live regions:
+
+1. **Polite region** (default): Announces status toasts with `aria-live: polite` and `aria-atomic: true`. Screen readers queue these announcements and read them after the current utterance.
+2. **Assertive region**: When `interrupt: true` on an error toast, announces with `aria-live: assertive` and `aria-atomic: true`, interrupting current speech. Use sparingly for critical errors.
+
+Do not override the toaster's live regions or aria attributes; they are tuned for screen-reader behavior and toast timing.
+
+## Focus management
+
+- **Status toasts**: Focus does not move; toasts announce via live region.
+- **Notification dialogs**: Focus moves into the dialog on render. Pressing Escape closes the dialog and returns focus to the trigger or document body.
+
+## Stack behavior
+
+When the stack reaches `max_visible` toasts, the oldest toast scrolls off-screen. Hovering over or focusing any toast expands the stack to show all pending toasts. The stack collapses when the mouse leaves or focus exits (unless a toast is being hovered).
+
+## Turbo Stream persistence
+
+If `turbo_permanent: true` on the toaster, it persists across Turbo page navigations, preserving the toaster and any visible toasts. This is recommended for most applications; set it to `false` if you want a fresh toaster on each page.
+
+## Styling and theming
+
+Toasts use design tokens:
+
+- `--pvc-color-surface-raised`: Toast background.
+- `--pvc-color-text`: Message and description text.
+- `--pvc-color-border`: Border color.
+- `--pvc-color-success`, `--pvc-color-warning`, `--pvc-color-danger`: Icon colors.
+- `--pvc-shadow-overlay`: Drop shadow.
+- `--pvc-radius-panel`: Border radius.
+- `--pvc-duration-default`: Dismiss transition duration.
+- `--pvc-color-focus`: Focus outline color.
+
+Override these in your Tailwind config or CSS to customize appearance.
+
+## Dark mode
+
+Toasts automatically adapt to dark mode using CSS custom properties. No additional configuration needed.
+
+## Accessibility checklist
+
+- ✅ Live regions for screen-reader announce without focus disruption.
+- ✅ Assertive announce for critical errors (optional).
+- ✅ Focus management: dialogs trap focus, status toasts do not.
+- ✅ Keyboard close with Escape on dialogs.
+- ✅ Role semantics: toasts have role `listitem`, dialogs have role `dialog` (for dismissible/warning/error types).
+- ✅ ARIA labels: type label ("Error:") paired with message and described by description.
+- ✅ Timing adjustable (WCAG 2.2.1): user-configurable toast timeouts via ToastSettings.
+- ✅ Sufficient contrast: icon and text meet AA standards in light and dark modes.
+- ✅ No motion trap: animations respect `prefers-reduced-motion`.
+
+## Previews
+
+Interactive previews are available in Lookbook under the **Pathogen Toast** section.
