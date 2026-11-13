@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     resources :samples, only: [] do
       collection do
         get :rows, defaults: { format: :json }
+        get :cursor_rows, defaults: { format: :json }
       end
     end
   end

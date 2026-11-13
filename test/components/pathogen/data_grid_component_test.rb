@@ -779,6 +779,22 @@ module Pathogen
       assert_selector 'div[data-pvc-data-grid-lane="center"][style*="grid-template-columns: 200.0px;"]'
     end
 
+    [{ mode: :offset, total_count: 100 }, { mode: :cursor, next_cursor: 'next' }].each do |pagination|
+      test "regular grid ignores #{pagination[:mode]} pagination when announcing its row count" do
+        render_inline(Pathogen::DataGridComponent.new(
+                        virtual: false,
+                        virtual_pagination: pagination.merge(rows_url: '/rows'),
+                        rows: [{ id: 'S-001' }, { id: 'S-002' }]
+                      )) do |grid|
+          grid.with_column('ID', key: :id)
+        end
+
+        assert_selector 'table[role="grid"][aria-rowcount="3"]'
+        assert_no_selector '[data-pvc-data-grid-pagination-mode]'
+        assert_no_selector '[data-pathogen--data-grid-target="paginationStatus"]'
+      end
+    end
+
     test 'virtual pagination exposes metadata attributes and total aria-rowcount' do
       render_inline(Pathogen::DataGridComponent.new(
                       virtual: true,
@@ -802,9 +818,9 @@ module Pathogen
       )
       assert_selector 'div[role="row"][data-pvc-data-grid-global-row-index="0"][aria-rowindex="2"]'
       assert_selector(
-        '.pvc-data-grid__virtual-status' \
-        '[data-loading-more-text="Loading more rows…"]' \
-        '[data-fetch-error-text="Unable to load more rows. Scroll to try again."]'
+        '[data-pathogen--data-grid-target="paginationStatus"]' \
+        '[data-loading-text="Loading more rows…"]' \
+        '[data-fetch-error-text="Unable to load more rows. Try again."]'
       )
     end
 
@@ -930,9 +946,9 @@ module Pathogen
         end
 
         assert_selector(
-          '.pvc-data-grid__virtual-status' \
-          '[data-loading-more-text="Chargement de lignes supplémentaires…"]' \
-          '[data-fetch-error-text="Impossible de charger d’autres lignes. Faites défiler pour réessayer."]'
+          '[data-pathogen--data-grid-target="paginationStatus"]' \
+          '[data-loading-text="Chargement de lignes supplémentaires…"]' \
+          '[data-fetch-error-text="Impossible de charger d’autres lignes. Réessayez."]'
         )
       end
     end
