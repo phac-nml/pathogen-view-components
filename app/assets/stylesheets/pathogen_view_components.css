@@ -2,7 +2,7 @@
  * Run pnpm run build:css after changing components or pathogen.tailwind.css.
  */
 
-/*! tailwindcss v4.3.3 | MIT License | https://tailwindcss.com */
+/*! tailwindcss v4.3.5 | MIT License | https://tailwindcss.com */
 @layer properties;
 @layer theme, base, components, utilities;
 @layer theme {
@@ -1332,24 +1332,24 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  .peer-focus-visible\:outline:is(:where(.peer):focus-visible ~ *) {
+  :is(:where(.peer):focus-visible ~ .peer-focus-visible\:outline) {
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
   }
-  .peer-focus-visible\:outline-2:is(:where(.peer):focus-visible ~ *) {
+  :is(:where(.peer):focus-visible ~ .peer-focus-visible\:outline-2) {
     outline-style: var(--tw-outline-style);
     outline-width: 2px;
   }
-  .peer-focus-visible\:outline-offset-2:is(:where(.peer):focus-visible ~ *) {
+  :is(:where(.peer):focus-visible ~ .peer-focus-visible\:outline-offset-2) {
     outline-offset: 2px;
   }
-  .peer-focus-visible\:outline-\[var\(--pvc-color-focus\)\]:is(:where(.peer):focus-visible ~ *) {
+  :is(:where(.peer):focus-visible ~ .peer-focus-visible\:outline-\[var\(--pvc-color-focus\)\]) {
     outline-color: var(--pvc-color-focus);
   }
-  .peer-disabled\:cursor-not-allowed:is(:where(.peer):disabled ~ *) {
+  :is(:where(.peer):disabled ~ .peer-disabled\:cursor-not-allowed) {
     cursor: not-allowed;
   }
-  .peer-aria-disabled\:cursor-not-allowed:is(:where(.peer)[aria-disabled="true"] ~ *) {
+  :is(:where(.peer)[aria-disabled="true"] ~ .peer-aria-disabled\:cursor-not-allowed) {
     cursor: not-allowed;
   }
   .after\:absolute::after {
@@ -1621,38 +1621,38 @@
       text-decoration-thickness: 2px;
     }
   }
-  .peer-checked\:\[\&_\.pathogen-switch-track\]\:bg-\[var\(--pvc-color-accent-solid\)\]:is(:where(.peer):checked ~ *)
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\.pathogen-switch-track\]\:bg-\[var\(--pvc-color-accent-solid\)\])
     .pathogen-switch-track {
     background-color: var(--pvc-color-accent-solid);
   }
-  .peer-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60:is(:where(.peer):disabled ~ *) .pathogen-switch-track {
+  :is(:where(.peer):disabled ~ .peer-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60) .pathogen-switch-track {
     opacity: 60%;
   }
-  .peer-aria-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60:is(:where(.peer)[aria-disabled="true"] ~ *)
+  :is(:where(.peer)[aria-disabled="true"] ~ .peer-aria-disabled\:\[\&_\.pathogen-switch-track\]\:opacity-60)
     .pathogen-switch-track {
     opacity: 60%;
   }
-  .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:translate-x-5:is(:where(.peer):checked ~ *)
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:translate-x-5)
     .pathogen-switch-track::after {
     content: var(--tw-content);
     --tw-translate-x: calc(var(--spacing) * 5);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
-  .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:-translate-y-1\/2:is(:where(.peer):checked ~ *)
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:-translate-y-1\/2)
     .pathogen-switch-track::after {
     content: var(--tw-content);
     --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
     translate: var(--tw-translate-x) var(--tw-translate-y);
   }
-  .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:bg-\[var\(--pvc-color-on-solid\)\]:is(:where(.peer):checked ~ *)
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\.pathogen-switch-track\]\:after\:bg-\[var\(--pvc-color-on-solid\)\])
     .pathogen-switch-track::after {
     content: var(--tw-content);
     background-color: var(--pvc-color-on-solid);
   }
-  .peer-checked\:\[\&_\[data-switch-state\=off\]\]\:hidden:is(:where(.peer):checked ~ *) [data-switch-state="off"] {
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\[data-switch-state\=off\]\]\:hidden) [data-switch-state="off"] {
     display: none;
   }
-  .peer-checked\:\[\&_\[data-switch-state\=on\]\]\:inline:is(:where(.peer):checked ~ *) [data-switch-state="on"] {
+  :is(:where(.peer):checked ~ .peer-checked\:\[\&_\[data-switch-state\=on\]\]\:inline) [data-switch-state="on"] {
     display: inline;
   }
   .\[\&\:is\(\[hidden\]\)\]\:hidden:is([hidden]) {
@@ -2431,7 +2431,7 @@ html[data-pathogen-sidebar-viewport="mobile"] .pathogen-sidebar-provider .pathog
   }
 }
 @layer properties {
-  @supports ((-webkit-hyphens: none) and (not (margin-trim: inline))) or
+  @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or
     ((-moz-orient: inline) and (not (color: rgb(from red r g b)))) {
     *,
     ::before,
