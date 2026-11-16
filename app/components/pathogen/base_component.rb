@@ -2,7 +2,7 @@
 
 module Pathogen
   # @private
-  # :nocov:
+  # Renders a generic HTML element with shared component arguments.
   class BaseComponent < Pathogen::Component
     SELF_CLOSING_TAGS = %i[area base br col embed hr img input link meta param source track
                            wbr].freeze
