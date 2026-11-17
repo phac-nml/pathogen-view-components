@@ -8,6 +8,12 @@ module Pathogen
   # tints that still keep 12px meta text at >= 4.5:1 against that fill in light
   # mode (success 12%, warning 8%). Base success and warning hues fail AA for
   # ordinary text even on white.
+  #
+  # +accent+ renders a host app's own +--color-primary+, so its mix is pinned to
+  # the most conservative verified value (8%, same as warning) rather than a
+  # hue-specific one: darker brand hues (e.g. green) hold far less contrast
+  # headroom at a given lightness than pathogen's default blue, so a lighter
+  # tint is required to keep *-strong text at >= 4.5:1 across arbitrary hues.
   module SoftToneStyles
     DEFAULT_TONE = :neutral
     TONE_OPTIONS = %i[neutral accent success warning danger].freeze
@@ -19,7 +25,7 @@ module Pathogen
         border-[var(--pvc-color-border-strong)]
       ].join(' '),
       accent: %w[
-        bg-[color-mix(in_oklab,var(--pvc-color-accent)_16%,var(--pvc-color-surface))]
+        bg-[color-mix(in_oklab,var(--pvc-color-accent)_8%,var(--pvc-color-surface))]
         text-[var(--pvc-color-accent-strong)]
         border-[color-mix(in_oklab,var(--pvc-color-accent)_45%,var(--pvc-color-border))]
       ].join(' '),

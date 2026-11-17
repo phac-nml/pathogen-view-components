@@ -20,6 +20,7 @@
 - Form help and error descriptions render with externally named controls. `aria-controls` no longer invents a description ID.
 - Decorative avatars are inert so caller-supplied focus attributes cannot create hidden keyboard stops.
 - Avatars recover from failed images with initials or a decorative silhouette when Pathogen controllers are registered, including cached failures and fragment replacements.
+- Avatar and badge `accent` tone fills use the same 8% mix as `warning` instead of 16%, so `*-strong` text holds >= 4.5:1 against host apps' own `--color-primary`, including darker-lightness hues such as green that pathogen's default blue did not surface.
 
 ### Development
 
