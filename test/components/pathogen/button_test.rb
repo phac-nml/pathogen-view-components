@@ -19,7 +19,9 @@ module Pathogen
 
         assert_no_selector 'button[class*="opacity-"]'
         assert_selector 'button[class*="unavailable:text-(--pvc-color-text-muted)"]'
-        assert_selector 'button[class*="unavailable:bg-(--pvc-color-surface-muted)"]'
+        assert_selector 'button[class*="unavailable:bg-[color-mix(in_oklab,var(--pvc-color-text)_5%,transparent)]"]'
+        assert_selector 'button[class*="unavailable:border-transparent"]'
+        assert_no_selector 'button[class*="unavailable:border-(--pvc-color-border-strong)"]'
         assert_selector 'button[class*="focus-visible:outline-(--pvc-color-focus)"]'
       end
     end
@@ -36,8 +38,18 @@ module Pathogen
       render_inline(Pathogen::Button.new) { 'Click me' }
 
       assert_selector 'button.border-transparent'
-      assert_selector "button[class*='bg-(--pvc-color-surface-muted)']"
+      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-text)_8%,transparent)]']"
       assert_selector "button[class*='text-(--pvc-color-text)']"
+    end
+
+    test 'soft fills are translucent so they stay visible on muted surfaces' do
+      Pathogen::Button::TONE_OPTIONS.each do |tone|
+        classes = Pathogen::Button.new(tone: tone, emphasis: :soft).html_attributes[:class]
+
+        assert_match(/(?:^|\s)bg-\[color-mix\(in_oklab,var\(--pvc-color-\w+\)_\d+%,transparent\)\]/, classes)
+        assert_no_match(/(?:^|\s)bg-(\(--pvc-color-surface-muted\)|\[color-mix\([^\]]*var\(--pvc-color-surface\)\)\])/,
+                        classes)
+      end
     end
 
     test 'primary solid emits primary solid without shadow' do
@@ -52,7 +64,7 @@ module Pathogen
       render_inline(Pathogen::Button.new(tone: :danger, emphasis: :soft)) { 'Delete' }
 
       assert_selector "button[class*='text-(--pvc-color-danger-strong)']"
-      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]']"
+      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,transparent)]']"
     end
 
     test 'tone primary emphasis solid emits primary solid classes' do
@@ -86,7 +98,7 @@ module Pathogen
       render_inline(Pathogen::Button.new(tone: :primary)) { 'Save draft' }
 
       assert_selector "button[class*='text-(--pvc-color-accent-strong)']"
-      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-accent)_10%,var(--pvc-color-surface))]']"
+      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-accent)_10%,transparent)]']"
       assert_no_selector "button[class*='bg-(--pvc-color-accent-solid)']"
     end
 

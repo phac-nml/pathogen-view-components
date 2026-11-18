@@ -134,7 +134,8 @@ module Pathogen
       render_inline(Pathogen::Toolbar::Button.new) { 'Action' }
 
       assert_selector "button[class*='min-h-(--pvc-control-size-medium)'][class*='min-w-(--pvc-control-size-medium)']"
-      assert_selector "button[class*='bg-(--pvc-color-surface-muted)'].border-transparent"
+      assert_selector "button[class*='bg-[color-mix(in_oklab,var(--pvc-color-text)_8%,transparent)]']" \
+                      '.border-transparent'
     end
 
     test 'supports an explicit compact toolbar button' do
