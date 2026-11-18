@@ -79,26 +79,32 @@
         </ul>
       </div>
 
-      <%= render(Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, class: 'mt-4', id: 'button-workflow-unavailable')) { 'Submit run is unavailable until the specimen has been reviewed.' } %>
+      <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <div class="flex flex-wrap gap-2">
+          <%= render Pathogen::Button.new(size: :small, text: 'Export', disabled: true) %>
+          <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'Submit run', aria_disabled: true, aria: { describedby: 'button-workflow-unavailable' }) %>
+        </div>
 
-      <div class="mt-2 flex flex-wrap gap-2">
-        <%= render Pathogen::Button.new(size: :small, text: 'Export', disabled: true) %>
-        <%= render Pathogen::Button.new(size: :small, tone: :primary, emphasis: :solid, text: 'Submit run', aria_disabled: true, aria: { describedby: 'button-workflow-unavailable' }) %>
+        <%= render(Pathogen::Typography::Supporting.new(variant: :muted, size: :meta, id: 'button-workflow-unavailable')) { 'Submit run is unavailable until the specimen has been reviewed.' } %>
       </div>
     </div>
 
     <div
       class="
-        flex flex-wrap items-center justify-between gap-4 rounded-b-(--pvc-radius-panel) border-t
-        border-(--pvc-color-border) bg-(--pvc-color-surface-muted) p-4 sm:px-6
+        flex flex-col gap-4 rounded-b-(--pvc-radius-panel) border-t border-(--pvc-color-border)
+        bg-(--pvc-color-surface-muted) p-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6
       "
     >
-      <%= render Pathogen::Button.new(tone: :danger, emphasis: :ghost, text: 'Delete specimen') %>
+      <%= render Pathogen::Button.new(tone: :danger, emphasis: :ghost, text: 'Delete specimen', class: 'self-start sm:self-auto') %>
 
-      <div class="ms-auto flex flex-wrap items-center gap-2" role="group" aria-label="Specimen form actions">
-        <%= render Pathogen::Button.new(emphasis: :ghost, text: 'Cancel') %>
-        <%= render Pathogen::Button.new(emphasis: :soft, text: 'Save draft') %>
-        <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes', class: 'ms-2') %>
+      <div
+        class="flex flex-col gap-2 sm:ms-auto sm:flex-row sm:flex-wrap sm:items-center"
+        role="group"
+        aria-label="Specimen form actions"
+      >
+        <%= render Pathogen::Button.new(emphasis: :ghost, text: 'Cancel', class: 'w-full sm:w-auto') %>
+        <%= render Pathogen::Button.new(emphasis: :soft, text: 'Save draft', class: 'w-full sm:w-auto') %>
+        <%= render Pathogen::Button.new(tone: :primary, emphasis: :solid, text: 'Save changes', class: 'w-full sm:ms-2 sm:w-auto') %>
       </div>
     </div>
   </section>
