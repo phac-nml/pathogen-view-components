@@ -20,8 +20,8 @@ module Pathogen
       focus-visible:z-10
       unavailable:cursor-not-allowed
       unavailable:text-(--pvc-color-text-muted)
-      unavailable:bg-(--pvc-color-surface-muted)
-      unavailable:border-(--pvc-color-border-strong)
+      unavailable:bg-[color-mix(in_oklab,var(--pvc-color-text)_5%,transparent)]
+      unavailable:border-transparent
       forced-colors:border-[ButtonText] forced-colors:unavailable:text-[GrayText]
       aria-pressed:bg-[color-mix(in_oklab,var(--pvc-color-accent)_12%,var(--pvc-color-surface))]
       aria-pressed:border-(--pvc-color-accent)
@@ -31,8 +31,9 @@ module Pathogen
     STYLE_CLASSES = {
       neutral: {
         soft: %w[
-          text-(--pvc-color-text) bg-(--pvc-color-surface-muted) border-transparent
-          interactive-hover:bg-(--pvc-color-border)
+          text-(--pvc-color-text) border-transparent
+          bg-[color-mix(in_oklab,var(--pvc-color-text)_8%,transparent)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-text)_14%,transparent)]
         ],
         solid: %w[
           text-(--pvc-color-surface) bg-(--pvc-color-text)
@@ -41,8 +42,7 @@ module Pathogen
         ],
         ghost: %w[
           text-(--pvc-color-text) bg-transparent border-transparent
-          interactive-hover:bg-(--pvc-color-surface-muted)
-          interactive-hover:border-(--pvc-color-border)
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-text)_8%,transparent)]
         ]
       },
       primary: {
@@ -53,8 +53,8 @@ module Pathogen
         ],
         soft: %w[
           text-(--pvc-color-accent-strong) border-transparent
-          bg-[color-mix(in_oklab,var(--pvc-color-accent)_10%,var(--pvc-color-surface))]
-          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_18%,var(--pvc-color-surface))]
+          bg-[color-mix(in_oklab,var(--pvc-color-accent)_10%,transparent)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-accent)_18%,transparent)]
         ],
         ghost: %w[
           text-(--pvc-color-accent-strong) bg-transparent border-transparent
@@ -64,8 +64,8 @@ module Pathogen
       danger: {
         soft: %w[
           text-(--pvc-color-danger-strong) border-transparent
-          bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,var(--pvc-color-surface))]
-          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_16%,var(--pvc-color-surface))]
+          bg-[color-mix(in_oklab,var(--pvc-color-danger)_8%,transparent)]
+          interactive-hover:bg-[color-mix(in_oklab,var(--pvc-color-danger)_16%,transparent)]
         ],
         solid: %w[
           text-white bg-(--pvc-color-danger-solid) border-(--pvc-color-danger-solid)
