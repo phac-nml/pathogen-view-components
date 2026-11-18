@@ -191,7 +191,8 @@ Buttons have two decisions: **tone** and **emphasis**.
 
 - One `primary` + `solid` per action group.
 - Form footers place the main action last on a muted surface; cancel stays neutral ghost or soft. Keep destructive actions separate from the forward-action group.
-- Use soft fills for secondary actions and ghost for utilities. Compose action groups with existing toolbar primitives; do not add context options to Button.
+- At narrow widths, stack the forward group full-width in DOM order so the main action stays last and focus order matches visual order. Do not reverse the order visually.
+- Use soft fills for secondary actions and ghost for utilities. Soft and hover fills are translucent tints, so they hold the same step above `surface` and `surface-muted`; never mix a button fill into a fixed surface colour. Compose action groups with existing toolbar primitives; do not add context options to Button.
 - A soft fill means emphasis, not selection. Toggle state needs `aria-pressed` and its distinct accent border.
 - Toolbars default to `medium` and `soft` (the `Toolbar::Button` default) or `ghost`, and named icon buttons. Use `small` only for an explicitly compact workflow; a toolbar is not automatically compact.
 - Table toolbars default to full-width reflow (`variant: :table`). Group related controls with `Pathogen::Toolbar::Group` and push end groups with `Toolbar::Spacer`. Keep text inputs and native selects outside `role="toolbar"` and its roving focus, even when they share the same visual action band. If an arrow-key-owning control is genuinely unavoidable inside the toolbar, include only one and place it last in DOM order.
@@ -213,7 +214,7 @@ Both sizes use the 14px control type role and 6px action radius. Icons use 16px 
 
 Use short verb labels. Icon-only buttons need `aria-label`, `aria-labelledby`, or visible text. Use `disabled` when unfocusable. Use `aria_disabled` when the control must remain focusable so validation feedback can be announced.
 
-Unavailable buttons use explicit muted text, surface, and border colours, not whole-control opacity. Keep the focus outline at full strength. Pair focusable unavailable actions with an explanation via `aria-describedby`. `aria_disabled` communicates state only: the host must prevent the action while unavailable.
+Unavailable buttons use muted text on a faint translucent fill with no border, not whole-control opacity. A border would make them read as more actionable than borderless soft and ghost buttons. Unavailable actions lose their tone, so place the explanation next to the action it explains. Keep the focus outline at full strength. Pair focusable unavailable actions with an explanation via `aria-describedby`. `aria_disabled` communicates state only: the host must prevent the action while unavailable.
 
 Use `Pathogen::Link` for inline navigation. Use button-styled links only inside button groups.
 
