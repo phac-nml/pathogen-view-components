@@ -22,3 +22,6 @@ demo/app/assets/builds/
 /demo/public/assets/
 demo/app/assets/svg/icons/
 demo/config/master.key
+
+# Screenshots belong in PR descriptions, not the repository.
+/docs/lookbook/screenshots/
