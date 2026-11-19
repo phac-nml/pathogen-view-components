@@ -6,12 +6,22 @@ title: Data Grid Pagination
 
 `Pathogen::DataGridComponent` can request server-rendered rows as the user scrolls.
 The host application owns the query, authorization, filtering, ordering, and pagination.
-The demo app uses Pagy offset pagination in `Demo::SamplesController`.
+Pathogen supports counted offset pages and progressive cursor batches. The host owns
+its Pagy version and adapter; the shared library has no Pagy dependency.
 
-## Render the first page
+## Narrow grids
+
+Horizontal pinning turns off when the grid's own width is below 48rem. All columns
+then scroll together, leaving the full viewport available for data. Column headers
+remain sticky during vertical scrolling. Pinning returns when the grid widens.
+This applies to regular and virtual grids, including changes caused by a sidebar.
+Keyboard navigation and column virtualization follow the same responsive state.
+
+## Counted offset pages
 
 Pass `virtual: true`, the first page of rows, and `virtual_pagination`:
 
+- `mode: :offset`: optional; offset pagination remains the default for existing consumers.
 - `total_count`: the complete filtered result count, including zero for an empty result.
 - `rows_url`: the host endpoint that returns row HTML as JSON.
 - `page_size`: the number of rows requested per page. It must match the host paginator.
@@ -25,7 +35,7 @@ when the grid should scroll within that space.
 Keep column definitions in one host method used by both the initial grid and the rows
 endpoint. Use pixel widths and leading sticky columns for virtual grids.
 
-## Return additional rows
+### Return additional rows
 
 The grid sends `page` and `limit` to `rows_url`. Authorize every request and apply the
 same filters and stable ordering used for the initial page. Include a unique tie-breaker in the ordering.
@@ -52,9 +62,125 @@ need to be rendered first, and the endpoint should not call `before_render` itse
 Cell rendering blocks can return Rails helper output, including links and buttons;
 plain strings remain escaped.
 
-The demo's `Demo::SamplesGrid`, `Demo::SamplesController`, and `demo/samples/_row`
-partial provide a complete example. Keep the host's Pagy calls appropriate to its
-installed version; Pathogen does not require Pagy in the shared component library.
+The demo's `virtual_infinite_scroll` preview uses real Pagy offset pagination over
+the synthetic sample array. Its row renderer is shared with the cursor example.
+
+## Progressive cursor batches
+
+Cursor mode loads sequentially as the user approaches the end of the loaded rows.
+The host can supply an optional full matching count; Pathogen never runs that query.
+The count does not create scroll positions for rows that have not loaded.
+Render the first batch on the server:
+
+```ruby
+Pathogen::DataGridComponent.new(
+  rows: first_batch,
+  virtual: true,
+  fill_container: true,
+  virtual_pagination: {
+    mode: :cursor,
+    rows_url: project_sample_rows_path(project),
+    page_size: 20,
+    next_cursor: next_cursor,
+    total_count: matching_count, # Optional; omit when the total is unknown.
+    search_params: { q: current_query },
+    refresh_url: project_samples_path(project, q: current_query)
+  }
+)
+```
+
+`next_cursor` is a non-empty opaque string or `nil` when the result is exhausted.
+`row_offset` must be zero for the initial grid. Cursor mode accepts an optional
+non-negative `total_count`. Supply it to show “Rows 1–20 of 1000” and expose the full
+accessible row count immediately. Omit it or pass `nil` to retain unknown-total
+loading. The count changes only the footer and accessibility metadata; navigation,
+scroll extent, and caching still use the loaded rows. At exhaustion, the discovered
+count replaces the initial count. An empty first batch renders the empty state; the
+host must supply rows when there is a continuation. `refresh_url` is optional and must regenerate the first
+batch for the current filters and sort.
+
+The IRIDA Next pilot reads the batch size from its existing Pagy configuration:
+`Pagy::OPTIONS[:limit]` defaults to 20 and `Pagy::OPTIONS[:max_limit]` caps requests
+at 100. The host passes the effective size as `page_size`; Pathogen does not choose
+or override the host's batch setting.
+
+### Cursor request and response
+
+Pathogen sends `cursor` and `limit` plus `search_params` to `rows_url`. Return:
+
+```json
+{
+  "rows": [
+    { "id": "SAM-0021", "index": 20, "html": "<div role=\"row\" ...>...</div>" }
+  ],
+  "next_cursor": "opaque-next-batch-token"
+}
+```
+
+Each `id` identifies a record independently of its position. Each `index` is its
+zero-based ordinal in this query's loaded sequence, and must agree with the row
+fragment's global index and ARIA row index. Continue ordinals from the initial batch;
+do not restart at zero for each response. Render fragments with
+`Pathogen::DataGrid::VirtualRowComponent` as shown above. Return `next_cursor: null`
+at the end, including an empty final response.
+
+The cursor is owned by the host. Sign or otherwise validate it and bind it to the
+authorized scope, filters, sort, page size, and row definition. Reauthorize every
+request. For database collections, use the host's installed Pagy keyset API with
+deterministic ordering and a unique tie-breaker. Keep optional/nullable metadata
+sorting compatible with that paginator's ordering requirements. Do not pass raw
+sort parameters into SQL.
+
+Return HTTP `409` with `{ "error": "cursor_mismatch" }` if a continuation no longer
+matches the result definition. The grid offers the configured refresh link instead
+of silently combining incompatible batches. Transient failures retain existing rows
+and offer Retry. Cursor scrolling is a browsing session, not a database snapshot;
+host changes can require a fresh query.
+
+The `virtual_cursor_scroll` preview demonstrates the wire contract with a signed
+cursor and ID-based seeking over an immutable in-memory dataset. It is deliberately
+not a claim of SQL performance or a Pagy keyset example. Its endpoint is
+`/demo/samples/cursor_rows.json`; the existing offset endpoint remains available.
+
+### Navigation, feedback, and memory
+
+With a supplied total, the grid sets `aria-rowcount` to `total_count + 1` to include
+the header. Otherwise it uses `aria-rowcount="-1"` while more rows may exist. At
+exhaustion it exposes the final loaded count plus the header row. Mounted rows retain
+absolute `aria-rowindex` positions. `Ctrl`/`Command` + `End` moves to the last loaded row; it does not fetch the
+entire result. Scrolling or forward navigation near the loaded edge requests the next
+batch. Row and column virtualization keep mounted content bounded; the content cache
+also evicts distant batches and retains lightweight cursor checkpoints for returning
+to earlier rows. Returning to evicted data can require a request.
+
+The visible footer shows the visible range and full total when supplied, or the
+loaded count while the total remains unknown. Loading and end states remain
+separate. A persistent polite status region sits outside the busy grid so progress
+and recovery can be announced without taking focus. Retry and Refresh results remain
+ordinary named controls. Hosts should preserve their non-virtual table path during
+pilot rollout and validate screen-reader behavior against the actual deployed build.
+
+## Sorting
+
+The host sorts its entire authorized result and replaces the grid with a new first
+batch. The component does not sort only the cached rows. The Project samples pilot
+keeps IRIDA's existing single active column, ascending/descending query contract,
+including supported metadata columns. Multi-column sorting is outside this milestone.
+
+Provide a native button through `header_content` and set `aria: { sort: 'ascending' }`
+or `aria: { sort: 'descending' }` on the active column only. Header buttons participate
+in the same widget-mode contract as body controls. Keep direction icons decorative
+and visibly distinguish direction by shape. The host restores focus to the initiating
+header after replacement, preserves horizontal position, and resets vertical progress.
+It must discard responses from the previous query and retain current filters when
+changing sort. Keep headers in sentence case and use the shared Pathogen button,
+focus, colour, and type tokens.
+
+For a virtual header with one sort action, add `pvc-data-grid__header-action` to a small
+Pathogen button passed directly as `header_content`. The button fills the header
+cell, keeps its label left-aligned with the data, and draws its focus outline inside
+the cell. The style applies only when the button is the header's sole direct child;
+headers with multiple controls retain their ordinary layout.
 
 ## Interactive cells and widget mode
 
@@ -65,3 +191,17 @@ ignored, and elements that are `disabled`, `[hidden]`, `[inert]`, visually hidde
 (`display: none`, `visibility: hidden`, `content-visibility: hidden`), or collapsed
 inside a closed `<details>` are skipped. Render controls the host wants keyboard-
 reachable as genuinely enabled and visible focusable elements.
+
+## Accessibility references
+
+- [APG grid pattern](https://www.w3.org/WAI/ARIA/apg/patterns/grid/) defines composite keyboard behavior.
+- [APG grid and table properties](https://www.w3.org/WAI/ARIA/apg/practices/grid-and-table-properties/)
+  explains unknown row counts and absolute row positions.
+- [APG sortable table](https://www.w3.org/WAI/ARIA/apg/patterns/table/examples/sortable-table/)
+  demonstrates native header buttons and header-owned `aria-sort`.
+- [WCAG status messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html)
+  covers progress feedback without moving focus.
+
+These patterns guide implementation; automated markup checks do not establish
+screen-reader compatibility. Test loading, exhaustion, retries, query resets,
+backtracking, and sticky-column focus with assistive technology before rollout.

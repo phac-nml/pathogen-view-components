@@ -18,9 +18,15 @@ fr:
         loaded: Lignes chargées.
         loading: Chargement des lignes…
         pagination:
-          fetch_error: Impossible de charger d’autres lignes. Faites défiler pour
-            réessayer.
+          end: Toutes les lignes sont chargées (%{count}).
+          fetch_error: Impossible de charger d’autres lignes. Réessayez.
+          loaded: "%{count} lignes chargées."
           loading_more: Chargement de lignes supplémentaires…
+          mismatch: Ces résultats ont changé. Actualisez les résultats pour continuer.
+          range: Lignes %{start}–%{end} · %{count} chargées
+          range_total: Lignes %{start}–%{end} sur %{total}
+          refresh: Actualiser les résultats
+          retry: Réessayer
     form:
       switch:
         'off': Désactivé
