@@ -66,6 +66,31 @@ module Pathogen
         assert_selector 'label.inline-flex.items-center.gap-3 input[type="radio"]'
       end
 
+      test 'renders a single labeled layout wrapper with shared form rendering' do
+        render_inline(Pathogen::Form::RadioButton.new(
+                        attribute: :theme,
+                        value: 'dark',
+                        label: 'Dark Theme',
+                        help_text: 'A dark color scheme'
+                      ))
+
+        assert_selector 'div.flex.flex-col', count: 1
+        assert_selector 'div.mt-1.ml-8 span#theme_dark_help', text: 'A dark color scheme'
+      end
+
+      test 'renders unlabeled support content without labeled wrapper classes' do
+        render_inline(Pathogen::Form::RadioButton.new(
+                        attribute: :theme,
+                        value: 'dark',
+                        help_text: 'A dark color scheme',
+                        aria: { label: 'Dark theme option' }
+                      ))
+
+        assert_no_selector 'div.flex.flex-col'
+        assert_selector 'input[type="radio"][aria-label="Dark theme option"]'
+        assert_selector 'span#theme_dark_help', text: 'A dark color scheme'
+      end
+
       test 'input and label are associated via for attribute' do
         render_inline(Pathogen::Form::RadioButton.new(
                         attribute: :theme,

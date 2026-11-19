@@ -43,10 +43,18 @@ module Pathogen
 
       # @return [ActiveSupport::SafeBuffer] the rendered HTML
       def render_component
-        if @label.present? || @help_text.present? || @error_text.present?
-          render_labeled_layout
-        else
-          switch_control_html
+        has_supporting_content = @label.present? || @help_text.present? || @error_text.present?
+        wrapper_class = has_supporting_content ? switch_container_classes : nil
+        render_form_layout(switch_control_html, wrapper_class:) do |control_html, support_html|
+          if has_supporting_content
+            tag.div(class: switch_labeled_row_classes) do
+              tag.div(class: switch_labeled_content_classes) do
+                name_label_html + support_html
+              end + control_html
+            end
+          else
+            safe_join([control_html, support_html])
+          end
         end
       end
 
@@ -60,14 +68,8 @@ module Pathogen
       #
       # @return [String] the input ID
       def input_id
-        return @id if @id.present?
-
-        base = if @form&.object_name.present?
-                 "#{@form.object_name}_#{@attribute}"
-               else
-                 input_name
-               end
-        base.to_s.gsub(/[\[\]]+/, '_').chomp('_')
+        shared_input_id(form: @form, attribute: @attribute, value: @value,
+                        input_name: @input_name, id: @id, include_value: false)
       end
 
       # @return [Hash] HTML attributes for the switch input
@@ -95,16 +97,8 @@ module Pathogen
         @unchecked_value = options.delete(:unchecked_value) || '0'
       end
 
-      # @return [ActiveSupport::SafeBuffer] layout with optional name label and help text
-      def render_labeled_layout
-        tag.div(class: switch_container_classes) do
-          tag.div(class: switch_labeled_row_classes) do
-            tag.div(class: switch_labeled_content_classes) do
-              name_label_html + inline_help_text_html + error_text_html
-            end +
-              switch_control_html
-          end
-        end
+      def form_help_text_html
+        inline_help_text_html
       end
 
       # @return [ActiveSupport::SafeBuffer] help text rendered beside the label (not below the switch)

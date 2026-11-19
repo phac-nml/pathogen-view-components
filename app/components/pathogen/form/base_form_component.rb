@@ -18,7 +18,9 @@ module Pathogen
       include ActionView::Helpers::TranslationHelper
       include FormStyles
       include FormAriaHelper
+      include FormFieldAttributes
       include FormOptionExtractor
+      include FormRendering
       include Pathogen::FetchOrFallbackHelper
 
       SIZE_OPTIONS = %i[small medium].freeze
@@ -74,24 +76,15 @@ module Pathogen
       #
       # @return [String] the input name
       def input_name
-        return @input_name if @input_name.present?
-        return "#{@form.object_name}[#{@attribute}]" if @form&.object_name.present?
-
-        @attribute.to_s
+        shared_input_name(form: @form, attribute: @attribute, input_name: @input_name)
       end
 
       # Generates a unique ID for the input element.
       #
       # @return [String] the input ID
       def input_id
-        return @id if @id.present?
-
-        base = if @form&.object_name.present?
-                 "#{@form.object_name}_#{@attribute}_#{@value}"
-               else
-                 "#{input_name}_#{@value}"
-               end
-        base.gsub(/[\[\]]+/, '_').chomp('_')
+        shared_input_id(form: @form, attribute: @attribute, value: @value,
+                        input_name: @input_name, id: @id)
       end
 
       # Generates a unique ID for help text elements.
