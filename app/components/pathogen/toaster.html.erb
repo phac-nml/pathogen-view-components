@@ -1,0 +1,41 @@
+<%= tag.section(**@system_arguments) do %>
+  <%= render Pathogen::Button.new(
+    text: dismiss_all_label,
+    tone: :neutral,
+    emphasis: :outline,
+    class: 'pointer-events-auto mb-2 shrink-0 self-end bg-[var(--pvc-color-surface-raised)]',
+    hidden: true,
+    'data-pathogen--toaster-target': 'dismissAll',
+    'data-action': 'click->pathogen--toaster#dismissAll'
+  ) %>
+
+  <div
+    class="pvc-toaster__viewport"
+    data-pathogen--toaster-target="viewport"
+    role="region"
+    aria-label="<%= region_label %>"
+    tabindex="-1"
+  >
+    <ol id="<%= list_id %>" class="pvc-toaster__list">
+      <%= content %>
+    </ol>
+  </div>
+
+  <%= render Pathogen::Button.new(
+    text: more_label.sub('%{count}', '0'),
+    tone: :neutral,
+    emphasis: :outline,
+    class: 'pvc-toaster__more pointer-events-auto mt-2 shrink-0 self-center bg-[var(--pvc-color-surface-raised)]',
+    hidden: true,
+    'data-pathogen--toaster-target': 'more',
+    'data-action': 'click->pathogen--toaster#expand',
+    'data-template': more_label,
+    'aria-controls': list_id,
+    'aria-expanded': 'false'
+  ) %>
+
+  <div class="sr-only" data-pathogen--toaster-target="polite" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <%# Keep the assertive region primed and unnamed so AT announces its message. %>
+  <div class="sr-only" data-pathogen--toaster-target="assertive" aria-live="assertive" aria-atomic="true"></div>
+<% end %>

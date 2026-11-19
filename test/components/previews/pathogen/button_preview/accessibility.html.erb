@@ -60,18 +60,18 @@
             ["folder", "Projects"],
             ["play", "Workflows"],
             ["gear", "Settings"]
-          ].each do |icon_name, label| %>
+          ].each do |icon_name, label_text| %>
             <%= render Pathogen::Button.new(
               icon_only: true,
               size: :small,
               tone: :neutral,
               emphasis: :ghost,
-              text: label
+              text: label_text
             ) do |button| %>
-              <% button.with_tooltip(text: label, placement: :right, describe: false) %>
+              <% button.with_tooltip(text: label_text, placement: :right, describe: false) %>
 
               <% button.with_leading_visual do %>
-                <%= icon(icon_name, class: "size-4 text-[var(--pvc-color-text-muted)]") %>
+                <%= icon(icon_name, class: "size-4 text-(--pvc-color-text-muted)") %>
               <% end %>
             <% end %>
           <% end %>
@@ -95,10 +95,10 @@
       When multiple icon-only buttons share the same visual, give each a distinct accessible name.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <%= render(Pathogen::Typography::Heading.new(level: 5, class: "font-semibold")) { "Specimen collection details" } %>
 
-      <div class="mt-4 flex items-center justify-between gap-4 border-b border-[var(--pvc-color-border)] py-3">
+      <div class="mt-4 flex items-center justify-between gap-4 border-b border-(--pvc-color-border) py-3">
         <%= render(Pathogen::Typography::Supporting.new(tag: :span, variant: :muted, id: "collection-date")) { "Collected 12 Mar 2024" } %>
 
         <%= render Pathogen::Button.new(icon_only: true, text: 'Edit collection date', size: :small, tone: :neutral, emphasis: :ghost) do |button| %>
@@ -129,7 +129,7 @@
       Overview preview compares all three states side by side.
     <% end %>
 
-    <div class="rounded-[var(--pvc-radius-panel)] border border-[var(--pvc-color-border)] bg-[var(--pvc-color-surface)] p-4">
+    <div class="rounded-(--pvc-radius-panel) border border-(--pvc-color-border) bg-(--pvc-color-surface) p-4">
       <form>
         <%= render(Pathogen::Typography::Supporting.new(variant: :muted, class: "mb-4")) { "Complete required fields before continuing." } %>
 
