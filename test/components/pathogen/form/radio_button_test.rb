@@ -29,7 +29,7 @@ module Pathogen
 
         assert_selector 'input[type="radio"]'
         assert_selector 'input.size-5.rounded-full'
-        assert_selector "input[class*='border-[var(--pvc-color-border-strong)]']"
+        assert_selector "input[class*='border-(--pvc-color-border-strong)']"
       end
 
       test 'renders with label and label styling' do
@@ -105,7 +105,7 @@ module Pathogen
                         value: 'dark'
                       ))
 
-        assert_selector "input[class*='focus-visible:outline-[var(--pvc-color-focus)]']"
+        assert_selector "input[class*='focus-visible:outline-(--pvc-color-focus)']"
         assert_no_selector "input[class*='focus-visible:outline-black']"
         assert_no_selector "input[class*='dark:focus-visible:outline-white']"
       end
