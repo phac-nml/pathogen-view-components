@@ -58,6 +58,8 @@ Keep changes surgical.
 - Update tests at the same layer as the change.
 - Rebuild or check generated CSS when changing component classes, Tailwind sources, or helper-emitted classes.
 - For host-app compatibility, consider IRIDA Next usage before changing public component APIs.
+- When correcting a repeated agent mistake, prefer this order: make the mistake impossible by design, then add static/runtime checks, and only then add prose guidance.
+- If a new check is added, use error text that explains the preferred remediation, not just the violation.
 
 Instruction structure:
 

@@ -9,6 +9,8 @@ Pathogen View Components is a shared UI library and Rails engine used by host ap
 - Preserve accessibility behavior for keyboard, focus, and assistive technology.
 - Keep host-specific logic out of library internals.
 - Keep instructions non-conflicting and concise; move deep procedures into skills.
+- Prefer enforceable guardrails over prose-only reminders: when a recurring mistake is found, encode prevention in deterministic checks (lint, types, tests, CI) before adding more instruction text.
+- When adding or updating a guardrail, make the failure message actionable and root-cause oriented so agents can apply the intended fix.
 
 ## Instruction layout
 
