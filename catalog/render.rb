@@ -26,26 +26,117 @@ require_relative '../lib/pathogen/view_components'
 CatalogApplication.initialize!
 
 output = File.join(CATALOG, 'src/content/docs')
+# Fully generated output; clear stale pages (e.g. old per-scenario subdirectories) before regenerating.
+FileUtils.rm_rf(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG}/public/examples"])
 
-{ 'button' => 'Buttons', 'tabs' => 'Tabs', 'form' => 'Form controls' }.each do |slug, title|
-  source = File.read(File.join(CATALOG, 'examples', "#{slug}.html.erb"))
+# Hand-curated, minimal usage snippets. These are the primary content for their component page;
+# auto-discovered scenarios below become collapsed "More examples" instead of separate pages.
+curated_examples = [
+  { id: 'button', title: 'Buttons', source: File.join(CATALOG, 'examples/button.html.erb') },
+  { id: 'tabs', title: 'Tabs', source: File.join(CATALOG, 'examples/tabs.html.erb') },
+  { id: 'form', title: 'Form controls', source: File.join(CATALOG, 'examples/form.html.erb') },
+  {
+    id: 'link',
+    title: 'Links',
+    source: File.join(ROOT, 'test/components/previews/pathogen/link_preview/overview.html.erb')
+  }
+]
+curated_ids = curated_examples.map { |example| example.fetch(:id) }
+
+deferred_preview_templates = %w[
+  button/accessibility
+  button/overview
+  data_grid/virtual_infinite_scroll
+  tabs/turbo_frame_lazy_load
+  tooltip/in_context
+  tooltip/overview
+].freeze
+
+preview_templates = Dir[File.join(ROOT,
+                                  'test/components/previews/pathogen/*_preview/**/*.html.erb')].filter_map do |source|
+  component = File.basename(File.dirname(source)).delete_suffix('_preview')
+  scenario = File.basename(source, '.html.erb')
+  next if deferred_preview_templates.include?("#{component}/#{scenario}")
+  # A curated example already covers this component; its "overview" scenario would duplicate it.
+  next if curated_ids.include?(component) && scenario == 'overview'
+
+  {
+    component:,
+    scenario:,
+    title: scenario.tr('_', ' ').capitalize,
+    source:
+  }
+end
+scenarios_by_component = preview_templates.group_by { |template| template.fetch(:component) }
+
+# Render one iframe pair per theme and return the markdown that embeds them.
+render_frame = lambda do |theme, frame_id, title, heading, source|
+  filename = "#{frame_id}-#{theme}.html"
   rendered = ActionController::Base.renderer.render(inline: source, layout: false)
-  frames = %w[light dark].map do |theme|
-    filename = "#{slug}-#{theme}.html"
-    html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result(binding)
-    File.write(File.join(CATALOG, 'public/examples', filename), html)
+  html = ERB.new(File.read(File.join(CATALOG, 'layout.html.erb'))).result_with_hash(
+    theme:, title:, rendered:
+  )
+  File.write(File.join(CATALOG, 'public/examples', filename), html)
+  <<~MARKDOWN
+    #{heading}#{theme.capitalize} preview
+
+    <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
+
+    [Open #{theme} preview](#{BASE}/examples/#{filename})
+  MARKDOWN
+end
+
+render_frames = lambda do |frame_id, title, heading_level, source|
+  heading = heading_level.positive? ? "#{'#' * heading_level} " : ''
+  %w[light dark].map { |theme| render_frame.call(theme, frame_id, title, heading, source) }.join("\n")
+end
+
+component_details = lambda do |id|
+  curated = curated_examples.find { |example| example.fetch(:id) == id }
+  component_title = curated ? curated.fetch(:title) : id.split('_').map(&:capitalize).join(' ')
+  scenarios = (scenarios_by_component[id] || []).sort_by do |s|
+    [s.fetch(:scenario) == 'overview' ? 0 : 1, s.fetch(:scenario)]
+  end
+
+  if curated
+    primary_source = File.read(curated.fetch(:source))
+    extra_scenarios = scenarios
+  else
+    primary_scenario = scenarios.first
+    primary_source = File.read(primary_scenario.fetch(:source))
+    extra_scenarios = scenarios[1..] || []
+  end
+
+  [component_title, primary_source, extra_scenarios]
+end
+
+component_ids = (curated_ids + scenarios_by_component.keys).uniq
+component_ids.each do |id|
+  component_title, primary_source, extra_scenarios = component_details.call(id)
+
+  frames = render_frames.call(id, component_title, 2, primary_source)
+  more_examples = extra_scenarios.map do |scenario|
+    scenario_source = File.read(scenario.fetch(:source))
+    scenario_frames = render_frames.call("#{id}-#{scenario.fetch(:scenario).tr('_', '-')}",
+                                         "#{component_title}: #{scenario.fetch(:title)}", 0, scenario_source)
     <<~MARKDOWN
-      ## #{theme.capitalize} preview
+      <details>
+      <summary>#{scenario.fetch(:title)}</summary>
 
-      <iframe title="#{title} — #{theme} preview" src="#{BASE}/examples/#{filename}" loading="lazy" style="display:block;width:100%;height:260px;border:1px solid currentColor;border-radius:4px;"></iframe>
+      #{scenario_frames}
+      ```erb
+      #{scenario_source.rstrip}
+      ```
 
-      [Open #{theme} preview](#{BASE}/examples/#{filename})
+      </details>
     MARKDOWN
   end.join("\n")
-  File.write("#{output}/components/#{slug}.md", <<~MARKDOWN)
+
+  page = File.join(output, 'components', "#{id}.md")
+  File.write(page, <<~MARKDOWN)
     ---
-    title: #{title}
+    title: "#{component_title}"
     ---
 
     Rendered from the actual Ruby components. Try the controls with a keyboard.
@@ -55,8 +146,9 @@ FileUtils.mkdir_p(["#{output}/components", "#{output}/design-system", "#{CATALOG
     ## Usage
 
     ```erb
-    #{source.rstrip}
+    #{primary_source.rstrip}
     ```
+    #{"\n## More examples\n\n#{more_examples}" unless more_examples.empty?}
   MARKDOWN
 end
 
@@ -84,4 +176,6 @@ exported_ids.each do |id|
   File.write("#{output}/design-system/#{id}.md", content)
 end
 
-puts 'Rendered three examples in light/dark and three design-system documents (without Lookbook).'
+puts "Rendered #{component_ids.size} component pages
+" \
+  'and three design-system documents (without Lookbook).'
