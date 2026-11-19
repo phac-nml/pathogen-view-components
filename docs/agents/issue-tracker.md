@@ -2,9 +2,9 @@
 
 Issues and PRDs for this repo live as GitHub issues in `phac-nml/pathogen-view-components`. Use the `gh` CLI for all operations.
 
-## Do not file issues for `.planning/`
+## Scope for issues
 
-`.planning/` (including `.planning/CONTEXT.md` and other planning artifacts) is a **local-only** working resource. Never create GitHub issues for glossary updates, planning notes, CONTEXT edits, or any other work that lives under `.planning/`. Keep that material in the local files; do not track it in the issue tracker.
+Track repository work in GitHub Issues. Keep local scratch notes or private artifacts out of the issue tracker.
 
 ## Conventions
 

@@ -84,8 +84,8 @@ PRs should follow `.github/pull_request_template.md`, explain what changed and w
 
 ### Issue tracker
 
-Issues are tracked in GitHub Issues for `phac-nml/pathogen-view-components`; external PRs are not a triage request surface. Use the `gh` CLI for issue and PR operations. See `docs/agents/issue-tracker.md`. Never create issues for `.planning/` — that directory is local-only.
+Issues are tracked in GitHub Issues for `phac-nml/pathogen-view-components`; external PRs are not a triage request surface. Use the `gh` CLI for issue and PR operations. See `docs/agents/issue-tracker.md`.
 
 ### Domain docs
 
-This repo uses a single-context domain-doc layout, with `.planning/CONTEXT.md` as the current project context and `docs/adr/` reserved for future ADRs. See `docs/agents/domain.md`.
+This repo uses a docs-first domain-doc layout with guidance under `docs/lookbook/` and `docs/agents/`. See `docs/agents/domain.md`.
