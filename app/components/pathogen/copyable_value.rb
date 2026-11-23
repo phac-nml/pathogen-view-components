@@ -142,8 +142,5 @@ module Pathogen
       @tooltip_id ||= self.class.generate_id(base_name: 'copyable-value-tooltip')
     end
 
-    def aria_label
-      I18n.t('pathogen.copyable_value.copy_aria_label', value: @value)
-    end
   end
 end

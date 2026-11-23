@@ -22,10 +22,10 @@ module Pathogen
                       text: 'INXT_PRJ_A2G6VVJNCN'
     end
 
-    test 'renders copy button with tooltip wiring and correct aria-label' do
+    test 'renders copy button with tooltip wiring and describedby association' do
       render_inline(Pathogen::CopyableValue.new(value: 'ABC123'))
 
-      assert_selector 'button[type="button"][aria-label="Copy ABC123 to clipboard"]'
+      assert_selector 'button[type="button"]:not([aria-label])'
       assert_selector 'button[data-pathogen--copyable-value-target="button"]' \
                       '[data-pathogen--tooltip-target="trigger"][aria-describedby]'
 

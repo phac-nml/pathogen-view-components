@@ -4,7 +4,6 @@ fr:
     copyable_value:
       copied: Copié dans le presse-papiers
       copied_tooltip: Copié
-      copy_aria_label: Copier %{value} dans le presse-papiers
       copy_failed: Impossible de copier dans le presse-papiers
       copy_tooltip_with_value: 'Copier la valeur dans le presse-papiers : %{value}'
     data_grid:
