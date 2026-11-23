@@ -141,6 +141,5 @@ module Pathogen
     def tooltip_id
       @tooltip_id ||= self.class.generate_id(base_name: 'copyable-value-tooltip')
     end
-
   end
 end
