@@ -85,7 +85,11 @@ module Pathogen
 
     def build_data_attributes
       data = (@system_arguments[:data] || {}).deep_stringify_keys
-      controllers = [data['controller'], controller_name, tooltip_controller_name].compact.join(' ').split.uniq.join(' ')
+      controllers = [
+        data['controller'],
+        controller_name,
+        tooltip_controller_name
+      ].compact.join(' ').split.uniq.join(' ')
 
       data.merge(
         'controller' => controllers,

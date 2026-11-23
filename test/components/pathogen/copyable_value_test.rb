@@ -127,31 +127,12 @@ module Pathogen
     end
 
     test 'normalizes conflicting data keys before applying component-owned attributes' do
-      data = {
-        controller: 'alpha',
-        'controller' => 'beta pathogen--copyable-value',
-        'state' => 'success',
-        'pathogen--copyable-value-copied-message-value' => 'Stale success message',
-        'pathogen--copyable-value-copy-failed-message-value' => 'Stale failure message',
-        'pathogen--copyable-value-reset-delay-value' => 1
-      }
-
       render_inline(
-        Pathogen::CopyableValue.new(value: 'test', copied_message: 'ID copied!', reset_delay: 1500, data: data)
+        Pathogen::CopyableValue.new(value: 'test', copied_message: 'ID copied!', reset_delay: 1500,
+                                    data: conflicting_data)
       )
 
-      expected_data = {
-        'controller' => 'beta pathogen--copyable-value pathogen--tooltip',
-        'state' => 'idle',
-        'pathogen--tooltip-portal-aria-label-value' => 'Tooltips',
-        'pathogen--tooltip-describedby-value' => 'true',
-        'pathogen--copyable-value-copied-message-value' => 'ID copied!',
-        'pathogen--copyable-value-copy-failed-message-value' => 'Unable to copy to clipboard',
-        'pathogen--copyable-value-copy-tooltip-message-value' => 'Copy to clipboard value: test',
-        'pathogen--copyable-value-reset-delay-value' => '1500'
-      }
-
-      expected_data.each do |name, value|
+      expected_normalized_data.each do |name, value|
         next if name == 'state'
 
         assert_equal 1, rendered_content.scan(/\bdata-#{Regexp.escape(name)}=/).length,
@@ -208,6 +189,32 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector 'span[data-view-component]'
+    end
+
+    private
+
+    def conflicting_data
+      {
+        controller: 'alpha',
+        'controller' => 'beta pathogen--copyable-value',
+        'state' => 'success',
+        'pathogen--copyable-value-copied-message-value' => 'Stale success message',
+        'pathogen--copyable-value-copy-failed-message-value' => 'Stale failure message',
+        'pathogen--copyable-value-reset-delay-value' => 1
+      }
+    end
+
+    def expected_normalized_data
+      {
+        'controller' => 'beta pathogen--copyable-value pathogen--tooltip',
+        'state' => 'idle',
+        'pathogen--tooltip-portal-aria-label-value' => 'Tooltips',
+        'pathogen--tooltip-describedby-value' => 'true',
+        'pathogen--copyable-value-copied-message-value' => 'ID copied!',
+        'pathogen--copyable-value-copy-failed-message-value' => 'Unable to copy to clipboard',
+        'pathogen--copyable-value-copy-tooltip-message-value' => 'Copy to clipboard value: test',
+        'pathogen--copyable-value-reset-delay-value' => '1500'
+      }
     end
   end
 end
