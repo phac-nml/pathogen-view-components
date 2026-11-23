@@ -44,7 +44,7 @@
             [:danger, :outline, 'Discard', 'Destructive action when confirmation happens elsewhere'],
             [:danger, :solid, 'Delete permanently', 'Confirmed destructive step only'],
             [:danger, :ghost, 'Remove tag', 'Dense destructive utility in tight layouts']
-          ].each do |tone, emphasis, label, guidance| %>
+          ].each do |tone, emphasis, label_text, guidance| %>
             <tr>
               <td class="px-4 py-3 align-middle">
                 <%= render(Pathogen::Typography::Code.new(class: "text-xs")) { "tone: #{tone}, emphasis: #{emphasis}" } %>
@@ -55,7 +55,7 @@
               </td>
 
               <td class="px-4 py-3 align-middle">
-                <%= render Pathogen::Button.new(tone:, emphasis:, text: label) %>
+                <%= render Pathogen::Button.new(tone:, emphasis:, text: label_text) %>
               </td>
             </tr>
           <% end %>
@@ -314,22 +314,22 @@
             [:danger, :outline, 'Discard'],
             [:danger, :solid, 'Delete permanently'],
             [:danger, :ghost, 'Remove tag']
-          ].each do |tone, emphasis, label| %>
+          ].each do |tone, emphasis, label_text| %>
             <tr>
               <td class="px-4 py-3 align-middle">
                 <%= render(Pathogen::Typography::Code.new(class: "text-xs")) { "tone: #{tone}, emphasis: #{emphasis}" } %>
               </td>
 
               <td class="px-4 py-3 align-middle">
-                <%= render Pathogen::Button.new(tone:, emphasis:, text: label) %>
+                <%= render Pathogen::Button.new(tone:, emphasis:, text: label_text) %>
               </td>
 
               <td class="px-4 py-3 align-middle">
-                <%= render Pathogen::Button.new(tone:, emphasis:, disabled: true, text: label) %>
+                <%= render Pathogen::Button.new(tone:, emphasis:, disabled: true, text: label_text) %>
               </td>
 
               <td class="px-4 py-3 align-middle">
-                <%= render Pathogen::Button.new(tone:, emphasis:, aria_disabled: true, text: label) %>
+                <%= render Pathogen::Button.new(tone:, emphasis:, aria_disabled: true, text: label_text) %>
               </td>
             </tr>
           <% end %>

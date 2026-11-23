@@ -1,0 +1,7 @@
+<div style="height: 500px;">
+  <%= render(Pathogen::Toaster.new(position: :top_center, turbo_permanent: false)) do %>
+    <%= render(Pathogen::Toast.new(message: "Processing complete!", type: :success, timeout: 0)) %>
+    <%= render(Pathogen::Toast.new(message: "Review required", description: "Check the results before confirming.", type: :warning, dismissible: true)) %>
+    <%= render(Pathogen::Toast.new(message: "Invalid input", type: :error, dismissible: true)) %>
+  <% end %>
+</div>
