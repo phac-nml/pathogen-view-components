@@ -5,7 +5,12 @@ import CopyableValueController from "../../../app/assets/javascripts/pathogen_vi
 
 const waitForController = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-const appendCopyableValue = () => {
+const appendCopyableValue = ({
+  withAriaDescribedby = true,
+  withTooltip = true,
+  withTooltipText = true,
+  withTooltipArrow = true,
+} = {}) => {
   const container = document.createElement("span");
   container.setAttribute("data-controller", "pathogen--copyable-value");
   container.setAttribute("data-pathogen--copyable-value-copied-message-value", "Copied to clipboard");
@@ -26,7 +31,9 @@ const appendCopyableValue = () => {
   button.type = "button";
   button.setAttribute("data-action", "click->pathogen--copyable-value#copy");
   button.setAttribute("data-pathogen--copyable-value-target", "button");
-  button.setAttribute("aria-describedby", "copyable-tooltip");
+  if (withAriaDescribedby) {
+    button.setAttribute("aria-describedby", "copyable-tooltip");
+  }
 
   const icon = document.createElement("span");
   icon.setAttribute("data-pathogen--copyable-value-target", "icon");
@@ -34,19 +41,25 @@ const appendCopyableValue = () => {
   const successIcon = document.createElement("span");
   successIcon.setAttribute("data-pathogen--copyable-value-target", "successIcon");
 
-  const tooltip = document.createElement("div");
-  tooltip.id = "copyable-tooltip";
-  tooltip.className = "bg-neutral-950";
+  const tooltip = withTooltip ? document.createElement("div") : null;
+  if (tooltip) {
+    tooltip.id = "copyable-tooltip";
+    tooltip.className = "bg-neutral-950";
+  }
 
-  const tooltipText = document.createElement("span");
-  tooltipText.setAttribute("data-pathogen-copyable-value-tooltip-text", "true");
-  tooltipText.textContent = "Copy to clipboard value: INXT_PRJ_A2G6VVJNCN";
-  tooltip.appendChild(tooltipText);
+  const tooltipText = withTooltipText ? document.createElement("span") : null;
+  if (tooltip && tooltipText) {
+    tooltipText.setAttribute("data-pathogen-copyable-value-tooltip-text", "true");
+    tooltipText.textContent = "Copy to clipboard value: INXT_PRJ_A2G6VVJNCN";
+    tooltip.appendChild(tooltipText);
+  }
 
-  const tooltipArrow = document.createElement("span");
-  tooltipArrow.setAttribute("data-pathogen--tooltip-target", "arrow");
-  tooltipArrow.className = "bg-neutral-950";
-  tooltip.appendChild(tooltipArrow);
+  const tooltipArrow = withTooltipArrow ? document.createElement("span") : null;
+  if (tooltip && tooltipArrow) {
+    tooltipArrow.setAttribute("data-pathogen--tooltip-target", "arrow");
+    tooltipArrow.className = "bg-neutral-950";
+    tooltip.appendChild(tooltipArrow);
+  }
 
   const announcement = document.createElement("span");
   announcement.setAttribute("data-pathogen--copyable-value-target", "announcement");
@@ -57,7 +70,9 @@ const appendCopyableValue = () => {
   container.appendChild(button);
   container.appendChild(announcement);
   document.body.appendChild(container);
-  document.body.appendChild(tooltip);
+  if (tooltip) {
+    document.body.appendChild(tooltip);
+  }
 
   return { container, text, icon, successIcon, tooltip, tooltipArrow, tooltipText, announcement };
 };
@@ -137,6 +152,47 @@ describe("copyable_value_controller", () => {
     expect(tooltipText.textContent).toBe("Copy to clipboard value: INXT_PRJ_A2G6VVJNCN");
     expect(tooltip.classList.contains("bg-neutral-950")).toBe(true);
     expect(tooltipArrow.classList.contains("bg-neutral-950")).toBe(true);
+  });
+
+  it("still announces and sets state when tooltip id is missing", async () => {
+    const { container, announcement } = appendCopyableValue({ withAriaDescribedby: false });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+
+    expect(writeText).toHaveBeenCalled();
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
+  });
+
+  it("handles tooltip without text or arrow targets", async () => {
+    const { container, tooltip, announcement } = appendCopyableValue({
+      withTooltipText: false,
+      withTooltipArrow: false,
+    });
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    await waitForController();
+
+    const controller = application.getControllerForElementAndIdentifier(container, "pathogen--copyable-value");
+    await controller.copy();
+
+    expect(container.dataset.state).toBe("success");
+    expect(announcement.textContent).toBe("Copied to clipboard");
+    expect(tooltip.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
   });
 
   it("preserves exact text and restores focus when using the clipboard fallback", async () => {
