@@ -55,7 +55,7 @@ export function renderVirtualWindow({
   });
 
   const pendingFocus = getPendingFocusCoordinate?.() ?? null;
-  const focusedCell = pendingFocus ? null : resolveCell(document.activeElement);
+  const focusedCell = pendingFocus && !rowSource.cursorMode ? null : resolveCell(document.activeElement);
   const focusedRowIndex = pendingFocus?.rowIndex ?? (focusedCell ? rowIndexOf(focusedCell) : null);
   const focusedColumnIndex = pendingFocus?.columnIndex ?? (focusedCell ? columnIndexOf(focusedCell) : null);
   const shouldRestoreCellFocus = focusedRowIndex !== null && focusedColumnIndex !== null;
@@ -74,7 +74,7 @@ export function renderVirtualWindow({
   }
 
   if (focusedRow && viewport.contains(focusedRow) && !renderedRows.includes(focusedRow)) {
-    const globalIndex = focusedRowIndex - 1;
+    const globalIndex = rowIndexOf(focusedCell) - 1;
     if (globalIndex < startIndex || globalIndex >= endIndex) {
       applyColumnWindow(focusedRow, columnRange, focusedCell);
       if (globalIndex < startIndex) renderedRows.unshift(focusedRow);
@@ -98,7 +98,11 @@ export function renderVirtualWindow({
 
   if (shouldRestoreCellFocus) {
     const mappedCell = resolveFocusCell(focusedRowIndex, focusedColumnIndex);
-    if (mappedCell && mappedCell.isConnected) {
+    if (
+      mappedCell &&
+      mappedCell.isConnected &&
+      (!rowSource.cursorMode || !mappedCell.closest('[role="row"][aria-busy="true"]'))
+    ) {
       if (!mappedCell.contains(document.activeElement)) {
         setActiveCell(mappedCell);
         mappedCell.focus({ preventScroll: true });
