@@ -152,10 +152,14 @@ module Pathogen
       }
 
       expected_data.each do |name, value|
+        next if name == 'state'
+
         assert_equal 1, rendered_content.scan(/\bdata-#{Regexp.escape(name)}=/).length,
                      "Expected exactly one serialized data-#{name} attribute"
         assert_selector "span[data-#{name}=\"#{value}\"]"
       end
+
+      assert_selector 'span[data-controller~="pathogen--copyable-value"][data-state="idle"]'
     end
 
     test 'renders with idle data-state on root element' do

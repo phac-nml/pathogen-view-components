@@ -14,7 +14,7 @@ require 'active_support/all'
 require 'rails'
 require 'action_controller/railtie'
 require 'action_view/railtie'
-require 'rails/test_help'
+require 'active_support/test_case'
 require 'turbo-rails'
 require 'view_component/test_helpers'
 require 'view_component/test_case'
@@ -29,6 +29,7 @@ class PathogenTestApplication < Rails::Application
   config.secret_key_base = 'pathogen-view-components-test-secret'
   config.logger = Logger.new(nil)
   config.hosts << 'www.example.com'
+  config.action_cable.cable = { 'adapter' => 'test' }
 end
 
 require_relative '../lib/pathogen/view_components'
