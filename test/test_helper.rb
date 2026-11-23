@@ -29,7 +29,6 @@ class PathogenTestApplication < Rails::Application
   config.secret_key_base = 'pathogen-view-components-test-secret'
   config.logger = Logger.new(nil)
   config.hosts << 'www.example.com'
-  config.action_cable.cable = { 'adapter' => 'test' }
 end
 
 require_relative '../lib/pathogen/view_components'
