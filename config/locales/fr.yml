@@ -1,6 +1,11 @@
 ---
 fr:
   pathogen:
+    copyable_value:
+      copied: Copié dans le presse-papiers
+      copied_tooltip: Copié
+      copy_failed: Impossible de copier dans le presse-papiers
+      copy_tooltip_with_value: 'Copier la valeur dans le presse-papiers : %{value}'
     data_grid:
       empty_state:
         default: Aucune ligne trouvée. Essayez d’ajuster les filtres ou d’actualiser
