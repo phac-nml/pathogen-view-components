@@ -6,7 +6,6 @@ en:
       copied_tooltip: Copied
       copy_aria_label: Copy %{value} to clipboard
       copy_failed: Unable to copy to clipboard
-      copy_tooltip: Copy identifier
       copy_tooltip_with_value: 'Copy to clipboard value: %{value}'
     data_grid:
       empty_state:
