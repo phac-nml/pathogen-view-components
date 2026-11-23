@@ -5,6 +5,8 @@ const COPY_STATES = {
   success: "success",
   error: "error",
 };
+const DEFAULT_TOOLTIP_BACKGROUND_CLASS = "bg-neutral-950";
+const SUCCESS_TOOLTIP_BACKGROUND_CLASS = "bg-[var(--pvc-color-success-solid)]";
 
 /**
  * Copies text via the Clipboard API with a selection-based fallback.
@@ -90,18 +92,51 @@ export default class extends Controller {
   #showFeedback(state) {
     this.#clearResetTimeout();
     this.#setState(state);
+    const tooltipMessage = state === COPY_STATES.success ? this.copiedTooltipMessageValue : this.copyFailedMessageValue;
     this.announcementTarget.textContent =
       state === COPY_STATES.success ? this.copiedMessageValue : this.copyFailedMessageValue;
-    this.buttonTarget.title =
-      state === COPY_STATES.success ? this.copiedTooltipMessageValue : this.copyFailedMessageValue;
+    this.#setTooltipMessage(tooltipMessage);
+    this.#setTooltipTone(state);
     this.#resetTimeout = window.setTimeout(() => this.#reset(), this.resetDelayValue);
   }
 
   #reset() {
     this.#setState(COPY_STATES.idle);
-    this.buttonTarget.title = this.copyTooltipMessageValue;
+    this.#setTooltipMessage(this.copyTooltipMessageValue);
+    this.#setTooltipTone(COPY_STATES.idle);
     this.announcementTarget.textContent = "";
     this.#resetTimeout = null;
+  }
+
+  #setTooltipMessage(message) {
+    const tooltipText = this.#tooltipTextElement();
+    if (!tooltipText) return;
+
+    tooltipText.textContent = message;
+  }
+
+  #setTooltipTone(state) {
+    const tooltip = this.#tooltipElement();
+    if (!tooltip) return;
+
+    const arrow = tooltip.querySelector('[data-pathogen--tooltip-target="arrow"]');
+    const successState = state === COPY_STATES.success;
+
+    tooltip.classList.toggle(DEFAULT_TOOLTIP_BACKGROUND_CLASS, !successState);
+    tooltip.classList.toggle(SUCCESS_TOOLTIP_BACKGROUND_CLASS, successState);
+    arrow?.classList.toggle(DEFAULT_TOOLTIP_BACKGROUND_CLASS, !successState);
+    arrow?.classList.toggle(SUCCESS_TOOLTIP_BACKGROUND_CLASS, successState);
+  }
+
+  #tooltipElement() {
+    const tooltipId = this.buttonTarget.getAttribute("aria-describedby");
+    if (!tooltipId) return null;
+
+    return document.getElementById(tooltipId);
+  }
+
+  #tooltipTextElement() {
+    return this.#tooltipElement()?.querySelector("[data-pathogen-copyable-value-tooltip-text]");
   }
 
   #setState(state) {

@@ -937,6 +937,9 @@
   .bg-\[var\(--pvc-color-danger-solid\)\] {
     background-color: var(--pvc-color-danger-solid);
   }
+  .bg-\[var\(--pvc-color-success-solid\)\] {
+    background-color: var(--pvc-color-success-solid);
+  }
   .bg-\[var\(--pvc-color-surface\)\] {
     background-color: var(--pvc-color-surface);
   }

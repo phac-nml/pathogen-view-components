@@ -4,10 +4,10 @@
   <%= tag.button(
         type: 'button',
         class: BUTTON_CLASSES,
-        aria: { label: aria_label },
-        title: copy_tooltip_message,
+        aria: { label: aria_label, describedby: tooltip_id },
         data: {
           action: "click->#{controller_name}#copy",
+          'pathogen--tooltip-target': 'trigger',
           **stimulus_target('button')
         }
       ) do %>
@@ -58,6 +58,12 @@
       <% end %>
     <% end %>
   <% end %>
+
+  <%= render Pathogen::Tooltip.new(
+        text: tag.span(copy_tooltip_message, data: { pathogen_copyable_value_tooltip_text: true }),
+        id: tooltip_id,
+        placement: :top
+      ) %>
 
   <%= tag.span(
         class: 'sr-only',

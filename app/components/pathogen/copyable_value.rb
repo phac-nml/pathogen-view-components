@@ -85,11 +85,13 @@ module Pathogen
 
     def build_data_attributes
       data = (@system_arguments[:data] || {}).deep_stringify_keys
-      controllers = [data['controller'], controller_name].compact.join(' ').split.uniq.join(' ')
+      controllers = [data['controller'], controller_name, tooltip_controller_name].compact.join(' ').split.uniq.join(' ')
 
       data.merge(
         'controller' => controllers,
         'state' => 'idle',
+        "#{tooltip_controller_name}-portal-aria-label-value" => Pathogen::Tooltip.portal_aria_label,
+        "#{tooltip_controller_name}-describedby-value" => true,
         **stimulus_values
       )
     end
@@ -108,6 +110,10 @@ module Pathogen
       'pathogen--copyable-value'
     end
 
+    def tooltip_controller_name
+      'pathogen--tooltip'
+    end
+
     def stimulus_target(name)
       { "#{controller_name}-target": name }
     end
@@ -121,11 +127,15 @@ module Pathogen
     end
 
     def copy_tooltip_message
-      I18n.t('pathogen.copyable_value.copy_tooltip')
+      I18n.t('pathogen.copyable_value.copy_tooltip_with_value', value: @value)
     end
 
     def copied_tooltip_message
       I18n.t('pathogen.copyable_value.copied_tooltip')
+    end
+
+    def tooltip_id
+      @tooltip_id ||= self.class.generate_id(base_name: 'copyable-value-tooltip')
     end
 
     def aria_label

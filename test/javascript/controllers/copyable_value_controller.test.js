@@ -10,7 +10,10 @@ const appendCopyableValue = () => {
   container.setAttribute("data-controller", "pathogen--copyable-value");
   container.setAttribute("data-pathogen--copyable-value-copied-message-value", "Copied to clipboard");
   container.setAttribute("data-pathogen--copyable-value-copy-failed-message-value", "Unable to copy to clipboard");
-  container.setAttribute("data-pathogen--copyable-value-copy-tooltip-message-value", "Copy identifier");
+  container.setAttribute(
+    "data-pathogen--copyable-value-copy-tooltip-message-value",
+    "Copy to clipboard value: INXT_PRJ_A2G6VVJNCN",
+  );
   container.setAttribute("data-pathogen--copyable-value-copied-tooltip-message-value", "Copied");
   container.setAttribute("data-pathogen--copyable-value-reset-delay-value", "2000");
   container.dataset.state = "idle";
@@ -23,12 +26,27 @@ const appendCopyableValue = () => {
   button.type = "button";
   button.setAttribute("data-action", "click->pathogen--copyable-value#copy");
   button.setAttribute("data-pathogen--copyable-value-target", "button");
+  button.setAttribute("aria-describedby", "copyable-tooltip");
 
   const icon = document.createElement("span");
   icon.setAttribute("data-pathogen--copyable-value-target", "icon");
 
   const successIcon = document.createElement("span");
   successIcon.setAttribute("data-pathogen--copyable-value-target", "successIcon");
+
+  const tooltip = document.createElement("div");
+  tooltip.id = "copyable-tooltip";
+  tooltip.className = "bg-neutral-950";
+
+  const tooltipText = document.createElement("span");
+  tooltipText.setAttribute("data-pathogen-copyable-value-tooltip-text", "true");
+  tooltipText.textContent = "Copy to clipboard value: INXT_PRJ_A2G6VVJNCN";
+  tooltip.appendChild(tooltipText);
+
+  const tooltipArrow = document.createElement("span");
+  tooltipArrow.setAttribute("data-pathogen--tooltip-target", "arrow");
+  tooltipArrow.className = "bg-neutral-950";
+  tooltip.appendChild(tooltipArrow);
 
   const announcement = document.createElement("span");
   announcement.setAttribute("data-pathogen--copyable-value-target", "announcement");
@@ -39,8 +57,9 @@ const appendCopyableValue = () => {
   container.appendChild(button);
   container.appendChild(announcement);
   document.body.appendChild(container);
+  document.body.appendChild(tooltip);
 
-  return { container, text, icon, successIcon, announcement };
+  return { container, text, icon, successIcon, tooltip, tooltipArrow, tooltipText, announcement };
 };
 
 describe("copyable_value_controller", () => {
@@ -76,17 +95,19 @@ describe("copyable_value_controller", () => {
   });
 
   it("sets idle state on connect", async () => {
-    const { container } = appendCopyableValue();
+    const { container, tooltip, tooltipArrow, tooltipText } = appendCopyableValue();
 
     await waitForController();
 
     expect(container.dataset.state).toBe("idle");
     expect(container.dataset.controllerConnected).toBe("true");
-    expect(container.querySelector("button")?.title).toBe("Copy identifier");
+    expect(tooltipText.textContent).toBe("Copy to clipboard value: INXT_PRJ_A2G6VVJNCN");
+    expect(tooltip.classList.contains("bg-neutral-950")).toBe(true);
+    expect(tooltipArrow.classList.contains("bg-neutral-950")).toBe(true);
   });
 
   it("copies exact text and shows success feedback", async () => {
-    const { container, text, announcement } = appendCopyableValue();
+    const { container, text, tooltip, tooltipArrow, tooltipText, announcement } = appendCopyableValue();
     const writeText = vi.fn().mockResolvedValue(undefined);
 
     Object.defineProperty(navigator, "clipboard", {
@@ -105,13 +126,17 @@ describe("copyable_value_controller", () => {
     expect(writeText).toHaveBeenCalledWith("  INXT_PRJ_A2G6VVJNCN  ");
     expect(container.dataset.state).toBe("success");
     expect(announcement.textContent).toBe("Copied to clipboard");
-    expect(container.querySelector("button")?.title).toBe("Copied");
+    expect(tooltipText.textContent).toBe("Copied");
+    expect(tooltip.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
+    expect(tooltipArrow.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
 
     vi.advanceTimersByTime(2000);
 
     expect(container.dataset.state).toBe("idle");
     expect(announcement.textContent).toBe("");
-    expect(container.querySelector("button")?.title).toBe("Copy identifier");
+    expect(tooltipText.textContent).toBe("Copy to clipboard value: INXT_PRJ_A2G6VVJNCN");
+    expect(tooltip.classList.contains("bg-neutral-950")).toBe(true);
+    expect(tooltipArrow.classList.contains("bg-neutral-950")).toBe(true);
   });
 
   it("preserves exact text and restores focus when using the clipboard fallback", async () => {
@@ -143,7 +168,7 @@ describe("copyable_value_controller", () => {
   it.each(["unavailable", "false", "throws"])(
     "cleans up and announces failure when fallback copy %s",
     async (outcome) => {
-      const { container, announcement } = appendCopyableValue();
+      const { container, tooltip, tooltipArrow, tooltipText, announcement } = appendCopyableValue();
 
       Object.defineProperty(navigator, "clipboard", {
         configurable: true,
@@ -174,13 +199,15 @@ describe("copyable_value_controller", () => {
       expect(document.querySelector("textarea")).toBeNull();
       expect(container.dataset.state).toBe("error");
       expect(announcement.textContent).toBe("Unable to copy to clipboard");
-      expect(container.querySelector("button")?.title).toBe("Unable to copy to clipboard");
+      expect(tooltipText.textContent).toBe("Unable to copy to clipboard");
+      expect(tooltip.classList.contains("bg-neutral-950")).toBe(true);
+      expect(tooltipArrow.classList.contains("bg-neutral-950")).toBe(true);
 
       vi.advanceTimersByTime(2000);
 
       expect(container.dataset.state).toBe("idle");
       expect(announcement.textContent).toBe("");
-      expect(container.querySelector("button")?.title).toBe("Copy identifier");
+      expect(tooltipText.textContent).toBe("Copy to clipboard value: INXT_PRJ_A2G6VVJNCN");
     },
   );
 
