@@ -15,8 +15,8 @@ module Pathogen
         render_inline(Code.new) { 'Test' }
 
         assert_selector 'code.inline-flex.items-center.font-mono'
-        assert_selector "code[class*='bg-[var(--pvc-color-surface-muted)]']"
-        assert_selector "code[class*='text-[length:var(--type-control)]']"
+        assert_selector "code[class*='bg-(--pvc-color-surface-muted)']"
+        assert_selector "code[class*='text-(length:--type-control)']"
       end
 
       test 'merges custom classes' do
@@ -40,7 +40,7 @@ module Pathogen
       test 'emits semantic radius token' do
         render_inline(Code.new) { 'test' }
 
-        assert_selector 'code[class*="rounded-[var(--pvc-radius-control)]"]'
+        assert_selector 'code[class*="rounded-(--pvc-radius-control)"]'
       end
     end
   end

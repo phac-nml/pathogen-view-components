@@ -142,8 +142,8 @@ describe("copyable_value_controller", () => {
     expect(container.dataset.state).toBe("success");
     expect(announcement.textContent).toBe("Copied to clipboard");
     expect(tooltipText.textContent).toBe("Copied");
-    expect(tooltip.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
-    expect(tooltipArrow.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
+    expect(tooltip.classList.contains("bg-(--pvc-color-success-solid)")).toBe(true);
+    expect(tooltipArrow.classList.contains("bg-(--pvc-color-success-solid)")).toBe(true);
 
     vi.advanceTimersByTime(2000);
 
@@ -192,7 +192,7 @@ describe("copyable_value_controller", () => {
 
     expect(container.dataset.state).toBe("success");
     expect(announcement.textContent).toBe("Copied to clipboard");
-    expect(tooltip.classList.contains("bg-[var(--pvc-color-success-solid)]")).toBe(true);
+    expect(tooltip.classList.contains("bg-(--pvc-color-success-solid)")).toBe(true);
   });
 
   it("preserves exact text and restores focus when using the clipboard fallback", async () => {

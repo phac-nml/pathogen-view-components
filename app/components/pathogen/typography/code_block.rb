@@ -9,14 +9,14 @@ module Pathogen
       attr_reader :language
 
       WRAPPER_CLASSES = %w[
-        overflow-hidden rounded-[var(--pvc-radius-panel)]
+        overflow-hidden rounded-(--pvc-radius-panel)
         bg-neutral-950 text-white
         shadow-[inset_0_1px_3px_oklch(0_0_0/0.3),0_0_0_1px_var(--pvc-color-border-strong)]
       ].join(' ').freeze
 
       PRE_CLASSES = %w[
         overflow-x-auto whitespace-pre-wrap bg-transparent p-4 font-mono
-        text-[length:var(--type-control)] leading-relaxed text-inherit
+        text-(length:--type-control) leading-relaxed text-inherit
       ].join(' ').freeze
 
       CODE_CLASSES = 'block min-w-full bg-transparent font-mono text-inherit -tracking-tight'

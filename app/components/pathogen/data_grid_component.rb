@@ -36,10 +36,10 @@ module Pathogen
     include Pathogen::StimulusDataMerge
 
     ROOT_CLASSES = %w[
-      max-w-full rounded-[var(--pvc-radius-panel)] isolate [container-type:inline-size]
-      border border-[var(--pvc-data-grid-border-color)]
-      bg-[var(--pvc-data-grid-body-bg)]
-      text-[var(--pvc-data-grid-text-color)]
+      max-w-full rounded-(--pvc-radius-panel) isolate [container-type:inline-size]
+      border border-(--pvc-data-grid-border-color)
+      bg-(--pvc-data-grid-body-bg)
+      text-(--pvc-data-grid-text-color)
     ].freeze
 
     FILL_CLASSES = %w[
@@ -47,15 +47,15 @@ module Pathogen
     ].freeze
 
     CAPTION_CLASSES = %w[
-      py-[var(--pvc-data-grid-cell-padding-y)]
-      px-[var(--pvc-data-grid-cell-padding-x)]
-      text-[var(--pvc-data-grid-text-color)]
+      py-(--pvc-data-grid-cell-padding-y)
+      px-(--pvc-data-grid-cell-padding-x)
+      text-(--pvc-data-grid-text-color)
       font-semibold text-left
     ].freeze
 
     SCROLL_CONTAINER_CLASSES = %w[
       relative max-w-full overflow-auto rounded-[inherit]
-      shadow-none transition-shadow duration-[var(--pvc-duration-default)]
+      shadow-none transition-shadow duration-(--pvc-duration-default)
     ].freeze
 
     FILL_SCROLL_CLASSES = %w[
@@ -64,39 +64,39 @@ module Pathogen
 
     TABLE_CLASSES = %w[
       w-full border-separate border-spacing-0
-      bg-[var(--pvc-data-grid-body-bg)]
-      text-[var(--pvc-data-grid-text-color)]
-      text-[length:var(--pvc-data-grid-font-size)]
-      leading-[var(--pvc-data-grid-line-height)]
+      bg-(--pvc-data-grid-body-bg)
+      text-(--pvc-data-grid-text-color)
+      text-(length:--pvc-data-grid-font-size)
+      leading-(--pvc-data-grid-line-height)
       whitespace-nowrap
     ].freeze
 
     GRID_CLASSES = %w[
       w-full min-w-max
-      bg-[var(--pvc-data-grid-body-bg)]
-      text-[var(--pvc-data-grid-text-color)]
-      text-[length:var(--pvc-data-grid-font-size)]
-      leading-[var(--pvc-data-grid-line-height)]
+      bg-(--pvc-data-grid-body-bg)
+      text-(--pvc-data-grid-text-color)
+      text-(length:--pvc-data-grid-font-size)
+      leading-(--pvc-data-grid-line-height)
       whitespace-nowrap
     ].freeze
 
     SCROLL_HINT_CLASSES = %w[
-      hidden m-0 pt-1.5 px-[var(--pvc-data-grid-cell-padding-x)]
-      text-[var(--pvc-data-grid-text-muted-color)]
-      text-[length:var(--pvc-data-grid-meta-font-size)]
-      leading-[var(--pvc-data-grid-meta-line-height)]
+      hidden m-0 pt-1.5 px-(--pvc-data-grid-cell-padding-x)
+      text-(--pvc-data-grid-text-muted-color)
+      text-(length:--pvc-data-grid-meta-font-size)
+      leading-(--pvc-data-grid-meta-line-height)
     ].freeze
 
     KEYBOARD_HELP_CLASSES = %w[
-      m-0 pt-1 px-[var(--pvc-data-grid-cell-padding-x)] pb-[var(--pvc-data-grid-cell-padding-y)]
-      text-[var(--pvc-data-grid-text-muted-color)]
-      text-[length:var(--pvc-data-grid-meta-font-size)]
-      leading-[var(--pvc-data-grid-meta-line-height)]
+      m-0 pt-1 px-(--pvc-data-grid-cell-padding-x) pb-(--pvc-data-grid-cell-padding-y)
+      text-(--pvc-data-grid-text-muted-color)
+      text-(length:--pvc-data-grid-meta-font-size)
+      leading-(--pvc-data-grid-meta-line-height)
     ].freeze
 
     EMPTY_STATE_CLASSES = %w[
-      py-[var(--pvc-data-grid-cell-padding-y)] px-[var(--pvc-data-grid-cell-padding-x)]
-      text-[var(--pvc-data-grid-text-muted-color)]
+      py-(--pvc-data-grid-cell-padding-y) px-(--pvc-data-grid-cell-padding-x)
+      text-(--pvc-data-grid-text-muted-color)
     ].freeze
 
     EMPTY_STATE_TEXT_CLASSES = %w[
@@ -104,27 +104,27 @@ module Pathogen
     ].freeze
 
     ERROR_STATE_CLASSES = %w[
-      my-[var(--pvc-data-grid-cell-padding-y)] mx-[var(--pvc-data-grid-cell-padding-x)]
-      border rounded-[var(--pvc-radius-control)]
-      border-[var(--pvc-data-grid-error-border)]
-      bg-[var(--pvc-data-grid-error-bg)]
+      my-(--pvc-data-grid-cell-padding-y) mx-(--pvc-data-grid-cell-padding-x)
+      border rounded-(--pvc-radius-control)
+      border-(--pvc-data-grid-error-border)
+      bg-(--pvc-data-grid-error-bg)
       py-3 px-4
     ].freeze
 
     ERROR_TITLE_CLASSES = %w[
-      m-0 text-[var(--pvc-data-grid-text-color)] font-semibold
-      leading-[var(--pvc-data-grid-meta-line-height)]
+      m-0 text-(--pvc-data-grid-text-color) font-semibold
+      leading-(--pvc-data-grid-meta-line-height)
     ].freeze
 
     ERROR_MESSAGE_CLASSES = %w[
-      mt-1 mb-0 text-[var(--pvc-data-grid-text-muted-color)]
-      leading-[var(--pvc-data-grid-line-height)]
+      mt-1 mb-0 text-(--pvc-data-grid-text-muted-color)
+      leading-(--pvc-data-grid-line-height)
     ].freeze
 
     TOOLBAR_BAND_CLASSES = %w[
       grid grid-cols-1 items-center gap-2
-      border-b border-[var(--pvc-color-border)]
-      bg-[var(--pvc-color-surface-muted)] px-4 py-3
+      border-b border-(--pvc-color-border)
+      bg-(--pvc-color-surface-muted) px-4 py-3
     ].freeze
 
     TOOLBAR_BAND_WITH_COMPLEMENT_CLASSES = %w[
