@@ -39,9 +39,9 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector 'button[class*="min-h-6"][class*="min-w-6"]'
-      assert_selector 'button[class*="border-l"][class*="border-[var(--pvc-color-border)]"]'
-      assert_selector 'button[class*="interactive-hover:bg-[var(--pvc-color-surface-raised)]"]'
-      assert_selector 'button[class*="interactive-hover:text-[var(--pvc-color-text)]"]'
+      assert_selector 'button[class*="border-l"][class*="border-(--pvc-color-border)"]'
+      assert_selector 'button[class*="interactive-hover:bg-(--pvc-color-surface-raised)"]'
+      assert_selector 'button[class*="interactive-hover:text-(--pvc-color-text)"]'
       assert_selector 'button[class*="focus-visible:outline-offset-2"]'
       assert_no_selector 'button[class*="interactive-hover:border-"]'
     end
@@ -49,7 +49,7 @@ module Pathogen
     test 'rounds action lane to container radius without clipping focus' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="rounded-[var(--pvc-radius-action)]"]'
+      assert_selector 'span[class*="rounded-(--pvc-radius-action)"]'
       assert_no_selector 'span[class*="overflow-hidden"]'
       assert_selector 'button[class*="rounded-r-[calc(var(--pvc-radius-action)-1px)]"]'
       assert_selector 'span[class*="min-h-6"]'
@@ -58,9 +58,9 @@ module Pathogen
     test 'uses shared inline code surface tokens' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="bg-[var(--pvc-color-surface-muted)]"]'
-      assert_selector 'span[class*="border-[var(--pvc-color-border)]"]'
-      assert_selector 'span[class*="rounded-[var(--pvc-radius-action)]"]'
+      assert_selector 'span[class*="bg-(--pvc-color-surface-muted)"]'
+      assert_selector 'span[class*="border-(--pvc-color-border)"]'
+      assert_selector 'span[class*="rounded-(--pvc-radius-action)"]'
     end
 
     test 'includes sr-only aria-live region for announcements' do

@@ -783,9 +783,6 @@
   .rounded-\[inherit\] {
     border-radius: inherit;
   }
-  .rounded-\[var\(--pvc-radius-action\)\] {
-    border-radius: var(--pvc-radius-action);
-  }
   .rounded-full {
     border-radius: calc(infinity * 1px);
   }
@@ -897,9 +894,6 @@
       border-color: color-mix(in oklab, var(--pvc-color-warning) 45%, var(--pvc-color-border));
     }
   }
-  .border-\[var\(--pvc-color-border\)\] {
-    border-color: var(--pvc-color-border);
-  }
   .border-red-200 {
     border-color: var(--color-red-200);
   }
@@ -914,6 +908,9 @@
   }
   .bg-\(--pvc-color-danger-solid\) {
     background-color: var(--pvc-color-danger-solid);
+  }
+  .bg-\(--pvc-color-success-solid\) {
+    background-color: var(--pvc-color-success-solid);
   }
   .bg-\(--pvc-color-surface\) {
     background-color: var(--pvc-color-surface);
@@ -980,12 +977,6 @@
     @supports (color: color-mix(in lab, red, red)) {
       background-color: color-mix(in oklab, var(--pvc-color-warning) 8%, var(--pvc-color-surface));
     }
-  }
-  .bg-\[var\(--pvc-color-success-solid\)\] {
-    background-color: var(--pvc-color-success-solid);
-  }
-  .bg-\[var\(--pvc-color-surface-muted\)\] {
-    background-color: var(--pvc-color-surface-muted);
   }
   .bg-neutral-950 {
     background-color: var(--color-neutral-950);
@@ -1137,9 +1128,6 @@
   .text-\[0\.625rem\] {
     font-size: 0.625rem;
   }
-  .text-\[length\:var\(--type-meta\)\] {
-    font-size: var(--type-meta);
-  }
   .leading-\(--pvc-data-grid-line-height\) {
     --tw-leading: var(--pvc-data-grid-line-height);
     line-height: var(--pvc-data-grid-line-height);
@@ -1227,6 +1215,9 @@
   .text-\(--pvc-color-danger-strong\) {
     color: var(--pvc-color-danger-strong);
   }
+  .text-\(--pvc-color-success\) {
+    color: var(--pvc-color-success);
+  }
   .text-\(--pvc-color-success-strong\) {
     color: var(--pvc-color-success-strong);
   }
@@ -1258,18 +1249,6 @@
     color: var(--pvc-color-text);
   }
   .text-\(color\:--pvc-color-text-muted\) {
-    color: var(--pvc-color-text-muted);
-  }
-  .text-\[var\(--pvc-color-danger-strong\)\] {
-    color: var(--pvc-color-danger-strong);
-  }
-  .text-\[var\(--pvc-color-success\)\] {
-    color: var(--pvc-color-success);
-  }
-  .text-\[var\(--pvc-color-text\)\] {
-    color: var(--pvc-color-text);
-  }
-  .text-\[var\(--pvc-color-text-muted\)\] {
     color: var(--pvc-color-text-muted);
   }
   .text-inherit {
@@ -1393,10 +1372,6 @@
     --tw-duration: 150ms;
     transition-duration: 150ms;
   }
-  .duration-\[var\(--pvc-duration-fast\)\] {
-    --tw-duration: var(--pvc-duration-fast);
-    transition-duration: var(--pvc-duration-fast);
-  }
   .ease-out {
     --tw-ease: var(--ease-out);
     transition-timing-function: var(--ease-out);
@@ -1501,9 +1476,6 @@
     outline-offset: 2px;
   }
   .focus-visible\:outline-\(--pvc-color-focus\):focus-visible {
-    outline-color: var(--pvc-color-focus);
-  }
-  .focus-visible\:outline-\[var\(--pvc-color-focus\)\]:focus-visible {
     outline-color: var(--pvc-color-focus);
   }
   @media (hover: hover) {
@@ -1668,6 +1640,9 @@
     .interactive-hover\:bg-\(--pvc-color-surface-muted\):hover:not(:disabled):not([aria-disabled="true"]) {
       background-color: var(--pvc-color-surface-muted);
     }
+    .interactive-hover\:bg-\(--pvc-color-surface-raised\):hover:not(:disabled):not([aria-disabled="true"]) {
+      background-color: var(--pvc-color-surface-raised);
+    }
     .interactive-hover\:bg-\(--pvc-color-text-muted\):hover:not(:disabled):not([aria-disabled="true"]) {
       background-color: var(--pvc-color-text-muted);
     }
@@ -1719,9 +1694,6 @@
         background-color: color-mix(in oklab, var(--pvc-color-text) 14%, transparent);
       }
     }
-    .interactive-hover\:bg-\[var\(--pvc-color-surface-raised\)\]:hover:not(:disabled):not([aria-disabled="true"]) {
-      background-color: var(--pvc-color-surface-raised);
-    }
     .interactive-hover\:text-\(--pvc-color-accent-strong\):hover:not(:disabled):not([aria-disabled="true"]) {
       color: var(--pvc-color-accent-strong);
     }
@@ -1729,9 +1701,6 @@
       color: var(--pvc-color-text);
     }
     .interactive-hover\:text-\(color\:--pvc-color-text\):hover:not(:disabled):not([aria-disabled="true"]) {
-      color: var(--pvc-color-text);
-    }
-    .interactive-hover\:text-\[var\(--pvc-color-text\)\]:hover:not(:disabled):not([aria-disabled="true"]) {
       color: var(--pvc-color-text);
     }
     .interactive-hover\:decoration-2:hover:not(:disabled):not([aria-disabled="true"]) {

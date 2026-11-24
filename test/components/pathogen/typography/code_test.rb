@@ -15,7 +15,7 @@ module Pathogen
         render_inline(Code.new) { 'Test' }
 
         assert_selector 'code.inline-flex.items-center.font-mono'
-        assert_selector "code[class*='bg-[var(--pvc-color-surface-muted)]']"
+        assert_selector "code[class*='bg-(--pvc-color-surface-muted)']"
         assert_selector "code[class*='text-(length:--type-control)']"
       end
 

@@ -25,9 +25,9 @@ module Pathogen
       Pathogen::InlineCodeStyles::SURFACE_CLASSES,
       %w[
         inline-flex items-center align-middle
-        rounded-[var(--pvc-radius-action)]
+        rounded-(--pvc-radius-action)
         min-h-6 max-w-full pl-2
-        font-mono text-[length:var(--type-meta)] leading-4 font-normal
+        font-mono text-(length:--type-meta) leading-4 font-normal
       ]
     ].flatten.join(' ').freeze
 
@@ -36,14 +36,14 @@ module Pathogen
       min-h-6 min-w-6 px-1.5
       rounded-r-[calc(var(--pvc-radius-action)-1px)]
       cursor-pointer bg-transparent
-      border-l border-[var(--pvc-color-border)]
-      text-[var(--pvc-color-text-muted)]
-      interactive-hover:bg-[var(--pvc-color-surface-raised)]
-      interactive-hover:text-[var(--pvc-color-text)]
+      border-l border-(--pvc-color-border)
+      text-(--pvc-color-text-muted)
+      interactive-hover:bg-(--pvc-color-surface-raised)
+      interactive-hover:text-(--pvc-color-text)
       focus-visible:outline focus-visible:outline-2
-      focus-visible:outline-[var(--pvc-color-focus)] focus-visible:outline-offset-2
+      focus-visible:outline-(--pvc-color-focus) focus-visible:outline-offset-2
       focus-visible:z-10
-      transition-[color,background-color] duration-[var(--pvc-duration-fast)] ease-out
+      transition-[color,background-color] duration-(--pvc-duration-fast) ease-out
     ].join(' ').freeze
 
     VALUE_CLASSES = 'min-w-0 pr-1 wrap-anywhere select-all [font-variant-numeric:tabular-nums]'
@@ -52,7 +52,7 @@ module Pathogen
 
     ICON_CLASSES = 'absolute inset-0 size-3.5 shrink-0'
 
-    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-3.5 shrink-0 text-[var(--pvc-color-success)]'
+    SUCCESS_ICON_CLASSES = 'absolute inset-0 size-3.5 shrink-0 text-(--pvc-color-success)'
 
     attr_reader :value
 

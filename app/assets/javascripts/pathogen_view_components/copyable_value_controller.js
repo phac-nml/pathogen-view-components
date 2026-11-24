@@ -6,7 +6,7 @@ const COPY_STATES = {
   error: "error",
 };
 const DEFAULT_TOOLTIP_BACKGROUND_CLASS = "bg-neutral-950";
-const SUCCESS_TOOLTIP_BACKGROUND_CLASS = "bg-[var(--pvc-color-success-solid)]";
+const SUCCESS_TOOLTIP_BACKGROUND_CLASS = "bg-(--pvc-color-success-solid)";
 
 /**
  * Copies text via the Clipboard API with a selection-based fallback.

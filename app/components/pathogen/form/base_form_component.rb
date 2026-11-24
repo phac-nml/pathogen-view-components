@@ -102,7 +102,7 @@ module Pathogen
         return ''.html_safe if @error_text.blank?
 
         tag.span(@error_text, id: error_text_id,
-                              class: 'block text-sm text-[var(--pvc-color-danger-strong)] mt-1')
+                              class: 'block text-sm text-(--pvc-color-danger-strong) mt-1')
       end
 
       # Builds complete form attributes for the input element.

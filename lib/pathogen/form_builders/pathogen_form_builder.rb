@@ -218,7 +218,7 @@ module Pathogen
           'mb-2',            # Margin bottom for spacing
           'text-sm',         # Small text size
           'font-semibold',   # Semibold font weight
-          'text-[var(--pvc-color-text)]' # Semantic text color
+          'text-(--pvc-color-text)' # Semantic text color
         ]
 
         # Merge custom classes with label classes

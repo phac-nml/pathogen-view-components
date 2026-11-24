@@ -44,7 +44,7 @@ module Pathogen
 
         assert_includes html, 'font-semibold'
         assert_not_includes html, 'font-medium'
-        assert_includes html, 'text-[var(--pvc-color-text)]'
+        assert_includes html, 'text-(--pvc-color-text)'
         assert_not_includes html, 'text-slate-900'
       end
 
