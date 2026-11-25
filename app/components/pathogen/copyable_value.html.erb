@@ -4,7 +4,10 @@
   <%= tag.button(
         type: 'button',
         class: BUTTON_CLASSES,
-        aria: { describedby: tooltip_id },
+        aria: {
+          describedby: tooltip_id,
+          label: copy_tooltip_message
+        },
         data: {
           action: "click->#{controller_name}#copy",
           'pathogen--tooltip-target': 'trigger',
