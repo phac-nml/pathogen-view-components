@@ -32,7 +32,7 @@ const WCAG_AA_RUN_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a",
 
 // ViewComponent fragment checks run against partial markup, so rules that
 // require document-level structure (like a page <h1>) are excluded by default.
-const EXCLUDED_RULES = ["page-has-heading-one"];
+const EXCLUDED_RULES = ["page-has-heading-one", "region"];
 
 const results = await new Promise((resolve, reject) => {
   window.axe.run(
