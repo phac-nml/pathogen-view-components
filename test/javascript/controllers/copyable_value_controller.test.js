@@ -11,7 +11,7 @@ const appendCopyableValue = ({
   withTooltipText = true,
   withTooltipArrow = true,
 } = {}) => {
-  const container = document.createElement("span");
+  const container = document.createElement("div");
   container.setAttribute("data-controller", "pathogen--copyable-value");
   container.setAttribute("data-pathogen--copyable-value-copied-message-value", "Copied to clipboard");
   container.setAttribute("data-pathogen--copyable-value-copy-failed-message-value", "Unable to copy to clipboard");

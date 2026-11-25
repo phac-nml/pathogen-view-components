@@ -75,7 +75,7 @@ module Pathogen
     private
 
     def setup_system_arguments
-      @system_arguments[:tag] = :span
+      @system_arguments[:tag] = :div
       @system_arguments[:class] = class_names(
         CONTAINER_CLASSES,
         @system_arguments[:class]
