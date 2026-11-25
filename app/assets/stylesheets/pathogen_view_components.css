@@ -1762,7 +1762,7 @@
     --pvc-color-text: var(--color-neutral-900);
     --pvc-color-text-muted: var(--color-neutral-600);
     --pvc-color-accent: var(--color-primary-600);
-    --pvc-color-accent-strong: var(--color-primary-700);
+    --pvc-color-accent-strong: var(--color-primary-800);
     --pvc-color-accent-solid: var(--color-primary-700);
     --pvc-color-accent-solid-hover: var(--color-primary-800);
     --pvc-color-danger: var(--color-red-600);
