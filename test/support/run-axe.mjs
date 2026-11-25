@@ -28,24 +28,21 @@ globalThis.HTMLElement = window.HTMLElement;
 
 window.eval(axe.source);
 
+const WCAG_AA_RUN_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa", "best-practice"];
+
+// ViewComponent fragment checks run against partial markup, so rules that
+// require document-level structure (like a page <h1>) are excluded by default.
+const EXCLUDED_RULES = ["page-has-heading-one"];
+
 const results = await new Promise((resolve, reject) => {
   window.axe.run(
     document,
     {
       runOnly: {
-        type: "rule",
-        values: [
-          "button-name",
-          "link-name",
-          "aria-command-name",
-          "aria-allowed-attr",
-          "aria-allowed-role",
-          "aria-valid-attr",
-          "aria-valid-attr-value",
-          "duplicate-id",
-          "nested-interactive",
-        ],
+        type: "tag",
+        values: WCAG_AA_RUN_TAGS,
       },
+      rules: Object.fromEntries(EXCLUDED_RULES.map((ruleId) => [ruleId, { enabled: false }])),
     },
     (error, axeResults) => {
       if (error) {

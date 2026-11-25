@@ -436,6 +436,9 @@ pnpm test:browser  # Ruby-rendered component acceptance in Chromium
 pnpm run build:js  # Bundle the demo JavaScript with esbuild
 ```
 
+Ruby component tests include axe-core fragment scans for WCAG A/AA + best-practice
+rules (with document-level heading checks excluded for partial markup fixtures).
+
 Git hooks are managed with `lefthook`. The pre-commit hook runs `bundle exec i18n-tasks health`, formats staged JavaScript, JSON, Markdown, CSS, and YAML with Prettier, auto-fixes staged JavaScript with ESLint, runs RuboCop autocorrections on staged Ruby files, and re-stages any changes.
 
 ### Browser acceptance
