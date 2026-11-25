@@ -15,7 +15,7 @@ module Pathogen
     test 'renders value text in monospace container' do
       render_inline(Pathogen::CopyableValue.new(value: 'INXT_PRJ_A2G6VVJNCN'))
 
-      assert_selector 'span[data-controller~="pathogen--copyable-value"][data-controller~="pathogen--tooltip"]' \
+      assert_selector 'div[data-controller~="pathogen--copyable-value"][data-controller~="pathogen--tooltip"]' \
                       '[class*="font-mono"]'
       assert_text 'INXT_PRJ_A2G6VVJNCN'
       assert_selector 'span[data-pathogen--copyable-value-target="text"]',
@@ -49,18 +49,18 @@ module Pathogen
     test 'rounds action lane to container radius without clipping focus' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="rounded-(--pvc-radius-action)"]'
-      assert_no_selector 'span[class*="overflow-hidden"]'
+      assert_selector 'div[class*="rounded-(--pvc-radius-action)"]'
+      assert_no_selector 'div[class*="overflow-hidden"]'
       assert_selector 'button[class*="rounded-r-[calc(var(--pvc-radius-action)-1px)]"]'
-      assert_selector 'span[class*="min-h-6"]'
+      assert_selector 'div[class*="min-h-6"]'
     end
 
     test 'uses shared inline code surface tokens' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[class*="bg-(--pvc-color-surface-muted)"]'
-      assert_selector 'span[class*="border-(--pvc-color-border)"]'
-      assert_selector 'span[class*="rounded-(--pvc-radius-action)"]'
+      assert_selector 'div[class*="bg-(--pvc-color-surface-muted)"]'
+      assert_selector 'div[class*="border-(--pvc-color-border)"]'
+      assert_selector 'div[class*="rounded-(--pvc-radius-action)"]'
     end
 
     test 'includes sr-only aria-live region for announcements' do
@@ -73,13 +73,13 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
       assert_selector(
-        'span[data-pathogen--copyable-value-copied-message-value="Copied to clipboard"]'
+        'div[data-pathogen--copyable-value-copied-message-value="Copied to clipboard"]'
       )
       assert_selector(
-        'span[data-pathogen--copyable-value-copy-tooltip-message-value="Copy to clipboard value: test"]'
+        'div[data-pathogen--copyable-value-copy-tooltip-message-value="Copy to clipboard value: test"]'
       )
       assert_selector(
-        'span[data-pathogen--copyable-value-copied-tooltip-message-value="Copied"]'
+        'div[data-pathogen--copyable-value-copied-tooltip-message-value="Copied"]'
       )
     end
 
@@ -87,26 +87,26 @@ module Pathogen
       render_inline(Pathogen::CopyableValue.new(value: 'test', copied_message: 'ID copied!'))
 
       assert_selector(
-        'span[data-pathogen--copyable-value-copied-message-value="ID copied!"]'
+        'div[data-pathogen--copyable-value-copied-message-value="ID copied!"]'
       )
     end
 
     test 'merges custom system_arguments classes' do
       render_inline(Pathogen::CopyableValue.new(value: 'test', class: 'my-custom-class'))
 
-      assert_selector 'span.my-custom-class'
+      assert_selector 'div.my-custom-class'
     end
 
     test 'merges custom data attributes' do
       render_inline(Pathogen::CopyableValue.new(value: 'test', data: { custom: 'value' }))
 
-      assert_selector 'span[data-custom="value"]'
+      assert_selector 'div[data-custom="value"]'
     end
 
     test 'appends copyable-value controller to existing data controllers' do
       render_inline(Pathogen::CopyableValue.new(value: 'test', data: { controller: 'alpha beta' }))
 
-      assert_selector 'span[data-controller="alpha beta pathogen--copyable-value pathogen--tooltip"]'
+      assert_selector 'div[data-controller="alpha beta pathogen--copyable-value pathogen--tooltip"]'
     end
 
     test 'deduplicates copyable-value controller when already present' do
@@ -114,7 +114,7 @@ module Pathogen
         Pathogen::CopyableValue.new(value: 'test', data: { controller: 'pathogen--copyable-value' })
       )
 
-      assert_selector 'span[data-controller="pathogen--copyable-value pathogen--tooltip"]'
+      assert_selector 'div[data-controller="pathogen--copyable-value pathogen--tooltip"]'
     end
 
     test 'preserves string-keyed caller data and deduplicates controllers without modifying the input' do
@@ -122,7 +122,7 @@ module Pathogen
 
       render_inline(Pathogen::CopyableValue.new(value: 'test', data: data))
 
-      assert_selector 'span[data-controller="alpha pathogen--copyable-value pathogen--tooltip"][data-custom="value"]'
+      assert_selector 'div[data-controller="alpha pathogen--copyable-value pathogen--tooltip"][data-custom="value"]'
       assert_equal({ 'controller' => 'alpha pathogen--copyable-value', 'custom' => 'value' }, data)
     end
 
@@ -137,29 +137,29 @@ module Pathogen
 
         assert_equal 1, rendered_content.scan(/\bdata-#{Regexp.escape(name)}=/).length,
                      "Expected exactly one serialized data-#{name} attribute"
-        assert_selector "span[data-#{name}=\"#{value}\"]"
+        assert_selector "div[data-#{name}=\"#{value}\"]"
       end
 
-      assert_selector 'span[data-controller~="pathogen--copyable-value"][data-state="idle"]'
+      assert_selector 'div[data-controller~="pathogen--copyable-value"][data-state="idle"]'
     end
 
     test 'renders with idle data-state on root element' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[data-controller~="pathogen--copyable-value"][data-controller~="pathogen--tooltip"]' \
+      assert_selector 'div[data-controller~="pathogen--copyable-value"][data-controller~="pathogen--tooltip"]' \
                       '[data-state="idle"]'
     end
 
     test 'includes reset delay stimulus value' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[data-pathogen--copyable-value-reset-delay-value="2000"]'
+      assert_selector 'div[data-pathogen--copyable-value-reset-delay-value="2000"]'
     end
 
     test 'accepts custom reset_delay' do
       render_inline(Pathogen::CopyableValue.new(value: 'test', reset_delay: 1500))
 
-      assert_selector 'span[data-pathogen--copyable-value-reset-delay-value="1500"]'
+      assert_selector 'div[data-pathogen--copyable-value-reset-delay-value="1500"]'
     end
 
     test 'renders clipboard, success, and failure icons hidden from assistive technology' do
@@ -188,7 +188,7 @@ module Pathogen
     test 'renders with view-component data attribute' do
       render_inline(Pathogen::CopyableValue.new(value: 'test'))
 
-      assert_selector 'span[data-view-component]'
+      assert_selector 'div[data-view-component]'
     end
 
     private
