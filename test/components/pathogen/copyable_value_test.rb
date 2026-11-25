@@ -22,10 +22,10 @@ module Pathogen
                       text: 'INXT_PRJ_A2G6VVJNCN'
     end
 
-    test 'renders copy button with tooltip wiring and describedby association' do
+    test 'renders copy button with tooltip wiring and accessible name' do
       render_inline(Pathogen::CopyableValue.new(value: 'ABC123'))
 
-      assert_selector 'button[type="button"]:not([aria-label])'
+      assert_selector 'button[type="button"][aria-label="Copy to clipboard value: ABC123"]'
       assert_selector 'button[data-pathogen--copyable-value-target="button"]' \
                       '[data-pathogen--tooltip-target="trigger"][aria-describedby]'
 
@@ -33,6 +33,18 @@ module Pathogen
       assert_selector "div##{tooltip_id}[role='tooltip'][data-pathogen--tooltip-target='tooltip']"
       assert_selector "##{tooltip_id} [data-pathogen-copyable-value-tooltip-text]",
                       text: 'Copy to clipboard value: ABC123'
+    end
+
+    test 'passes axe-core checks for default copyable value' do
+      render_inline(Pathogen::CopyableValue.new(value: 'ABC123'))
+
+      assert_axe_structural_accessible rendered_content, context: 'default copyable value'
+    end
+
+    test 'passes axe-core checks for custom copied message' do
+      render_inline(Pathogen::CopyableValue.new(value: 'ABC123', copied_message: 'ID copied!'))
+
+      assert_axe_structural_accessible rendered_content, context: 'custom message copyable value'
     end
 
     test 'copy button meets small icon-only touch target and ghost-lane hover styles' do
