@@ -7,7 +7,7 @@ require 'tempfile'
 # Runs axe-core structural accessibility rules against rendered HTML fragments.
 module AxeAssertions
   AXE_SCRIPT = File.expand_path('run-axe.mjs', __dir__)
-  DEFAULT_EXCLUDED_RULES = ['page-has-heading-one', 'region'].freeze
+  DEFAULT_EXCLUDED_RULES = %w[page-has-heading-one region].freeze
 
   def assert_axe_structural_accessible(html, context: nil, excluded_rules: DEFAULT_EXCLUDED_RULES)
     violations = filtered_violations(html, excluded_rules)
@@ -23,7 +23,7 @@ module AxeAssertions
   end
 
   def violation_message(context, violations)
-    message = +"axe-core violations (#{context}):\n"
+    message = "axe-core violations (#{context}):\n"
     violations.each { |violation| append_violation_details(message, violation) }
     message
   end
