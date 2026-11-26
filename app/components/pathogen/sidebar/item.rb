@@ -19,7 +19,7 @@ module Pathogen
 
       LABEL_CLASSES = %w[
         pathogen-sidebar-item__label
-        text-[length:var(--type-control)]
+        text-(length:--type-control)
       ].join(' ').freeze
 
       ICON_CLASSES = %w[
@@ -61,6 +61,7 @@ module Pathogen
 
         if parent_item?
           raise ArgumentError, 'Sidebar::Item parent rows cannot also set href:' if @href.present?
+          raise ArgumentError, 'Sidebar::Item parent rows cannot be nested in another parent row' if nested_parent?
 
           return
         end
@@ -78,6 +79,12 @@ module Pathogen
 
       def parent_item?
         captured_children.present?
+      end
+
+      # A rail flyout shows exactly one level of children, so a parent row
+      # inside a parent row would have nowhere to open.
+      def nested_parent?
+        captured_children.include?('pathogen-sidebar-item--parent')
       end
 
       def list_item_attributes
@@ -120,7 +127,7 @@ module Pathogen
           }
         )
         disclosure.with_trigger { action_content }
-        disclosure.with_content(tag.ul(class: CHILDREN_LIST_CLASSES, role: 'list') { children_markup })
+        disclosure.with_content(children_list('source') { children_markup })
 
         tag.div(class: 'pathogen-sidebar-item__expanded') do
           render(disclosure)
@@ -141,6 +148,7 @@ module Pathogen
           class: 'pathogen-sidebar-item__tooltip-root',
           data: {
             controller: 'pathogen--tooltip',
+            'pathogen--sidebar-target' => 'tooltipRoot',
             'pathogen--tooltip-portal-aria-label-value' => Pathogen::Tooltip.portal_aria_label,
             'pathogen--tooltip-describedby-value' => false,
             'pathogen--tooltip-disabled-value' => true
@@ -160,17 +168,29 @@ module Pathogen
           role: 'group',
           hidden: true,
           aria: { labelledby: flyout_heading_id },
-          data: {
-            'pathogen--sidebar-target' => 'flyout'
-          }
+          data: flyout_data
         ) do
           safe_join([
                       tag.p(@label, id: flyout_heading_id, class: FLYOUT_HEADING_CLASSES),
-                      # Populated from the expanded panel by the controller so child
-                      # ids are never duplicated in the server-rendered markup.
-                      tag.ul(class: CHILDREN_LIST_CLASSES, role: 'list')
+                      # Mirrored from the expanded list by the controller each time
+                      # the flyout opens, so child ids are never duplicated in the
+                      # server-rendered markup.
+                      children_list('flyout')
                     ])
         end
+      end
+
+      def flyout_data
+        {
+          action: 'keydown->pathogen--sidebar#handleFlyoutKeydown',
+          'pathogen--sidebar-target' => 'flyout'
+        }
+      end
+
+      # `data-pathogen-sidebar-children` is the hook the controller uses to
+      # mirror the expanded ("source") list into the rail ("flyout") list.
+      def children_list(role, &)
+        tag.ul(class: CHILDREN_LIST_CLASSES, role: 'list', data: { pathogen_sidebar_children: role }, &)
       end
 
       def leaf_action_attributes

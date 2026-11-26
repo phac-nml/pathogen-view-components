@@ -36,6 +36,8 @@ fr:
     link:
       new_window_label: "(s’ouvre dans une nouvelle fenêtre)"
     sidebar:
+      brand:
+        home_label: Accueil %{label}
       provider:
         close_label: Fermer la barre latérale
         collapse_label: Réduire la barre latérale

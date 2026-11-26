@@ -10,7 +10,7 @@ module Pathogen
 
       HEADING_CLASSES = %w[
         pathogen-sidebar-group__heading
-        text-[length:var(--type-meta)]
+        text-(length:--type-meta)
       ].join(' ').freeze
 
       LIST_CLASSES = %w[

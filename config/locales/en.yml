@@ -33,6 +33,8 @@ en:
     link:
       new_window_label: "(opens in a new window)"
     sidebar:
+      brand:
+        home_label: "%{label} home"
       provider:
         close_label: Close sidebar
         collapse_label: Collapse sidebar

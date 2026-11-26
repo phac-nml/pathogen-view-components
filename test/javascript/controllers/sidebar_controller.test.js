@@ -1,3 +1,4 @@
+/* global jsdom -- Vitest exposes the active JSDOM instance in the jsdom environment */
 import { Application } from "@hotwired/stimulus";
 import axe from "axe-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -5,68 +6,50 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import SidebarController from "../../../app/assets/javascripts/pathogen_view_components/sidebar_controller";
 
 const waitForController = () => new Promise((resolve) => setTimeout(resolve, 0));
+const ORIGINAL_URL = window.location.href;
 
-const setupMatchMedia = ({ matches }) => {
-  let listeners = [];
+const createMedia = (matches) => {
+  const listeners = new Set();
 
-  const media = {
+  return {
     matches,
-    addEventListener: (_event, callback) => {
-      listeners.push(callback);
-    },
-    removeEventListener: (_event, callback) => {
-      listeners = listeners.filter((listener) => listener !== callback);
-    },
-    addListener: (callback) => {
-      listeners.push(callback);
-    },
-    removeListener: (callback) => {
-      listeners = listeners.filter((listener) => listener !== callback);
+    addEventListener(_event, callback, { signal } = {}) {
+      listeners.add(callback);
+      signal?.addEventListener("abort", () => listeners.delete(callback));
     },
     setMatches(nextMatches) {
       this.matches = nextMatches;
-      listeners.forEach((listener) => listener({ matches: nextMatches }));
+      [...listeners].forEach((listener) => listener({ matches: nextMatches }));
     },
+    listenerCount: () => listeners.size,
   };
+};
+
+// `matches` answers the sidebar's desktop breakpoint; `hoverless` answers the
+// "(hover: none)" query the controller uses to keep rail tooltips off touch devices.
+const setupMatchMedia = ({ matches, hoverless = false }) => {
+  const media = createMedia(matches);
+  media.hover = createMedia(hoverless);
 
   vi.stubGlobal(
     "matchMedia",
-    vi.fn(() => media),
+    vi.fn((query) => (query === "(hover: none)" ? media.hover : media)),
   );
   return media;
 };
 
-const setupLegacyMatchMedia = ({ matches }) => {
-  let listeners = [];
-
-  const media = {
-    matches,
-    addListener: (callback) => {
-      listeners.push(callback);
-    },
-    removeListener: (callback) => {
-      listeners = listeners.filter((listener) => listener !== callback);
-    },
-    setMatches(nextMatches) {
-      this.matches = nextMatches;
-      listeners.forEach((listener) => listener({ matches: nextMatches }));
-    },
-  };
-
-  vi.stubGlobal(
-    "matchMedia",
-    vi.fn(() => media),
-  );
-  return media;
-};
-
-const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
+const appendSidebar = ({ id = "specimen-sidebar", open = true, persistence = "localStorage" } = {}) => {
   const provider = document.createElement("div");
   provider.className = "pathogen-sidebar-provider";
   provider.setAttribute("data-controller", "pathogen--sidebar");
   provider.setAttribute("data-pathogen--sidebar-open-value", String(open));
   provider.setAttribute("data-pathogen--sidebar-breakpoint-value", "(min-width: 80rem)");
-  provider.setAttribute("data-pathogen--sidebar-storage-key-value", `pathogen.sidebar.${id}.open`);
+  if (persistence === "localStorage") {
+    provider.setAttribute("data-pathogen--sidebar-storage-key-value", `pathogen.sidebar.${id}.open`);
+  }
+  if (persistence === "cookie") {
+    provider.setAttribute("data-pathogen--sidebar-cookie-name-value", "pathogen_sidebar_specimen_open");
+  }
   provider.setAttribute("data-pathogen--sidebar-collapse-label-value", "Collapse sidebar");
   provider.setAttribute("data-pathogen--sidebar-expand-label-value", "Expand sidebar");
   provider.setAttribute("data-pathogen--sidebar-open-label-value", "Open sidebar");
@@ -91,12 +74,13 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
 
   const nav = document.createElement("nav");
   nav.id = id;
+  nav.tabIndex = -1;
   nav.setAttribute("aria-label", "Primary navigation");
   nav.setAttribute("data-pathogen--sidebar-target", "sidebar");
   nav.innerHTML = `
     <button type="button">first</button>
     <a href="#">second</a>
-    <div class="pathogen-sidebar-item__tooltip-root" data-pathogen--tooltip-disabled-value="true"></div>
+    <div data-pathogen--sidebar-target="tooltipRoot" data-pathogen--tooltip-disabled-value="true"></div>
   `;
   panel.append(closeButton, nav);
 
@@ -112,84 +96,76 @@ const appendSidebar = ({ id = "specimen-sidebar", open = true } = {}) => {
   provider.append(dialog, panel, trigger, inset);
   document.body.append(provider);
 
-  return { provider, dialog, panel, closeButton, nav, trigger, inset };
+  return { provider, dialog, panel, closeButton, nav, trigger, inset, tooltipRoot: nav.querySelector("div") };
 };
 
-const appendSidebarWithRailFlyout = ({ id = "specimen-sidebar" } = {}) => {
-  const sidebar = appendSidebar({ id, open: false });
-  sidebar.nav.innerHTML = `
-    <button
-      type="button"
-      data-pathogen--sidebar-target="submenuTrigger"
-      data-pathogen-sidebar-flyout-id="${id}-settings-flyout"
-      data-action="click->pathogen--sidebar#toggleFlyout keydown->pathogen--sidebar#handleFlyoutTriggerKeydown"
-      aria-controls="${id}-settings-flyout"
-      aria-expanded="false"
-    >
-      Settings
-    </button>
+// Mirrors Pathogen::Sidebar::Item's parent markup: an expanded source list, a
+// rail trigger inside its tooltip root, and a flyout that ships with an empty list.
+const railItemMarkup = ({ id, name, children }) => `
+  <li>
+    <div>
+      <ul data-pathogen-sidebar-children="source">${children}</ul>
+    </div>
+    <div data-pathogen--sidebar-target="tooltipRoot" data-pathogen--tooltip-disabled-value="true">
+      <button
+        type="button"
+        data-pathogen--sidebar-target="submenuTrigger"
+        data-pathogen-sidebar-flyout-id="${id}-${name}-flyout"
+        data-action="click->pathogen--sidebar#toggleFlyout keydown->pathogen--sidebar#handleFlyoutTriggerKeydown"
+        aria-controls="${id}-${name}-flyout"
+        aria-expanded="false"
+      >
+        ${name}
+      </button>
+    </div>
     <div
-      id="${id}-settings-flyout"
+      id="${id}-${name}-flyout"
       data-pathogen--sidebar-target="flyout"
+      data-action="keydown->pathogen--sidebar#handleFlyoutKeydown"
       role="group"
       hidden
-      aria-labelledby="${id}-settings-flyout-heading"
+      aria-labelledby="${id}-${name}-flyout-heading"
     >
-      <p id="${id}-settings-flyout-heading">Settings</p>
-      <ul>
-        <li><a href="#profile">Profile</a></li>
-        <li><a href="#access">Access</a></li>
-      </ul>
+      <p id="${id}-${name}-flyout-heading">${name}</p>
+      <ul data-pathogen-sidebar-children="flyout"></ul>
     </div>
-  `;
+  </li>
+`;
 
-  const flyoutTrigger = sidebar.nav.querySelector("[data-pathogen--sidebar-target='submenuTrigger']");
-  const flyout = sidebar.nav.querySelector("[data-pathogen--sidebar-target='flyout']");
+const appendSidebarWithRailFlyout = ({ id = "specimen-sidebar", open = false } = {}) => {
+  const sidebar = appendSidebar({ id, open });
+  sidebar.nav.innerHTML = `<ul>
+    ${railItemMarkup({
+      id,
+      name: "settings",
+      children: `
+        <li id="${id}-profile"><a href="#profile" data-controller="pathogen--tooltip">Profile</a></li>
+        <li id="${id}-access"><a href="#access" aria-current="page">Access</a></li>
+      `,
+    })}
+    ${railItemMarkup({ id, name: "reports", children: '<li><a href="#weekly">Weekly</a></li>' })}
+  </ul>`;
+
+  const [flyoutTrigger, secondTrigger] = sidebar.nav.querySelectorAll(
+    "[data-pathogen--sidebar-target='submenuTrigger']",
+  );
+  const [flyout, secondFlyout] = sidebar.nav.querySelectorAll("[data-pathogen--sidebar-target='flyout']");
 
   return {
     ...sidebar,
     flyout,
     flyoutTrigger,
+    secondFlyout,
+    secondTrigger,
+    source: sidebar.nav.querySelector('[data-pathogen-sidebar-children="source"]'),
+    tooltipRoot: flyoutTrigger.parentElement,
   };
 };
 
-const appendSidebarWithClonedFlyout = ({ id = "specimen-sidebar" } = {}) => {
-  const sidebar = appendSidebar({ id, open: false });
-  sidebar.nav.innerHTML = `
-    <li class="pathogen-sidebar-item pathogen-sidebar-item--parent">
-      <div class="pathogen-sidebar-item__expanded">
-        <ul class="pathogen-sidebar-item__children">
-          <li id="${id}-profile"><a href="#profile" data-controller="pathogen--tooltip">Profile</a></li>
-          <li id="${id}-access"><a href="#access" aria-current="page">Access</a></li>
-        </ul>
-      </div>
-      <button
-        type="button"
-        data-pathogen--sidebar-target="submenuTrigger"
-        data-pathogen-sidebar-flyout-id="${id}-settings-flyout"
-        data-action="click->pathogen--sidebar#toggleFlyout keydown->pathogen--sidebar#handleFlyoutTriggerKeydown"
-        aria-controls="${id}-settings-flyout"
-        aria-expanded="false"
-      >
-        Settings
-      </button>
-      <div
-        id="${id}-settings-flyout"
-        class="pathogen-sidebar-flyout"
-        data-pathogen--sidebar-target="flyout"
-        role="group"
-        hidden
-      >
-        <p>Settings</p>
-        <ul class="pathogen-sidebar-item__children"></ul>
-      </div>
-    </li>
-  `;
-
-  const flyoutTrigger = sidebar.nav.querySelector("[data-pathogen--sidebar-target='submenuTrigger']");
-  const flyout = sidebar.nav.querySelector("[data-pathogen--sidebar-target='flyout']");
-
-  return { ...sidebar, flyout, flyoutTrigger };
+const keydown = (target, key, init = {}) => {
+  const event = new KeyboardEvent("keydown", { key, bubbles: true, cancelable: true, ...init });
+  target.dispatchEvent(event);
+  return event;
 };
 
 describe("sidebar_controller", () => {
@@ -217,7 +193,18 @@ describe("sidebar_controller", () => {
   afterEach(async () => {
     application?.stop();
     document.body.innerHTML = "";
-    document.documentElement.removeAttribute("dir");
+    document.body.removeAttribute("dir");
+    document.cookie
+      .split("; ")
+      .filter(Boolean)
+      .forEach((cookie) => {
+        document.cookie = `${cookie.split("=")[0]}=; Path=/; Max-Age=0`;
+      });
+    jsdom.reconfigure({ url: ORIGINAL_URL });
+    Object.defineProperties(window, {
+      innerHeight: { configurable: true, writable: true, value: 768 },
+      innerWidth: { configurable: true, writable: true, value: 1024 },
+    });
     vi.unstubAllGlobals();
     await waitForController();
   });
@@ -234,8 +221,8 @@ describe("sidebar_controller", () => {
     expect(trigger.getAttribute("aria-label")).toBe("Collapse sidebar");
     expect(
       provider
-        .querySelector(".pathogen-sidebar-item__tooltip-root")
-        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+        .querySelector("[data-pathogen--sidebar-target='tooltipRoot']")
+        .getAttribute("data-pathogen--tooltip-disabled-value"),
     ).toBe("true");
   });
 
@@ -250,8 +237,8 @@ describe("sidebar_controller", () => {
     expect(trigger.getAttribute("aria-expanded")).toBe("false");
     expect(
       provider
-        .querySelector(".pathogen-sidebar-item__tooltip-root")
-        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+        .querySelector("[data-pathogen--sidebar-target='tooltipRoot']")
+        .getAttribute("data-pathogen--tooltip-disabled-value"),
     ).toBe("false");
   });
 
@@ -281,8 +268,8 @@ describe("sidebar_controller", () => {
     expect(provider.querySelector("[aria-live]")).toBeNull();
     expect(
       provider
-        .querySelector(".pathogen-sidebar-item__tooltip-root")
-        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+        .querySelector("[data-pathogen--sidebar-target='tooltipRoot']")
+        .getAttribute("data-pathogen--tooltip-disabled-value"),
     ).toBe("false");
 
     trigger.click();
@@ -291,8 +278,8 @@ describe("sidebar_controller", () => {
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
     expect(
       provider
-        .querySelector(".pathogen-sidebar-item__tooltip-root")
-        ?.getAttribute("data-pathogen--tooltip-disabled-value"),
+        .querySelector("[data-pathogen--sidebar-target='tooltipRoot']")
+        .getAttribute("data-pathogen--tooltip-disabled-value"),
     ).toBe("true");
   });
 
@@ -520,258 +507,6 @@ describe("sidebar_controller", () => {
     expect(second.provider.dataset.pathogenSidebarMode).toBe("rail");
   });
 
-  it("opens rail flyouts from a parent trigger and updates aria-expanded", async () => {
-    setupMatchMedia({ matches: true });
-    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    expect(provider.dataset.pathogenSidebarMode).toBe("rail");
-    expect(flyout.hidden).toBe(true);
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    expect(flyout.hidden).toBe(false);
-    expect(flyout.dataset.state).toBe("open");
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("true");
-    expect(flyout.style.top).toMatch(/px$/);
-  });
-
-  it("opens rail flyouts from keyboard navigation and focuses the first flyout item", async () => {
-    setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    await waitForController();
-
-    expect(flyout.hidden).toBe(false);
-    expect(flyout.dataset.state).toBe("open");
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("true");
-    expect(document.activeElement).toBe(flyout.querySelector("a[href='#profile']"));
-  });
-
-  it("positions, reflows, and closes rail flyouts using RTL keyboard directions", async () => {
-    setupMatchMedia({ matches: true });
-    document.documentElement.dir = "rtl";
-    Object.defineProperties(window, {
-      innerHeight: { configurable: true, value: 200 },
-      innerWidth: { configurable: true, value: 300 },
-    });
-    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    vi.spyOn(flyoutTrigger, "getBoundingClientRect").mockReturnValue({ left: 12, right: 36, top: 190 });
-    vi.spyOn(flyout, "getBoundingClientRect").mockReturnValue({ height: 80 });
-    await waitForController();
-
-    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
-    await waitForController();
-
-    expect(flyout.style.right).toBe("296px");
-    expect(flyout.style.left).toBe("");
-    expect(flyout.style.top).toBe("112px");
-    expect(flyout.style.maxHeight).toBe("80px");
-
-    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
-    await waitForController();
-    expect(flyout.hidden).toBe(true);
-
-    flyoutTrigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
-    await waitForController();
-    window.dispatchEvent(new Event("resize"));
-    await waitForController();
-    expect(flyout.hidden).toBe(false);
-
-    provider.dataset.pathogenSidebarMode = "offcanvas";
-    window.dispatchEvent(new Event("resize"));
-    await waitForController();
-
-    expect(flyout.hidden).toBe(true);
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
-  });
-
-  it("closes an open rail flyout on Escape and restores focus to the trigger", async () => {
-    setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    await waitForController();
-
-    expect(flyout.hidden).toBe(true);
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
-    expect(document.activeElement).toBe(flyoutTrigger);
-  });
-
-  it("closes an open rail flyout when clicking outside the flyout and trigger", async () => {
-    setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger, inset } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    inset.dispatchEvent(new Event("pointerdown", { bubbles: true }));
-    await waitForController();
-
-    expect(flyout.hidden).toBe(true);
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
-  });
-
-  it("ignores in-flyout events and covers flyout guard paths", async () => {
-    setupMatchMedia({ matches: true });
-    const { provider, flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    const controller = getController(provider);
-    const sidebarFlyout = controller.flyout;
-    const ignoredEvent = { currentTarget: null, preventDefault: vi.fn() };
-    sidebarFlyout.toggle(ignoredEvent);
-    expect(ignoredEvent.preventDefault).toHaveBeenCalledOnce();
-    sidebarFlyout.focusFirstItem();
-
-    provider.dataset.pathogenSidebarMode = "expanded";
-    sidebarFlyout.toggle({ currentTarget: flyoutTrigger, preventDefault: vi.fn() });
-    sidebarFlyout.handleTriggerKeydown({ key: "ArrowRight", preventDefault: vi.fn() });
-    expect(flyout.hidden).toBe(true);
-
-    provider.dataset.pathogenSidebarMode = "rail";
-    sidebarFlyout.handleTriggerKeydown({ key: "Escape", preventDefault: vi.fn() });
-    sidebarFlyout.handleTriggerKeydown({ key: "Tab", preventDefault: vi.fn() });
-    flyoutTrigger.click();
-    await waitForController();
-    flyout.dispatchEvent(new Event("pointerdown", { bubbles: true }));
-    flyoutTrigger.dispatchEvent(new Event("pointerdown", { bubbles: true }));
-    expect(flyout.hidden).toBe(false);
-
-    const escapeEvent = { key: "Escape", preventDefault: vi.fn() };
-    sidebarFlyout.handleTriggerKeydown(escapeEvent);
-    expect(flyout.hidden).toBe(true);
-    expect(escapeEvent.preventDefault).toHaveBeenCalledOnce();
-
-    flyoutTrigger.click();
-    await waitForController();
-    flyoutTrigger.click();
-    await waitForController();
-    expect(flyout.hidden).toBe(true);
-
-    sidebarFlyout.populate(document.createElement("div"));
-    flyout.replaceChildren(
-      Object.assign(document.createElement("ul"), { className: "pathogen-sidebar-item__children" }),
-    );
-    sidebarFlyout.populate(flyout);
-    expect(flyout.querySelector("ul").children).toHaveLength(0);
-  });
-
-  it("keeps plain cloned flyout children free of server-only attributes", async () => {
-    setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger } = appendSidebarWithClonedFlyout();
-    flyout
-      .closest(".pathogen-sidebar-item")
-      .querySelector(".pathogen-sidebar-item__expanded")
-      .querySelectorAll("[id], [data-controller]")
-      .forEach((node) => {
-        node.removeAttribute("id");
-        node.removeAttribute("data-controller");
-      });
-    const nestedId = document.createElement("span");
-    nestedId.id = "source-child-id";
-    const sourceChild = flyout.closest(".pathogen-sidebar-item").querySelector(".pathogen-sidebar-item__expanded li");
-    sourceChild.setAttribute("data-controller", "pathogen--tooltip");
-    sourceChild.append(nestedId);
-    await waitForController();
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    expect(flyout.querySelectorAll(".pathogen-sidebar-item__children > li")).toHaveLength(2);
-    expect(flyout.querySelector("#source-child-id")).toBeNull();
-  });
-
-  it("closes rail flyouts when leaving rail mode", async () => {
-    const media = setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger } = appendSidebarWithRailFlyout();
-    await waitForController();
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    media.setMatches(false);
-    await waitForController();
-
-    expect(flyout.hidden).toBe(true);
-    expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
-  });
-
-  it("populates the flyout from the expanded panel once, without duplicate ids", async () => {
-    setupMatchMedia({ matches: true });
-    const { flyout, flyoutTrigger } = appendSidebarWithClonedFlyout();
-    await waitForController();
-
-    const list = flyout.querySelector("ul.pathogen-sidebar-item__children");
-    expect(list.children.length).toBe(0);
-
-    flyoutTrigger.click();
-    await waitForController();
-
-    const links = list.querySelectorAll("a");
-    expect(Array.from(links).map((link) => link.getAttribute("href"))).toEqual(["#profile", "#access"]);
-    expect(list.querySelectorAll("[id]").length).toBe(0);
-    expect(list.querySelectorAll("[data-controller]").length).toBe(0);
-    expect(document.querySelectorAll("#specimen-sidebar-profile").length).toBe(1);
-
-    flyoutTrigger.click();
-    await waitForController();
-    flyoutTrigger.click();
-    await waitForController();
-
-    expect(list.querySelectorAll("a").length).toBe(2);
-  });
-
-  it("passes axe scans in desktop expanded, desktop rail, mobile closed, and mobile open states", async () => {
-    const media = setupMatchMedia({ matches: true });
-    const sidebar = appendSidebar({ open: true });
-    await waitForController();
-
-    for (const state of ["desktop expanded", "desktop rail", "mobile closed", "mobile open", "dark mobile open"]) {
-      if (state === "desktop rail") sidebar.trigger.click();
-      if (state === "mobile closed") media.setMatches(false);
-      if (state === "mobile open") sidebar.trigger.click();
-      if (state === "dark mobile open") sidebar.provider.classList.add("dark");
-      await waitForController();
-
-      const results = await axe.run(sidebar.provider);
-      expect(results.violations, state).toEqual([]);
-    }
-  });
-
-  it("supports legacy matchMedia addListener/removeListener APIs", async () => {
-    setupLegacyMatchMedia({ matches: true });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
-
-    provider.remove();
-    await waitForController();
-    expect(document.body.style.overflow).toBe("");
-  });
-
-  it("skips media cleanup when the media list is absent on disconnect", async () => {
-    setupMatchMedia({ matches: true });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-    controller.matchMediaList = null;
-
-    provider.remove();
-    await waitForController();
-    expect(document.body.style.overflow).toBe("");
-  });
-
   it("toggles desktop state when invoked without an event target", async () => {
     setupMatchMedia({ matches: true });
     const { provider } = appendSidebar({ open: true });
@@ -779,26 +514,11 @@ describe("sidebar_controller", () => {
 
     const controller = getController(provider);
     controller.toggle();
-    await waitForController();
+    expect(controller.mode).toBe("rail");
     expect(provider.dataset.pathogenSidebarMode).toBe("rail");
 
     controller.toggle(new Event("click"));
-    await waitForController();
-    expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
-  });
-
-  it("ignores closeOffcanvas on desktop or when already closed", async () => {
-    const media = setupMatchMedia({ matches: true });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-    expect(() => controller.closeOffcanvas()).not.toThrow();
-
-    media.setMatches(false);
-    await waitForController();
-    controller.offcanvasOpen = false;
-    expect(() => controller.closeOffcanvas()).not.toThrow();
+    expect(controller.mode).toBe("expanded");
   });
 
   it("ignores backdrop interactions on inner content and within the dialog bounds", async () => {
@@ -837,26 +557,9 @@ describe("sidebar_controller", () => {
     expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
   });
 
-  it("skips dialog sync when dialog or panel targets are missing", async () => {
-    setupMatchMedia({ matches: true });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-
-    Object.defineProperty(controller, "hasPanelTarget", { value: false, configurable: true });
-    expect(() => controller.syncDialogState({ desktop: true, visibleOpen: true })).not.toThrow();
-
-    Object.defineProperty(controller, "hasPanelTarget", { value: true, configurable: true });
-    Object.defineProperty(controller, "hasDialogTarget", { value: false, configurable: true });
-    expect(() => controller.syncDialogState({ desktop: true, visibleOpen: true })).not.toThrow();
-
-    Object.defineProperty(controller, "hasDialogTarget", { value: true, configurable: true });
-  });
-
   it("leaves submenu aria-controls unset when no matching flyout exists", async () => {
     setupMatchMedia({ matches: true });
-    const { provider, nav } = appendSidebar({ open: false });
+    const { nav } = appendSidebar({ open: false });
     nav.innerHTML = `
       <button
         type="button"
@@ -873,45 +576,6 @@ describe("sidebar_controller", () => {
     expect(submenuTrigger).not.toBeNull();
     expect(submenuTrigger.getAttribute("aria-expanded")).toBe("false");
     expect(submenuTrigger.hasAttribute("aria-controls")).toBe(false);
-  });
-
-  it("does not reopen a dialog that is already open", async () => {
-    setupMatchMedia({ matches: false });
-    const { provider, dialog, trigger } = appendSidebar({ open: true });
-    await waitForController();
-
-    trigger.click();
-    await waitForController();
-
-    const controller = getController(provider);
-    dialog.showModal.mockClear();
-    controller.syncDialogState({ desktop: false, visibleOpen: true });
-
-    expect(dialog.showModal).not.toHaveBeenCalled();
-  });
-
-  it("locks the body scroll only once", async () => {
-    setupMatchMedia({ matches: false });
-    const { provider, trigger } = appendSidebar({ open: true });
-    await waitForController();
-
-    trigger.click();
-    await waitForController();
-
-    const controller = getController(provider);
-    const overflow = document.body.style.overflow;
-    controller.lockBodyScroll();
-    expect(document.body.style.overflow).toBe(overflow);
-  });
-
-  it("skips copying a dialog name when the sidebar target is missing", async () => {
-    setupMatchMedia({ matches: false });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-    Object.defineProperty(controller, "hasSidebarTarget", { value: false, configurable: true });
-    expect(() => controller.copyNavigationNameToDialog()).not.toThrow();
   });
 
   it("copies aria-labelledby onto the dialog when the sidebar uses it", async () => {
@@ -949,28 +613,6 @@ describe("sidebar_controller", () => {
     expect(trigger.hasAttribute("aria-controls")).toBe(false);
   });
 
-  it("does not focus a missing close control", async () => {
-    setupMatchMedia({ matches: false });
-    const { provider } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-    Object.defineProperty(controller, "hasCloseTarget", { value: false, configurable: true });
-    expect(() => controller.focusCloseControl()).not.toThrow();
-  });
-
-  it("falls back to an external trigger when no invoking trigger was recorded", async () => {
-    setupMatchMedia({ matches: false });
-    const { provider, trigger } = appendSidebar({ open: true });
-    await waitForController();
-
-    const controller = getController(provider);
-    controller.lastTrigger = null;
-    controller.restoreTriggerFocus();
-
-    expect(document.activeElement).toBe(trigger);
-  });
-
   it("keeps an existing provider tabindex when falling back to it", async () => {
     const media = setupMatchMedia({ matches: true });
     const { provider, panel } = appendSidebar({ open: true });
@@ -988,18 +630,566 @@ describe("sidebar_controller", () => {
 
   it("focuses the sidebar itself when it has no focusable items", async () => {
     const media = setupMatchMedia({ matches: false });
-    const { provider, nav, trigger } = appendSidebar({ open: true });
+    const { nav, trigger } = appendSidebar({ open: true });
     nav.innerHTML = "<span>no focusable</span>";
     await waitForController();
 
     trigger.click();
     await waitForController();
 
-    const controller = getController(provider);
-    const focusSpy = vi.spyOn(controller.sidebarTarget, "focus");
     media.setMatches(true);
     await waitForController();
 
-    expect(focusSpy).toHaveBeenCalled();
+    expect(document.activeElement).toBe(nav);
+  });
+
+  describe("rail flyout", () => {
+    const openFlyout = async (sidebar) => {
+      sidebar.flyoutTrigger.focus();
+      sidebar.flyoutTrigger.click();
+      await waitForController();
+    };
+
+    it("opens from its trigger, mirrors the child links without ids, and closes on a second click", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      expect(flyout.hidden).toBe(true);
+      await openFlyout(sidebar);
+
+      const links = flyout.querySelectorAll("a");
+      expect(flyout.hidden).toBe(false);
+      expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("true");
+      expect(Array.from(links, (link) => link.getAttribute("href"))).toEqual(["#profile", "#access"]);
+      expect(links[1].getAttribute("aria-current")).toBe("page");
+      expect(flyout.querySelectorAll("li[id], [data-controller]")).toHaveLength(0);
+      expect(document.querySelectorAll("#specimen-sidebar-profile")).toHaveLength(1);
+      expect(flyout.style.top).toMatch(/px$/);
+
+      flyoutTrigger.click();
+      await waitForController();
+
+      expect(flyout.hidden).toBe(true);
+      expect(flyout.style.top).toBe("");
+      expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+      expect(document.activeElement).toBe(flyoutTrigger);
+    });
+
+    it("reflects changes to the expanded list the next time it opens", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger, source } = sidebar;
+      await waitForController();
+
+      await openFlyout(sidebar);
+      flyoutTrigger.click();
+
+      source.querySelector("[aria-current]").removeAttribute("aria-current");
+      source.insertAdjacentHTML("beforeend", '<li><a href="#tokens" aria-current="page">Tokens</a></li>');
+      await openFlyout(sidebar);
+
+      expect(Array.from(flyout.querySelectorAll("a"), (link) => link.getAttribute("href"))).toEqual([
+        "#profile",
+        "#access",
+        "#tokens",
+      ]);
+      expect(flyout.querySelector("[aria-current='page']").getAttribute("href")).toBe("#tokens");
+    });
+
+    it("opens only one flyout at a time", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger, secondFlyout, secondTrigger } = sidebar;
+      await waitForController();
+
+      await openFlyout(sidebar);
+      secondTrigger.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      secondTrigger.click();
+      await waitForController();
+
+      expect(flyout.hidden).toBe(true);
+      expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+      expect(secondFlyout.hidden).toBe(false);
+      expect(secondTrigger.getAttribute("aria-expanded")).toBe("true");
+    });
+
+    it("stays closed outside rail mode and for a trigger without a flyout or lists", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout({ open: true });
+      const { provider, flyout, flyoutTrigger, trigger } = sidebar;
+      await waitForController();
+
+      flyoutTrigger.click();
+      expect(keydown(flyoutTrigger, "ArrowRight").defaultPrevented).toBe(false);
+      expect(flyout.hidden).toBe(true);
+
+      trigger.click();
+      await waitForController();
+      expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+
+      flyoutTrigger.dataset.pathogenSidebarFlyoutId = "missing-flyout";
+      flyoutTrigger.click();
+      expect(keydown(flyoutTrigger, "ArrowRight").defaultPrevented).toBe(false);
+      expect(flyout.hidden).toBe(true);
+
+      flyoutTrigger.dataset.pathogenSidebarFlyoutId = flyout.id;
+      flyout.querySelector("ul").remove();
+      flyoutTrigger.click();
+      expect(flyout.hidden).toBe(false);
+      expect(flyout.querySelectorAll("a")).toHaveLength(0);
+    });
+
+    it("moves focus into the flyout with the inline-end arrow, including when it is already open", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      flyoutTrigger.focus();
+      expect(keydown(flyoutTrigger, "ArrowRight").defaultPrevented).toBe(true);
+      expect(flyout.hidden).toBe(false);
+      expect(document.activeElement).toBe(flyout.querySelector("a[href='#profile']"));
+
+      flyoutTrigger.focus();
+      keydown(flyoutTrigger, "ArrowRight");
+
+      expect(flyout.hidden).toBe(false);
+      expect(document.activeElement).toBe(flyout.querySelector("a[href='#profile']"));
+    });
+
+    it("closes with the inline-start arrow from the trigger or from inside the flyout", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      expect(keydown(flyoutTrigger, "ArrowLeft").defaultPrevented).toBe(false);
+
+      await openFlyout(sidebar);
+      expect(keydown(flyoutTrigger, "ArrowLeft").defaultPrevented).toBe(true);
+      expect(flyout.hidden).toBe(true);
+
+      keydown(flyoutTrigger, "ArrowRight");
+      const link = flyout.querySelector("a");
+      expect(keydown(link, "ArrowDown").defaultPrevented).toBe(false);
+      expect(flyout.hidden).toBe(false);
+
+      expect(keydown(link, "ArrowLeft").defaultPrevented).toBe(true);
+      expect(flyout.hidden).toBe(true);
+      expect(document.activeElement).toBe(flyoutTrigger);
+    });
+
+    it("leaves modified arrow keys to the browser", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      for (const modifier of ["altKey", "ctrlKey", "metaKey", "shiftKey"]) {
+        expect(keydown(flyoutTrigger, "ArrowRight", { [modifier]: true }).defaultPrevented, modifier).toBe(false);
+      }
+      expect(flyout.hidden).toBe(true);
+
+      await openFlyout(sidebar);
+      expect(keydown(flyout.querySelector("a"), "ArrowLeft", { altKey: true }).defaultPrevented).toBe(false);
+      expect(flyout.hidden).toBe(false);
+    });
+
+    it("uses mirrored arrow keys and placement when an ancestor sets dir=rtl", async () => {
+      setupMatchMedia({ matches: true });
+      Object.defineProperties(window, {
+        innerHeight: { configurable: true, value: 200 },
+        innerWidth: { configurable: true, value: 300 },
+      });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      document.body.dir = "rtl";
+      vi.spyOn(flyoutTrigger, "getBoundingClientRect").mockReturnValue({ left: 12, right: 36, top: 190 });
+      vi.spyOn(flyout, "getBoundingClientRect").mockReturnValue({ height: 80 });
+      await waitForController();
+
+      keydown(flyoutTrigger, "ArrowLeft");
+
+      expect(flyout.hidden).toBe(false);
+      expect(flyout.style.right).toBe("296px");
+      expect(flyout.style.left).toBe("");
+      expect(flyout.style.top).toBe("112px");
+      expect(flyout.style.maxHeight).toBe("80px");
+
+      keydown(flyout.querySelector("a"), "ArrowRight");
+      expect(flyout.hidden).toBe(true);
+    });
+
+    it("measures without the previous height clamp when the viewport changes", async () => {
+      setupMatchMedia({ matches: true });
+      Object.defineProperties(window, {
+        innerHeight: { configurable: true, writable: true, value: 400 },
+        innerWidth: { configurable: true, value: 1200 },
+      });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      vi.spyOn(flyoutTrigger, "getBoundingClientRect").mockReturnValue({ left: 8, right: 52, top: 300 });
+      // A 600px-tall flyout that reports its clamped height while a clamp is applied.
+      vi.spyOn(flyout, "getBoundingClientRect").mockImplementation(() => ({
+        height: flyout.style.maxHeight ? Math.min(600, parseFloat(flyout.style.maxHeight)) : 600,
+      }));
+      await waitForController();
+
+      await openFlyout(sidebar);
+      expect(flyout.style.left).toBe("60px");
+      expect(flyout.style.top).toBe("8px");
+      expect(flyout.style.maxHeight).toBe("384px");
+      expect(flyout.style.maxWidth).toBe("");
+
+      window.innerHeight = 1000;
+      window.dispatchEvent(new Event("resize"));
+
+      expect(flyout.style.top).toBe("300px");
+      expect(flyout.style.maxHeight).toBe("692px");
+    });
+
+    it("repositions on page scroll but not when the flyout itself scrolls", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      const triggerRect = vi
+        .spyOn(flyoutTrigger, "getBoundingClientRect")
+        .mockReturnValue({ left: 8, right: 52, top: 40 });
+      await waitForController();
+      await openFlyout(sidebar);
+      expect(flyout.style.top).toBe("40px");
+
+      triggerRect.mockReturnValue({ left: 8, right: 52, top: 20 });
+      flyout.dispatchEvent(new Event("scroll"));
+      expect(flyout.style.top).toBe("40px");
+
+      document.dispatchEvent(new Event("scroll"));
+      expect(flyout.style.top).toBe("20px");
+
+      triggerRect.mockReturnValue({ left: 8, right: 52, top: 30 });
+      window.dispatchEvent(new Event("scroll"));
+      expect(flyout.style.top).toBe("30px");
+    });
+
+    it("closes on Escape and returns focus to the trigger when focus is inside", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      keydown(flyoutTrigger, "ArrowRight");
+      expect(keydown(document.activeElement, "Tab").defaultPrevented).toBe(false);
+      const escape = keydown(document.activeElement, "Escape");
+
+      expect(escape.defaultPrevented).toBe(true);
+      expect(flyout.hidden).toBe(true);
+      expect(document.activeElement).toBe(flyoutTrigger);
+    });
+
+    it("closes on Escape without taking the key or focus when focus is elsewhere", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger } = sidebar;
+      await waitForController();
+
+      flyoutTrigger.click();
+      await waitForController();
+      expect(document.activeElement).toBe(document.body);
+
+      const escape = keydown(document.body, "Escape");
+
+      expect(escape.defaultPrevented).toBe(false);
+      expect(flyout.hidden).toBe(true);
+      expect(document.activeElement).toBe(document.body);
+    });
+
+    it("closes when focus moves past it, leaving focus where the user put it", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger, inset } = sidebar;
+      await waitForController();
+
+      keydown(flyoutTrigger, "ArrowRight");
+      flyout.querySelectorAll("a")[1].focus();
+      flyoutTrigger.focus();
+      expect(flyout.hidden).toBe(false);
+
+      const backgroundAction = inset.querySelector("button");
+      backgroundAction.focus();
+
+      expect(flyout.hidden).toBe(true);
+      expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+      expect(document.activeElement).toBe(backgroundAction);
+    });
+
+    it("closes on a pointer press outside, but not inside the flyout or on its trigger", async () => {
+      setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger, inset } = sidebar;
+      await waitForController();
+      await openFlyout(sidebar);
+
+      flyout.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      flyoutTrigger.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      expect(flyout.hidden).toBe(false);
+
+      inset.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      expect(flyout.hidden).toBe(true);
+    });
+
+    it("closes when the sidebar leaves rail mode and stops listening afterwards", async () => {
+      const media = setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { flyout, flyoutTrigger, inset } = sidebar;
+      const positioned = vi.spyOn(flyoutTrigger, "getBoundingClientRect");
+      await waitForController();
+      await openFlyout(sidebar);
+
+      media.setMatches(false);
+
+      expect(flyout.hidden).toBe(true);
+      expect(flyoutTrigger.getAttribute("aria-expanded")).toBe("false");
+
+      positioned.mockClear();
+      window.dispatchEvent(new Event("resize"));
+      inset.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+      expect(positioned).not.toHaveBeenCalled();
+    });
+
+    it("hides the trigger's tooltip while its flyout is open and on devices that cannot hover", async () => {
+      const media = setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout();
+      const { tooltipRoot, secondTrigger } = sidebar;
+      const disabled = (root) => root.getAttribute("data-pathogen--tooltip-disabled-value");
+      await waitForController();
+
+      expect(disabled(tooltipRoot)).toBe("false");
+
+      await openFlyout(sidebar);
+      expect(disabled(tooltipRoot)).toBe("true");
+      expect(disabled(secondTrigger.parentElement)).toBe("false");
+
+      keydown(document.activeElement, "Escape");
+      expect(disabled(tooltipRoot)).toBe("false");
+
+      media.hover.setMatches(true);
+      expect(disabled(tooltipRoot)).toBe("true");
+    });
+  });
+
+  describe("state, persistence, and Turbo", () => {
+    it("follows the open value when a host writes it after connect", async () => {
+      setupMatchMedia({ matches: true });
+      const { provider, trigger } = appendSidebar({ open: true });
+      await waitForController();
+
+      provider.setAttribute("data-pathogen--sidebar-open-value", "false");
+      await waitForController();
+
+      expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+      expect(trigger.getAttribute("aria-expanded")).toBe("false");
+      expect(window.localStorage.getItem("pathogen.sidebar.specimen-sidebar.open")).toBeNull();
+    });
+
+    it("announces a desktop toggle to the host", async () => {
+      setupMatchMedia({ matches: true });
+      const { provider, trigger } = appendSidebar({ open: true });
+      const toggled = vi.fn();
+      provider.addEventListener("pathogen--sidebar:toggle", (event) => toggled(event.detail));
+      await waitForController();
+
+      trigger.click();
+
+      expect(toggled).toHaveBeenCalledExactlyOnceWith({ open: false });
+    });
+
+    it("keeps working when localStorage rejects a write", async () => {
+      setupMatchMedia({ matches: true });
+      vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+        throw new DOMException("Quota exceeded");
+      });
+      const { provider, trigger } = appendSidebar({ open: true });
+      await waitForController();
+
+      trigger.click();
+
+      expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+    });
+
+    it("stores nothing when no persistence is configured", async () => {
+      setupMatchMedia({ matches: true });
+      window.localStorage.setItem("pathogen.sidebar.specimen-sidebar.open", "false");
+      const { provider, trigger } = appendSidebar({ open: true, persistence: "none" });
+      await waitForController();
+
+      expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+
+      trigger.click();
+
+      expect(provider.dataset.pathogenSidebarMode).toBe("rail");
+      expect(window.localStorage.getItem("pathogen.sidebar.specimen-sidebar.open")).toBe("false");
+      expect(document.cookie).toBe("");
+    });
+
+    it("writes a cookie the server can read and trusts the server-rendered state", async () => {
+      setupMatchMedia({ matches: true });
+      window.localStorage.setItem("pathogen.sidebar.specimen-sidebar.open", "false");
+      const { provider, trigger } = appendSidebar({ open: true, persistence: "cookie" });
+      const written = vi.spyOn(document, "cookie", "set");
+      await waitForController();
+
+      expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+
+      trigger.click();
+
+      expect(written).toHaveBeenLastCalledWith(
+        "pathogen_sidebar_specimen_open=false; Path=/; Max-Age=31536000; SameSite=Lax",
+      );
+      expect(document.cookie).toContain("pathogen_sidebar_specimen_open=false");
+      expect(window.localStorage.getItem("pathogen.sidebar.specimen-sidebar.open")).toBe("false");
+
+      jsdom.reconfigure({ url: "https://localhost:3000/" });
+      trigger.click();
+
+      expect(written).toHaveBeenLastCalledWith(
+        "pathogen_sidebar_specimen_open=true; Path=/; Max-Age=31536000; SameSite=Lax; Secure",
+      );
+    });
+
+    it("does not persist the mobile drawer state", async () => {
+      setupMatchMedia({ matches: false });
+      const { trigger } = appendSidebar({ open: true, persistence: "cookie" });
+      await waitForController();
+
+      trigger.click();
+      trigger.click();
+
+      expect(document.cookie).toBe("");
+    });
+
+    it("restores focus to an external trigger when the drawer was opened without one", async () => {
+      setupMatchMedia({ matches: false });
+      const { provider, dialog, trigger } = appendSidebar({ open: true });
+      await waitForController();
+
+      const controller = getController(provider);
+      controller.closeOffcanvas();
+      expect(dialog.open).toBe(false);
+
+      controller.toggle();
+      expect(controller.mode).toBe("offcanvas");
+      expect(dialog.open).toBe(true);
+      expect(trigger.getAttribute("aria-label")).toBe("Close sidebar");
+
+      controller.closeOffcanvas();
+
+      expect(dialog.open).toBe(false);
+      expect(trigger.getAttribute("aria-label")).toBe("Open sidebar");
+      expect(document.activeElement).toBe(trigger);
+    });
+
+    it("keeps its own attributes when Turbo morphs server markup over them", async () => {
+      setupMatchMedia({ matches: true });
+      const { provider, trigger, closeButton, tooltipRoot, inset } = appendSidebar({ open: true });
+      await waitForController();
+
+      const morph = (target, attributeName) => {
+        const event = new CustomEvent("turbo:before-morph-attribute", {
+          bubbles: true,
+          cancelable: true,
+          detail: { attributeName, mutationType: "updated" },
+        });
+        target.dispatchEvent(event);
+        return event.defaultPrevented;
+      };
+
+      expect(morph(provider, "data-pathogen-sidebar-mode")).toBe(true);
+      expect(morph(provider, "data-pathogen-sidebar-ready")).toBe(true);
+      expect(morph(provider, "data-pathogen--sidebar-open-value")).toBe(true);
+      expect(morph(provider, "class")).toBe(false);
+      expect(morph(trigger, "aria-expanded")).toBe(true);
+      expect(morph(closeButton, "aria-label")).toBe(true);
+      expect(morph(trigger, "class")).toBe(false);
+      expect(morph(tooltipRoot, "data-pathogen--tooltip-disabled-value")).toBe(true);
+      expect(morph(inset, "aria-expanded")).toBe(false);
+    });
+
+    it("lets a morph update the open value when the server owns it through the cookie", async () => {
+      setupMatchMedia({ matches: true });
+      const { provider } = appendSidebar({ open: true, persistence: "cookie" });
+      await waitForController();
+
+      const event = new CustomEvent("turbo:before-morph-attribute", {
+        bubbles: true,
+        cancelable: true,
+        detail: { attributeName: "data-pathogen--sidebar-open-value" },
+      });
+      provider.dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+
+    it("hands a morph the server-rendered shape and re-applies the mobile layout after it renders", async () => {
+      setupMatchMedia({ matches: false });
+      const { dialog, panel, trigger } = appendSidebar({ open: true });
+      await waitForController();
+      trigger.click();
+      expect(dialog.open).toBe(true);
+
+      document.dispatchEvent(new CustomEvent("turbo:render"));
+      expect(dialog.open).toBe(true);
+      expect(dialog.showModal).toHaveBeenCalledOnce();
+      expect(document.body.style.overflow).toBe("hidden");
+
+      document.dispatchEvent(new CustomEvent("turbo:before-render", { detail: { renderMethod: "replace" } }));
+      expect(dialog.open).toBe(true);
+
+      document.dispatchEvent(new CustomEvent("turbo:before-render", { detail: { renderMethod: "morph" } }));
+      expect(dialog.open).toBe(false);
+      expect(panel.parentElement).not.toBe(dialog);
+      expect(document.body.style.overflow).toBe("");
+
+      document.dispatchEvent(new CustomEvent("turbo:render"));
+      expect(panel.parentElement).toBe(dialog);
+      expect(dialog.open).toBe(false);
+    });
+
+    it("removes every listener when it disconnects", async () => {
+      const media = setupMatchMedia({ matches: true });
+      const { provider } = appendSidebar({ open: true });
+      await waitForController();
+      expect(media.listenerCount()).toBe(1);
+      expect(media.hover.listenerCount()).toBe(1);
+
+      provider.remove();
+      await waitForController();
+
+      expect(media.listenerCount()).toBe(0);
+      expect(media.hover.listenerCount()).toBe(0);
+      provider.setAttribute("data-pathogen--sidebar-open-value", "false");
+      expect(() => document.dispatchEvent(new CustomEvent("turbo:render"))).not.toThrow();
+      expect(provider.dataset.pathogenSidebarMode).toBe("expanded");
+    });
+
+    it("passes axe scans in every state, including an open rail flyout", async () => {
+      const media = setupMatchMedia({ matches: true });
+      const sidebar = appendSidebarWithRailFlyout({ open: true });
+      await waitForController();
+
+      const states = ["desktop expanded", "desktop rail", "rail flyout open", "mobile closed", "mobile open", "dark"];
+      for (const state of states) {
+        if (state === "desktop rail") sidebar.trigger.click();
+        if (state === "rail flyout open") sidebar.flyoutTrigger.click();
+        if (state === "mobile closed") media.setMatches(false);
+        if (state === "mobile open") sidebar.trigger.click();
+        if (state === "dark") sidebar.provider.classList.add("dark");
+        await waitForController();
+
+        const results = await axe.run(sidebar.provider);
+        expect(results.violations, state).toEqual([]);
+      }
+    });
   });
 });

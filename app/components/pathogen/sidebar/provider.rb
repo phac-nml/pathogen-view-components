@@ -37,9 +37,24 @@ module Pathogen
         })();
       JS
 
-      def initialize(id: 'sidebar', open: true, **system_arguments)
+      PERSISTENCE_MODES = %i[local_storage cookie none].freeze
+
+      # @param id [String] identifies this sidebar's persisted preference
+      # @param open [Boolean] desktop state to render: expanded (true) or rail (false)
+      # @param persistence [Symbol] where the desktop preference is kept:
+      #   - `:local_storage` (default): the browser restores it after the server render.
+      #   - `:cookie`: the controller writes `Pathogen::Sidebar.cookie_name(id)` and the
+      #     host passes `open: Pathogen::Sidebar.open_from_cookie(cookies[...])`, so the
+      #     first response already has the right state.
+      #   - `:none`: nothing is stored; `open:` always wins.
+      def initialize(id: 'sidebar', open: true, persistence: :local_storage, **system_arguments)
+        unless PERSISTENCE_MODES.include?(persistence)
+          raise ArgumentError, "persistence must be one of: #{PERSISTENCE_MODES.map(&:inspect).join(', ')}"
+        end
+
         @id = id
         @open = open
+        @persistence = persistence
         @system_arguments = system_arguments
       end
 
@@ -81,11 +96,12 @@ module Pathogen
       def root_data_attributes
         incoming = (@system_arguments[:data] || {}).deep_stringify_keys
 
-        # Component-owned wiring (controller list, open state, storage key) is
+        # Component-owned wiring (controller list, open state, persistence) is
         # merged last so callers can override labels/breakpoint but not internals.
         SIDEBAR_VALUE_DEFAULTS
           .merge(translated_values)
           .merge(incoming)
+          .merge(persistence_values)
           .merge(
             'controller' => merged_controllers(incoming),
             'pathogen-sidebar-id' => @id,
@@ -95,9 +111,20 @@ module Pathogen
             # desktop breakpoint; the client corrects for viewport and storage.
             'pathogen-sidebar-mode' => @open ? 'expanded' : 'rail',
             'pathogen-sidebar-open' => @open.to_s,
-            'pathogen--sidebar-open-value' => @open,
-            'pathogen--sidebar-storage-key-value' => Pathogen::Sidebar.storage_key(@id)
+            'pathogen--sidebar-open-value' => @open
           )
+      end
+
+      # Exactly one persistence value is rendered (or neither for `:none`). The
+      # anti-flash script and the controller only consult storage when its key
+      # is present, so a cookie-backed sidebar trusts the server-rendered state.
+      def persistence_values
+        {
+          'pathogen--sidebar-storage-key-value' =>
+            (Pathogen::Sidebar.storage_key(@id) if @persistence == :local_storage),
+          'pathogen--sidebar-cookie-name-value' =>
+            (Pathogen::Sidebar.cookie_name(@id) if @persistence == :cookie)
+        }
       end
 
       def merged_controllers(incoming)

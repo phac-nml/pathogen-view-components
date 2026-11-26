@@ -42,7 +42,7 @@ module Pathogen
         {
           href: @href,
           class: class_names(BASE_CLASSES, @system_arguments[:class]),
-          aria: { label: "#{@label} home" },
+          aria: { label: t('.home_label', label: @label) },
           **@system_arguments.except(:class, :aria, :href)
         }
       end

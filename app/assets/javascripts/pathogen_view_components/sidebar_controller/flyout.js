@@ -1,202 +1,221 @@
 const FLYOUT_GAP = 8;
 const VIEWPORT_PADDING = 8;
-const MAX_FLYOUT_WIDTH = 288;
+const FOCUSABLE = "a[href], button:not(:disabled), [tabindex]:not([tabindex='-1'])";
+const SOURCE_LIST = '[data-pathogen-sidebar-children="source"]';
+const FLYOUT_LIST = '[data-pathogen-sidebar-children="flyout"]';
+const POSITION_PROPERTIES = ["top", "left", "right", "max-height"];
 
-// Owns the rail-mode flyout: open/close, positioning, keyboard and outside-click
-// dismissal, and one-time population of child links cloned from the item's
-// expanded panel so ids are never duplicated in the server-rendered markup.
+const hasModifier = (event) => event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
+
+// Owns the rail-mode flyout: open/close, positioning, keyboard and dismissal.
+// Child links are mirrored from the item's expanded list on every open, so the
+// flyout never goes stale and ids are never duplicated in server-rendered markup.
+// Document and window listeners exist only while a flyout is open.
 export class SidebarFlyout {
+  #controller;
+  #active = null;
+  #trigger = null;
+  #listeners = null;
+
   constructor(controller) {
-    this.controller = controller;
-    this.active = null;
-    this.activeTrigger = null;
-    this.onDocumentPointerDown = this.onDocumentPointerDown.bind(this);
-    this.onDocumentKeyDown = this.onDocumentKeyDown.bind(this);
-    this.onViewportReflow = this.onViewportReflow.bind(this);
+    this.#controller = controller;
   }
 
-  connect() {
-    document.addEventListener("pointerdown", this.onDocumentPointerDown);
-    document.addEventListener("keydown", this.onDocumentKeyDown);
-    window.addEventListener("resize", this.onViewportReflow, { passive: true });
-    window.addEventListener("scroll", this.onViewportReflow, true);
-  }
-
-  disconnect() {
-    document.removeEventListener("pointerdown", this.onDocumentPointerDown);
-    document.removeEventListener("keydown", this.onDocumentKeyDown);
-    window.removeEventListener("resize", this.onViewportReflow);
-    window.removeEventListener("scroll", this.onViewportReflow, true);
-    this.close({ restoreFocus: false });
+  get activeTrigger() {
+    return this.#trigger;
   }
 
   isActiveFor(flyout) {
-    return flyout !== null && this.active === flyout;
+    return flyout !== null && this.#active === flyout;
   }
 
   toggle(event) {
-    event?.preventDefault();
-    if (!this.controller.isRailMode()) return;
+    if (!this.#isRailMode()) return;
 
-    const trigger = event?.currentTarget;
+    const trigger = event.currentTarget;
     const flyout = this.findFlyoutForTrigger(trigger);
-    if (!trigger || !flyout) return;
+    if (!flyout) return;
 
-    if (this.active === flyout) {
+    if (this.#active === flyout) {
       this.close({ restoreFocus: true });
       return;
     }
 
-    this.open(trigger, flyout);
+    this.#open(trigger, flyout);
   }
 
+  // Rail trigger keys: the inline-end arrow opens the flyout (or re-enters one
+  // that is already open) and moves focus into it; the inline-start arrow closes
+  // it. Modified arrows are left alone so browser Back/Forward keep working.
   handleTriggerKeydown(event) {
-    if (!this.controller.isRailMode()) return;
+    if (!this.#isRailMode() || hasModifier(event)) return;
 
-    const openKey = this.isRtl() ? "ArrowLeft" : "ArrowRight";
-    const closeKey = this.isRtl() ? "ArrowRight" : "ArrowLeft";
+    const trigger = event.currentTarget;
+    const flyout = this.findFlyoutForTrigger(trigger);
+    if (!flyout) return;
 
-    if (event.key === openKey) {
+    if (event.key === this.#openKey()) {
       event.preventDefault();
-      this.toggle(event);
-      this.focusFirstItem();
+      if (this.#active !== flyout) this.#open(trigger, flyout);
+      this.#active.querySelector(FOCUSABLE)?.focus();
       return;
     }
 
-    if (event.key === closeKey || event.key === "Escape") {
-      if (!this.active) return;
-
+    if (event.key === this.#closeKey() && this.#active === flyout) {
       event.preventDefault();
       this.close({ restoreFocus: true });
     }
   }
 
-  open(trigger, flyout) {
-    this.close({ restoreFocus: false });
-    this.populate(flyout);
+  // Inside the flyout, the inline-start arrow returns to the rail trigger.
+  handleFlyoutKeydown(event) {
+    if (hasModifier(event) || event.key !== this.#closeKey()) return;
 
-    this.active = flyout;
-    this.activeTrigger = trigger;
-
-    flyout.hidden = false;
-    flyout.dataset.state = "open";
-    trigger.setAttribute("aria-expanded", "true");
-    this.position(trigger, flyout);
+    event.preventDefault();
+    this.close({ restoreFocus: true });
   }
 
-  close({ restoreFocus } = { restoreFocus: false }) {
-    if (!this.active) return;
+  close({ restoreFocus = false } = {}) {
+    if (!this.#active) return;
 
-    const trigger = this.activeTrigger;
+    const flyout = this.#active;
+    const trigger = this.#trigger;
 
-    this.active.hidden = true;
-    delete this.active.dataset.state;
-    this.active.style.removeProperty("top");
-    this.active.style.removeProperty("left");
-    this.active.style.removeProperty("right");
-    this.active.style.removeProperty("max-height");
+    this.#listeners.abort();
+    this.#listeners = null;
+    this.#active = null;
+    this.#trigger = null;
 
-    if (trigger?.isConnected) {
-      trigger.setAttribute("aria-expanded", "false");
-      if (restoreFocus && typeof trigger.focus === "function") {
-        trigger.focus();
-      }
-    }
+    flyout.hidden = true;
+    POSITION_PROPERTIES.forEach((property) => flyout.style.removeProperty(property));
+    trigger.setAttribute("aria-expanded", "false");
+    this.#controller.syncTooltips();
 
-    this.active = null;
-    this.activeTrigger = null;
-  }
-
-  focusFirstItem() {
-    if (!this.active) return;
-
-    const first = this.active.querySelector("a[href], button:not(:disabled), [tabindex]:not([tabindex='-1'])");
-    first?.focus();
+    if (restoreFocus && trigger.isConnected) trigger.focus();
   }
 
   findFlyoutForTrigger(trigger) {
-    const id = trigger?.dataset?.pathogenSidebarFlyoutId;
-    if (!id) return null;
+    const id = trigger.dataset.pathogenSidebarFlyoutId;
 
-    return this.controller.flyoutTargets.find((candidate) => candidate.id === id) || null;
+    return this.#controller.flyoutTargets.find((candidate) => candidate.id === id) || null;
   }
 
-  // Mirrors the item's expanded child links into the flyout once, stripping ids
-  // and controllers so nothing is duplicated across the two presentations.
-  populate(flyout) {
-    const list = flyout.querySelector("ul.pathogen-sidebar-item__children");
-    if (!list || list.children.length > 0) return;
+  #open(trigger, flyout) {
+    this.close();
+    this.#populate(flyout);
 
-    const item = flyout.closest(".pathogen-sidebar-item");
-    const source = item?.querySelector(".pathogen-sidebar-item__expanded ul.pathogen-sidebar-item__children");
-    if (!source) return;
+    this.#active = flyout;
+    this.#trigger = trigger;
 
-    const clones = Array.from(source.children).map((child) => {
+    flyout.hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    this.#controller.syncTooltips();
+    this.#position();
+    this.#listen();
+  }
+
+  #listen() {
+    this.#listeners = new AbortController();
+    const { signal } = this.#listeners;
+
+    document.addEventListener("pointerdown", (event) => this.#onPointerDown(event), { signal });
+    document.addEventListener("focusin", (event) => this.#onFocusIn(event), { signal });
+    document.addEventListener("keydown", (event) => this.#onKeyDown(event), { signal });
+    window.addEventListener("resize", () => this.#position(), { signal });
+    window.addEventListener("scroll", (event) => this.#onScroll(event), { capture: true, signal });
+  }
+
+  // Mirrors the item's expanded child links into the flyout, stripping ids and
+  // controllers so nothing is duplicated across the two presentations.
+  #populate(flyout) {
+    const list = flyout.querySelector(FLYOUT_LIST);
+    const source = flyout.parentElement.querySelector(SOURCE_LIST);
+    if (!list || !source) return;
+
+    const clones = Array.from(source.children, (child) => {
       const clone = child.cloneNode(true);
-      if (clone.id) clone.removeAttribute("id");
-      if (clone.hasAttribute("data-controller")) clone.removeAttribute("data-controller");
-      clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"));
-      clone.querySelectorAll("[data-controller]").forEach((node) => node.removeAttribute("data-controller"));
+      [clone, ...clone.querySelectorAll("[id], [data-controller]")].forEach((node) => {
+        node.removeAttribute("id");
+        node.removeAttribute("data-controller");
+      });
       return clone;
     });
 
     list.replaceChildren(...clones);
   }
 
-  onDocumentPointerDown(event) {
-    if (!this.active) return;
-    if (this.active.contains(event.target)) return;
-    if (this.activeTrigger?.contains(event.target)) return;
-
-    this.close({ restoreFocus: false });
+  #contains(target) {
+    return this.#active.contains(target) || this.#trigger.contains(target);
   }
 
-  onDocumentKeyDown(event) {
-    if (event.key !== "Escape" || !this.active) return;
-
-    event.preventDefault();
-    this.close({ restoreFocus: true });
+  #onPointerDown(event) {
+    if (!this.#contains(event.target)) this.close();
   }
 
-  onViewportReflow() {
-    if (!this.active || !this.activeTrigger) return;
+  // Focus moving on past the flyout closes it, so it can never sit on top of
+  // the control that now has focus. Focus itself is left where the user put it.
+  #onFocusIn(event) {
+    if (!this.#contains(event.target)) this.close();
+  }
 
-    if (!this.controller.isRailMode()) {
-      this.close({ restoreFocus: false });
+  // Escape returns focus to the trigger only when focus is in the flyout or on
+  // its trigger. From anywhere else it just closes, leaving the key to the host.
+  #onKeyDown(event) {
+    if (event.key !== "Escape") return;
+
+    if (this.#contains(document.activeElement)) {
+      event.preventDefault();
+      this.close({ restoreFocus: true });
       return;
     }
 
-    this.position(this.activeTrigger, this.active);
+    this.close();
   }
 
-  position(trigger, flyout) {
-    const triggerRect = trigger.getBoundingClientRect();
-    const isRtl = this.isRtl();
+  #onScroll(event) {
+    if (event.target instanceof Node && this.#active.contains(event.target)) return;
 
-    const width = Math.min(MAX_FLYOUT_WIDTH, window.innerWidth - VIEWPORT_PADDING * 2);
-    flyout.style.maxWidth = `${width}px`;
+    this.#position();
+  }
 
-    const measuredHeight = flyout.getBoundingClientRect().height;
-    const maxTop = Math.max(VIEWPORT_PADDING, window.innerHeight - measuredHeight - VIEWPORT_PADDING);
+  // Width comes from the stylesheet. Height is measured without the previous
+  // inline clamp so the flyout grows back after a resize or zoom change.
+  #position() {
+    const flyout = this.#active;
+    flyout.style.removeProperty("max-height");
+
+    const triggerRect = this.#trigger.getBoundingClientRect();
+    const height = flyout.getBoundingClientRect().height;
+    const maxTop = Math.max(VIEWPORT_PADDING, window.innerHeight - height - VIEWPORT_PADDING);
     const top = Math.min(Math.max(triggerRect.top, VIEWPORT_PADDING), maxTop);
+
     flyout.style.top = `${top}px`;
+    flyout.style.maxHeight = `${Math.max(0, window.innerHeight - top - VIEWPORT_PADDING)}px`;
 
-    const maxHeight = Math.max(0, window.innerHeight - top - VIEWPORT_PADDING);
-    flyout.style.maxHeight = `${maxHeight}px`;
-
-    if (isRtl) {
-      const right = Math.max(VIEWPORT_PADDING, window.innerWidth - triggerRect.left + FLYOUT_GAP);
-      flyout.style.right = `${right}px`;
+    if (this.#isRtl()) {
+      flyout.style.right = `${Math.max(VIEWPORT_PADDING, window.innerWidth - triggerRect.left + FLYOUT_GAP)}px`;
       flyout.style.removeProperty("left");
       return;
     }
 
-    const left = Math.max(VIEWPORT_PADDING, triggerRect.right + FLYOUT_GAP);
-    flyout.style.left = `${left}px`;
+    flyout.style.left = `${Math.max(VIEWPORT_PADDING, triggerRect.right + FLYOUT_GAP)}px`;
     flyout.style.removeProperty("right");
   }
 
-  isRtl() {
-    return document.documentElement.dir === "rtl";
+  #isRailMode() {
+    return this.#controller.mode === "rail";
+  }
+
+  // Matches the stylesheet, which mirrors on `:dir(rtl)` at any ancestor.
+  #isRtl() {
+    return this.#controller.element.matches(":dir(rtl)");
+  }
+
+  #openKey() {
+    return this.#isRtl() ? "ArrowLeft" : "ArrowRight";
+  }
+
+  #closeKey() {
+    return this.#isRtl() ? "ArrowRight" : "ArrowLeft";
   }
 }

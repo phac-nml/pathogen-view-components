@@ -3,112 +3,138 @@ import { Controller } from "@hotwired/stimulus";
 import { SidebarFlyout } from "pathogen_view_components/sidebar_controller/flyout";
 
 const MODAL_OPEN_EVENT = "pathogen:sidebar:modal-open";
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
+const HOVERLESS_QUERY = "(hover: none)";
+const FOCUSABLE =
+  "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])";
+
+// Attributes this controller writes after connecting. A Turbo morph must not
+// reset them to their server-rendered values while the controller stays alive.
+const OWNED_PROVIDER_ATTRIBUTES = [
+  "data-pathogen-sidebar-mode",
+  "data-pathogen-sidebar-open",
+  "data-pathogen-sidebar-ready",
+];
+const OWNED_TRIGGER_ATTRIBUTES = ["aria-controls", "aria-expanded", "aria-label", "title"];
+const OWNED_TOOLTIP_ATTRIBUTES = ["data-pathogen--tooltip-disabled-value"];
+const OPEN_VALUE_ATTRIBUTE = "data-pathogen--sidebar-open-value";
 
 export default class SidebarController extends Controller {
-  static targets = ["close", "dialog", "flyout", "panel", "sidebar", "submenuTrigger", "trigger"];
+  static targets = ["close", "dialog", "flyout", "panel", "sidebar", "submenuTrigger", "tooltipRoot", "trigger"];
 
   static values = {
     open: { type: Boolean, default: true },
     breakpoint: { type: String, default: "(min-width: 80rem)" },
     storageKey: String,
+    cookieName: String,
     collapseLabel: String,
     expandLabel: String,
     openLabel: String,
     closeLabel: String,
   };
 
-  initialize() {
-    this.offcanvasOpen = false;
-    this.lastTrigger = null;
-    this.matchMediaList = null;
-    this.scrollLocked = false;
-    this.originalBodyOverflow = "";
-    this.flyout = new SidebarFlyout(this);
-    this.onBreakpointChange = this.onBreakpointChange.bind(this);
-    this.onDialogClose = this.onDialogClose.bind(this);
-    this.onModalOpen = this.onModalOpen.bind(this);
-    this.onBeforeCache = this.onBeforeCache.bind(this);
-  }
+  #flyout = new SidebarFlyout(this);
+  #listeners = null;
+  #desktopMedia = null;
+  #hoverlessMedia = null;
+  #mode = null;
+  #offcanvasOpen = false;
+  #lastTrigger = null;
+  #scrollLocked = false;
+  #originalBodyOverflow = "";
 
   connect() {
-    this.matchMediaList = window.matchMedia(this.breakpointValue);
+    this.#listeners = new AbortController();
+    const { signal } = this.#listeners;
 
-    if (typeof this.matchMediaList.addEventListener === "function") {
-      this.matchMediaList.addEventListener("change", this.onBreakpointChange);
-    } else {
-      this.matchMediaList.addListener(this.onBreakpointChange);
-    }
+    this.#desktopMedia = window.matchMedia(this.breakpointValue);
+    this.#hoverlessMedia = window.matchMedia(HOVERLESS_QUERY);
+    this.#desktopMedia.addEventListener("change", () => this.#onBreakpointChange(), { signal });
+    this.#hoverlessMedia.addEventListener("change", () => this.syncTooltips(), { signal });
 
-    this.restoreDesktopPreference();
-    this.applyState({ shouldPersist: false });
+    this.dialogTarget.addEventListener("close", () => this.#onDialogClose(), { signal });
+    this.element.addEventListener("turbo:before-morph-attribute", (event) => this.#onBeforeMorphAttribute(event), {
+      signal,
+    });
+    document.addEventListener(MODAL_OPEN_EVENT, (event) => this.#onModalOpen(event), { signal });
+    document.addEventListener("turbo:before-cache", () => this.#resetForSnapshot(), { signal });
+    document.addEventListener("turbo:before-render", (event) => this.#onBeforeRender(event), { signal });
+    document.addEventListener("turbo:render", () => this.#render(), { signal });
+
+    this.#restoreDesktopPreference();
+    this.#render();
     this.element.dataset.pathogenSidebarReady = "true";
-
-    this.dialogTarget.addEventListener("close", this.onDialogClose);
-    document.addEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
-    document.addEventListener("turbo:before-cache", this.onBeforeCache);
-    this.flyout.connect();
   }
 
   disconnect() {
-    if (this.matchMediaList) {
-      if (typeof this.matchMediaList.removeEventListener === "function") {
-        this.matchMediaList.removeEventListener("change", this.onBreakpointChange);
-      } else {
-        this.matchMediaList.removeListener(this.onBreakpointChange);
-      }
-    }
+    this.#listeners.abort();
+    this.#listeners = null;
+    this.#desktopMedia = null;
+    this.#flyout.close();
+    this.#closeDialog();
+    this.#unlockBodyScroll();
+    this.#movePanelOutsideDialog();
+  }
 
-    this.dialogTarget.removeEventListener("close", this.onDialogClose);
-    document.removeEventListener(MODAL_OPEN_EVENT, this.onModalOpen);
-    document.removeEventListener("turbo:before-cache", this.onBeforeCache);
-    this.flyout.disconnect();
-    this.closeDialog();
-    this.unlockBodyScroll();
-    this.movePanelOutsideDialog();
+  // The current presentation: "expanded", "rail", or "offcanvas".
+  get mode() {
+    return this.#mode;
+  }
+
+  // Lets a host drive the desktop state by writing the open value after connect.
+  // Stimulus also calls this before connect(), when there is nothing to render yet.
+  openValueChanged() {
+    if (this.#desktopMedia) this.#render();
   }
 
   toggleFlyout(event) {
-    this.flyout.toggle(event);
+    this.#flyout.toggle(event);
   }
 
   handleFlyoutTriggerKeydown(event) {
-    this.flyout.handleTriggerKeydown(event);
+    this.#flyout.handleTriggerKeydown(event);
+  }
+
+  handleFlyoutKeydown(event) {
+    this.#flyout.handleFlyoutKeydown(event);
   }
 
   toggle(event) {
     event?.preventDefault();
 
     if (event?.currentTarget) {
-      this.lastTrigger = event.currentTarget;
+      this.#lastTrigger = event.currentTarget;
     }
 
-    if (this.isDesktop()) {
+    if (this.#isDesktop()) {
       this.openValue = !this.openValue;
-      this.applyState({ shouldPersist: true });
+      this.#persistDesktopPreference();
+      this.#render();
+      this.dispatch("toggle", { detail: { open: this.openValue } });
       return;
     }
 
-    if (this.offcanvasOpen) {
+    if (this.#offcanvasOpen) {
       this.closeOffcanvas();
       return;
     }
 
     document.dispatchEvent(new CustomEvent(MODAL_OPEN_EVENT, { detail: { controller: this } }));
-    this.offcanvasOpen = true;
-    this.applyState({ shouldPersist: false });
-    this.focusCloseControl();
+    this.#offcanvasOpen = true;
+    this.#render();
+    this.closeTarget.focus();
   }
 
   closeOffcanvas(event, { restoreFocus = true } = {}) {
     event?.preventDefault();
-    if (this.isDesktop() || !this.offcanvasOpen) {
+    if (this.#isDesktop() || !this.#offcanvasOpen) {
       return;
     }
 
-    this.offcanvasOpen = false;
-    this.applyState({ shouldPersist: false });
+    this.#offcanvasOpen = false;
+    this.#render();
     if (restoreFocus) {
-      this.restoreTriggerFocus();
+      this.#restoreTriggerFocus();
     }
   }
 
@@ -125,138 +151,183 @@ export default class SidebarController extends Controller {
     if (!withinDialog) this.closeOffcanvas(event);
   }
 
-  onModalOpen(event) {
-    if (event.detail?.controller === this || !this.offcanvasOpen) {
+  // Rail tooltips are the visible label for icon-only rows. They stay off
+  // outside rail mode, on devices that cannot hover (where the first tap would
+  // be spent showing the tooltip), and on a trigger whose flyout is open, since
+  // the flyout heading already shows the same label in the same place.
+  syncTooltips() {
+    const unavailable = this.#mode !== "rail" || this.#hoverlessMedia.matches;
+    const activeTrigger = this.#flyout.activeTrigger;
+
+    this.tooltipRootTargets.forEach((root) => {
+      const disabled = unavailable || root.contains(activeTrigger);
+      root.setAttribute("data-pathogen--tooltip-disabled-value", String(disabled));
+    });
+  }
+
+  #isDesktop() {
+    return this.#desktopMedia.matches;
+  }
+
+  #render() {
+    const desktop = this.#isDesktop();
+    const visibleOpen = desktop ? this.openValue : this.#offcanvasOpen;
+
+    if (desktop) {
+      this.#mode = visibleOpen ? "expanded" : "rail";
+    } else {
+      this.#mode = "offcanvas";
+    }
+
+    if (this.#mode !== "rail") {
+      this.#flyout.close();
+    }
+
+    this.element.dataset.pathogenSidebarMode = this.#mode;
+    this.element.dataset.pathogenSidebarOpen = String(visibleOpen);
+
+    this.#syncDialogState({ desktop, visibleOpen });
+    this.#syncTriggerAttributes({ desktop, visibleOpen });
+    this.syncTooltips();
+  }
+
+  #onModalOpen(event) {
+    if (event.detail.controller === this || !this.#offcanvasOpen) {
       return;
     }
 
     this.closeOffcanvas(null, { restoreFocus: false });
   }
 
-  onBeforeCache() {
-    if (this.offcanvasOpen) {
-      this.closeOffcanvas(null, { restoreFocus: false });
-    }
-
-    this.flyout.close({ restoreFocus: false });
-
-    this.movePanelOutsideDialog();
+  // Leaves the DOM in its server-rendered shape: nothing open, and the panel
+  // back beside the dialog rather than inside it.
+  #resetForSnapshot() {
+    this.closeOffcanvas(null, { restoreFocus: false });
+    this.#flyout.close();
+    this.#movePanelOutsideDialog();
   }
 
-  onBreakpointChange() {
-    const focusWasInPanel = this.hasPanelTarget && this.panelTarget.contains(document.activeElement);
-    const movingToDesktop = this.isDesktop();
+  // A morph compares against server-rendered markup, so hand it that shape and
+  // re-apply the live state once it has rendered (see the turbo:render listener).
+  #onBeforeRender(event) {
+    if (event.detail.renderMethod === "morph") this.#resetForSnapshot();
+  }
 
-    if (movingToDesktop) {
-      this.offcanvasOpen = false;
+  #onBeforeMorphAttribute(event) {
+    if (this.#ownedAttributes(event.target).includes(event.detail.attributeName)) {
+      event.preventDefault();
+    }
+  }
+
+  #ownedAttributes(element) {
+    if (element === this.element) {
+      // With cookie persistence the server renders the real state, so its open
+      // value is allowed through. Otherwise only the client knows the preference.
+      return this.cookieNameValue ? OWNED_PROVIDER_ATTRIBUTES : [...OWNED_PROVIDER_ATTRIBUTES, OPEN_VALUE_ATTRIBUTE];
     }
 
-    this.applyState({ shouldPersist: false });
+    if (this.tooltipRootTargets.includes(element)) return OWNED_TOOLTIP_ATTRIBUTES;
+
+    const triggers = [...this.triggerTargets, ...this.closeTargets, ...this.submenuTriggerTargets];
+    return triggers.includes(element) ? OWNED_TRIGGER_ATTRIBUTES : [];
+  }
+
+  #onBreakpointChange() {
+    const focusWasInPanel = this.panelTarget.contains(document.activeElement);
+    const movingToDesktop = this.#isDesktop();
+
+    if (movingToDesktop) {
+      this.#offcanvasOpen = false;
+    }
+
+    this.#render();
 
     if (!focusWasInPanel) {
       return;
     }
 
     if (movingToDesktop) {
-      this.focusFirstSidebarItem();
+      this.#focusFirstSidebarItem();
     } else {
-      this.focusAvailableExternalTrigger();
+      this.#focusAvailableExternalTrigger();
     }
   }
 
-  onDialogClose() {
-    if (!this.offcanvasOpen) return;
+  #onDialogClose() {
+    if (!this.#offcanvasOpen) return;
 
-    this.offcanvasOpen = false;
-    this.applyState({ shouldPersist: false });
-    this.restoreTriggerFocus();
+    this.#offcanvasOpen = false;
+    this.#render();
+    this.#restoreTriggerFocus();
   }
 
-  isDesktop() {
-    return this.matchMediaList?.matches;
-  }
+  #restoreDesktopPreference() {
+    // A cookie-backed sidebar is already rendered in its persisted state.
+    if (this.cookieNameValue || !this.storageKeyValue) return;
 
-  restoreDesktopPreference() {
     try {
       const stored = window.localStorage.getItem(this.storageKeyValue);
-      if (stored === "true") {
-        this.openValue = true;
-      }
-      if (stored === "false") {
-        this.openValue = false;
-      }
+      if (stored === "true") this.openValue = true;
+      if (stored === "false") this.openValue = false;
     } catch {
-      this.openValue = this.openValue !== false;
+      // Storage may be unavailable in private or restricted browsing contexts.
     }
   }
 
-  applyState({ shouldPersist }) {
-    const desktop = this.isDesktop();
-    const visibleOpen = desktop ? this.openValue : this.offcanvasOpen;
-    const mode = desktop ? (visibleOpen ? "expanded" : "rail") : "offcanvas";
-
-    if (mode !== "rail") {
-      this.flyout.close({ restoreFocus: false });
-    }
-
-    this.element.dataset.pathogenSidebarMode = mode;
-    this.element.dataset.pathogenSidebarOpen = String(visibleOpen);
-
-    this.syncDialogState({ desktop, visibleOpen });
-
-    this.syncTriggerAttributes({ desktop, visibleOpen });
-    this.syncSidebarTooltips({ mode });
-
-    if (shouldPersist && desktop) {
-      this.persistDesktopPreference();
-    }
-  }
-
-  syncDialogState({ desktop, visibleOpen }) {
-    if (!this.hasDialogTarget || !this.hasPanelTarget) {
+  #persistDesktopPreference() {
+    if (this.cookieNameValue) {
+      const secure = window.location.protocol === "https:" ? "; Secure" : "";
+      const name = encodeURIComponent(this.cookieNameValue);
+      document.cookie = `${name}=${this.openValue}; Path=/; Max-Age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax${secure}`;
       return;
     }
 
+    if (!this.storageKeyValue) return;
+
+    try {
+      window.localStorage.setItem(this.storageKeyValue, String(this.openValue));
+    } catch {
+      // Storage may be unavailable in private or restricted browsing contexts.
+    }
+  }
+
+  #syncDialogState({ desktop, visibleOpen }) {
     if (desktop) {
-      this.closeDialog();
-      this.unlockBodyScroll();
-      this.movePanelOutsideDialog();
+      this.#closeDialog();
+      this.#unlockBodyScroll();
+      this.#movePanelOutsideDialog();
       return;
     }
 
-    this.movePanelIntoDialog();
+    this.#movePanelIntoDialog();
 
     if (visibleOpen) {
-      this.copyNavigationNameToDialog();
+      this.#copyNavigationNameToDialog();
       if (!this.dialogTarget.open) this.dialogTarget.showModal();
-      this.lockBodyScroll();
+      this.#lockBodyScroll();
       return;
     }
 
-    this.closeDialog();
-    this.unlockBodyScroll();
+    this.#closeDialog();
+    this.#unlockBodyScroll();
   }
 
-  lockBodyScroll() {
-    if (this.scrollLocked) return;
+  #lockBodyScroll() {
+    if (this.#scrollLocked) return;
 
-    this.originalBodyOverflow = document.body.style.overflow;
+    this.#originalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    this.scrollLocked = true;
+    this.#scrollLocked = true;
   }
 
-  unlockBodyScroll() {
-    if (!this.scrollLocked) return;
+  #unlockBodyScroll() {
+    if (!this.#scrollLocked) return;
 
-    document.body.style.overflow = this.originalBodyOverflow;
-    this.scrollLocked = false;
+    document.body.style.overflow = this.#originalBodyOverflow;
+    this.#scrollLocked = false;
   }
 
-  copyNavigationNameToDialog() {
-    if (!this.hasSidebarTarget) {
-      return;
-    }
-
+  #copyNavigationNameToDialog() {
     const labelledby = this.sidebarTarget.getAttribute("aria-labelledby");
     const label = this.sidebarTarget.getAttribute("aria-label");
     if (labelledby) {
@@ -266,31 +337,31 @@ export default class SidebarController extends Controller {
     }
   }
 
-  movePanelIntoDialog() {
+  #movePanelIntoDialog() {
     if (this.panelTarget.parentElement !== this.dialogTarget) {
       this.dialogTarget.append(this.panelTarget);
     }
   }
 
-  movePanelOutsideDialog() {
-    if (this.panelTarget.parentElement === this.dialogTarget && this.dialogTarget.parentElement) {
+  #movePanelOutsideDialog() {
+    if (this.panelTarget.parentElement === this.dialogTarget) {
       this.dialogTarget.after(this.panelTarget);
     }
   }
 
-  closeDialog() {
+  #closeDialog() {
     if (this.dialogTarget.open) this.dialogTarget.close();
 
     this.dialogTarget.removeAttribute("aria-label");
     this.dialogTarget.removeAttribute("aria-labelledby");
   }
 
-  syncTriggerAttributes({ desktop, visibleOpen }) {
-    const label = this.currentTriggerLabel({ desktop, visibleOpen });
+  #syncTriggerAttributes({ desktop, visibleOpen }) {
+    const label = this.#currentTriggerLabel({ desktop, visibleOpen });
     const controlledElement = desktop ? this.panelTarget : this.dialogTarget;
 
     this.triggerTargets.forEach((trigger) => {
-      if (controlledElement?.id) {
+      if (controlledElement.id) {
         trigger.setAttribute("aria-controls", controlledElement.id);
       }
       trigger.setAttribute("aria-expanded", String(visibleOpen));
@@ -304,15 +375,15 @@ export default class SidebarController extends Controller {
     });
 
     this.submenuTriggerTargets.forEach((trigger) => {
-      const flyout = this.flyout.findFlyoutForTrigger(trigger);
-      trigger.setAttribute("aria-expanded", String(this.flyout.isActiveFor(flyout)));
-      if (flyout?.id) {
+      const flyout = this.#flyout.findFlyoutForTrigger(trigger);
+      trigger.setAttribute("aria-expanded", String(this.#flyout.isActiveFor(flyout)));
+      if (flyout) {
         trigger.setAttribute("aria-controls", flyout.id);
       }
     });
   }
 
-  currentTriggerLabel({ desktop, visibleOpen }) {
+  #currentTriggerLabel({ desktop, visibleOpen }) {
     if (desktop) {
       return visibleOpen ? this.collapseLabelValue : this.expandLabelValue;
     }
@@ -320,31 +391,17 @@ export default class SidebarController extends Controller {
     return visibleOpen ? this.closeLabelValue : this.openLabelValue;
   }
 
-  persistDesktopPreference() {
-    try {
-      window.localStorage.setItem(this.storageKeyValue, String(this.openValue));
-    } catch {
-      // Storage may be unavailable in private or restricted browsing contexts.
-    }
-  }
-
-  focusCloseControl() {
-    if (this.hasCloseTarget) {
-      this.closeTarget.focus();
-    }
-  }
-
-  restoreTriggerFocus() {
-    if (this.lastTrigger?.isConnected && typeof this.lastTrigger.focus === "function") {
-      this.lastTrigger.focus();
+  #restoreTriggerFocus() {
+    if (this.#lastTrigger?.isConnected) {
+      this.#lastTrigger.focus();
       return;
     }
 
-    this.focusAvailableExternalTrigger();
+    this.#focusAvailableExternalTrigger();
   }
 
-  focusAvailableExternalTrigger() {
-    const trigger = this.triggerTargets.find((candidate) => !this.dialogTarget?.contains(candidate));
+  #focusAvailableExternalTrigger() {
+    const trigger = this.triggerTargets.find((candidate) => !this.dialogTarget.contains(candidate));
     if (trigger) {
       trigger.focus();
       return;
@@ -356,28 +413,7 @@ export default class SidebarController extends Controller {
     this.element.focus({ preventScroll: true });
   }
 
-  focusFirstSidebarItem() {
-    const first = this.sidebarTarget.querySelector(
-      "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])",
-    );
-    if (first) {
-      first.focus();
-      return;
-    }
-
-    this.sidebarTarget?.focus();
-  }
-
-  syncSidebarTooltips({ mode }) {
-    const disableTooltips = mode !== "rail";
-    const roots = this.element.querySelectorAll(".pathogen-sidebar-item__tooltip-root");
-
-    roots.forEach((root) => {
-      root.setAttribute("data-pathogen--tooltip-disabled-value", String(disableTooltips));
-    });
-  }
-
-  isRailMode() {
-    return this.isDesktop() && this.element.dataset.pathogenSidebarMode === "rail";
+  #focusFirstSidebarItem() {
+    (this.sidebarTarget.querySelector(FOCUSABLE) || this.sidebarTarget).focus();
   }
 }

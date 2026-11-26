@@ -1,5 +1,8 @@
 .pathogen-sidebar-provider {
   --pathogen-sidebar-current-width: var(--pathogen-sidebar-width);
+  /* Translucent tints hold the same step above the sidebar and the raised flyout. */
+  --pathogen-sidebar-hover-bg: color-mix(in oklab, var(--pvc-color-text) 8%, transparent);
+  --pathogen-sidebar-current-bg: color-mix(in oklab, var(--pvc-color-accent) 14%, transparent);
   isolation: isolate;
 }
 
@@ -9,7 +12,14 @@
   flex: none;
   width: var(--pathogen-sidebar-current-width);
   min-height: 100%;
-  transition: width var(--pvc-duration-default) ease;
+}
+
+/* Width only animates once the controller has settled the first state, and
+   only for people who have not asked for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .pathogen-sidebar-provider[data-pathogen-sidebar-ready="true"] .pathogen-sidebar-panel {
+    transition: width var(--pvc-duration-default) ease;
+  }
 }
 
 .pathogen-sidebar-dialog {
@@ -66,15 +76,6 @@
   white-space: nowrap;
 }
 
-.pathogen-sidebar-inset {
-  transition: margin-inline-start var(--pvc-duration-default) ease;
-}
-
-.pathogen-sidebar-provider[data-pathogen-sidebar-ready="false"] .pathogen-sidebar-panel,
-.pathogen-sidebar-provider[data-pathogen-sidebar-ready="false"] .pathogen-sidebar-inset {
-  transition: none;
-}
-
 .pathogen-sidebar-group {
   display: flex;
   flex-direction: column;
@@ -119,6 +120,7 @@
 }
 
 .pathogen-sidebar-item__action {
+  position: relative;
   display: inline-flex;
   align-items: center;
   width: 100%;
@@ -137,7 +139,7 @@
 
 .pathogen-sidebar-item__action:hover,
 .pathogen-sidebar-item__action:focus-visible {
-  background: var(--pvc-color-surface-muted);
+  background: var(--pathogen-sidebar-hover-bg);
 }
 
 .pathogen-sidebar-item__action:hover .pathogen-sidebar-item__icon,
@@ -150,9 +152,30 @@
   outline-offset: 2px;
 }
 
+/* The label keeps the body text colour so it holds AA contrast on the tint;
+   the bar, the weight, and the accent icon carry the state. */
 .pathogen-sidebar-item__action[aria-current="page"] {
-  color: var(--pvc-color-accent-strong);
-  background: color-mix(in oklab, var(--pvc-color-accent) 14%, var(--pvc-color-surface));
+  color: var(--pvc-color-text);
+  background: var(--pathogen-sidebar-current-bg);
+  font-weight: 600;
+}
+
+/*
+ * The current page is marked by a bar at the row's inline-start edge, so the
+ * state survives without hue. A parent row carries the same bar whenever its
+ * current child is out of sight: on the rail trigger, and on a collapsed
+ * disclosure. The bar is a border so forced-colours themes still paint it.
+ */
+.pathogen-sidebar-item__action[aria-current="page"]::before,
+.pathogen-sidebar-item--parent:has([aria-current="page"]) .pathogen-sidebar-item__rail-trigger::before,
+.pathogen-sidebar-item__expanded:has([aria-current="page"])
+  .pathogen-sidebar-item__action--parent[aria-expanded="false"]::before {
+  content: "";
+  position: absolute;
+  inset-block: 0.5rem;
+  inset-inline-start: 0;
+  border-inline-start: 3px solid var(--pvc-color-accent-strong);
+  border-radius: 999px;
 }
 
 .pathogen-sidebar-item__action[aria-current="page"] .pathogen-sidebar-item__icon {
@@ -189,11 +212,12 @@
 }
 
 .pathogen-sidebar-item__expanded-panel {
-  padding: 0.125rem 0 0.25rem 1.5rem;
+  padding-block: 0.125rem 0.25rem;
+  padding-inline: 1.5rem 0;
 }
 
-.pathogen-sidebar-item__expanded-panel .pathogen-sidebar-item__action {
-  min-height: 2.5rem;
+.pathogen-sidebar-item__expanded-panel .pathogen-sidebar-item__action:not([aria-current="page"]),
+.pathogen-sidebar-flyout .pathogen-sidebar-item__action:not([aria-current="page"]) {
   font-weight: 500;
 }
 
@@ -206,7 +230,7 @@
   z-index: 45;
   min-width: 14rem;
   max-width: min(18rem, calc(100vw - 1rem));
-  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
   overflow-y: auto;
   padding: 0.5rem;
   border: 1px solid var(--pvc-color-border);
@@ -218,24 +242,18 @@
 .pathogen-sidebar-flyout__heading {
   margin: 0;
   padding-inline: 0.5rem;
-  color: var(--pvc-color-text-muted);
+  color: var(--pvc-color-text);
   font-size: var(--type-meta);
   font-weight: 600;
 }
 
-.pathogen-sidebar-flyout .pathogen-sidebar-item__action {
-  min-height: 2.5rem;
-  font-weight: 500;
-}
-
+/* Drawn with a border, not a background, so forced-colours themes keep the bars. */
 .pathogen-sidebar-trigger__icon::before,
 .pathogen-sidebar-trigger__icon::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: currentColor;
+  inset-inline: 0;
+  border-block-start: 2px solid currentColor;
   border-radius: 999px;
 }
 
@@ -297,38 +315,14 @@
 
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action {
   justify-content: center;
+  /* Rail rows shrink to their icon, so hold the 44px target explicitly. */
+  min-width: 2.75rem;
   padding-inline: 0.25rem;
-}
-
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-item__action[aria-current="page"] {
-  background: transparent;
-}
-
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]
-  .pathogen-sidebar-item__action[aria-current="page"]
-  .pathogen-sidebar-item__content {
-  width: 2rem;
-  min-height: 2rem;
-  justify-content: center;
-  border-radius: var(--pvc-radius-action);
-  background: color-mix(in oklab, var(--pvc-color-accent) 14%, var(--pvc-color-surface));
 }
 
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-flyout .pathogen-sidebar-item__action {
   justify-content: flex-start;
   padding-inline: 0.5rem;
-}
-
-/* Flyout rows are full-width menu items, not the collapsed icon badges. */
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"]
-  .pathogen-sidebar-flyout
-  .pathogen-sidebar-item__action[aria-current="page"]
-  .pathogen-sidebar-item__content {
-  width: auto;
-  min-height: 0;
-  justify-content: flex-start;
-  border-radius: 0;
-  background: transparent;
 }
 
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="rail"] .pathogen-sidebar-header {
@@ -361,11 +355,6 @@
   padding-inline: 0.25rem;
 }
 
-.pathogen-sidebar-provider[data-pathogen-sidebar-mode="expanded"] .pathogen-sidebar-item__action[aria-current="page"] {
-  border-color: color-mix(in oklab, var(--pvc-color-accent) 45%, var(--pvc-color-border));
-  background: color-mix(in oklab, var(--pvc-color-accent) 18%, var(--pvc-color-surface));
-}
-
 .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] {
   min-height: auto;
 }
@@ -388,9 +377,15 @@
   visibility: hidden;
   pointer-events: none;
   transform: translateX(-100%);
-  transition:
-    transform var(--pvc-duration-default) ease,
-    visibility 0s linear var(--pvc-duration-default);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] > .pathogen-sidebar-panel,
+  .pathogen-sidebar-provider[data-pathogen-sidebar-mode="offcanvas"] .pathogen-sidebar-dialog {
+    transition:
+      transform var(--pvc-duration-default) ease,
+      visibility 0s linear var(--pvc-duration-default);
+  }
 }
 
 .pathogen-sidebar-dialog .pathogen-sidebar-panel {
@@ -443,14 +438,6 @@
   width: 100%;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pathogen-sidebar-dialog,
-  .pathogen-sidebar-panel,
-  .pathogen-sidebar-inset {
-    transition: none;
-  }
-}
-
 @media (forced-colors: active) {
   .pathogen-sidebar-dialog::backdrop {
     background: CanvasText;
@@ -461,5 +448,12 @@
     background: Canvas;
     border-color: CanvasText;
     box-shadow: none;
+  }
+
+  .pathogen-sidebar-item__action[aria-current="page"]::before,
+  .pathogen-sidebar-item--parent:has([aria-current="page"]) .pathogen-sidebar-item__rail-trigger::before,
+  .pathogen-sidebar-item__expanded:has([aria-current="page"])
+    .pathogen-sidebar-item__action--parent[aria-expanded="false"]::before {
+    border-color: Highlight;
   }
 }

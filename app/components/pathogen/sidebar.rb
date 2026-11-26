@@ -7,7 +7,7 @@ module Pathogen
     BASE_CLASSES = %w[
       pathogen-sidebar
       relative flex min-h-full w-full self-stretch flex-col
-      border-r border-(color:--pvc-color-border)
+      border-e border-(color:--pvc-color-border)
       bg-(--pvc-color-surface-muted)
       text-(color:--pvc-color-text)
     ].join(' ').freeze
@@ -21,6 +21,24 @@ module Pathogen
     # Shared by Provider, the boot helper, and the Stimulus controller.
     def self.storage_key(id)
       "pathogen.sidebar.#{id.presence || 'sidebar'}.open"
+    end
+
+    # Name of the cookie a cookie-persisted sidebar writes its desktop open
+    # state to. The host reads it and passes the result to Provider's `open:`.
+    def self.cookie_name(id)
+      "pathogen_sidebar_#{(id.presence || 'sidebar').to_s.gsub(/[^a-zA-Z0-9]+/, '_')}_open"
+    end
+
+    # Interprets a persisted cookie value, falling back to +default+ when the
+    # cookie is absent or holds anything other than "true" or "false".
+    #
+    #   open = Pathogen::Sidebar.open_from_cookie(cookies[Pathogen::Sidebar.cookie_name('app')])
+    def self.open_from_cookie(value, default: true)
+      case value.to_s
+      when 'true' then true
+      when 'false' then false
+      else default
+      end
     end
 
     def initialize(id: nil, label: nil, labelledby: nil, **system_arguments)

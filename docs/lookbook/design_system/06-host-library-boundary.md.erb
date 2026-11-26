@@ -41,13 +41,47 @@ Reusable UI is `Pathogen::*`. Prefer host **views that compose Pathogen** over g
 
 If the gem needs host-specific behaviour, pass it in (slot, block, callback, option)—do not reach out into the host.
 
-## Sidebar boot script
+## Sidebar state
 
-`Pathogen::Sidebar` persists the desktop expanded/rail preference in `localStorage` and restores it when its Stimulus controller connects. On its own that restore runs after first paint, so a sidebar that was collapsed before a refresh briefly flashes open, then snaps to the rail—most visibly under Turbo navigations.
+`Pathogen::Sidebar::Provider` owns three presentations: expanded and rail on desktop, and an off-canvas drawer below the breakpoint. The host chooses where the desktop preference lives with `persistence:`.
 
-`Pathogen::Sidebar::Provider` prevents that flash on its own: it renders a tiny parser-blocking script immediately after the provider element that applies the persisted `data-pathogen-sidebar-mode` (viewport + `localStorage` + `open:` default) before the element paints, exactly like a dark-mode anti-FOUC check. Hosts do not need to wire anything up—no `<head>` tag, no per-sidebar configuration.
+| `persistence:` | Who knows the state on first render | Use when |
+|----------------|-------------------------------------|----------|
+| `:local_storage` (default) | The browser, after the server render | The host cannot read cookies for this layout, or wants zero wiring |
+| `:cookie` | The server | The host can pass `open:` at render time; this is the recommended mode under Turbo page refreshes |
+| `:none` | The server, always from `open:` | The host stores the preference itself (for example per user) |
 
-The legacy `pathogen_sidebar_boot_tag` helper (rendered in the document `<head>`) remains for backward compatibility, but is now optional since the provider is self-correcting.
+### Cookie persistence
+
+The controller writes a plain cookie on every desktop toggle. The host reads it and passes the result in; the gem never reaches into the host's cookie jar.
+
+```erb
+<%% sidebar_open = Pathogen::Sidebar.open_from_cookie(cookies[Pathogen::Sidebar.cookie_name("app")]) %>
+<%%= render Pathogen::Sidebar::Provider.new(id: "app", open: sidebar_open, persistence: :cookie) do %>
+```
+
+The cookie holds only `true` or `false`, is not `HttpOnly` (the controller must write it), and uses `Path=/; SameSite=Lax; Max-Age` of one year, plus `Secure` on HTTPS. Whether it needs consent treatment is a host policy decision. The mobile drawer state is never persisted.
+
+To store the preference somewhere else, use `persistence: :none` and listen for the `pathogen--sidebar:toggle` event on the provider. Its `detail.open` is the new desktop state.
+
+### First paint
+
+The provider renders a small parser-blocking script immediately after itself. It applies the mode the server cannot know: the off-canvas mode on narrow viewports, and the `localStorage` preference when that is the persistence mode. It carries the request's CSP nonce. Where a strict policy blocks it anyway, a cookie-persisted sidebar still paints its desktop state correctly; only narrow viewports correct themselves when the controller connects.
+
+The legacy `pathogen_sidebar_boot_tag` helper (rendered in the document `<head>`) remains for backward compatibility and is optional.
+
+### Driving the sidebar from the host
+
+- Write `data-pathogen--sidebar-open-value` on the provider to expand or collapse it; the controller follows the change without persisting it.
+- `data-pathogen-sidebar-mode` (`expanded`, `rail`, `offcanvas`) is the stable styling hook. Do not write it; the controller owns it.
+
+### Turbo
+
+During a morphing page refresh the controller keeps the attributes it owns (mode, trigger ARIA state, tooltip state). With `:local_storage` or `:none` it also keeps its open value, because only the client knows the preference; with `:cookie` the server-rendered open value is applied. An open drawer or flyout closes before a morph renders. To keep the sidebar element itself across Turbo Drive visits, give the provider an `id` and `data-turbo-permanent`, and update `aria-current` on navigation yourself.
+
+### Rail flyouts
+
+A parent `Sidebar::Item` shows its children in a click-opened flyout in rail mode. A flyout holds one level of links, so a parent item nested inside another parent item raises an `ArgumentError`.
 
 ## Promotion rule
 

@@ -57,8 +57,9 @@
         <% end %>
 
         <%= pathogen_supporting do %>
-          Keyboard check: move focus to Settings, activate the rail trigger, then press Escape to close and return
-          focus.
+          Keyboard check: move focus to Settings and press Right Arrow to open the flyout and move into it. Left Arrow
+          or Escape closes it and returns focus; tabbing past the last link closes it and leaves focus where it lands.
+          Settings carries the current-page bar because Access, its current child, is out of sight.
         <% end %>
 
         <%= pathogen_heading(level: 3, id: 'profile') { 'Profile' } %>
