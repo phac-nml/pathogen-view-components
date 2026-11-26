@@ -18,6 +18,9 @@ files:
     # Rails static error pages (and MSW worker); not authored templates.
     - "demo/public/**/*"
     - "node_modules/**/*"
+    # Rendered component output for the browser tests; kept in step by
+    # sidebar_browser_fixture_test.rb, not authored by hand.
+    - "test/browser/fixtures/**/*"
     - "vendor/**/*"
 
 engine:

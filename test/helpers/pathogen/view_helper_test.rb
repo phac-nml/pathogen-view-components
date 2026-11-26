@@ -56,22 +56,22 @@ module Pathogen
       assert_equal 'Pathogen::Sidebar', Pathogen::ViewHelper::PATHOGEN_COMPONENT_HELPERS[:sidebar]
     end
 
-    test 'sidebar boot helper emits storage key and html data attributes' do
+    test 'sidebar boot helper applies the canonical mode signal per sidebar' do
       helper = ActionView::Base.empty
       helper.extend(Pathogen::ViewHelper)
-      html = helper.pathogen_sidebar_boot_tag(id: 'lab-sidebar')
+      html = helper.pathogen_sidebar_boot_tag
 
-      assert_includes html, 'pathogen.sidebar.lab-sidebar.open'
       assert_includes html, 'data-pathogen-sidebar-id'
-      assert_includes html, 'data-pathogen-sidebar-boot-open'
-      assert_includes html, 'data-pathogen-sidebar-boot-viewport'
+      assert_includes html, 'data-pathogen--sidebar-storage-key-value'
+      assert_includes html, 'data-pathogen-sidebar-mode'
+      assert_includes html, 'data-pathogen-sidebar-open'
       assert_includes html, '(min-width: 80rem)'
     end
 
-    test 'sidebar boot helper accepts a custom breakpoint' do
+    test 'sidebar boot helper accepts a custom fallback breakpoint' do
       helper = ActionView::Base.empty
       helper.extend(Pathogen::ViewHelper)
-      html = helper.pathogen_sidebar_boot_tag(id: 'lab-sidebar', breakpoint: '(min-width: 64rem)')
+      html = helper.pathogen_sidebar_boot_tag(breakpoint: '(min-width: 64rem)')
 
       assert_includes html, '(min-width: 64rem)'
     end

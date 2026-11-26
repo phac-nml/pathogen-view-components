@@ -1,6 +1,9 @@
 pre-commit:
   parallel: false
   jobs:
+    # A marker inside a %w[] array or a CSS file still parses, so nothing else catches it.
+    - name: conflict_markers
+      run: "! git grep --cached -nE '^(<<<<<<<|\\|\\|\\|\\|\\|\\|\\||>>>>>>>)( |$)' -- {staged_files}"
     - name: i18n_health
       run: bundle exec i18n-tasks health
     - name: prettier
